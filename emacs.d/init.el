@@ -70,15 +70,80 @@
 (setq modus-themes-org-blocks 'tinted-background)
 (load-theme 'modus-vivendi)
 
-(use-package rainbow-delimiters :ensure t :demand t :init
+(use-package rainbow-delimiters
+  :ensure t
+  :demand t
+  :init
+  (add-hook 'conf-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'dired-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'text-mode-hook 'rainbow-delimiters-mode))
 
-(use-package rainbow-identifiers   :ensure t :demand t :init
+(use-package rainbow-identifiers
+  :ensure t
+  :demand t
+  :init
+  (add-hook 'conf-mode-hook 'rainbow-identifiers-mode)
+  (add-hook 'dired-mode-hook 'rainbow-identifiers-mode)
   (add-hook 'prog-mode-hook 'rainbow-identifiers-mode)
   (add-hook 'text-mode-hook 'rainbow-identifiers-mode))
 
-(use-package key-chord :ensure t :demand t :init)
+(use-package key-chord
+  :ensure t
+  :demand t
+  :init
+  (key-chord-define-global "1q" 'hydra-all/body)
+  (key-chord-define-global "2q" 'hydra-all/body)
+
+  (key-chord-define-global "2w" 'myfun/other_window_and_menu)
+  (key-chord-define-global "3w" 'myfun/other_window_and_menu)
+
+  (key-chord-define-global "e3" 'counsel-switch-buffer)
+  (key-chord-define-global "e4" 'counsel-switch-buffer)
+
+  (key-chord-define-global "5t" 'hydra-format/body)
+  (key-chord-define-global "6t" 'hydra-format/body)
+
+  (key-chord-define-global "7y" 'hydra-window/body)
+  (key-chord-define-global "6y" 'hydra-window/body)
+
+  (key-chord-define-global "8u" 'undo-tree-visualize)
+  (key-chord-define-global "7u" 'undo-tree-visualize)
+
+  (key-chord-define-global "i9" 'hydra-counsel-file/body)
+  (key-chord-define-global "i8" 'hydra-counsel-file/body)
+
+  (key-chord-define-global "o9" 'hydra-org/body)
+  (key-chord-define-global "o0" 'hydra-org/body)
+
+  (key-chord-define-global "p=" 'hydra-projectile/body)
+  (key-chord-define-global "p-" 'hydra-projectile/body)
+  (key-chord-define-global "p0" 'hydra-projectile/body)
+  (key-chord-define-global "p9" 'hydra-projectile/body)
+
+  (key-chord-define-global "()" 'myfun/bb1)
+  (key-chord-define-global "[]" 'myfun/bb2)
+  (key-chord-define-global "<>" 'myfun/bb3)
+  (key-chord-define-global "{}" 'myfun/bb4)
+
+  (key-chord-define-global "(*" "()\C-b")
+  (key-chord-define-global "p[" "[]\C-b")
+  (key-chord-define-global "M<" "<>\C-b")
+  (key-chord-define-global "P{" "{}\C-b")
+
+  (key-chord-define-global ";." "->")
+
+  (key-chord-define-global "o="  'evil-window-split)
+  (key-chord-define-global "p="  'evil-window-split)
+  (key-chord-define-global "[="  'evil-window-split)
+  (key-chord-define-global "]="  'evil-window-split)
+  (key-chord-define-global "\\=" 'evil-window-split)
+
+  (key-chord-define-global "\\'" 'evil-window-vsplit)
+  (key-chord-define-global "\\;" 'evil-window-vsplit)
+  (key-chord-define-global "\\l" 'evil-window-vsplit)
+  (key-chord-define-global "\\]" 'evil-window-vsplit)
+  (key-chord-define-global "\\[" 'evil-window-vsplit))
 
 (use-package org :ensure t :demand t :init
   (setq org-confirm-babel-evaluate nil)
@@ -99,12 +164,10 @@
 ;; Expands to: (elpaca evil (use-package evil :demand t))
 (use-package evil :ensure t :demand t :init (evil-mode 1))
 
+(use-package helpful :ensure t :demand t :init)
 
 (use-package yasnippet-snippets :ensure t :demand t)
 (use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
-
-
-(use-package helpful :ensure t :demand t :init)
 
 ;;Turns off elpaca-use-package-mode current declaration
 ;;Note this will cause evaluate the declaration immediately. It is not deferred.
