@@ -3,6 +3,2223 @@
   emacs.d/early-init.el
   emacs.d/init.el
   emacs.d/init.org
+  emacs.d/snippets/.nosearch
+  emacs.d/snippets/antlr-mode/project
+  emacs.d/snippets/antlr-mode/property
+  emacs.d/snippets/antlr-mode/target
+  emacs.d/snippets/apples-mode/.yas-parents
+  emacs.d/snippets/apples-mode/comment
+  emacs.d/snippets/apples-mode/considering
+  emacs.d/snippets/apples-mode/considering-application-responses
+  emacs.d/snippets/apples-mode/display-dialog
+  emacs.d/snippets/apples-mode/if
+  emacs.d/snippets/apples-mode/ignoring
+  emacs.d/snippets/apples-mode/ignoring-application-responses
+  emacs.d/snippets/apples-mode/on
+  emacs.d/snippets/apples-mode/repeat
+  emacs.d/snippets/apples-mode/repeat-until
+  emacs.d/snippets/apples-mode/repeat-while
+  emacs.d/snippets/apples-mode/repeat-with
+  emacs.d/snippets/apples-mode/tell-application
+  emacs.d/snippets/apples-mode/tell-application-to-activate
+  emacs.d/snippets/apples-mode/try
+  emacs.d/snippets/apples-mode/using-terms-from-application
+  emacs.d/snippets/apples-mode/with-timeout-of-seconds
+  emacs.d/snippets/apples-mode/with-transaction
+  emacs.d/snippets/applescript-mode/.yas-parents
+  emacs.d/snippets/applescript-mode/comment
+  emacs.d/snippets/applescript-mode/considering
+  emacs.d/snippets/applescript-mode/considering-application-responses
+  emacs.d/snippets/applescript-mode/display-dialog
+  emacs.d/snippets/applescript-mode/if
+  emacs.d/snippets/applescript-mode/ignoring
+  emacs.d/snippets/applescript-mode/ignoring-application-responses
+  emacs.d/snippets/applescript-mode/on
+  emacs.d/snippets/applescript-mode/repeat
+  emacs.d/snippets/applescript-mode/repeat-until
+  emacs.d/snippets/applescript-mode/repeat-while
+  emacs.d/snippets/applescript-mode/repeat-with
+  emacs.d/snippets/applescript-mode/tell-application
+  emacs.d/snippets/applescript-mode/tell-application-to-activate
+  emacs.d/snippets/applescript-mode/try
+  emacs.d/snippets/applescript-mode/using-terms-from-application
+  emacs.d/snippets/applescript-mode/with-timeout-of-seconds
+  emacs.d/snippets/applescript-mode/with-transaction
+  emacs.d/snippets/bazel-mode/alias
+  emacs.d/snippets/bazel-mode/ccb
+  emacs.d/snippets/bazel-mode/cci
+  emacs.d/snippets/bazel-mode/ccinc
+  emacs.d/snippets/bazel-mode/ccl
+  emacs.d/snippets/bazel-mode/ccp
+  emacs.d/snippets/bazel-mode/cct
+  emacs.d/snippets/bazel-mode/fg
+  emacs.d/snippets/bazel-mode/genq
+  emacs.d/snippets/bazel-mode/jbin
+  emacs.d/snippets/bazel-mode/jimp
+  emacs.d/snippets/bazel-mode/jlib
+  emacs.d/snippets/bazel-mode/jrun
+  emacs.d/snippets/bazel-mode/jtest
+  emacs.d/snippets/bazel-mode/pybin
+  emacs.d/snippets/bazel-mode/pylib
+  emacs.d/snippets/bazel-mode/pyrun
+  emacs.d/snippets/bazel-mode/pytest
+  emacs.d/snippets/bazel-mode/shbin
+  emacs.d/snippets/bazel-mode/shlib
+  emacs.d/snippets/bazel-mode/shtest
+  emacs.d/snippets/bazel-mode/ws
+  emacs.d/snippets/bibtex-mode/.yas-setup.el
+  emacs.d/snippets/bibtex-mode/article
+  emacs.d/snippets/bibtex-mode/book
+  emacs.d/snippets/bibtex-mode/bookinbook
+  emacs.d/snippets/bibtex-mode/booklet
+  emacs.d/snippets/bibtex-mode/collection
+  emacs.d/snippets/bibtex-mode/conference
+  emacs.d/snippets/bibtex-mode/dataset
+  emacs.d/snippets/bibtex-mode/electronic
+  emacs.d/snippets/bibtex-mode/inbook
+  emacs.d/snippets/bibtex-mode/incollection
+  emacs.d/snippets/bibtex-mode/inproceedings
+  emacs.d/snippets/bibtex-mode/inreference
+  emacs.d/snippets/bibtex-mode/manual
+  emacs.d/snippets/bibtex-mode/masterthesis
+  emacs.d/snippets/bibtex-mode/misc
+  emacs.d/snippets/bibtex-mode/mvbook
+  emacs.d/snippets/bibtex-mode/mvcollection
+  emacs.d/snippets/bibtex-mode/mvreference
+  emacs.d/snippets/bibtex-mode/online
+  emacs.d/snippets/bibtex-mode/patent
+  emacs.d/snippets/bibtex-mode/periodical
+  emacs.d/snippets/bibtex-mode/phdthesis
+  emacs.d/snippets/bibtex-mode/proceedings
+  emacs.d/snippets/bibtex-mode/reference
+  emacs.d/snippets/bibtex-mode/report
+  emacs.d/snippets/bibtex-mode/set
+  emacs.d/snippets/bibtex-mode/software
+  emacs.d/snippets/bibtex-mode/suppbook
+  emacs.d/snippets/bibtex-mode/suppcollection
+  emacs.d/snippets/bibtex-mode/suppperiodical
+  emacs.d/snippets/bibtex-mode/techreport
+  emacs.d/snippets/bibtex-mode/thesis
+  emacs.d/snippets/bibtex-mode/unpublished
+  emacs.d/snippets/bibtex-mode/xdata
+  emacs.d/snippets/c++-mode/.yas-parents
+  emacs.d/snippets/c++-mode/.yas-setup.el
+  emacs.d/snippets/c++-mode/acm
+  emacs.d/snippets/c++-mode/ajf
+  emacs.d/snippets/c++-mode/alo
+  emacs.d/snippets/c++-mode/ano
+  emacs.d/snippets/c++-mode/assert
+  emacs.d/snippets/c++-mode/beginend
+  emacs.d/snippets/c++-mode/boost_require
+  emacs.d/snippets/c++-mode/cerr
+  emacs.d/snippets/c++-mode/cin
+  emacs.d/snippets/c++-mode/class
+  emacs.d/snippets/c++-mode/class11
+  emacs.d/snippets/c++-mode/cni
+  emacs.d/snippets/c++-mode/cnt
+  emacs.d/snippets/c++-mode/const_[]
+  emacs.d/snippets/c++-mode/constructor
+  emacs.d/snippets/c++-mode/cout
+  emacs.d/snippets/c++-mode/cpb
+  emacs.d/snippets/c++-mode/cpi
+  emacs.d/snippets/c++-mode/cpn
+  emacs.d/snippets/c++-mode/cpp
+  emacs.d/snippets/c++-mode/cpy
+  emacs.d/snippets/c++-mode/cstd
+  emacs.d/snippets/c++-mode/d+=
+  emacs.d/snippets/c++-mode/d_operator
+  emacs.d/snippets/c++-mode/d_operator[]
+  emacs.d/snippets/c++-mode/d_operator[]_const
+  emacs.d/snippets/c++-mode/d_operator_istream
+  emacs.d/snippets/c++-mode/delete
+  emacs.d/snippets/c++-mode/delete[]
+  emacs.d/snippets/c++-mode/doc
+  emacs.d/snippets/c++-mode/dynamic_casting
+  emacs.d/snippets/c++-mode/enum
+  emacs.d/snippets/c++-mode/eql
+  emacs.d/snippets/c++-mode/erm
+  emacs.d/snippets/c++-mode/ffo
+  emacs.d/snippets/c++-mode/fil
+  emacs.d/snippets/c++-mode/fin
+  emacs.d/snippets/c++-mode/fixture
+  emacs.d/snippets/c++-mode/fln
+  emacs.d/snippets/c++-mode/fnd
+  emacs.d/snippets/c++-mode/fne
+  emacs.d/snippets/c++-mode/fni
+  emacs.d/snippets/c++-mode/fori
+  emacs.d/snippets/c++-mode/forr
+  emacs.d/snippets/c++-mode/fre
+  emacs.d/snippets/c++-mode/friend
+  emacs.d/snippets/c++-mode/fun_declaration
+  emacs.d/snippets/c++-mode/gnn
+  emacs.d/snippets/c++-mode/gnr
+  emacs.d/snippets/c++-mode/gtest
+  emacs.d/snippets/c++-mode/ignore
+  emacs.d/snippets/c++-mode/ihp
+  emacs.d/snippets/c++-mode/ihu
+  emacs.d/snippets/c++-mode/inline
+  emacs.d/snippets/c++-mode/io
+  emacs.d/snippets/c++-mode/ipr
+  emacs.d/snippets/c++-mode/ipt
+  emacs.d/snippets/c++-mode/iss
+  emacs.d/snippets/c++-mode/isu
+  emacs.d/snippets/c++-mode/ita
+  emacs.d/snippets/c++-mode/iterator
+  emacs.d/snippets/c++-mode/lambda
+  emacs.d/snippets/c++-mode/ltr
+  emacs.d/snippets/c++-mode/lwr
+  emacs.d/snippets/c++-mode/lxc
+  emacs.d/snippets/c++-mode/map
+  emacs.d/snippets/c++-mode/member_function
+  emacs.d/snippets/c++-mode/mkh
+  emacs.d/snippets/c++-mode/mme
+  emacs.d/snippets/c++-mode/mne
+  emacs.d/snippets/c++-mode/module
+  emacs.d/snippets/c++-mode/mpb
+  emacs.d/snippets/c++-mode/mrg
+  emacs.d/snippets/c++-mode/msm
+  emacs.d/snippets/c++-mode/mxe
+  emacs.d/snippets/c++-mode/mycl
+  emacs.d/snippets/c++-mode/namespace
+  emacs.d/snippets/c++-mode/nno
+  emacs.d/snippets/c++-mode/ns
+  emacs.d/snippets/c++-mode/nth
+  emacs.d/snippets/c++-mode/nxp
+  emacs.d/snippets/c++-mode/operator!=
+  emacs.d/snippets/c++-mode/operator+
+  emacs.d/snippets/c++-mode/operator+=
+  emacs.d/snippets/c++-mode/operator=
+  emacs.d/snippets/c++-mode/operator==
+  emacs.d/snippets/c++-mode/operator[]
+  emacs.d/snippets/c++-mode/operator_istream
+  emacs.d/snippets/c++-mode/operator_ostream
+  emacs.d/snippets/c++-mode/ostream
+  emacs.d/snippets/c++-mode/pack
+  emacs.d/snippets/c++-mode/phh
+  emacs.d/snippets/c++-mode/ppt
+  emacs.d/snippets/c++-mode/private
+  emacs.d/snippets/c++-mode/protected
+  emacs.d/snippets/c++-mode/prp
+  emacs.d/snippets/c++-mode/psc
+  emacs.d/snippets/c++-mode/pst
+  emacs.d/snippets/c++-mode/ptc
+  emacs.d/snippets/c++-mode/ptn
+  emacs.d/snippets/c++-mode/public
+  emacs.d/snippets/c++-mode/rci
+  emacs.d/snippets/c++-mode/rmc
+  emacs.d/snippets/c++-mode/rmf
+  emacs.d/snippets/c++-mode/rmi
+  emacs.d/snippets/c++-mode/rpc
+  emacs.d/snippets/c++-mode/rpi
+  emacs.d/snippets/c++-mode/rpl
+  emacs.d/snippets/c++-mode/rtc
+  emacs.d/snippets/c++-mode/rte
+  emacs.d/snippets/c++-mode/rvc
+  emacs.d/snippets/c++-mode/rvr
+  emacs.d/snippets/c++-mode/shf
+  emacs.d/snippets/c++-mode/spt
+  emacs.d/snippets/c++-mode/srh
+  emacs.d/snippets/c++-mode/srn
+  emacs.d/snippets/c++-mode/srt
+  emacs.d/snippets/c++-mode/sstream
+  emacs.d/snippets/c++-mode/std
+  emacs.d/snippets/c++-mode/std_colon
+  emacs.d/snippets/c++-mode/sth
+  emacs.d/snippets/c++-mode/str
+  emacs.d/snippets/c++-mode/sts
+  emacs.d/snippets/c++-mode/swr
+  emacs.d/snippets/c++-mode/template
+  emacs.d/snippets/c++-mode/test case
+  emacs.d/snippets/c++-mode/test_main
+  emacs.d/snippets/c++-mode/test_suite
+  emacs.d/snippets/c++-mode/tfm
+  emacs.d/snippets/c++-mode/this
+  emacs.d/snippets/c++-mode/throw
+  emacs.d/snippets/c++-mode/try
+  emacs.d/snippets/c++-mode/tryw
+  emacs.d/snippets/c++-mode/ucp
+  emacs.d/snippets/c++-mode/uqe
+  emacs.d/snippets/c++-mode/using
+  emacs.d/snippets/c++-mode/vector
+  emacs.d/snippets/c++-ts-mode/.yas-parents
+  emacs.d/snippets/c-lang-common/fopen
+  emacs.d/snippets/c-lang-common/function_doxygen_doc
+  emacs.d/snippets/c-lang-common/ifdef
+  emacs.d/snippets/c-lang-common/inc
+  emacs.d/snippets/c-lang-common/inc.1
+  emacs.d/snippets/c-lang-common/main
+  emacs.d/snippets/c-lang-common/math
+  emacs.d/snippets/c-lang-common/once
+  emacs.d/snippets/c-lang-common/typedef
+  emacs.d/snippets/c-mode/.yas-parents
+  emacs.d/snippets/c-mode/assert
+  emacs.d/snippets/c-mode/compile
+  emacs.d/snippets/c-mode/define
+  emacs.d/snippets/c-mode/fgets
+  emacs.d/snippets/c-mode/fprintf
+  emacs.d/snippets/c-mode/malloc
+  emacs.d/snippets/c-mode/packed
+  emacs.d/snippets/c-mode/printf
+  emacs.d/snippets/c-mode/scanf
+  emacs.d/snippets/c-mode/stdio
+  emacs.d/snippets/c-mode/stdlib
+  emacs.d/snippets/c-mode/string
+  emacs.d/snippets/c-mode/strstr
+  emacs.d/snippets/c-mode/union
+  emacs.d/snippets/c-mode/unistd
+  emacs.d/snippets/c-ts-mode/.yas-parents
+  emacs.d/snippets/cc-mode/case
+  emacs.d/snippets/cc-mode/do
+  emacs.d/snippets/cc-mode/else
+  emacs.d/snippets/cc-mode/file_description
+  emacs.d/snippets/cc-mode/for
+  emacs.d/snippets/cc-mode/for_n
+  emacs.d/snippets/cc-mode/function_description
+  emacs.d/snippets/cc-mode/if
+  emacs.d/snippets/cc-mode/member_description
+  emacs.d/snippets/cc-mode/printf
+  emacs.d/snippets/cc-mode/struct
+  emacs.d/snippets/cc-mode/switch
+  emacs.d/snippets/cc-mode/ternary
+  emacs.d/snippets/cc-mode/while
+  emacs.d/snippets/chef-mode/action
+  emacs.d/snippets/chef-mode/bash
+  emacs.d/snippets/chef-mode/cookbook_file
+  emacs.d/snippets/chef-mode/cron
+  emacs.d/snippets/chef-mode/cronf
+  emacs.d/snippets/chef-mode/deploy
+  emacs.d/snippets/chef-mode/directory
+  emacs.d/snippets/chef-mode/directoryf
+  emacs.d/snippets/chef-mode/env
+  emacs.d/snippets/chef-mode/execute
+  emacs.d/snippets/chef-mode/executef
+  emacs.d/snippets/chef-mode/file
+  emacs.d/snippets/chef-mode/filef
+  emacs.d/snippets/chef-mode/git
+  emacs.d/snippets/chef-mode/group
+  emacs.d/snippets/chef-mode/http_request
+  emacs.d/snippets/chef-mode/http_requestp
+  emacs.d/snippets/chef-mode/ignore_failure
+  emacs.d/snippets/chef-mode/inc
+  emacs.d/snippets/chef-mode/link
+  emacs.d/snippets/chef-mode/linkf
+  emacs.d/snippets/chef-mode/log
+  emacs.d/snippets/chef-mode/machine
+  emacs.d/snippets/chef-mode/meta
+  emacs.d/snippets/chef-mode/not_if
+  emacs.d/snippets/chef-mode/notifies
+  emacs.d/snippets/chef-mode/only_if
+  emacs.d/snippets/chef-mode/pac
+  emacs.d/snippets/chef-mode/pak
+  emacs.d/snippets/chef-mode/provider
+  emacs.d/snippets/chef-mode/python
+  emacs.d/snippets/chef-mode/remote_file
+  emacs.d/snippets/chef-mode/retries
+  emacs.d/snippets/chef-mode/role
+  emacs.d/snippets/chef-mode/ruby
+  emacs.d/snippets/chef-mode/script
+  emacs.d/snippets/chef-mode/service
+  emacs.d/snippets/chef-mode/servicep
+  emacs.d/snippets/chef-mode/subscribes
+  emacs.d/snippets/chef-mode/supports
+  emacs.d/snippets/chef-mode/template
+  emacs.d/snippets/chef-mode/templatev
+  emacs.d/snippets/chef-mode/user
+  emacs.d/snippets/cider-repl-mode/.yas-parents
+  emacs.d/snippets/clojure-mode/.yas-parents
+  emacs.d/snippets/clojure-mode/bench
+  emacs.d/snippets/clojure-mode/bp
+  emacs.d/snippets/clojure-mode/com
+  emacs.d/snippets/clojure-mode/cond
+  emacs.d/snippets/clojure-mode/condp
+  emacs.d/snippets/clojure-mode/def
+  emacs.d/snippets/clojure-mode/defm
+  emacs.d/snippets/clojure-mode/defn
+  emacs.d/snippets/clojure-mode/defr
+  emacs.d/snippets/clojure-mode/deft
+  emacs.d/snippets/clojure-mode/doseq
+  emacs.d/snippets/clojure-mode/fdef
+  emacs.d/snippets/clojure-mode/fn
+  emacs.d/snippets/clojure-mode/for
+  emacs.d/snippets/clojure-mode/if
+  emacs.d/snippets/clojure-mode/ifl
+  emacs.d/snippets/clojure-mode/import
+  emacs.d/snippets/clojure-mode/is
+  emacs.d/snippets/clojure-mode/let
+  emacs.d/snippets/clojure-mode/letfn
+  emacs.d/snippets/clojure-mode/main
+  emacs.d/snippets/clojure-mode/map
+  emacs.d/snippets/clojure-mode/map.lambda
+  emacs.d/snippets/clojure-mode/mdoc
+  emacs.d/snippets/clojure-mode/ns
+  emacs.d/snippets/clojure-mode/opts
+  emacs.d/snippets/clojure-mode/pr
+  emacs.d/snippets/clojure-mode/print
+  emacs.d/snippets/clojure-mode/reduce
+  emacs.d/snippets/clojure-mode/require
+  emacs.d/snippets/clojure-mode/sdef
+  emacs.d/snippets/clojure-mode/skeys
+  emacs.d/snippets/clojure-mode/test
+  emacs.d/snippets/clojure-mode/testing
+  emacs.d/snippets/clojure-mode/thread-first
+  emacs.d/snippets/clojure-mode/thread-last
+  emacs.d/snippets/clojure-mode/try
+  emacs.d/snippets/clojure-mode/use
+  emacs.d/snippets/clojure-mode/when
+  emacs.d/snippets/clojure-mode/whenl
+  emacs.d/snippets/cmake-mode/add_executable
+  emacs.d/snippets/cmake-mode/add_library
+  emacs.d/snippets/cmake-mode/cmake_minimum_required
+  emacs.d/snippets/cmake-mode/foreach
+  emacs.d/snippets/cmake-mode/function
+  emacs.d/snippets/cmake-mode/if
+  emacs.d/snippets/cmake-mode/ifelse
+  emacs.d/snippets/cmake-mode/include
+  emacs.d/snippets/cmake-mode/macro
+  emacs.d/snippets/cmake-mode/message
+  emacs.d/snippets/cmake-mode/option
+  emacs.d/snippets/cmake-mode/project
+  emacs.d/snippets/cmake-mode/set
+  emacs.d/snippets/conf-desktop-mode/desk
+  emacs.d/snippets/conf-unix-mode/.yas-parents
+  emacs.d/snippets/conf-unix-mode/section
+  emacs.d/snippets/coq-mode/definitions/definition.yasnippet
+  emacs.d/snippets/coq-mode/definitions/fixpoint-with.yasnippet
+  emacs.d/snippets/coq-mode/definitions/fixpoint.yasnippet
+  emacs.d/snippets/coq-mode/definitions/fun.yasnippet
+  emacs.d/snippets/coq-mode/definitions/inductive.yasnippet
+  emacs.d/snippets/coq-mode/lookup/check.yasnippet
+  emacs.d/snippets/coq-mode/lookup/locate.yasnippet
+  emacs.d/snippets/coq-mode/lookup/print.yasnippet
+  emacs.d/snippets/coq-mode/lookup/search.yasnippet
+  emacs.d/snippets/coq-mode/lookup/searchabout.yasnippet
+  emacs.d/snippets/coq-mode/lookup/searchpattern.yasnippet
+  emacs.d/snippets/coq-mode/misc/forall.yasnippet
+  emacs.d/snippets/coq-mode/misc/if.yasnippet
+  emacs.d/snippets/coq-mode/misc/infix.yasnippet
+  emacs.d/snippets/coq-mode/misc/match.yasnippet
+  emacs.d/snippets/coq-mode/misc/notation.yasnippet
+  emacs.d/snippets/coq-mode/misc/require.yasnippet
+  emacs.d/snippets/coq-mode/propositions/axiom.yasnippet
+  emacs.d/snippets/coq-mode/propositions/conjecture.yasnippet
+  emacs.d/snippets/coq-mode/propositions/corollary.yasnippet
+  emacs.d/snippets/coq-mode/propositions/example.yasnippet
+  emacs.d/snippets/coq-mode/propositions/fact.yasnippet
+  emacs.d/snippets/coq-mode/propositions/hypotheses.yasnippet
+  emacs.d/snippets/coq-mode/propositions/hypothesis.yasnippet
+  emacs.d/snippets/coq-mode/propositions/instance.yasnippet
+  emacs.d/snippets/coq-mode/propositions/lemma.yasnippet
+  emacs.d/snippets/coq-mode/propositions/parameter.yasnippet
+  emacs.d/snippets/coq-mode/propositions/proposition.yasnippet
+  emacs.d/snippets/coq-mode/propositions/remark.yasnippet
+  emacs.d/snippets/coq-mode/propositions/theorem.yasnippet
+  emacs.d/snippets/coq-mode/propositions/variable.yasnippet
+  emacs.d/snippets/coq-mode/propositions/variables.yasnippet
+  emacs.d/snippets/coq-mode/tactics/case.yasnippet
+  emacs.d/snippets/coq-mode/tactics/destruct.yasnippet
+  emacs.d/snippets/coq-mode/tactics/induction.yasnippet
+  emacs.d/snippets/coq-mode/tactics/rename.yasnippet
+  emacs.d/snippets/coq-mode/tactics/rewrite-left.yasnippet
+  emacs.d/snippets/coq-mode/tactics/rewrite-right.yasnippet
+  emacs.d/snippets/coq-mode/tactics/rewrite.yasnippet
+  emacs.d/snippets/cperl-mode/.yas-parents
+  emacs.d/snippets/cpp-omnet-mode/EV
+  emacs.d/snippets/cpp-omnet-mode/emit_signal
+  emacs.d/snippets/cpp-omnet-mode/intuniform
+  emacs.d/snippets/cpp-omnet-mode/math
+  emacs.d/snippets/cpp-omnet-mode/nan
+  emacs.d/snippets/cpp-omnet-mode/omnet
+  emacs.d/snippets/cpp-omnet-mode/parameter_omnetpp
+  emacs.d/snippets/cpp-omnet-mode/scheduleAt
+  emacs.d/snippets/cpp-omnet-mode/uniform
+  emacs.d/snippets/crystal-mode/any
+  emacs.d/snippets/crystal-mode/case
+  emacs.d/snippets/crystal-mode/cls
+  emacs.d/snippets/crystal-mode/def
+  emacs.d/snippets/crystal-mode/ea
+  emacs.d/snippets/crystal-mode/eac
+  emacs.d/snippets/crystal-mode/eai
+  emacs.d/snippets/crystal-mode/eawi
+  emacs.d/snippets/crystal-mode/el
+  emacs.d/snippets/crystal-mode/esi
+  emacs.d/snippets/crystal-mode/for
+  emacs.d/snippets/crystal-mode/forin
+  emacs.d/snippets/crystal-mode/if
+  emacs.d/snippets/crystal-mode/ife
+  emacs.d/snippets/crystal-mode/inc
+  emacs.d/snippets/crystal-mode/init
+  emacs.d/snippets/crystal-mode/map
+  emacs.d/snippets/crystal-mode/mod
+  emacs.d/snippets/crystal-mode/red
+  emacs.d/snippets/crystal-mode/reject
+  emacs.d/snippets/crystal-mode/req
+  emacs.d/snippets/crystal-mode/select
+  emacs.d/snippets/crystal-mode/upt
+  emacs.d/snippets/crystal-mode/when
+  emacs.d/snippets/crystal-mode/while
+  emacs.d/snippets/crystal-mode/zip
+  emacs.d/snippets/csharp-mode/.yas-parents
+  emacs.d/snippets/csharp-mode/attrib
+  emacs.d/snippets/csharp-mode/attrib.1
+  emacs.d/snippets/csharp-mode/attrib.2
+  emacs.d/snippets/csharp-mode/class
+  emacs.d/snippets/csharp-mode/comment
+  emacs.d/snippets/csharp-mode/comment.1
+  emacs.d/snippets/csharp-mode/comment.2
+  emacs.d/snippets/csharp-mode/comment.3
+  emacs.d/snippets/csharp-mode/fore
+  emacs.d/snippets/csharp-mode/main
+  emacs.d/snippets/csharp-mode/method
+  emacs.d/snippets/csharp-mode/namespace
+  emacs.d/snippets/csharp-mode/prop
+  emacs.d/snippets/csharp-mode/read
+  emacs.d/snippets/csharp-mode/readline
+  emacs.d/snippets/csharp-mode/region
+  emacs.d/snippets/csharp-mode/trycatch
+  emacs.d/snippets/csharp-mode/using
+  emacs.d/snippets/csharp-mode/using.1
+  emacs.d/snippets/csharp-mode/using.2
+  emacs.d/snippets/csharp-mode/write
+  emacs.d/snippets/csharp-mode/writeline
+  emacs.d/snippets/csharp-ts-mode/.yas-parents
+  emacs.d/snippets/css-mode/bg
+  emacs.d/snippets/css-mode/bg.1
+  emacs.d/snippets/css-mode/bor
+  emacs.d/snippets/css-mode/cl
+  emacs.d/snippets/css-mode/disp.block
+  emacs.d/snippets/css-mode/disp.inline
+  emacs.d/snippets/css-mode/disp.none
+  emacs.d/snippets/css-mode/ff
+  emacs.d/snippets/css-mode/fs
+  emacs.d/snippets/css-mode/mar.bottom
+  emacs.d/snippets/css-mode/mar.left
+  emacs.d/snippets/css-mode/mar.mar
+  emacs.d/snippets/css-mode/mar.margin
+  emacs.d/snippets/css-mode/mar.right
+  emacs.d/snippets/css-mode/mar.top
+  emacs.d/snippets/css-mode/pad.bottom
+  emacs.d/snippets/css-mode/pad.left
+  emacs.d/snippets/css-mode/pad.pad
+  emacs.d/snippets/css-mode/pad.padding
+  emacs.d/snippets/css-mode/pad.right
+  emacs.d/snippets/css-mode/pad.top
+  emacs.d/snippets/css-mode/v
+  emacs.d/snippets/css-ts-mode/.yas-parents
+  emacs.d/snippets/d-mode/class
+  emacs.d/snippets/d-mode/debug
+  emacs.d/snippets/d-mode/debugm
+  emacs.d/snippets/d-mode/enum
+  emacs.d/snippets/d-mode/fe
+  emacs.d/snippets/d-mode/fer
+  emacs.d/snippets/d-mode/if
+  emacs.d/snippets/d-mode/ife
+  emacs.d/snippets/d-mode/im
+  emacs.d/snippets/d-mode/main
+  emacs.d/snippets/d-mode/me
+  emacs.d/snippets/d-mode/r
+  emacs.d/snippets/d-mode/struct
+  emacs.d/snippets/d-mode/tc
+  emacs.d/snippets/d-mode/tcf
+  emacs.d/snippets/d-mode/tf
+  emacs.d/snippets/d-mode/unit
+  emacs.d/snippets/d-mode/version
+  emacs.d/snippets/d-mode/while
+  emacs.d/snippets/dart-mode/aclass
+  emacs.d/snippets/dart-mode/builtvalue
+  emacs.d/snippets/dart-mode/class
+  emacs.d/snippets/dart-mode/didchangedependencies
+  emacs.d/snippets/dart-mode/dispose
+  emacs.d/snippets/dart-mode/ext
+  emacs.d/snippets/dart-mode/for
+  emacs.d/snippets/dart-mode/fori
+  emacs.d/snippets/dart-mode/func
+  emacs.d/snippets/dart-mode/funca
+  emacs.d/snippets/dart-mode/getset
+  emacs.d/snippets/dart-mode/getter
+  emacs.d/snippets/dart-mode/impl
+  emacs.d/snippets/dart-mode/import
+  emacs.d/snippets/dart-mode/initstate
+  emacs.d/snippets/dart-mode/main
+  emacs.d/snippets/dart-mode/part
+  emacs.d/snippets/dart-mode/setter
+  emacs.d/snippets/dart-mode/statefulwidget
+  emacs.d/snippets/dart-mode/statelesswidget
+  emacs.d/snippets/dix-mode/call-macro
+  emacs.d/snippets/dix-mode/choose
+  emacs.d/snippets/dix-mode/clip
+  emacs.d/snippets/dix-mode/e-in-mono-section
+  emacs.d/snippets/dix-mode/e-in-pardef
+  emacs.d/snippets/dix-mode/let
+  emacs.d/snippets/dix-mode/lit
+  emacs.d/snippets/dix-mode/lit-tag
+  emacs.d/snippets/dix-mode/otherwise
+  emacs.d/snippets/dix-mode/p
+  emacs.d/snippets/dix-mode/par
+  emacs.d/snippets/dix-mode/pardef
+  emacs.d/snippets/dix-mode/s
+  emacs.d/snippets/dix-mode/sdef
+  emacs.d/snippets/dix-mode/section
+  emacs.d/snippets/dix-mode/var
+  emacs.d/snippets/dix-mode/when
+  emacs.d/snippets/dix-mode/with-param
+  emacs.d/snippets/dockerfile-mode/dockerize
+  emacs.d/snippets/elixir-mode/.yas-parents
+  emacs.d/snippets/elixir-mode/after
+  emacs.d/snippets/elixir-mode/call
+  emacs.d/snippets/elixir-mode/case
+  emacs.d/snippets/elixir-mode/cast
+  emacs.d/snippets/elixir-mode/cond
+  emacs.d/snippets/elixir-mode/def
+  emacs.d/snippets/elixir-mode/defmacro
+  emacs.d/snippets/elixir-mode/defmacrop
+  emacs.d/snippets/elixir-mode/defmodule
+  emacs.d/snippets/elixir-mode/defmodule_filename
+  emacs.d/snippets/elixir-mode/defp
+  emacs.d/snippets/elixir-mode/do
+  emacs.d/snippets/elixir-mode/doc
+  emacs.d/snippets/elixir-mode/fn
+  emacs.d/snippets/elixir-mode/for
+  emacs.d/snippets/elixir-mode/function
+  emacs.d/snippets/elixir-mode/function-one-line
+  emacs.d/snippets/elixir-mode/hcall
+  emacs.d/snippets/elixir-mode/hcast
+  emacs.d/snippets/elixir-mode/hinfo
+  emacs.d/snippets/elixir-mode/if
+  emacs.d/snippets/elixir-mode/ife
+  emacs.d/snippets/elixir-mode/inspect
+  emacs.d/snippets/elixir-mode/io
+  emacs.d/snippets/elixir-mode/iop
+  emacs.d/snippets/elixir-mode/mdoc
+  emacs.d/snippets/elixir-mode/pry
+  emacs.d/snippets/elixir-mode/receive
+  emacs.d/snippets/elixir-mode/test
+  emacs.d/snippets/elixir-mode/unless
+  emacs.d/snippets/elixir-mode/wt
+  emacs.d/snippets/elixir-mode/wte
+  emacs.d/snippets/elixir-ts-mode/.yas-parents
+  emacs.d/snippets/emacs-lisp-mode/add-hook
+  emacs.d/snippets/emacs-lisp-mode/and
+  emacs.d/snippets/emacs-lisp-mode/aref
+  emacs.d/snippets/emacs-lisp-mode/aset
+  emacs.d/snippets/emacs-lisp-mode/assq
+  emacs.d/snippets/emacs-lisp-mode/autoload
+  emacs.d/snippets/emacs-lisp-mode/backward-char
+  emacs.d/snippets/emacs-lisp-mode/beginning-of-line
+  emacs.d/snippets/emacs-lisp-mode/bounds-of-thing-at-point
+  emacs.d/snippets/emacs-lisp-mode/buffer-file-name
+  emacs.d/snippets/emacs-lisp-mode/buffer-modified-p
+  emacs.d/snippets/emacs-lisp-mode/buffer-substring
+  emacs.d/snippets/emacs-lisp-mode/buffer-substring-no-properties
+  emacs.d/snippets/emacs-lisp-mode/cond
+  emacs.d/snippets/emacs-lisp-mode/condition-case
+  emacs.d/snippets/emacs-lisp-mode/const
+  emacs.d/snippets/emacs-lisp-mode/copy-directory
+  emacs.d/snippets/emacs-lisp-mode/copy-file
+  emacs.d/snippets/emacs-lisp-mode/current-buffer
+  emacs.d/snippets/emacs-lisp-mode/custom-autoload
+  emacs.d/snippets/emacs-lisp-mode/defalias
+  emacs.d/snippets/emacs-lisp-mode/defcustom
+  emacs.d/snippets/emacs-lisp-mode/define-key
+  emacs.d/snippets/emacs-lisp-mode/defun
+  emacs.d/snippets/emacs-lisp-mode/defvar
+  emacs.d/snippets/emacs-lisp-mode/delete-char
+  emacs.d/snippets/emacs-lisp-mode/delete-directory
+  emacs.d/snippets/emacs-lisp-mode/delete-file
+  emacs.d/snippets/emacs-lisp-mode/delete-region
+  emacs.d/snippets/emacs-lisp-mode/directory-files
+  emacs.d/snippets/emacs-lisp-mode/dired.process_marked
+  emacs.d/snippets/emacs-lisp-mode/end-of-line
+  emacs.d/snippets/emacs-lisp-mode/error
+  emacs.d/snippets/emacs-lisp-mode/ert-deftest
+  emacs.d/snippets/emacs-lisp-mode/expand-file-name
+  emacs.d/snippets/emacs-lisp-mode/fboundp
+  emacs.d/snippets/emacs-lisp-mode/file-name-directory
+  emacs.d/snippets/emacs-lisp-mode/file-name-extension
+  emacs.d/snippets/emacs-lisp-mode/file-name-nondirectory
+  emacs.d/snippets/emacs-lisp-mode/file-name-sans-extension
+  emacs.d/snippets/emacs-lisp-mode/file-relative-name
+  emacs.d/snippets/emacs-lisp-mode/file.process
+  emacs.d/snippets/emacs-lisp-mode/file.read-lines
+  emacs.d/snippets/emacs-lisp-mode/find-file
+  emacs.d/snippets/emacs-lisp-mode/format
+  emacs.d/snippets/emacs-lisp-mode/forward-char
+  emacs.d/snippets/emacs-lisp-mode/forward-line
+  emacs.d/snippets/emacs-lisp-mode/get
+  emacs.d/snippets/emacs-lisp-mode/global-set-key
+  emacs.d/snippets/emacs-lisp-mode/goto-char
+  emacs.d/snippets/emacs-lisp-mode/grabstring
+  emacs.d/snippets/emacs-lisp-mode/grabthing
+  emacs.d/snippets/emacs-lisp-mode/header
+  emacs.d/snippets/emacs-lisp-mode/insert
+  emacs.d/snippets/emacs-lisp-mode/insert-file-contents
+  emacs.d/snippets/emacs-lisp-mode/interactive
+  emacs.d/snippets/emacs-lisp-mode/kbd
+  emacs.d/snippets/emacs-lisp-mode/kill-buffer
+  emacs.d/snippets/emacs-lisp-mode/lambda
+  emacs.d/snippets/emacs-lisp-mode/let
+  emacs.d/snippets/emacs-lisp-mode/line-beginning-position
+  emacs.d/snippets/emacs-lisp-mode/line-end-position
+  emacs.d/snippets/emacs-lisp-mode/looking-at
+  emacs.d/snippets/emacs-lisp-mode/make-directory
+  emacs.d/snippets/emacs-lisp-mode/make-local-variable
+  emacs.d/snippets/emacs-lisp-mode/mapc
+  emacs.d/snippets/emacs-lisp-mode/match-beginning
+  emacs.d/snippets/emacs-lisp-mode/match-end
+  emacs.d/snippets/emacs-lisp-mode/match-string
+  emacs.d/snippets/emacs-lisp-mode/memq
+  emacs.d/snippets/emacs-lisp-mode/message
+  emacs.d/snippets/emacs-lisp-mode/minor_mode
+  emacs.d/snippets/emacs-lisp-mode/not
+  emacs.d/snippets/emacs-lisp-mode/nth
+  emacs.d/snippets/emacs-lisp-mode/number-to-string
+  emacs.d/snippets/emacs-lisp-mode/or
+  emacs.d/snippets/emacs-lisp-mode/point
+  emacs.d/snippets/emacs-lisp-mode/point-max
+  emacs.d/snippets/emacs-lisp-mode/point-min
+  emacs.d/snippets/emacs-lisp-mode/put
+  emacs.d/snippets/emacs-lisp-mode/re-search-backward
+  emacs.d/snippets/emacs-lisp-mode/re-search-forward
+  emacs.d/snippets/emacs-lisp-mode/region-active-p
+  emacs.d/snippets/emacs-lisp-mode/region-beginning
+  emacs.d/snippets/emacs-lisp-mode/region-end
+  emacs.d/snippets/emacs-lisp-mode/rename-file
+  emacs.d/snippets/emacs-lisp-mode/replace-regexp
+  emacs.d/snippets/emacs-lisp-mode/replace-regexp-in-string
+  emacs.d/snippets/emacs-lisp-mode/save-buffer
+  emacs.d/snippets/emacs-lisp-mode/save-excursion
+  emacs.d/snippets/emacs-lisp-mode/search-backward
+  emacs.d/snippets/emacs-lisp-mode/search-backward-regexp
+  emacs.d/snippets/emacs-lisp-mode/search-forward
+  emacs.d/snippets/emacs-lisp-mode/search-forward-regexp
+  emacs.d/snippets/emacs-lisp-mode/set-buffer
+  emacs.d/snippets/emacs-lisp-mode/set-file-modes
+  emacs.d/snippets/emacs-lisp-mode/set-mark
+  emacs.d/snippets/emacs-lisp-mode/setq
+  emacs.d/snippets/emacs-lisp-mode/should
+  emacs.d/snippets/emacs-lisp-mode/skip-chars-backward
+  emacs.d/snippets/emacs-lisp-mode/skip-chars-forward
+  emacs.d/snippets/emacs-lisp-mode/split-string
+  emacs.d/snippets/emacs-lisp-mode/string-match
+  emacs.d/snippets/emacs-lisp-mode/string-to-number
+  emacs.d/snippets/emacs-lisp-mode/string=
+  emacs.d/snippets/emacs-lisp-mode/substring
+  emacs.d/snippets/emacs-lisp-mode/thing-at-point
+  emacs.d/snippets/emacs-lisp-mode/use-package
+  emacs.d/snippets/emacs-lisp-mode/use-package-binding
+  emacs.d/snippets/emacs-lisp-mode/vector
+  emacs.d/snippets/emacs-lisp-mode/when
+  emacs.d/snippets/emacs-lisp-mode/widget-get
+  emacs.d/snippets/emacs-lisp-mode/with-current-buffer
+  emacs.d/snippets/emacs-lisp-mode/word-or-region
+  emacs.d/snippets/emacs-lisp-mode/word_regexp
+  emacs.d/snippets/emacs-lisp-mode/yes-or-no-p
+  emacs.d/snippets/enh-ruby-mode/.yas-parents
+  emacs.d/snippets/ensime-mode/.yas-parents
+  emacs.d/snippets/erc-mode/blist
+  emacs.d/snippets/erc-mode/help
+  emacs.d/snippets/erlang-mode/after
+  emacs.d/snippets/erlang-mode/begin
+  emacs.d/snippets/erlang-mode/beh
+  emacs.d/snippets/erlang-mode/case
+  emacs.d/snippets/erlang-mode/compile
+  emacs.d/snippets/erlang-mode/def
+  emacs.d/snippets/erlang-mode/exp
+  emacs.d/snippets/erlang-mode/fun
+  emacs.d/snippets/erlang-mode/if
+  emacs.d/snippets/erlang-mode/ifdef
+  emacs.d/snippets/erlang-mode/ifndef
+  emacs.d/snippets/erlang-mode/imp
+  emacs.d/snippets/erlang-mode/inc
+  emacs.d/snippets/erlang-mode/inc.lib
+  emacs.d/snippets/erlang-mode/loop
+  emacs.d/snippets/erlang-mode/mod
+  emacs.d/snippets/erlang-mode/rcv
+  emacs.d/snippets/erlang-mode/rcv.after
+  emacs.d/snippets/erlang-mode/rec
+  emacs.d/snippets/erlang-mode/try
+  emacs.d/snippets/erlang-mode/undef
+  emacs.d/snippets/f90-mode/bd
+  emacs.d/snippets/f90-mode/c
+  emacs.d/snippets/f90-mode/ch
+  emacs.d/snippets/f90-mode/cx
+  emacs.d/snippets/f90-mode/dc
+  emacs.d/snippets/f90-mode/do
+  emacs.d/snippets/f90-mode/dp
+  emacs.d/snippets/f90-mode/forall
+  emacs.d/snippets/f90-mode/function
+  emacs.d/snippets/f90-mode/if
+  emacs.d/snippets/f90-mode/in
+  emacs.d/snippets/f90-mode/inc
+  emacs.d/snippets/f90-mode/intr
+  emacs.d/snippets/f90-mode/l
+  emacs.d/snippets/f90-mode/module
+  emacs.d/snippets/f90-mode/pa
+  emacs.d/snippets/f90-mode/program
+  emacs.d/snippets/f90-mode/puref
+  emacs.d/snippets/f90-mode/pures
+  emacs.d/snippets/f90-mode/re
+  emacs.d/snippets/f90-mode/subroutine
+  emacs.d/snippets/f90-mode/until
+  emacs.d/snippets/f90-mode/where
+  emacs.d/snippets/f90-mode/while
+  emacs.d/snippets/f90-mode/wr
+  emacs.d/snippets/faust-mode/button
+  emacs.d/snippets/faust-mode/case
+  emacs.d/snippets/faust-mode/checkbox
+  emacs.d/snippets/faust-mode/component
+  emacs.d/snippets/faust-mode/declare
+  emacs.d/snippets/faust-mode/declareauthor
+  emacs.d/snippets/faust-mode/declarelicense
+  emacs.d/snippets/faust-mode/declarename
+  emacs.d/snippets/faust-mode/declareversion
+  emacs.d/snippets/faust-mode/hbargraph
+  emacs.d/snippets/faust-mode/header
+  emacs.d/snippets/faust-mode/hgroup
+  emacs.d/snippets/faust-mode/hslider
+  emacs.d/snippets/faust-mode/import
+  emacs.d/snippets/faust-mode/nentry
+  emacs.d/snippets/faust-mode/par
+  emacs.d/snippets/faust-mode/process
+  emacs.d/snippets/faust-mode/processx
+  emacs.d/snippets/faust-mode/prod
+  emacs.d/snippets/faust-mode/rule
+  emacs.d/snippets/faust-mode/seq
+  emacs.d/snippets/faust-mode/sum
+  emacs.d/snippets/faust-mode/tgroup
+  emacs.d/snippets/faust-mode/vbargraph
+  emacs.d/snippets/faust-mode/vgroup
+  emacs.d/snippets/faust-mode/vslider
+  emacs.d/snippets/faust-mode/with
+  emacs.d/snippets/fish-mode/bang
+  emacs.d/snippets/fish-mode/block
+  emacs.d/snippets/fish-mode/bp
+  emacs.d/snippets/fish-mode/for
+  emacs.d/snippets/fish-mode/function
+  emacs.d/snippets/fish-mode/if
+  emacs.d/snippets/fish-mode/ife
+  emacs.d/snippets/fish-mode/sw
+  emacs.d/snippets/fish-mode/while
+  emacs.d/snippets/fundamental-mode/current-date
+  emacs.d/snippets/fundamental-mode/current-date-and-time
+  emacs.d/snippets/fundamental-mode/mode-line
+  emacs.d/snippets/gdscript-mode/class
+  emacs.d/snippets/gdscript-mode/class_name
+  emacs.d/snippets/gdscript-mode/const
+  emacs.d/snippets/gdscript-mode/enum
+  emacs.d/snippets/gdscript-mode/for
+  emacs.d/snippets/gdscript-mode/func
+  emacs.d/snippets/gdscript-mode/if
+  emacs.d/snippets/gdscript-mode/ife
+  emacs.d/snippets/gdscript-mode/match
+  emacs.d/snippets/gdscript-mode/onready
+  emacs.d/snippets/gdscript-mode/print
+  emacs.d/snippets/gdscript-mode/return
+  emacs.d/snippets/gdscript-mode/setget
+  emacs.d/snippets/gdscript-mode/static_func
+  emacs.d/snippets/gdscript-mode/var
+  emacs.d/snippets/gdscript-mode/while
+  emacs.d/snippets/git-commit-mode/.yas-parents
+  emacs.d/snippets/git-commit-mode/fixes
+  emacs.d/snippets/git-commit-mode/references
+  emacs.d/snippets/git-commit-mode/type
+  emacs.d/snippets/go-mode/benchmark
+  emacs.d/snippets/go-mode/const
+  emacs.d/snippets/go-mode/const(
+  emacs.d/snippets/go-mode/dd
+  emacs.d/snippets/go-mode/default
+  emacs.d/snippets/go-mode/else
+  emacs.d/snippets/go-mode/error
+  emacs.d/snippets/go-mode/example
+  emacs.d/snippets/go-mode/for
+  emacs.d/snippets/go-mode/forrange
+  emacs.d/snippets/go-mode/func
+  emacs.d/snippets/go-mode/if
+  emacs.d/snippets/go-mode/iferr
+  emacs.d/snippets/go-mode/import
+  emacs.d/snippets/go-mode/import(
+  emacs.d/snippets/go-mode/init
+  emacs.d/snippets/go-mode/lambda
+  emacs.d/snippets/go-mode/main
+  emacs.d/snippets/go-mode/map
+  emacs.d/snippets/go-mode/method
+  emacs.d/snippets/go-mode/parallel_benchmark
+  emacs.d/snippets/go-mode/printf
+  emacs.d/snippets/go-mode/select
+  emacs.d/snippets/go-mode/switch
+  emacs.d/snippets/go-mode/test
+  emacs.d/snippets/go-mode/testmain
+  emacs.d/snippets/go-mode/type
+  emacs.d/snippets/go-mode/var
+  emacs.d/snippets/go-mode/var(
+  emacs.d/snippets/go-ts-mode/.yas-parents
+  emacs.d/snippets/groovy-mode/.yas-parents
+  emacs.d/snippets/groovy-mode/class
+  emacs.d/snippets/groovy-mode/def
+  emacs.d/snippets/groovy-mode/dict
+  emacs.d/snippets/groovy-mode/for
+  emacs.d/snippets/groovy-mode/println
+  emacs.d/snippets/groovy-mode/times
+  emacs.d/snippets/haskell-mode/case
+  emacs.d/snippets/haskell-mode/data
+  emacs.d/snippets/haskell-mode/doc
+  emacs.d/snippets/haskell-mode/efix
+  emacs.d/snippets/haskell-mode/function
+  emacs.d/snippets/haskell-mode/functione
+  emacs.d/snippets/haskell-mode/import
+  emacs.d/snippets/haskell-mode/instance
+  emacs.d/snippets/haskell-mode/main
+  emacs.d/snippets/haskell-mode/module
+  emacs.d/snippets/haskell-mode/new class
+  emacs.d/snippets/haskell-mode/pragma
+  emacs.d/snippets/haskell-mode/print
+  emacs.d/snippets/haskell-ts-mode/.yas-parents
+  emacs.d/snippets/html-mode/.yas-parents
+  emacs.d/snippets/html-mode/dd
+  emacs.d/snippets/html-mode/dl
+  emacs.d/snippets/html-mode/doctype
+  emacs.d/snippets/html-mode/doctype.html5
+  emacs.d/snippets/html-mode/doctype.xhtml1
+  emacs.d/snippets/html-mode/doctype.xhtml1_1
+  emacs.d/snippets/html-mode/doctype.xhtml1_strict
+  emacs.d/snippets/html-mode/doctype.xhtml1_transitional
+  emacs.d/snippets/html-mode/dt
+  emacs.d/snippets/html-mode/form
+  emacs.d/snippets/html-mode/html
+  emacs.d/snippets/html-mode/html.xmlns
+  emacs.d/snippets/html-mode/link.import
+  emacs.d/snippets/html-mode/link.stylesheet
+  emacs.d/snippets/html-mode/link.stylesheet-ie
+  emacs.d/snippets/html-mode/mailto
+  emacs.d/snippets/html-mode/meta
+  emacs.d/snippets/html-mode/meta.http-equiv
+  emacs.d/snippets/html-mode/script.javascript
+  emacs.d/snippets/html-mode/script.javascript-src
+  emacs.d/snippets/html-mode/textarea
+  emacs.d/snippets/html-mode/th
+  emacs.d/snippets/html-ts-mode/.yas-parents
+  emacs.d/snippets/hy-mode/class
+  emacs.d/snippets/hy-mode/cond
+  emacs.d/snippets/hy-mode/def
+  emacs.d/snippets/hy-mode/defm
+  emacs.d/snippets/hy-mode/do
+  emacs.d/snippets/hy-mode/for
+  emacs.d/snippets/hy-mode/if
+  emacs.d/snippets/hy-mode/ifn
+  emacs.d/snippets/hy-mode/imp
+  emacs.d/snippets/hy-mode/let
+  emacs.d/snippets/hy-mode/main
+  emacs.d/snippets/hy-mode/req
+  emacs.d/snippets/hy-mode/s
+  emacs.d/snippets/hy-mode/unless
+  emacs.d/snippets/hy-mode/when
+  emacs.d/snippets/java-mode/apr_assert
+  emacs.d/snippets/java-mode/assert
+  emacs.d/snippets/java-mode/assertEquals
+  emacs.d/snippets/java-mode/cls
+  emacs.d/snippets/java-mode/constructor
+  emacs.d/snippets/java-mode/define test method
+  emacs.d/snippets/java-mode/doc
+  emacs.d/snippets/java-mode/equals
+  emacs.d/snippets/java-mode/file_class
+  emacs.d/snippets/java-mode/for
+  emacs.d/snippets/java-mode/fori
+  emacs.d/snippets/java-mode/getter
+  emacs.d/snippets/java-mode/if
+  emacs.d/snippets/java-mode/ife
+  emacs.d/snippets/java-mode/import
+  emacs.d/snippets/java-mode/iterator
+  emacs.d/snippets/java-mode/javadoc
+  emacs.d/snippets/java-mode/lambda
+  emacs.d/snippets/java-mode/main
+  emacs.d/snippets/java-mode/main_class
+  emacs.d/snippets/java-mode/method
+  emacs.d/snippets/java-mode/new
+  emacs.d/snippets/java-mode/override
+  emacs.d/snippets/java-mode/param
+  emacs.d/snippets/java-mode/printf
+  emacs.d/snippets/java-mode/println
+  emacs.d/snippets/java-mode/return
+  emacs.d/snippets/java-mode/test
+  emacs.d/snippets/java-mode/testClass
+  emacs.d/snippets/java-mode/this
+  emacs.d/snippets/java-mode/toString
+  emacs.d/snippets/java-mode/try
+  emacs.d/snippets/java-mode/value
+  emacs.d/snippets/java-ts-mode/.yas-parents
+  emacs.d/snippets/js-mode/al
+  emacs.d/snippets/js-mode/anfn
+  emacs.d/snippets/js-mode/bnd
+  emacs.d/snippets/js-mode/class
+  emacs.d/snippets/js-mode/cmmb
+  emacs.d/snippets/js-mode/com
+  emacs.d/snippets/js-mode/console/.yas-make-groups
+  emacs.d/snippets/js-mode/console/cas
+  emacs.d/snippets/js-mode/console/ccl
+  emacs.d/snippets/js-mode/console/cco
+  emacs.d/snippets/js-mode/console/cdi
+  emacs.d/snippets/js-mode/console/cer
+  emacs.d/snippets/js-mode/console/cge
+  emacs.d/snippets/js-mode/console/cgr
+  emacs.d/snippets/js-mode/console/cin
+  emacs.d/snippets/js-mode/console/clg
+  emacs.d/snippets/js-mode/console/clo
+  emacs.d/snippets/js-mode/console/cta
+  emacs.d/snippets/js-mode/console/cte
+  emacs.d/snippets/js-mode/console/cwa
+  emacs.d/snippets/js-mode/const
+  emacs.d/snippets/js-mode/dar
+  emacs.d/snippets/js-mode/debugger
+  emacs.d/snippets/js-mode/dob
+  emacs.d/snippets/js-mode/each
+  emacs.d/snippets/js-mode/edf
+  emacs.d/snippets/js-mode/el
+  emacs.d/snippets/js-mode/enf
+  emacs.d/snippets/js-mode/error
+  emacs.d/snippets/js-mode/exa
+  emacs.d/snippets/js-mode/exd
+  emacs.d/snippets/js-mode/exp
+  emacs.d/snippets/js-mode/fin
+  emacs.d/snippets/js-mode/flow
+  emacs.d/snippets/js-mode/fof
+  emacs.d/snippets/js-mode/for
+  emacs.d/snippets/js-mode/fre
+  emacs.d/snippets/js-mode/function
+  emacs.d/snippets/js-mode/if
+  emacs.d/snippets/js-mode/ima
+  emacs.d/snippets/js-mode/imd
+  emacs.d/snippets/js-mode/ime
+  emacs.d/snippets/js-mode/imn
+  emacs.d/snippets/js-mode/imp
+  emacs.d/snippets/js-mode/init
+  emacs.d/snippets/js-mode/let
+  emacs.d/snippets/js-mode/met
+  emacs.d/snippets/js-mode/metb
+  emacs.d/snippets/js-mode/multiline-comment
+  emacs.d/snippets/js-mode/nfn
+  emacs.d/snippets/js-mode/param-comment
+  emacs.d/snippets/js-mode/pge
+  emacs.d/snippets/js-mode/prom
+  emacs.d/snippets/js-mode/pse
+  emacs.d/snippets/js-mode/return-comment
+  emacs.d/snippets/js-mode/sti
+  emacs.d/snippets/js-mode/sto
+  emacs.d/snippets/js-mode/switch
+  emacs.d/snippets/js-mode/try-catch
+  emacs.d/snippets/js-mode/type-inline-comment
+  emacs.d/snippets/js-mode/type-multiline-comment
+  emacs.d/snippets/js-ts-mode/.yas-parents
+  emacs.d/snippets/js2-mode/.yas-parents
+  emacs.d/snippets/js3-mode/.yas-parents
+  emacs.d/snippets/julia-mode/.yas-setup.el
+  emacs.d/snippets/julia-mode/atype
+  emacs.d/snippets/julia-mode/begin
+  emacs.d/snippets/julia-mode/do
+  emacs.d/snippets/julia-mode/for
+  emacs.d/snippets/julia-mode/fun
+  emacs.d/snippets/julia-mode/if
+  emacs.d/snippets/julia-mode/ife
+  emacs.d/snippets/julia-mode/let
+  emacs.d/snippets/julia-mode/macro
+  emacs.d/snippets/julia-mode/module
+  emacs.d/snippets/julia-mode/mutstr
+  emacs.d/snippets/julia-mode/ptype
+  emacs.d/snippets/julia-mode/quote
+  emacs.d/snippets/julia-mode/struct
+  emacs.d/snippets/julia-mode/try
+  emacs.d/snippets/julia-mode/tryf
+  emacs.d/snippets/julia-mode/using
+  emacs.d/snippets/julia-mode/while
+  emacs.d/snippets/julia-ts-mode/.yas-parents
+  emacs.d/snippets/kotlin-mode/anonymous
+  emacs.d/snippets/kotlin-mode/closure
+  emacs.d/snippets/kotlin-mode/exfun
+  emacs.d/snippets/kotlin-mode/exval
+  emacs.d/snippets/kotlin-mode/exvar
+  emacs.d/snippets/kotlin-mode/fun
+  emacs.d/snippets/kotlin-mode/ifn
+  emacs.d/snippets/kotlin-mode/inn
+  emacs.d/snippets/kotlin-mode/interface
+  emacs.d/snippets/kotlin-mode/iter
+  emacs.d/snippets/kotlin-mode/main
+  emacs.d/snippets/kotlin-mode/psvm
+  emacs.d/snippets/kotlin-mode/serr
+  emacs.d/snippets/kotlin-mode/singleton
+  emacs.d/snippets/kotlin-mode/sout
+  emacs.d/snippets/kotlin-mode/soutv
+  emacs.d/snippets/kotlin-mode/void
+  emacs.d/snippets/latex-mode/acronym
+  emacs.d/snippets/latex-mode/alertblock
+  emacs.d/snippets/latex-mode/alg
+  emacs.d/snippets/latex-mode/align
+  emacs.d/snippets/latex-mode/article
+  emacs.d/snippets/latex-mode/begin
+  emacs.d/snippets/latex-mode/bigcap
+  emacs.d/snippets/latex-mode/bigcup
+  emacs.d/snippets/latex-mode/binom
+  emacs.d/snippets/latex-mode/block
+  emacs.d/snippets/latex-mode/capgls
+  emacs.d/snippets/latex-mode/caption
+  emacs.d/snippets/latex-mode/cite
+  emacs.d/snippets/latex-mode/code
+  emacs.d/snippets/latex-mode/columns
+  emacs.d/snippets/latex-mode/corollary
+  emacs.d/snippets/latex-mode/description
+  emacs.d/snippets/latex-mode/documentclass
+  emacs.d/snippets/latex-mode/emph
+  emacs.d/snippets/latex-mode/enumerate
+  emacs.d/snippets/latex-mode/equation
+  emacs.d/snippets/latex-mode/figure
+  emacs.d/snippets/latex-mode/frac
+  emacs.d/snippets/latex-mode/frame
+  emacs.d/snippets/latex-mode/german-quotes
+  emacs.d/snippets/latex-mode/german-quotes-single
+  emacs.d/snippets/latex-mode/gls
+  emacs.d/snippets/latex-mode/glspl
+  emacs.d/snippets/latex-mode/if
+  emacs.d/snippets/latex-mode/includegraphics
+  emacs.d/snippets/latex-mode/int
+  emacs.d/snippets/latex-mode/item
+  emacs.d/snippets/latex-mode/itemize
+  emacs.d/snippets/latex-mode/label
+  emacs.d/snippets/latex-mode/labelcref
+  emacs.d/snippets/latex-mode/left-right
+  emacs.d/snippets/latex-mode/lemma
+  emacs.d/snippets/latex-mode/listing
+  emacs.d/snippets/latex-mode/moderncv
+  emacs.d/snippets/latex-mode/moderncv-cvcomputer
+  emacs.d/snippets/latex-mode/moderncv-cventry
+  emacs.d/snippets/latex-mode/moderncv-cvlanguage
+  emacs.d/snippets/latex-mode/moderncv-cvline
+  emacs.d/snippets/latex-mode/moderncv-cvlistdoubleitem
+  emacs.d/snippets/latex-mode/moderncv-cvlistitem
+  emacs.d/snippets/latex-mode/movie
+  emacs.d/snippets/latex-mode/newcommand
+  emacs.d/snippets/latex-mode/newglossaryentry
+  emacs.d/snippets/latex-mode/note
+  emacs.d/snippets/latex-mode/prod
+  emacs.d/snippets/latex-mode/python
+  emacs.d/snippets/latex-mode/question
+  emacs.d/snippets/latex-mode/section
+  emacs.d/snippets/latex-mode/subf
+  emacs.d/snippets/latex-mode/subfigure
+  emacs.d/snippets/latex-mode/subsec
+  emacs.d/snippets/latex-mode/sum
+  emacs.d/snippets/latex-mode/textbf
+  emacs.d/snippets/latex-mode/theorem
+  emacs.d/snippets/latex-mode/usepackage
+  emacs.d/snippets/lisp-interaction-mode/defun
+  emacs.d/snippets/lisp-mode/class
+  emacs.d/snippets/lisp-mode/comment
+  emacs.d/snippets/lisp-mode/cond
+  emacs.d/snippets/lisp-mode/defpackage
+  emacs.d/snippets/lisp-mode/do
+  emacs.d/snippets/lisp-mode/for
+  emacs.d/snippets/lisp-mode/foreach
+  emacs.d/snippets/lisp-mode/format
+  emacs.d/snippets/lisp-mode/if
+  emacs.d/snippets/lisp-mode/ifelse
+  emacs.d/snippets/lisp-mode/ifnot
+  emacs.d/snippets/lisp-mode/slot
+  emacs.d/snippets/lisp-mode/typecast
+  emacs.d/snippets/lua-mode/do
+  emacs.d/snippets/lua-mode/eif
+  emacs.d/snippets/lua-mode/eife
+  emacs.d/snippets/lua-mode/fun
+  emacs.d/snippets/lua-mode/if
+  emacs.d/snippets/lua-mode/ife
+  emacs.d/snippets/lua-mode/ipairs
+  emacs.d/snippets/lua-mode/pairs
+  emacs.d/snippets/lua-mode/repeat
+  emacs.d/snippets/lua-mode/require
+  emacs.d/snippets/lua-mode/while
+  emacs.d/snippets/m4-mode/def
+  emacs.d/snippets/makefile-automake-mode/noinst_HEADERS
+  emacs.d/snippets/makefile-bsdmake-mode/PHONY
+  emacs.d/snippets/makefile-bsdmake-mode/echo
+  emacs.d/snippets/makefile-bsdmake-mode/gen
+  emacs.d/snippets/makefile-bsdmake-mode/if
+  emacs.d/snippets/makefile-bsdmake-mode/var
+  emacs.d/snippets/makefile-gmake-mode/abspath
+  emacs.d/snippets/makefile-gmake-mode/addprefix
+  emacs.d/snippets/makefile-gmake-mode/addsuffix
+  emacs.d/snippets/makefile-gmake-mode/dir
+  emacs.d/snippets/makefile-gmake-mode/make
+  emacs.d/snippets/makefile-gmake-mode/notdir
+  emacs.d/snippets/makefile-gmake-mode/patsubst
+  emacs.d/snippets/makefile-gmake-mode/phony
+  emacs.d/snippets/makefile-gmake-mode/shell
+  emacs.d/snippets/makefile-gmake-mode/special
+  emacs.d/snippets/makefile-gmake-mode/template
+  emacs.d/snippets/makefile-gmake-mode/wildcard
+  emacs.d/snippets/makefile-mode/all
+  emacs.d/snippets/makefile-mode/clean
+  emacs.d/snippets/malabar-mode/variable
+  emacs.d/snippets/markdown-mode/back-quote
+  emacs.d/snippets/markdown-mode/code
+  emacs.d/snippets/markdown-mode/emphasis
+  emacs.d/snippets/markdown-mode/h1.1
+  emacs.d/snippets/markdown-mode/h1.2
+  emacs.d/snippets/markdown-mode/h2.1
+  emacs.d/snippets/markdown-mode/h2.2
+  emacs.d/snippets/markdown-mode/h3
+  emacs.d/snippets/markdown-mode/h4
+  emacs.d/snippets/markdown-mode/h5
+  emacs.d/snippets/markdown-mode/h6
+  emacs.d/snippets/markdown-mode/highlight
+  emacs.d/snippets/markdown-mode/hr.1
+  emacs.d/snippets/markdown-mode/hr.2
+  emacs.d/snippets/markdown-mode/hyphen
+  emacs.d/snippets/markdown-mode/img
+  emacs.d/snippets/markdown-mode/link
+  emacs.d/snippets/markdown-mode/ordered-list
+  emacs.d/snippets/markdown-mode/plus
+  emacs.d/snippets/markdown-mode/rimg
+  emacs.d/snippets/markdown-mode/rlb
+  emacs.d/snippets/markdown-mode/rlink
+  emacs.d/snippets/markdown-mode/strong-emphasis
+  emacs.d/snippets/markdown-mode/utf8
+  emacs.d/snippets/markdown-ts-mode/.yas-parents
+  emacs.d/snippets/nasm-mode/function_doxygen_doc
+  emacs.d/snippets/ned-mode/.yas-parents
+  emacs.d/snippets/ned-mode/chan
+  emacs.d/snippets/ned-mode/connections
+  emacs.d/snippets/ned-mode/for
+  emacs.d/snippets/ned-mode/import
+  emacs.d/snippets/ned-mode/network
+  emacs.d/snippets/ned-mode/simple
+  emacs.d/snippets/ned-mode/submodules
+  emacs.d/snippets/nesc-mode/.yas-parents
+  emacs.d/snippets/nesc-mode/TOSSIM
+  emacs.d/snippets/nesc-mode/command
+  emacs.d/snippets/nesc-mode/dbg
+  emacs.d/snippets/nesc-mode/event
+  emacs.d/snippets/nesc-mode/ifdef
+  emacs.d/snippets/nesc-mode/interface
+  emacs.d/snippets/nesc-mode/module
+  emacs.d/snippets/nesc-mode/nx
+  emacs.d/snippets/nesc-mode/provides
+  emacs.d/snippets/nesc-mode/sim
+  emacs.d/snippets/nesc-mode/uint8_t
+  emacs.d/snippets/nesc-mode/uses
+  emacs.d/snippets/nim-mode/array
+  emacs.d/snippets/nim-mode/block
+  emacs.d/snippets/nim-mode/case
+  emacs.d/snippets/nim-mode/for
+  emacs.d/snippets/nim-mode/function
+  emacs.d/snippets/nim-mode/if
+  emacs.d/snippets/nim-mode/import
+  emacs.d/snippets/nim-mode/import from
+  emacs.d/snippets/nim-mode/iterator
+  emacs.d/snippets/nim-mode/macro
+  emacs.d/snippets/nim-mode/method
+  emacs.d/snippets/nim-mode/of
+  emacs.d/snippets/nim-mode/pragma
+  emacs.d/snippets/nim-mode/procedure
+  emacs.d/snippets/nim-mode/sequence
+  emacs.d/snippets/nim-mode/template
+  emacs.d/snippets/nim-mode/try-except
+  emacs.d/snippets/nim-mode/while
+  emacs.d/snippets/nix-mode/buildPhase
+  emacs.d/snippets/nix-mode/callPackage
+  emacs.d/snippets/nix-mode/checkPhase
+  emacs.d/snippets/nix-mode/configurePhase
+  emacs.d/snippets/nix-mode/distPhase
+  emacs.d/snippets/nix-mode/fixupPhase
+  emacs.d/snippets/nix-mode/installCheckPhase
+  emacs.d/snippets/nix-mode/installPhase
+  emacs.d/snippets/nix-mode/package_github
+  emacs.d/snippets/nix-mode/package_url
+  emacs.d/snippets/nix-mode/patchPhase
+  emacs.d/snippets/nix-mode/phases
+  emacs.d/snippets/nix-mode/unpackPhase
+  emacs.d/snippets/nsis-mode/.yas-parents
+  emacs.d/snippets/nsis-mode/define
+  emacs.d/snippets/nsis-mode/function
+  emacs.d/snippets/nsis-mode/if
+  emacs.d/snippets/nsis-mode/include
+  emacs.d/snippets/nsis-mode/insert_macro
+  emacs.d/snippets/nsis-mode/instdir
+  emacs.d/snippets/nsis-mode/macro
+  emacs.d/snippets/nsis-mode/message
+  emacs.d/snippets/nsis-mode/outdir
+  emacs.d/snippets/nsis-mode/outfile
+  emacs.d/snippets/nsis-mode/section
+  emacs.d/snippets/nxml-mode/body
+  emacs.d/snippets/nxml-mode/br
+  emacs.d/snippets/nxml-mode/doctype
+  emacs.d/snippets/nxml-mode/doctype_xhtml1_strict
+  emacs.d/snippets/nxml-mode/doctype_xhtml1_transitional
+  emacs.d/snippets/nxml-mode/form
+  emacs.d/snippets/nxml-mode/href
+  emacs.d/snippets/nxml-mode/html
+  emacs.d/snippets/nxml-mode/img
+  emacs.d/snippets/nxml-mode/input
+  emacs.d/snippets/nxml-mode/link
+  emacs.d/snippets/nxml-mode/meta
+  emacs.d/snippets/nxml-mode/name
+  emacs.d/snippets/nxml-mode/quote
+  emacs.d/snippets/nxml-mode/style
+  emacs.d/snippets/nxml-mode/tag
+  emacs.d/snippets/nxml-mode/tag_closing
+  emacs.d/snippets/nxml-mode/tag_newline
+  emacs.d/snippets/octave-mode/for
+  emacs.d/snippets/octave-mode/function
+  emacs.d/snippets/octave-mode/if
+  emacs.d/snippets/odin-mode/case
+  emacs.d/snippets/odin-mode/dfri
+  emacs.d/snippets/odin-mode/distinct
+  emacs.d/snippets/odin-mode/enum
+  emacs.d/snippets/odin-mode/fd
+  emacs.d/snippets/odin-mode/for
+  emacs.d/snippets/odin-mode/ford
+  emacs.d/snippets/odin-mode/fori
+  emacs.d/snippets/odin-mode/if
+  emacs.d/snippets/odin-mode/ife
+  emacs.d/snippets/odin-mode/ifz
+  emacs.d/snippets/odin-mode/proc
+  emacs.d/snippets/odin-mode/struct
+  emacs.d/snippets/odin-mode/sw
+  emacs.d/snippets/odin-mode/swp
+  emacs.d/snippets/odin-mode/union
+  emacs.d/snippets/odin-mode/when
+  emacs.d/snippets/odin-mode/whene
+  emacs.d/snippets/org-mode/author
+  emacs.d/snippets/org-mode/center
+  emacs.d/snippets/org-mode/date
+  emacs.d/snippets/org-mode/description
+  emacs.d/snippets/org-mode/dot
+  emacs.d/snippets/org-mode/elisp
+  emacs.d/snippets/org-mode/emacs-lisp
+  emacs.d/snippets/org-mode/email
+  emacs.d/snippets/org-mode/embedded
+  emacs.d/snippets/org-mode/entry
+  emacs.d/snippets/org-mode/exampleblock
+  emacs.d/snippets/org-mode/export
+  emacs.d/snippets/org-mode/figure
+  emacs.d/snippets/org-mode/html
+  emacs.d/snippets/org-mode/image
+  emacs.d/snippets/org-mode/img
+  emacs.d/snippets/org-mode/include
+  emacs.d/snippets/org-mode/ipython
+  emacs.d/snippets/org-mode/keywords
+  emacs.d/snippets/org-mode/language
+  emacs.d/snippets/org-mode/link
+  emacs.d/snippets/org-mode/matrix
+  emacs.d/snippets/org-mode/options
+  emacs.d/snippets/org-mode/py
+  emacs.d/snippets/org-mode/python
+  emacs.d/snippets/org-mode/quote
+  emacs.d/snippets/org-mode/rv_background
+  emacs.d/snippets/org-mode/rv_image_background
+  emacs.d/snippets/org-mode/setup
+  emacs.d/snippets/org-mode/sh
+  emacs.d/snippets/org-mode/src
+  emacs.d/snippets/org-mode/style
+  emacs.d/snippets/org-mode/table
+  emacs.d/snippets/org-mode/title
+  emacs.d/snippets/org-mode/uml
+  emacs.d/snippets/org-mode/verse
+  emacs.d/snippets/org-mode/video
+  emacs.d/snippets/perl-mode/.yas-parents
+  emacs.d/snippets/perl-mode/bang
+  emacs.d/snippets/perl-mode/enc
+  emacs.d/snippets/perl-mode/eval
+  emacs.d/snippets/perl-mode/for
+  emacs.d/snippets/perl-mode/fore
+  emacs.d/snippets/perl-mode/if
+  emacs.d/snippets/perl-mode/ife
+  emacs.d/snippets/perl-mode/ifee
+  emacs.d/snippets/perl-mode/strict
+  emacs.d/snippets/perl-mode/sub
+  emacs.d/snippets/perl-mode/unless
+  emacs.d/snippets/perl-mode/while
+  emacs.d/snippets/perl-mode/xfore
+  emacs.d/snippets/perl-mode/xif
+  emacs.d/snippets/perl-mode/xunless
+  emacs.d/snippets/perl-mode/xwhile
+  emacs.d/snippets/php-mode/.yas-setup.el
+  emacs.d/snippets/php-mode/__call
+  emacs.d/snippets/php-mode/__callStatic
+  emacs.d/snippets/php-mode/catch
+  emacs.d/snippets/php-mode/cls
+  emacs.d/snippets/php-mode/clse
+  emacs.d/snippets/php-mode/clsi
+  emacs.d/snippets/php-mode/const
+  emacs.d/snippets/php-mode/define
+  emacs.d/snippets/php-mode/doc-comment-multiline
+  emacs.d/snippets/php-mode/doc-comment-oneline
+  emacs.d/snippets/php-mode/else
+  emacs.d/snippets/php-mode/elseif
+  emacs.d/snippets/php-mode/enum
+  emacs.d/snippets/php-mode/fn
+  emacs.d/snippets/php-mode/foreach
+  emacs.d/snippets/php-mode/foreach_value
+  emacs.d/snippets/php-mode/function
+  emacs.d/snippets/php-mode/function-return-type
+  emacs.d/snippets/php-mode/get
+  emacs.d/snippets/php-mode/if
+  emacs.d/snippets/php-mode/interface
+  emacs.d/snippets/php-mode/license-doc
+  emacs.d/snippets/php-mode/license-doc-apache
+  emacs.d/snippets/php-mode/license-doc-gplv2
+  emacs.d/snippets/php-mode/license-doc-mit
+  emacs.d/snippets/php-mode/license-doc-mpl
+  emacs.d/snippets/php-mode/match
+  emacs.d/snippets/php-mode/param-doc
+  emacs.d/snippets/php-mode/property-doc
+  emacs.d/snippets/php-mode/psysh
+  emacs.d/snippets/php-mode/return-doc
+  emacs.d/snippets/php-mode/set
+  emacs.d/snippets/php-mode/stdout
+  emacs.d/snippets/php-mode/strict-types
+  emacs.d/snippets/php-mode/switch
+  emacs.d/snippets/php-mode/ticks
+  emacs.d/snippets/php-mode/trait
+  emacs.d/snippets/php-mode/try
+  emacs.d/snippets/php-mode/var-doc
+  emacs.d/snippets/php-mode/var-oneline
+  emacs.d/snippets/php-mode/vd
+  emacs.d/snippets/php-mode/vde
+  emacs.d/snippets/php-mode/ve
+  emacs.d/snippets/php-ts-mode/.yas-parents
+  emacs.d/snippets/powershell-mode/cmdletbinding
+  emacs.d/snippets/powershell-mode/comment-based-help
+  emacs.d/snippets/powershell-mode/function
+  emacs.d/snippets/powershell-mode/parameter
+  emacs.d/snippets/prog-mode/.yas-setup.el
+  emacs.d/snippets/prog-mode/comment
+  emacs.d/snippets/prog-mode/commentblock
+  emacs.d/snippets/prog-mode/commentline
+  emacs.d/snippets/prog-mode/fixme
+  emacs.d/snippets/prog-mode/todo
+  emacs.d/snippets/prog-mode/xxx
+  emacs.d/snippets/protobuf-mode/message
+  emacs.d/snippets/protobuf-mode/syntax
+  emacs.d/snippets/python-mode/.yas-parents
+  emacs.d/snippets/python-mode/.yas-setup.el
+  emacs.d/snippets/python-mode/__abs__
+  emacs.d/snippets/python-mode/__add__
+  emacs.d/snippets/python-mode/__aenter__
+  emacs.d/snippets/python-mode/__aexit__
+  emacs.d/snippets/python-mode/__aiter__
+  emacs.d/snippets/python-mode/__and__
+  emacs.d/snippets/python-mode/__anext__
+  emacs.d/snippets/python-mode/__await__
+  emacs.d/snippets/python-mode/__bool__
+  emacs.d/snippets/python-mode/__bytes__
+  emacs.d/snippets/python-mode/__call__
+  emacs.d/snippets/python-mode/__ceil__
+  emacs.d/snippets/python-mode/__class_getitem__
+  emacs.d/snippets/python-mode/__cmp__
+  emacs.d/snippets/python-mode/__complex__
+  emacs.d/snippets/python-mode/__contains__
+  emacs.d/snippets/python-mode/__del__
+  emacs.d/snippets/python-mode/__delattr__
+  emacs.d/snippets/python-mode/__delete__
+  emacs.d/snippets/python-mode/__delitem__
+  emacs.d/snippets/python-mode/__dir__
+  emacs.d/snippets/python-mode/__div__
+  emacs.d/snippets/python-mode/__divmod__
+  emacs.d/snippets/python-mode/__enter__
+  emacs.d/snippets/python-mode/__eq__
+  emacs.d/snippets/python-mode/__exit__
+  emacs.d/snippets/python-mode/__float__
+  emacs.d/snippets/python-mode/__floor__
+  emacs.d/snippets/python-mode/__floordiv__
+  emacs.d/snippets/python-mode/__format__
+  emacs.d/snippets/python-mode/__ge__
+  emacs.d/snippets/python-mode/__get__
+  emacs.d/snippets/python-mode/__getattr__
+  emacs.d/snippets/python-mode/__getattribute__
+  emacs.d/snippets/python-mode/__getitem__
+  emacs.d/snippets/python-mode/__gt__
+  emacs.d/snippets/python-mode/__hash__
+  emacs.d/snippets/python-mode/__iadd__
+  emacs.d/snippets/python-mode/__iand__
+  emacs.d/snippets/python-mode/__idiv__
+  emacs.d/snippets/python-mode/__ifloordiv__
+  emacs.d/snippets/python-mode/__ilshift__
+  emacs.d/snippets/python-mode/__imatmul__
+  emacs.d/snippets/python-mode/__imod__
+  emacs.d/snippets/python-mode/__imul__
+  emacs.d/snippets/python-mode/__index__
+  emacs.d/snippets/python-mode/__init__
+  emacs.d/snippets/python-mode/__init_subclass__
+  emacs.d/snippets/python-mode/__instancecheck__
+  emacs.d/snippets/python-mode/__int__
+  emacs.d/snippets/python-mode/__invert__
+  emacs.d/snippets/python-mode/__ior__
+  emacs.d/snippets/python-mode/__ipow__
+  emacs.d/snippets/python-mode/__irshift__
+  emacs.d/snippets/python-mode/__isub__
+  emacs.d/snippets/python-mode/__iter__
+  emacs.d/snippets/python-mode/__itruediv__
+  emacs.d/snippets/python-mode/__ixor__
+  emacs.d/snippets/python-mode/__le__
+  emacs.d/snippets/python-mode/__len__
+  emacs.d/snippets/python-mode/__length_hint__
+  emacs.d/snippets/python-mode/__lshift__
+  emacs.d/snippets/python-mode/__lt__
+  emacs.d/snippets/python-mode/__matmul__
+  emacs.d/snippets/python-mode/__missing__
+  emacs.d/snippets/python-mode/__mod__
+  emacs.d/snippets/python-mode/__mul__
+  emacs.d/snippets/python-mode/__ne__
+  emacs.d/snippets/python-mode/__neg__
+  emacs.d/snippets/python-mode/__new__
+  emacs.d/snippets/python-mode/__next__
+  emacs.d/snippets/python-mode/__or__
+  emacs.d/snippets/python-mode/__pos__
+  emacs.d/snippets/python-mode/__pow__
+  emacs.d/snippets/python-mode/__prepare__
+  emacs.d/snippets/python-mode/__radd__
+  emacs.d/snippets/python-mode/__rand__
+  emacs.d/snippets/python-mode/__rdivmod__
+  emacs.d/snippets/python-mode/__repr__
+  emacs.d/snippets/python-mode/__reversed__
+  emacs.d/snippets/python-mode/__rfloordiv__
+  emacs.d/snippets/python-mode/__rlshift__
+  emacs.d/snippets/python-mode/__rmatmul__
+  emacs.d/snippets/python-mode/__rmod__
+  emacs.d/snippets/python-mode/__rmul__
+  emacs.d/snippets/python-mode/__ror__
+  emacs.d/snippets/python-mode/__round__
+  emacs.d/snippets/python-mode/__rpow__
+  emacs.d/snippets/python-mode/__rrshift__
+  emacs.d/snippets/python-mode/__rshift__
+  emacs.d/snippets/python-mode/__rsub__
+  emacs.d/snippets/python-mode/__rtruediv__
+  emacs.d/snippets/python-mode/__rxor__
+  emacs.d/snippets/python-mode/__set__
+  emacs.d/snippets/python-mode/__set_name__
+  emacs.d/snippets/python-mode/__setattr__
+  emacs.d/snippets/python-mode/__setitem__
+  emacs.d/snippets/python-mode/__slots__
+  emacs.d/snippets/python-mode/__str__
+  emacs.d/snippets/python-mode/__sub__
+  emacs.d/snippets/python-mode/__subclasscheck__
+  emacs.d/snippets/python-mode/__truediv__
+  emacs.d/snippets/python-mode/__trunc__
+  emacs.d/snippets/python-mode/__xor__
+  emacs.d/snippets/python-mode/all
+  emacs.d/snippets/python-mode/arg
+  emacs.d/snippets/python-mode/arg_positional
+  emacs.d/snippets/python-mode/ase
+  emacs.d/snippets/python-mode/asne
+  emacs.d/snippets/python-mode/asr
+  emacs.d/snippets/python-mode/assert
+  emacs.d/snippets/python-mode/assertEqual
+  emacs.d/snippets/python-mode/assertFalse
+  emacs.d/snippets/python-mode/assertIn
+  emacs.d/snippets/python-mode/assertNotEqual
+  emacs.d/snippets/python-mode/assertNotIn
+  emacs.d/snippets/python-mode/assertRaises
+  emacs.d/snippets/python-mode/assertRaises.with
+  emacs.d/snippets/python-mode/assertTrue
+  emacs.d/snippets/python-mode/bang
+  emacs.d/snippets/python-mode/celery_pdb
+  emacs.d/snippets/python-mode/class_doxygen_doc
+  emacs.d/snippets/python-mode/classmethod
+  emacs.d/snippets/python-mode/cls
+  emacs.d/snippets/python-mode/dataclass
+  emacs.d/snippets/python-mode/dec
+  emacs.d/snippets/python-mode/def
+  emacs.d/snippets/python-mode/deftest
+  emacs.d/snippets/python-mode/django_test_class
+  emacs.d/snippets/python-mode/doc
+  emacs.d/snippets/python-mode/doctest
+  emacs.d/snippets/python-mode/embed
+  emacs.d/snippets/python-mode/enum
+  emacs.d/snippets/python-mode/env
+  emacs.d/snippets/python-mode/eq
+  emacs.d/snippets/python-mode/for
+  emacs.d/snippets/python-mode/from
+  emacs.d/snippets/python-mode/function
+  emacs.d/snippets/python-mode/function_docstring
+  emacs.d/snippets/python-mode/function_docstring_numpy
+  emacs.d/snippets/python-mode/function_doxygen_doc
+  emacs.d/snippets/python-mode/ic.py
+  emacs.d/snippets/python-mode/if
+  emacs.d/snippets/python-mode/ife
+  emacs.d/snippets/python-mode/ifmain
+  emacs.d/snippets/python-mode/import
+  emacs.d/snippets/python-mode/init
+  emacs.d/snippets/python-mode/init_docstring
+  emacs.d/snippets/python-mode/init_docstring_numpy
+  emacs.d/snippets/python-mode/interact
+  emacs.d/snippets/python-mode/ipdb
+  emacs.d/snippets/python-mode/iter
+  emacs.d/snippets/python-mode/lambda
+  emacs.d/snippets/python-mode/list
+  emacs.d/snippets/python-mode/logger_name
+  emacs.d/snippets/python-mode/logging
+  emacs.d/snippets/python-mode/main
+  emacs.d/snippets/python-mode/metaclass
+  emacs.d/snippets/python-mode/method
+  emacs.d/snippets/python-mode/method_docstring
+  emacs.d/snippets/python-mode/method_docstring_numpy
+  emacs.d/snippets/python-mode/not_impl
+  emacs.d/snippets/python-mode/np
+  emacs.d/snippets/python-mode/parse_args
+  emacs.d/snippets/python-mode/parser
+  emacs.d/snippets/python-mode/pass
+  emacs.d/snippets/python-mode/pdb
+  emacs.d/snippets/python-mode/pl
+  emacs.d/snippets/python-mode/print
+  emacs.d/snippets/python-mode/prop
+  emacs.d/snippets/python-mode/pudb
+  emacs.d/snippets/python-mode/reg
+  emacs.d/snippets/python-mode/repr
+  emacs.d/snippets/python-mode/return
+  emacs.d/snippets/python-mode/scls
+  emacs.d/snippets/python-mode/script
+  emacs.d/snippets/python-mode/self
+  emacs.d/snippets/python-mode/self_without_dot
+  emacs.d/snippets/python-mode/selfassign
+  emacs.d/snippets/python-mode/setdef
+  emacs.d/snippets/python-mode/setup
+  emacs.d/snippets/python-mode/size
+  emacs.d/snippets/python-mode/static
+  emacs.d/snippets/python-mode/str
+  emacs.d/snippets/python-mode/super
+  emacs.d/snippets/python-mode/test_class
+  emacs.d/snippets/python-mode/test_file
+  emacs.d/snippets/python-mode/try
+  emacs.d/snippets/python-mode/tryelse
+  emacs.d/snippets/python-mode/unicode
+  emacs.d/snippets/python-mode/unicode_literals
+  emacs.d/snippets/python-mode/utf8
+  emacs.d/snippets/python-mode/while
+  emacs.d/snippets/python-mode/with
+  emacs.d/snippets/python-mode/with-open
+  emacs.d/snippets/python-mode/with_statement
+  emacs.d/snippets/python-ts-mode/.yas-parents
+  emacs.d/snippets/racket-mode/case
+  emacs.d/snippets/racket-mode/caselambda
+  emacs.d/snippets/racket-mode/cond
+  emacs.d/snippets/racket-mode/define
+  emacs.d/snippets/racket-mode/define-syntax-rule
+  emacs.d/snippets/racket-mode/do
+  emacs.d/snippets/racket-mode/for
+  emacs.d/snippets/racket-mode/if
+  emacs.d/snippets/racket-mode/lambda
+  emacs.d/snippets/racket-mode/let
+  emacs.d/snippets/racket-mode/match
+  emacs.d/snippets/racket-mode/module
+  emacs.d/snippets/racket-mode/module-plus
+  emacs.d/snippets/racket-mode/module-star
+  emacs.d/snippets/racket-mode/syntax-rules
+  emacs.d/snippets/racket-mode/unless
+  emacs.d/snippets/racket-mode/when
+  emacs.d/snippets/raku-mode/elsif
+  emacs.d/snippets/raku-mode/for
+  emacs.d/snippets/raku-mode/for-guard
+  emacs.d/snippets/raku-mode/forv
+  emacs.d/snippets/raku-mode/forvc
+  emacs.d/snippets/raku-mode/forw
+  emacs.d/snippets/raku-mode/given
+  emacs.d/snippets/raku-mode/if
+  emacs.d/snippets/raku-mode/if-else
+  emacs.d/snippets/raku-mode/ifguard
+  emacs.d/snippets/raku-mode/main
+  emacs.d/snippets/raku-mode/multi
+  emacs.d/snippets/raku-mode/multi-line-comment
+  emacs.d/snippets/raku-mode/pod
+  emacs.d/snippets/raku-mode/subrutine
+  emacs.d/snippets/raku-mode/subset
+  emacs.d/snippets/raku-mode/ternary-operator
+  emacs.d/snippets/raku-mode/unless
+  emacs.d/snippets/raku-mode/unless-guard
+  emacs.d/snippets/raku-mode/until
+  emacs.d/snippets/raku-mode/untilguard
+  emacs.d/snippets/raku-mode/while
+  emacs.d/snippets/raku-mode/whileguard
+  emacs.d/snippets/reason-mode/component
+  emacs.d/snippets/reason-mode/for
+  emacs.d/snippets/reason-mode/function
+  emacs.d/snippets/reason-mode/functor
+  emacs.d/snippets/reason-mode/if
+  emacs.d/snippets/reason-mode/ifelse
+  emacs.d/snippets/reason-mode/let
+  emacs.d/snippets/reason-mode/match_case
+  emacs.d/snippets/reason-mode/module
+  emacs.d/snippets/reason-mode/switch
+  emacs.d/snippets/reason-mode/while
+  emacs.d/snippets/rjsx-mode/.yas-make-groups
+  emacs.d/snippets/rjsx-mode/.yas-parents
+  emacs.d/snippets/rjsx-mode/.yas-setup.el
+  emacs.d/snippets/rjsx-mode/GraphQL/expgql
+  emacs.d/snippets/rjsx-mode/GraphQL/graphql
+  emacs.d/snippets/rjsx-mode/Jest/desc
+  emacs.d/snippets/rjsx-mode/Jest/snrtest
+  emacs.d/snippets/rjsx-mode/Jest/sntest
+  emacs.d/snippets/rjsx-mode/Jest/srtest
+  emacs.d/snippets/rjsx-mode/Jest/stest
+  emacs.d/snippets/rjsx-mode/Jest/test
+  emacs.d/snippets/rjsx-mode/Jest/tit
+  emacs.d/snippets/rjsx-mode/React-Native/imrn
+  emacs.d/snippets/rjsx-mode/React-Native/rnc
+  emacs.d/snippets/rjsx-mode/React-Native/rnce
+  emacs.d/snippets/rjsx-mode/React-Native/rncs
+  emacs.d/snippets/rjsx-mode/React-Native/rnpc
+  emacs.d/snippets/rjsx-mode/React-Native/rnpce
+  emacs.d/snippets/rjsx-mode/React-Native/rnstyle
+  emacs.d/snippets/rjsx-mode/React/cdm
+  emacs.d/snippets/rjsx-mode/React/cdup
+  emacs.d/snippets/rjsx-mode/React/cp
+  emacs.d/snippets/rjsx-mode/React/cref
+  emacs.d/snippets/rjsx-mode/React/cs
+  emacs.d/snippets/rjsx-mode/React/cwun
+  emacs.d/snippets/rjsx-mode/React/est
+  emacs.d/snippets/rjsx-mode/React/fref
+  emacs.d/snippets/rjsx-mode/React/gdsfp
+  emacs.d/snippets/rjsx-mode/React/gsbu
+  emacs.d/snippets/rjsx-mode/React/hoc
+  emacs.d/snippets/rjsx-mode/React/impt
+  emacs.d/snippets/rjsx-mode/React/imr
+  emacs.d/snippets/rjsx-mode/React/imrc
+  emacs.d/snippets/rjsx-mode/React/imrcp
+  emacs.d/snippets/rjsx-mode/React/imrd
+  emacs.d/snippets/rjsx-mode/React/imrm
+  emacs.d/snippets/rjsx-mode/React/imrmp
+  emacs.d/snippets/rjsx-mode/React/imrpc
+  emacs.d/snippets/rjsx-mode/React/imrpcp
+  emacs.d/snippets/rjsx-mode/React/imrr
+  emacs.d/snippets/rjsx-mode/React/props
+  emacs.d/snippets/rjsx-mode/React/pta
+  emacs.d/snippets/rjsx-mode/React/ptany
+  emacs.d/snippets/rjsx-mode/React/ptao
+  emacs.d/snippets/rjsx-mode/React/ptaor
+  emacs.d/snippets/rjsx-mode/React/ptar
+  emacs.d/snippets/rjsx-mode/React/ptb
+  emacs.d/snippets/rjsx-mode/React/ptbr
+  emacs.d/snippets/rjsx-mode/React/pte
+  emacs.d/snippets/rjsx-mode/React/ptel
+  emacs.d/snippets/rjsx-mode/React/ptelr
+  emacs.d/snippets/rjsx-mode/React/pter
+  emacs.d/snippets/rjsx-mode/React/ptet
+  emacs.d/snippets/rjsx-mode/React/ptetr
+  emacs.d/snippets/rjsx-mode/React/ptf
+  emacs.d/snippets/rjsx-mode/React/ptfr
+  emacs.d/snippets/rjsx-mode/React/pti
+  emacs.d/snippets/rjsx-mode/React/ptir
+  emacs.d/snippets/rjsx-mode/React/ptn
+  emacs.d/snippets/rjsx-mode/React/ptnd
+  emacs.d/snippets/rjsx-mode/React/ptndr
+  emacs.d/snippets/rjsx-mode/React/ptnr
+  emacs.d/snippets/rjsx-mode/React/pto
+  emacs.d/snippets/rjsx-mode/React/ptoo
+  emacs.d/snippets/rjsx-mode/React/ptoor
+  emacs.d/snippets/rjsx-mode/React/ptor
+  emacs.d/snippets/rjsx-mode/React/pts
+  emacs.d/snippets/rjsx-mode/React/ptsh
+  emacs.d/snippets/rjsx-mode/React/ptshr
+  emacs.d/snippets/rjsx-mode/React/ptsr
+  emacs.d/snippets/rjsx-mode/React/ptypes
+  emacs.d/snippets/rjsx-mode/React/rafc
+  emacs.d/snippets/rjsx-mode/React/rafce
+  emacs.d/snippets/rjsx-mode/React/rafcp
+  emacs.d/snippets/rjsx-mode/React/rcc
+  emacs.d/snippets/rjsx-mode/React/rccp
+  emacs.d/snippets/rjsx-mode/React/rce
+  emacs.d/snippets/rjsx-mode/React/rcep
+  emacs.d/snippets/rjsx-mode/React/rconst
+  emacs.d/snippets/rjsx-mode/React/rcontext
+  emacs.d/snippets/rjsx-mode/React/ren
+  emacs.d/snippets/rjsx-mode/React/rmc
+  emacs.d/snippets/rjsx-mode/React/rmcp
+  emacs.d/snippets/rjsx-mode/React/rpc
+  emacs.d/snippets/rjsx-mode/React/rpce
+  emacs.d/snippets/rjsx-mode/React/rpcp
+  emacs.d/snippets/rjsx-mode/React/scu
+  emacs.d/snippets/rjsx-mode/React/ssf
+  emacs.d/snippets/rjsx-mode/React/sst
+  emacs.d/snippets/rjsx-mode/React/state
+  emacs.d/snippets/rjsx-mode/Redux/hocredux
+  emacs.d/snippets/rjsx-mode/Redux/rcredux
+  emacs.d/snippets/rjsx-mode/Redux/redux
+  emacs.d/snippets/rjsx-mode/Redux/reduxmap
+  emacs.d/snippets/rjsx-mode/Redux/rncredux
+  emacs.d/snippets/rjsx-mode/Redux/rxaction
+  emacs.d/snippets/rjsx-mode/Redux/rxconst
+  emacs.d/snippets/rjsx-mode/Redux/rxreducer
+  emacs.d/snippets/rjsx-mode/Redux/rxselect
+  emacs.d/snippets/rst-mode/autoclass
+  emacs.d/snippets/rst-mode/autofunction
+  emacs.d/snippets/rst-mode/automodule
+  emacs.d/snippets/rst-mode/chapter
+  emacs.d/snippets/rst-mode/class
+  emacs.d/snippets/rst-mode/code
+  emacs.d/snippets/rst-mode/digraph
+  emacs.d/snippets/rst-mode/function
+  emacs.d/snippets/rst-mode/graph
+  emacs.d/snippets/rst-mode/graphviz
+  emacs.d/snippets/rst-mode/image
+  emacs.d/snippets/rst-mode/inheritance
+  emacs.d/snippets/rst-mode/literal_include
+  emacs.d/snippets/rst-mode/meta
+  emacs.d/snippets/rst-mode/module
+  emacs.d/snippets/rst-mode/parsed_literal
+  emacs.d/snippets/rst-mode/pause
+  emacs.d/snippets/rst-mode/section
+  emacs.d/snippets/rst-mode/term
+  emacs.d/snippets/rst-mode/title
+  emacs.d/snippets/rst-mode/url
+  emacs.d/snippets/rst-mode/verbatim
+  emacs.d/snippets/rst-mode/warning
+  emacs.d/snippets/ruby-mode/#
+  emacs.d/snippets/ruby-mode/=b
+  emacs.d/snippets/ruby-mode/Comp
+  emacs.d/snippets/ruby-mode/Enum
+  emacs.d/snippets/ruby-mode/GLOB
+  emacs.d/snippets/ruby-mode/all
+  emacs.d/snippets/ruby-mode/am
+  emacs.d/snippets/ruby-mode/any
+  emacs.d/snippets/ruby-mode/app
+  emacs.d/snippets/ruby-mode/attribute
+  emacs.d/snippets/ruby-mode/bang
+  emacs.d/snippets/ruby-mode/bench
+  emacs.d/snippets/ruby-mode/bm
+  emacs.d/snippets/ruby-mode/case
+  emacs.d/snippets/ruby-mode/cla
+  emacs.d/snippets/ruby-mode/cls
+  emacs.d/snippets/ruby-mode/collect
+  emacs.d/snippets/ruby-mode/dee
+  emacs.d/snippets/ruby-mode/def
+  emacs.d/snippets/ruby-mode/deli
+  emacs.d/snippets/ruby-mode/det
+  emacs.d/snippets/ruby-mode/dow
+  emacs.d/snippets/ruby-mode/ea
+  emacs.d/snippets/ruby-mode/eac
+  emacs.d/snippets/ruby-mode/eai
+  emacs.d/snippets/ruby-mode/eav
+  emacs.d/snippets/ruby-mode/eawi
+  emacs.d/snippets/ruby-mode/for
+  emacs.d/snippets/ruby-mode/forin
+  emacs.d/snippets/ruby-mode/formula
+  emacs.d/snippets/ruby-mode/if
+  emacs.d/snippets/ruby-mode/ife
+  emacs.d/snippets/ruby-mode/inc
+  emacs.d/snippets/ruby-mode/init
+  emacs.d/snippets/ruby-mode/inject
+  emacs.d/snippets/ruby-mode/map
+  emacs.d/snippets/ruby-mode/mm
+  emacs.d/snippets/ruby-mode/mod
+  emacs.d/snippets/ruby-mode/proc
+  emacs.d/snippets/ruby-mode/pry
+  emacs.d/snippets/ruby-mode/r
+  emacs.d/snippets/ruby-mode/rb
+  emacs.d/snippets/ruby-mode/red
+  emacs.d/snippets/ruby-mode/reject
+  emacs.d/snippets/ruby-mode/rel
+  emacs.d/snippets/ruby-mode/req
+  emacs.d/snippets/ruby-mode/rpry
+  emacs.d/snippets/ruby-mode/rw
+  emacs.d/snippets/ruby-mode/select
+  emacs.d/snippets/ruby-mode/str
+  emacs.d/snippets/ruby-mode/test class
+  emacs.d/snippets/ruby-mode/tim
+  emacs.d/snippets/ruby-mode/to_
+  emacs.d/snippets/ruby-mode/tu
+  emacs.d/snippets/ruby-mode/unless
+  emacs.d/snippets/ruby-mode/until
+  emacs.d/snippets/ruby-mode/upt
+  emacs.d/snippets/ruby-mode/w
+  emacs.d/snippets/ruby-mode/when
+  emacs.d/snippets/ruby-mode/while
+  emacs.d/snippets/ruby-mode/y
+  emacs.d/snippets/ruby-mode/zip
+  emacs.d/snippets/ruby-ts-mode/.yas-parents
+  emacs.d/snippets/rust-mode/afn
+  emacs.d/snippets/rust-mode/afnr
+  emacs.d/snippets/rust-mode/afns
+  emacs.d/snippets/rust-mode/afnw
+  emacs.d/snippets/rust-mode/allow
+  emacs.d/snippets/rust-mode/allow!
+  emacs.d/snippets/rust-mode/assert
+  emacs.d/snippets/rust-mode/asserteq
+  emacs.d/snippets/rust-mode/case
+  emacs.d/snippets/rust-mode/cfg
+  emacs.d/snippets/rust-mode/cfg=
+  emacs.d/snippets/rust-mode/closure
+  emacs.d/snippets/rust-mode/crate
+  emacs.d/snippets/rust-mode/deny
+  emacs.d/snippets/rust-mode/deny!
+  emacs.d/snippets/rust-mode/derive
+  emacs.d/snippets/rust-mode/display
+  emacs.d/snippets/rust-mode/drop
+  emacs.d/snippets/rust-mode/enum
+  emacs.d/snippets/rust-mode/eprint
+  emacs.d/snippets/rust-mode/eprintln
+  emacs.d/snippets/rust-mode/fn
+  emacs.d/snippets/rust-mode/fnr
+  emacs.d/snippets/rust-mode/fns
+  emacs.d/snippets/rust-mode/fnw
+  emacs.d/snippets/rust-mode/for
+  emacs.d/snippets/rust-mode/from
+  emacs.d/snippets/rust-mode/fromstr
+  emacs.d/snippets/rust-mode/if
+  emacs.d/snippets/rust-mode/ife
+  emacs.d/snippets/rust-mode/ifl
+  emacs.d/snippets/rust-mode/impl
+  emacs.d/snippets/rust-mode/implt
+  emacs.d/snippets/rust-mode/let
+  emacs.d/snippets/rust-mode/letm
+  emacs.d/snippets/rust-mode/lett
+  emacs.d/snippets/rust-mode/lettm
+  emacs.d/snippets/rust-mode/loop
+  emacs.d/snippets/rust-mode/macro
+  emacs.d/snippets/rust-mode/main
+  emacs.d/snippets/rust-mode/match
+  emacs.d/snippets/rust-mode/new
+  emacs.d/snippets/rust-mode/pafn
+  emacs.d/snippets/rust-mode/pafnr
+  emacs.d/snippets/rust-mode/pafns
+  emacs.d/snippets/rust-mode/pafnw
+  emacs.d/snippets/rust-mode/pfn
+  emacs.d/snippets/rust-mode/pfnr
+  emacs.d/snippets/rust-mode/pfns
+  emacs.d/snippets/rust-mode/pfnw
+  emacs.d/snippets/rust-mode/print
+  emacs.d/snippets/rust-mode/println
+  emacs.d/snippets/rust-mode/result
+  emacs.d/snippets/rust-mode/spawn
+  emacs.d/snippets/rust-mode/static
+  emacs.d/snippets/rust-mode/struct
+  emacs.d/snippets/rust-mode/test
+  emacs.d/snippets/rust-mode/testmod
+  emacs.d/snippets/rust-mode/trait
+  emacs.d/snippets/rust-mode/type
+  emacs.d/snippets/rust-mode/union
+  emacs.d/snippets/rust-mode/warn
+  emacs.d/snippets/rust-mode/warn!
+  emacs.d/snippets/rust-mode/while
+  emacs.d/snippets/rust-mode/whilel
+  emacs.d/snippets/rust-ts-mode/.yas-parents
+  emacs.d/snippets/rustic-mode/.yas-parents
+  emacs.d/snippets/scala-mode/app
+  emacs.d/snippets/scala-mode/case
+  emacs.d/snippets/scala-mode/cc
+  emacs.d/snippets/scala-mode/co
+  emacs.d/snippets/scala-mode/cons
+  emacs.d/snippets/scala-mode/def
+  emacs.d/snippets/scala-mode/doc
+  emacs.d/snippets/scala-mode/docfun
+  emacs.d/snippets/scala-mode/for
+  emacs.d/snippets/scala-mode/if
+  emacs.d/snippets/scala-mode/ls
+  emacs.d/snippets/scala-mode/main
+  emacs.d/snippets/scala-mode/match
+  emacs.d/snippets/scala-mode/ob
+  emacs.d/snippets/scala-mode/throw
+  emacs.d/snippets/scala-mode/try
+  emacs.d/snippets/scala-mode/valueclass
+  emacs.d/snippets/scala-ts-mode/.yas-parents
+  emacs.d/snippets/sh-mode/args
+  emacs.d/snippets/sh-mode/bang
+  emacs.d/snippets/sh-mode/case
+  emacs.d/snippets/sh-mode/for loop
+  emacs.d/snippets/sh-mode/function
+  emacs.d/snippets/sh-mode/if
+  emacs.d/snippets/sh-mode/ife
+  emacs.d/snippets/sh-mode/safe-bang
+  emacs.d/snippets/sh-mode/script-dir
+  emacs.d/snippets/sh-mode/select
+  emacs.d/snippets/sh-mode/until
+  emacs.d/snippets/sh-mode/while
+  emacs.d/snippets/sh-ts-mode/.yas-parents
+  emacs.d/snippets/snippet-mode/cont
+  emacs.d/snippets/snippet-mode/elisp
+  emacs.d/snippets/snippet-mode/field
+  emacs.d/snippets/snippet-mode/group
+  emacs.d/snippets/snippet-mode/mirror
+  emacs.d/snippets/snippet-mode/vars
+  emacs.d/snippets/sql-mode/column
+  emacs.d/snippets/sql-mode/constraint
+  emacs.d/snippets/sql-mode/constraint.1
+  emacs.d/snippets/sql-mode/create
+  emacs.d/snippets/sql-mode/create.1
+  emacs.d/snippets/sql-mode/insert
+  emacs.d/snippets/sql-mode/references
+  emacs.d/snippets/swift-mode/available
+  emacs.d/snippets/swift-mode/checkversion
+  emacs.d/snippets/swift-mode/dispatchafter
+  emacs.d/snippets/swift-mode/dispatchasync
+  emacs.d/snippets/swift-mode/dispatchmain
+  emacs.d/snippets/swift-mode/documentdirectory
+  emacs.d/snippets/swift-mode/forcase
+  emacs.d/snippets/swift-mode/fori
+  emacs.d/snippets/swift-mode/func
+  emacs.d/snippets/swift-mode/if
+  emacs.d/snippets/swift-mode/initcoder
+  emacs.d/snippets/swift-mode/let
+  emacs.d/snippets/swift-mode/mark
+  emacs.d/snippets/swift-mode/prop
+  emacs.d/snippets/swift-mode/sortarrayofstrings
+  emacs.d/snippets/swift-mode/trycatch
+  emacs.d/snippets/swift-mode/uialertcontroller
+  emacs.d/snippets/swift-mode/uicollectionviewdatasource
+  emacs.d/snippets/swift-mode/uicollectionviewdelegate
+  emacs.d/snippets/swift-mode/uitableviewdatasource
+  emacs.d/snippets/swift-mode/uitableviewdelegate
+  emacs.d/snippets/swift-mode/uiviewcontrollerlifecycle
+  emacs.d/snippets/swift-mode/var
+  emacs.d/snippets/swift-mode/while
+  emacs.d/snippets/swift-ts-mode/.yas-parents
+  emacs.d/snippets/terraform-mode/.yas-make-groups
+  emacs.d/snippets/terraform-mode/data
+  emacs.d/snippets/terraform-mode/google/app_engine_resources/google_app_engine_application
+  emacs.d/snippets/terraform-mode/google/bigquery_resources/google_bigquery_dataset
+  emacs.d/snippets/terraform-mode/google/bigquery_resources/google_bigquery_table
+  emacs.d/snippets/terraform-mode/google/bigtable_resources/google_bigtable_instance
+  emacs.d/snippets/terraform-mode/google/bigtable_resources/google_bigtable_table
+  emacs.d/snippets/terraform-mode/google/binary_authorization_resources/google_binary_authorization_attestor
+  emacs.d/snippets/terraform-mode/google/binary_authorization_resources/google_binary_authorization_policy
+  emacs.d/snippets/terraform-mode/google/cloud_build_resources/google_cloudbuild_trigger
+  emacs.d/snippets/terraform-mode/google/cloud_composer_resources/google_composer_environment
+  emacs.d/snippets/terraform-mode/google/cloud_functions_resources/google_cloudfunctions_function
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_address
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_attached_disk
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_autoscaler
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_backend_bucket
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_backend_service
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_disk
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_firewall
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_forwarding_rule
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_global_address
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_global_forwarding_rule
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_health_check
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_http_health_check
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_https_health_check
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_image
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_instance
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_instance_from_template
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_instance_group
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_instance_group_manager
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_instance_template
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_interconnect_attachment
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_network
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_network_peering
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_project_metadata
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_project_metadata_item
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_region_autoscaler
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_region_backend_service
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_region_disk
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_region_instance_group_manager
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_route
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_router
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_router_interface
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_router_nat
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_router_peer
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_security_policy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_shared_vpc_host_project
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_shared_vpc_service_project
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_snapshot
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_ssl_certificate
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_ssl_policy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_subnetwork
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_subnetwork_iam_binding
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_subnetwork_iam_member
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_subnetwork_iam_policy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_target_http_proxy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_target_https_proxy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_target_pool
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_target_ssl_proxy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_target_tcp_proxy
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_url_map
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_vpn_gateway
+  emacs.d/snippets/terraform-mode/google/compute_engine_resources/google_compute_vpn_tunnel
+  emacs.d/snippets/terraform-mode/google/container_analysis_resources/google_container_analysis_note
+  emacs.d/snippets/terraform-mode/google/container_engine_resources/google_container_cluster
+  emacs.d/snippets/terraform-mode/google/container_engine_resources/google_container_node_pool
+  emacs.d/snippets/terraform-mode/google/data_sources/google_active_folder
+  emacs.d/snippets/terraform-mode/google/data_sources/google_billing_account
+  emacs.d/snippets/terraform-mode/google/data_sources/google_client_config
+  emacs.d/snippets/terraform-mode/google/data_sources/google_cloudfunctions_function_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_address_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_backend_service_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_default_service_account
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_forwarding_rule_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_global_address_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_image_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_instance_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_instance_group_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_lb_ip_ranges
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_network_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_region_instance_group
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_regions
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_ssl_policy_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_subnetwork_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_vpn_gateway_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_compute_zones
+  emacs.d/snippets/terraform-mode/google/data_sources/google_container_cluster_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_container_engine_versions
+  emacs.d/snippets/terraform-mode/google/data_sources/google_container_registry_image
+  emacs.d/snippets/terraform-mode/google/data_sources/google_container_registry_repository
+  emacs.d/snippets/terraform-mode/google/data_sources/google_dns_managed_zone_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_folder_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_iam_policy
+  emacs.d/snippets/terraform-mode/google/data_sources/google_iam_role
+  emacs.d/snippets/terraform-mode/google/data_sources/google_kms_secret
+  emacs.d/snippets/terraform-mode/google/data_sources/google_netblock_ip_ranges
+  emacs.d/snippets/terraform-mode/google/data_sources/google_organization
+  emacs.d/snippets/terraform-mode/google/data_sources/google_project_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_project_services_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_service_account_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_service_account_key_data
+  emacs.d/snippets/terraform-mode/google/data_sources/google_storage_object_signed_url
+  emacs.d/snippets/terraform-mode/google/data_sources/google_storage_project_service_account
+  emacs.d/snippets/terraform-mode/google/dataflow_resources/google_dataflow_job
+  emacs.d/snippets/terraform-mode/google/dataproc_resources/google_dataproc_cluster
+  emacs.d/snippets/terraform-mode/google/dataproc_resources/google_dataproc_job
+  emacs.d/snippets/terraform-mode/google/dns_resources/google_dns_managed_zone
+  emacs.d/snippets/terraform-mode/google/dns_resources/google_dns_record_set
+  emacs.d/snippets/terraform-mode/google/endpoints_resources/google_endpoints_service
+  emacs.d/snippets/terraform-mode/google/filestore_resources/google_filestore_instance
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_billing_account_iam_binding
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_billing_account_iam_member
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_billing_account_iam_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_folder
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_folder_iam_binding
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_folder_iam_member
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_folder_iam_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_folder_organization_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_organization_iam_binding
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_organization_iam_custom_role
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_organization_iam_member
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_organization_iam_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_organization_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_iam_binding
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_iam_custom_role
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_iam_member
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_iam_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_organization_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_service
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_services
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_project_usage_export_bucket
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_resource_manager_lien
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_service_account
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_service_account_iam_binding
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_service_account_iam_member
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_service_account_iam_policy
+  emacs.d/snippets/terraform-mode/google/gcp_resources/google_service_account_key
+  emacs.d/snippets/terraform-mode/google/iot_core/google_cloudiot_registry
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_crypto_key
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_crypto_key_iam_binding
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_crypto_key_iam_member
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_key_ring
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_key_ring_iam_binding
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_key_ring_iam_member
+  emacs.d/snippets/terraform-mode/google/key_management_service_resources/google_kms_key_ring_iam_policy
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_subscription
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_subscription_iam_binding
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_subscription_iam_member
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_subscription_iam_policy
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_topic
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_topic_iam_binding
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_topic_iam_member
+  emacs.d/snippets/terraform-mode/google/pubsub_resources/google_pubsub_topic_iam_policy
+  emacs.d/snippets/terraform-mode/google/redis_resources/google_redis_instance
+  emacs.d/snippets/terraform-mode/google/runtimeconfig_resources/google_runtimeconfig_config
+  emacs.d/snippets/terraform-mode/google/runtimeconfig_resources/google_runtimeconfig_variable
+  emacs.d/snippets/terraform-mode/google/service_networking_resources/google_service_networking_connection
+  emacs.d/snippets/terraform-mode/google/source_repositories_resources/google_sourcerepo_repository
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_database
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_database_iam_binding
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_database_iam_member
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_database_iam_policy
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_instance
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_instance_iam_binding
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_instance_iam_member
+  emacs.d/snippets/terraform-mode/google/spanner_resources/google_spanner_instance_iam_policy
+  emacs.d/snippets/terraform-mode/google/sql_resources/google_sql_database
+  emacs.d/snippets/terraform-mode/google/sql_resources/google_sql_database_instance
+  emacs.d/snippets/terraform-mode/google/sql_resources/google_sql_ssl_cert
+  emacs.d/snippets/terraform-mode/google/sql_resources/google_sql_user
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_billing_account_exclusion
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_billing_account_sink
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_folder_exclusion
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_folder_sink
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_organization_exclusion
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_organization_sink
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_project_exclusion
+  emacs.d/snippets/terraform-mode/google/stackdriver_logging_resources/google_logging_project_sink
+  emacs.d/snippets/terraform-mode/google/stackdriver_monitoring_resources/google_monitoring_alert_policy
+  emacs.d/snippets/terraform-mode/google/stackdriver_monitoring_resources/google_monitoring_group
+  emacs.d/snippets/terraform-mode/google/stackdriver_monitoring_resources/google_monitoring_notification_channel
+  emacs.d/snippets/terraform-mode/google/stackdriver_monitoring_resources/google_monitoring_uptime_check_config
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_bucket
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_bucket_acl
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_bucket_iam_binding
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_bucket_iam_member
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_bucket_iam_policy
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_bucket_object
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_default_object_access_control
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_default_object_acl
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_notification
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_object_access_control
+  emacs.d/snippets/terraform-mode/google/storage_resources/google_storage_object_acl
+  emacs.d/snippets/terraform-mode/locals
+  emacs.d/snippets/terraform-mode/module
+  emacs.d/snippets/terraform-mode/output
+  emacs.d/snippets/terraform-mode/provider
+  emacs.d/snippets/terraform-mode/resource
+  emacs.d/snippets/terraform-mode/terraform
+  emacs.d/snippets/terraform-mode/variable
+  emacs.d/snippets/text-mode/.yas-parents
+  emacs.d/snippets/tsx-ts-mode/.yas-parents
+  emacs.d/snippets/tuareg-mode/assert
+  emacs.d/snippets/tuareg-mode/docstring
+  emacs.d/snippets/tuareg-mode/for
+  emacs.d/snippets/tuareg-mode/fun
+  emacs.d/snippets/tuareg-mode/guard
+  emacs.d/snippets/tuareg-mode/ifthen
+  emacs.d/snippets/tuareg-mode/ifthenelse
+  emacs.d/snippets/tuareg-mode/let
+  emacs.d/snippets/tuareg-mode/list_comprehension
+  emacs.d/snippets/tuareg-mode/main
+  emacs.d/snippets/tuareg-mode/match
+  emacs.d/snippets/tuareg-mode/module
+  emacs.d/snippets/tuareg-mode/open
+  emacs.d/snippets/tuareg-mode/printf
+  emacs.d/snippets/tuareg-mode/rec
+  emacs.d/snippets/tuareg-mode/try
+  emacs.d/snippets/tuareg-mode/type
+  emacs.d/snippets/tuareg-mode/type_type
+  emacs.d/snippets/tuareg-mode/val
+  emacs.d/snippets/tuareg-mode/while
+  emacs.d/snippets/typerex-mode/.yas-parents
+  emacs.d/snippets/typescript-mode/.yas-parents
+  emacs.d/snippets/typescript-ts-mode/.yas-parents
+  emacs.d/snippets/typescriptreact-mode/.yas-parents
+  emacs.d/snippets/udev-mode/ENV
+  emacs.d/snippets/udev-mode/GOTO
+  emacs.d/snippets/udev-mode/KERNEL
+  emacs.d/snippets/udev-mode/add
+  emacs.d/snippets/udev-mode/env$
+  emacs.d/snippets/udev-mode/run
+  emacs.d/snippets/vhdl-mode/architecture
+  emacs.d/snippets/vhdl-mode/assignation
+  emacs.d/snippets/vhdl-mode/case
+  emacs.d/snippets/vhdl-mode/component
+  emacs.d/snippets/vhdl-mode/constant
+  emacs.d/snippets/vhdl-mode/downto
+  emacs.d/snippets/vhdl-mode/entity
+  emacs.d/snippets/vhdl-mode/if
+  emacs.d/snippets/vhdl-mode/ifelif
+  emacs.d/snippets/vhdl-mode/ifelse
+  emacs.d/snippets/vhdl-mode/lib
+  emacs.d/snippets/vhdl-mode/port
+  emacs.d/snippets/vhdl-mode/process
+  emacs.d/snippets/vhdl-mode/signal
+  emacs.d/snippets/vhdl-mode/to
+  emacs.d/snippets/vhdl-mode/type
+  emacs.d/snippets/vhdl-mode/when
+  emacs.d/snippets/web-mode/.yas-parents
+  emacs.d/snippets/yaml-mode/entry
+  emacs.d/snippets/yaml-mode/list
+  emacs.d/snippets/yaml-mode/section
   main.org
 #+end_src
 
@@ -38,3 +2255,831 @@
   (org-babel-tangle)
   (shell-command "./work.sh")
 #+end_src
+
+#+RESULTS:
+: 0
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   emacs.d/snippets/.nosearch
+	new file:   emacs.d/snippets/antlr-mode/project
+	new file:   emacs.d/snippets/antlr-mode/property
+	new file:   emacs.d/snippets/antlr-mode/target
+	new file:   emacs.d/snippets/apples-mode/.yas-parents
+	new file:   emacs.d/snippets/apples-mode/comment
+	new file:   emacs.d/snippets/apples-mode/considering
+	new file:   emacs.d/snippets/apples-mode/considering-application-responses
+	new file:   emacs.d/snippets/apples-mode/display-dialog
+	new file:   emacs.d/snippets/apples-mode/if
+	new file:   emacs.d/snippets/apples-mode/ignoring
+	new file:   emacs.d/snippets/apples-mode/ignoring-application-responses
+	new file:   emacs.d/snippets/apples-mode/on
+	new file:   emacs.d/snippets/apples-mode/repeat
+	new file:   emacs.d/snippets/apples-mode/repeat-until
+	new file:   emacs.d/snippets/apples-mode/repeat-while
+	new file:   emacs.d/snippets/apples-mode/repeat-with
+	new file:   emacs.d/snippets/apples-mode/tell-application
+	new file:   emacs.d/snippets/apples-mode/tell-application-to-activate
+	new file:   emacs.d/snippets/apples-mode/try
+	new file:   emacs.d/snippets/apples-mode/using-terms-from-application
+	new file:   emacs.d/snippets/apples-mode/with-timeout-of-seconds
+	new file:   emacs.d/snippets/apples-mode/with-transaction
+	new file:   emacs.d/snippets/applescript-mode/.yas-parents
+	new file:   emacs.d/snippets/applescript-mode/comment
+	new file:   emacs.d/snippets/applescript-mode/considering
+	new file:   emacs.d/snippets/applescript-mode/considering-application-responses
+	new file:   emacs.d/snippets/applescript-mode/display-dialog
+	new file:   emacs.d/snippets/applescript-mode/if
+	new file:   emacs.d/snippets/applescript-mode/ignoring
+	new file:   emacs.d/snippets/applescript-mode/ignoring-application-responses
+	new file:   emacs.d/snippets/applescript-mode/on
+	new file:   emacs.d/snippets/applescript-mode/repeat
+	new file:   emacs.d/snippets/applescript-mode/repeat-until
+	new file:   emacs.d/snippets/applescript-mode/repeat-while
+	new file:   emacs.d/snippets/applescript-mode/repeat-with
+	new file:   emacs.d/snippets/applescript-mode/tell-application
+	new file:   emacs.d/snippets/applescript-mode/tell-application-to-activate
+	new file:   emacs.d/snippets/applescript-mode/try
+	new file:   emacs.d/snippets/applescript-mode/using-terms-from-application
+	new file:   emacs.d/snippets/applescript-mode/with-timeout-of-seconds
+	new file:   emacs.d/snippets/applescript-mode/with-transaction
+	new file:   emacs.d/snippets/bazel-mode/alias
+	new file:   emacs.d/snippets/bazel-mode/ccb
+	new file:   emacs.d/snippets/bazel-mode/cci
+	new file:   emacs.d/snippets/bazel-mode/ccinc
+	new file:   emacs.d/snippets/bazel-mode/ccl
+	new file:   emacs.d/snippets/bazel-mode/ccp
+	new file:   emacs.d/snippets/bazel-mode/cct
+	new file:   emacs.d/snippets/bazel-mode/fg
+	new file:   emacs.d/snippets/bazel-mode/genq
+	new file:   emacs.d/snippets/bazel-mode/jbin
+	new file:   emacs.d/snippets/bazel-mode/jimp
+	new file:   emacs.d/snippets/bazel-mode/jlib
+	new file:   emacs.d/snippets/bazel-mode/jrun
+	new file:   emacs.d/snippets/bazel-mode/jtest
+	new file:   emacs.d/snippets/bazel-mode/pybin
+	new file:   emacs.d/snippets/bazel-mode/pylib
+	new file:   emacs.d/snippets/bazel-mode/pyrun
+	new file:   emacs.d/snippets/bazel-mode/pytest
+	new file:   emacs.d/snippets/bazel-mode/shbin
+	new file:   emacs.d/snippets/bazel-mode/shlib
+	new file:   emacs.d/snippets/bazel-mode/shtest
+	new file:   emacs.d/snippets/bazel-mode/ws
+	new file:   emacs.d/snippets/bibtex-mode/.yas-setup.el
+	new file:   emacs.d/snippets/bibtex-mode/article
+	new file:   emacs.d/snippets/bibtex-mode/book
+	new file:   emacs.d/snippets/bibtex-mode/bookinbook
+	new file:   emacs.d/snippets/bibtex-mode/booklet
+	new file:   emacs.d/snippets/bibtex-mode/collection
+	new file:   emacs.d/snippets/bibtex-mode/conference
+	new file:   emacs.d/snippets/bibtex-mode/dataset
+	new file:   emacs.d/snippets/bibtex-mode/electronic
+	new file:   emacs.d/snippets/bibtex-mode/inbook
+	new file:   emacs.d/snippets/bibtex-mode/incollection
+	new file:   emacs.d/snippets/bibtex-mode/inproceedings
+	new file:   emacs.d/snippets/bibtex-mode/inreference
+	new file:   emacs.d/snippets/bibtex-mode/manual
+	new file:   emacs.d/snippets/bibtex-mode/masterthesis
+	new file:   emacs.d/snippets/bibtex-mode/misc
+	new file:   emacs.d/snippets/bibtex-mode/mvbook
+	new file:   emacs.d/snippets/bibtex-mode/mvcollection
+	new file:   emacs.d/snippets/bibtex-mode/mvreference
+	new file:   emacs.d/snippets/bibtex-mode/online
+	new file:   emacs.d/snippets/bibtex-mode/patent
+	new file:   emacs.d/snippets/bibtex-mode/periodical
+	new file:   emacs.d/snippets/bibtex-mode/phdthesis
+	new file:   emacs.d/snippets/bibtex-mode/proceedings
+	new file:   emacs.d/snippets/bibtex-mode/reference
+	new file:   emacs.d/snippets/bibtex-mode/report
+	new file:   emacs.d/snippets/bibtex-mode/set
+	new file:   emacs.d/snippets/bibtex-mode/software
+	new file:   emacs.d/snippets/bibtex-mode/suppbook
+	new file:   emacs.d/snippets/bibtex-mode/suppcollection
+	new file:   emacs.d/snippets/bibtex-mode/suppperiodical
+	new file:   emacs.d/snippets/bibtex-mode/techreport
+	new file:   emacs.d/snippets/bibtex-mode/thesis
+	new file:   emacs.d/snippets/bibtex-mode/unpublished
+	new file:   emacs.d/snippets/bibtex-mode/xdata
+	new file:   emacs.d/snippets/c++-mode/.yas-parents
+	new file:   emacs.d/snippets/c++-mode/.yas-setup.el
+	new file:   emacs.d/snippets/c++-mode/acm
+	new file:   emacs.d/snippets/c++-mode/ajf
+	new file:   emacs.d/snippets/c++-mode/alo
+	new file:   emacs.d/snippets/c++-mode/ano
+	new file:   emacs.d/snippets/c++-mode/assert
+	new file:   emacs.d/snippets/c++-mode/beginend
+	new file:   emacs.d/snippets/c++-mode/boost_require
+	new file:   emacs.d/snippets/c++-mode/cerr
+	new file:   emacs.d/snippets/c++-mode/cin
+	new file:   emacs.d/snippets/c++-mode/class
+	new file:   emacs.d/snippets/c++-mode/class11
+	new file:   emacs.d/snippets/c++-mode/cni
+	new file:   emacs.d/snippets/c++-mode/cnt
+	new file:   emacs.d/snippets/c++-mode/const_[]
+	new file:   emacs.d/snippets/c++-mode/constructor
+	new file:   emacs.d/snippets/c++-mode/cout
+	new file:   emacs.d/snippets/c++-mode/cpb
+	new file:   emacs.d/snippets/c++-mode/cpi
+	new file:   emacs.d/snippets/c++-mode/cpn
+	new file:   emacs.d/snippets/c++-mode/cpp
+	new file:   emacs.d/snippets/c++-mode/cpy
+	new file:   emacs.d/snippets/c++-mode/cstd
+	new file:   emacs.d/snippets/c++-mode/d+=
+	new file:   emacs.d/snippets/c++-mode/d_operator
+	new file:   emacs.d/snippets/c++-mode/d_operator[]
+	new file:   emacs.d/snippets/c++-mode/d_operator[]_const
+	new file:   emacs.d/snippets/c++-mode/d_operator_istream
+	new file:   emacs.d/snippets/c++-mode/delete
+	new file:   emacs.d/snippets/c++-mode/delete[]
+	new file:   emacs.d/snippets/c++-mode/doc
+	new file:   emacs.d/snippets/c++-mode/dynamic_casting
+	new file:   emacs.d/snippets/c++-mode/enum
+	new file:   emacs.d/snippets/c++-mode/eql
+	new file:   emacs.d/snippets/c++-mode/erm
+	new file:   emacs.d/snippets/c++-mode/ffo
+	new file:   emacs.d/snippets/c++-mode/fil
+	new file:   emacs.d/snippets/c++-mode/fin
+	new file:   emacs.d/snippets/c++-mode/fixture
+	new file:   emacs.d/snippets/c++-mode/fln
+	new file:   emacs.d/snippets/c++-mode/fnd
+	new file:   emacs.d/snippets/c++-mode/fne
+	new file:   emacs.d/snippets/c++-mode/fni
+	new file:   emacs.d/snippets/c++-mode/fori
+	new file:   emacs.d/snippets/c++-mode/forr
+	new file:   emacs.d/snippets/c++-mode/fre
+	new file:   emacs.d/snippets/c++-mode/friend
+	new file:   emacs.d/snippets/c++-mode/fun_declaration
+	new file:   emacs.d/snippets/c++-mode/gnn
+	new file:   emacs.d/snippets/c++-mode/gnr
+	new file:   emacs.d/snippets/c++-mode/gtest
+	new file:   emacs.d/snippets/c++-mode/ignore
+	new file:   emacs.d/snippets/c++-mode/ihp
+	new file:   emacs.d/snippets/c++-mode/ihu
+	new file:   emacs.d/snippets/c++-mode/inline
+	new file:   emacs.d/snippets/c++-mode/io
+	new file:   emacs.d/snippets/c++-mode/ipr
+	new file:   emacs.d/snippets/c++-mode/ipt
+	new file:   emacs.d/snippets/c++-mode/iss
+	new file:   emacs.d/snippets/c++-mode/isu
+	new file:   emacs.d/snippets/c++-mode/ita
+	new file:   emacs.d/snippets/c++-mode/iterator
+	new file:   emacs.d/snippets/c++-mode/lambda
+	new file:   emacs.d/snippets/c++-mode/ltr
+	new file:   emacs.d/snippets/c++-mode/lwr
+	new file:   emacs.d/snippets/c++-mode/lxc
+	new file:   emacs.d/snippets/c++-mode/map
+	new file:   emacs.d/snippets/c++-mode/member_function
+	new file:   emacs.d/snippets/c++-mode/mkh
+	new file:   emacs.d/snippets/c++-mode/mme
+	new file:   emacs.d/snippets/c++-mode/mne
+	new file:   emacs.d/snippets/c++-mode/module
+	new file:   emacs.d/snippets/c++-mode/mpb
+	new file:   emacs.d/snippets/c++-mode/mrg
+	new file:   emacs.d/snippets/c++-mode/msm
+	new file:   emacs.d/snippets/c++-mode/mxe
+	new file:   emacs.d/snippets/c++-mode/namespace
+	new file:   emacs.d/snippets/c++-mode/nno
+	new file:   emacs.d/snippets/c++-mode/ns
+	new file:   emacs.d/snippets/c++-mode/nth
+	new file:   emacs.d/snippets/c++-mode/nxp
+	new file:   emacs.d/snippets/c++-mode/operator!=
+	new file:   emacs.d/snippets/c++-mode/operator+
+	new file:   emacs.d/snippets/c++-mode/operator+=
+	new file:   emacs.d/snippets/c++-mode/operator=
+	new file:   emacs.d/snippets/c++-mode/operator==
+	new file:   emacs.d/snippets/c++-mode/operator[]
+	new file:   emacs.d/snippets/c++-mode/operator_istream
+	new file:   emacs.d/snippets/c++-mode/operator_ostream
+	new file:   emacs.d/snippets/c++-mode/ostream
+	new file:   emacs.d/snippets/c++-mode/pack
+	new file:   emacs.d/snippets/c++-mode/phh
+	new file:   emacs.d/snippets/c++-mode/ppt
+	new file:   emacs.d/snippets/c++-mode/private
+	new file:   emacs.d/snippets/c++-mode/protected
+	new file:   emacs.d/snippets/c++-mode/prp
+	new file:   emacs.d/snippets/c++-mode/psc
+	new file:   emacs.d/snippets/c++-mode/pst
+	new file:   emacs.d/snippets/c++-mode/ptc
+	new file:   emacs.d/snippets/c++-mode/ptn
+	new file:   emacs.d/snippets/c++-mode/public
+	new file:   emacs.d/snippets/c++-mode/rci
+	new file:   emacs.d/snippets/c++-mode/rmc
+	new file:   emacs.d/snippets/c++-mode/rmf
+	new file:   emacs.d/snippets/c++-mode/rmi
+	new file:   emacs.d/snippets/c++-mode/rpc
+	new file:   emacs.d/snippets/c++-mode/rpi
+	new file:   emacs.d/snippets/c++-mode/rpl
+	new file:   emacs.d/snippets/c++-mode/rtc
+	new file:   emacs.d/snippets/c++-mode/rte
+	new file:   emacs.d/snippets/c++-mode/rvc
+	new file:   emacs.d/snippets/c++-mode/rvr
+	new file:   emacs.d/snippets/c++-mode/shf
+	new file:   emacs.d/snippets/c++-mode/spt
+	new file:   emacs.d/snippets/c++-mode/srh
+	new file:   emacs.d/snippets/c++-mode/srn
+	new file:   emacs.d/snippets/c++-mode/srt
+	new file:   emacs.d/snippets/c++-mode/sstream
+	new file:   emacs.d/snippets/c++-mode/std
+	new file:   emacs.d/snippets/c++-mode/std_colon
+	new file:   emacs.d/snippets/c++-mode/sth
+	new file:   emacs.d/snippets/c++-mode/str
+	new file:   emacs.d/snippets/c++-mode/sts
+	new file:   emacs.d/snippets/c++-mode/swr
+	new file:   emacs.d/snippets/c++-mode/template
+	new file:   emacs.d/snippets/c++-mode/test case
+	new file:   emacs.d/snippets/c++-mode/test_main
+	new file:   emacs.d/snippets/c++-mode/test_suite
+	new file:   emacs.d/snippets/c++-mode/tfm
+	new file:   emacs.d/snippets/c++-mode/this
+	new file:   emacs.d/snippets/c++-mode/throw
+	new file:   emacs.d/snippets/c++-mode/try
+	new file:   emacs.d/snippets/c++-mode/tryw
+	new file:   emacs.d/snippets/c++-mode/ucp
+	new file:   emacs.d/snippets/c++-mode/uqe
+	new file:   emacs.d/snippets/c++-mode/using
+	new file:   emacs.d/snippets/c++-mode/vector
+	new file:   emacs.d/snippets/c++-ts-mode/.yas-parents
+	new file:   emacs.d/snippets/c-lang-common/fopen
+	new file:   emacs.d/snippets/c-lang-common/function_doxygen_doc
+	new file:   emacs.d/snippets/c-lang-common/ifdef
+	new file:   emacs.d/snippets/c-lang-common/inc
+	new file:   emacs.d/snippets/c-lang-common/inc.1
+	new file:   emacs.d/snippets/c-lang-common/main
+	new file:   emacs.d/snippets/c-lang-common/math
+	new file:   emacs.d/snippets/c-lang-common/once
+	new file:   emacs.d/snippets/c-lang-common/typedef
+	new file:   emacs.d/snippets/c-mode/.yas-parents
+	new file:   emacs.d/snippets/c-mode/assert
+	new file:   emacs.d/snippets/c-mode/compile
+	new file:   emacs.d/snippets/c-mode/define
+	new file:   emacs.d/snippets/c-mode/fgets
+	new file:   emacs.d/snippets/c-mode/fprintf
+	new file:   emacs.d/snippets/c-mode/malloc
+	new file:   emacs.d/snippets/c-mode/packed
+	new file:   emacs.d/snippets/c-mode/printf
+	new file:   emacs.d/snippets/c-mode/scanf
+	new file:   emacs.d/snippets/c-mode/stdio
+	new file:   emacs.d/snippets/c-mode/stdlib
+	new file:   emacs.d/snippets/c-mode/string
+	new file:   emacs.d/snippets/c-mode/strstr
+	new file:   emacs.d/snippets/c-mode/union
+	new file:   emacs.d/snippets/c-mode/unistd
+	new file:   emacs.d/snippets/c-ts-mode/.yas-parents
+	new file:   emacs.d/snippets/cc-mode/case
+	new file:   emacs.d/snippets/cc-mode/do
+	new file:   emacs.d/snippets/cc-mode/else
+	new file:   emacs.d/snippets/cc-mode/file_description
+	new file:   emacs.d/snippets/cc-mode/for
+	new file:   emacs.d/snippets/cc-mode/for_n
+	new file:   emacs.d/snippets/cc-mode/function_description
+	new file:   emacs.d/snippets/cc-mode/if
+	new file:   emacs.d/snippets/cc-mode/member_description
+	new file:   emacs.d/snippets/cc-mode/printf
+	new file:   emacs.d/snippets/cc-mode/struct
+	new file:   emacs.d/snippets/cc-mode/switch
+	new file:   emacs.d/snippets/cc-mode/ternary
+	new file:   emacs.d/snippets/cc-mode/while
+	new file:   emacs.d/snippets/chef-mode/action
+	new file:   emacs.d/snippets/chef-mode/bash
+	new file:   emacs.d/snippets/chef-mode/cookbook_file
+	new file:   emacs.d/snippets/chef-mode/cron
+	new file:   emacs.d/snippets/chef-mode/cronf
+	new file:   emacs.d/snippets/chef-mode/deploy
+	new file:   emacs.d/snippets/chef-mode/directory
+	new file:   emacs.d/snippets/chef-mode/directoryf
+	new file:   emacs.d/snippets/chef-mode/env
+	new file:   emacs.d/snippets/chef-mode/execute
+	new file:   emacs.d/snippets/chef-mode/executef
+	new file:   emacs.d/snippets/chef-mode/file
+	new file:   emacs.d/snippets/chef-mode/filef
+	new file:   emacs.d/snippets/chef-mode/git
+	new file:   emacs.d/snippets/chef-mode/group
+	new file:   emacs.d/snippets/chef-mode/http_request
+	new file:   emacs.d/snippets/chef-mode/http_requestp
+	new file:   emacs.d/snippets/chef-mode/ignore_failure
+	new file:   emacs.d/snippets/chef-mode/inc
+	new file:   emacs.d/snippets/chef-mode/link
+	new file:   emacs.d/snippets/chef-mode/linkf
+	new file:   emacs.d/snippets/chef-mode/log
+	new file:   emacs.d/snippets/chef-mode/machine
+	new file:   emacs.d/snippets/chef-mode/meta
+	new file:   emacs.d/snippets/chef-mode/not_if
+	new file:   emacs.d/snippets/chef-mode/notifies
+	new file:   emacs.d/snippets/chef-mode/only_if
+	new file:   emacs.d/snippets/chef-mode/pac
+	new file:   emacs.d/snippets/chef-mode/pak
+	new file:   emacs.d/snippets/chef-mode/provider
+	new file:   emacs.d/snippets/chef-mode/python
+	new file:   emacs.d/snippets/chef-mode/remote_file
+	new file:   emacs.d/snippets/chef-mode/retries
+	new file:   emacs.d/snippets/chef-mode/role
+	new file:   emacs.d/snippets/chef-mode/ruby
+	new file:   emacs.d/snippets/chef-mode/script
+	new file:   emacs.d/snippets/chef-mode/service
+	new file:   emacs.d/snippets/chef-mode/servicep
+	new file:   emacs.d/snippets/chef-mode/subscribes
+	new file:   emacs.d/snippets/chef-mode/supports
+	new file:   emacs.d/snippets/chef-mode/template
+	new file:   emacs.d/snippets/chef-mode/templatev
+	new file:   emacs.d/snippets/chef-mode/user
+	new file:   emacs.d/snippets/cider-repl-mode/.yas-parents
+	new file:   emacs.d/snippets/clojure-mode/.yas-parents
+	new file:   emacs.d/snippets/clojure-mode/bench
+	new file:   emacs.d/snippets/clojure-mode/bp
+	new file:   emacs.d/snippets/clojure-mode/com
+	new file:   emacs.d/snippets/clojure-mode/cond
+	new file:   emacs.d/snippets/clojure-mode/condp
+	new file:   emacs.d/snippets/clojure-mode/def
+	new file:   emacs.d/snippets/clojure-mode/defm
+	new file:   emacs.d/snippets/clojure-mode/defn
+	new file:   emacs.d/snippets/clojure-mode/defr
+	new file:   emacs.d/snippets/clojure-mode/deft
+	new file:   emacs.d/snippets/clojure-mode/doseq
+	new file:   emacs.d/snippets/clojure-mode/fdef
+	new file:   emacs.d/snippets/clojure-mode/fn
+	new file:   emacs.d/snippets/clojure-mode/for
+	new file:   emacs.d/snippets/clojure-mode/if
+	new file:   emacs.d/snippets/clojure-mode/ifl
+	new file:   emacs.d/snippets/clojure-mode/import
+	new file:   emacs.d/snippets/clojure-mode/is
+	new file:   emacs.d/snippets/clojure-mode/let
+	new file:   emacs.d/snippets/clojure-mode/letfn
+	new file:   emacs.d/snippets/clojure-mode/main
+	new file:   emacs.d/snippets/clojure-mode/map
+	new file:   emacs.d/snippets/clojure-mode/map.lambda
+	new file:   emacs.d/snippets/clojure-mode/mdoc
+	new file:   emacs.d/snippets/clojure-mode/ns
+	new file:   emacs.d/snippets/clojure-mode/opts
+	new file:   emacs.d/snippets/clojure-mode/pr
+	new file:   emacs.d/snippets/clojure-mode/print
+	new file:   emacs.d/snippets/clojure-mode/reduce
+	new file:   emacs.d/snippets/clojure-mode/require
+	new file:   emacs.d/snippets/clojure-mode/sdef
+	new file:   emacs.d/snippets/clojure-mode/skeys
+	new file:   emacs.d/snippets/clojure-mode/test
+	new file:   emacs.d/snippets/clojure-mode/testing
+	new file:   emacs.d/snippets/clojure-mode/thread-first
+	new file:   emacs.d/snippets/clojure-mode/thread-last
+	new file:   emacs.d/snippets/clojure-mode/try
+	new file:   emacs.d/snippets/clojure-mode/use
+	new file:   emacs.d/snippets/clojure-mode/when
+	new file:   emacs.d/snippets/clojure-mode/whenl
+	new file:   emacs.d/snippets/cmake-mode/add_executable
+	new file:   emacs.d/snippets/cmake-mode/add_library
+	new file:   emacs.d/snippets/cmake-mode/cmake_minimum_required
+	new file:   emacs.d/snippets/cmake-mode/foreach
+	new file:   emacs.d/snippets/cmake-mode/function
+	new file:   emacs.d/snippets/cmake-mode/if
+	new file:   emacs.d/snippets/cmake-mode/ifelse
+	new file:   emacs.d/snippets/cmake-mode/include
+	new file:   emacs.d/snippets/cmake-mode/macro
+	new file:   emacs.d/snippets/cmake-mode/message
+	new file:   emacs.d/snippets/cmake-mode/option
+	new file:   emacs.d/snippets/cmake-mode/project
+	new file:   emacs.d/snippets/cmake-mode/set
+	new file:   emacs.d/snippets/conf-desktop-mode/desk
+	new file:   emacs.d/snippets/conf-unix-mode/.yas-parents
+	new file:   emacs.d/snippets/conf-unix-mode/section
+	new file:   emacs.d/snippets/coq-mode/definitions/definition.yasnippet
+	new file:   emacs.d/snippets/coq-mode/definitions/fixpoint-with.yasnippet
+	new file:   emacs.d/snippets/coq-mode/definitions/fixpoint.yasnippet
+	new file:   emacs.d/snippets/coq-mode/definitions/fun.yasnippet
+	new file:   emacs.d/snippets/coq-mode/definitions/inductive.yasnippet
+	new file:   emacs.d/snippets/coq-mode/lookup/check.yasnippet
+	new file:   emacs.d/snippets/coq-mode/lookup/locate.yasnippet
+	new file:   emacs.d/snippets/coq-mode/lookup/print.yasnippet
+	new file:   emacs.d/snippets/coq-mode/lookup/search.yasnippet
+	new file:   emacs.d/snippets/coq-mode/lookup/searchabout.yasnippet
+	new file:   emacs.d/snippets/coq-mode/lookup/searchpattern.yasnippet
+	new file:   emacs.d/snippets/coq-mode/misc/forall.yasnippet
+	new file:   emacs.d/snippets/coq-mode/misc/if.yasnippet
+	new file:   emacs.d/snippets/coq-mode/misc/infix.yasnippet
+	new file:   emacs.d/snippets/coq-mode/misc/match.yasnippet
+	new file:   emacs.d/snippets/coq-mode/misc/notation.yasnippet
+	new file:   emacs.d/snippets/coq-mode/misc/require.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/axiom.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/conjecture.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/corollary.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/example.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/fact.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/hypotheses.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/hypothesis.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/instance.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/lemma.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/parameter.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/proposition.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/remark.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/theorem.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/variable.yasnippet
+	new file:   emacs.d/snippets/coq-mode/propositions/variables.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/case.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/destruct.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/induction.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/rename.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/rewrite-left.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/rewrite-right.yasnippet
+	new file:   emacs.d/snippets/coq-mode/tactics/rewrite.yasnippet
+	new file:   emacs.d/snippets/cperl-mode/.yas-parents
+	new file:   emacs.d/snippets/cpp-omnet-mode/EV
+	new file:   emacs.d/snippets/cpp-omnet-mode/emit_signal
+	new file:   emacs.d/snippets/cpp-omnet-mode/intuniform
+	new file:   emacs.d/snippets/cpp-omnet-mode/math
+	new file:   emacs.d/snippets/cpp-omnet-mode/nan
+	new file:   emacs.d/snippets/cpp-omnet-mode/omnet
+	new file:   emacs.d/snippets/cpp-omnet-mode/parameter_omnetpp
+	new file:   emacs.d/snippets/cpp-omnet-mode/scheduleAt
+	new file:   emacs.d/snippets/cpp-omnet-mode/uniform
+	new file:   emacs.d/snippets/crystal-mode/any
+	new file:   emacs.d/snippets/crystal-mode/case
+	new file:   emacs.d/snippets/crystal-mode/cls
+	new file:   emacs.d/snippets/crystal-mode/def
+	new file:   emacs.d/snippets/crystal-mode/ea
+	new file:   emacs.d/snippets/crystal-mode/eac
+	new file:   emacs.d/snippets/crystal-mode/eai
+	new file:   emacs.d/snippets/crystal-mode/eawi
+	new file:   emacs.d/snippets/crystal-mode/el
+	new file:   emacs.d/snippets/crystal-mode/esi
+	new file:   emacs.d/snippets/crystal-mode/for
+	new file:   emacs.d/snippets/crystal-mode/forin
+	new file:   emacs.d/snippets/crystal-mode/if
+	new file:   emacs.d/snippets/crystal-mode/ife
+	new file:   emacs.d/snippets/crystal-mode/inc
+	new file:   emacs.d/snippets/crystal-mode/init
+	new file:   emacs.d/snippets/crystal-mode/map
+	new file:   emacs.d/snippets/crystal-mode/mod
+	new file:   emacs.d/snippets/crystal-mode/red
+	new file:   emacs.d/snippets/crystal-mode/reject
+	new file:   emacs.d/snippets/crystal-mode/req
+	new file:   emacs.d/snippets/crystal-mode/select
+	new file:   emacs.d/snippets/crystal-mode/upt
+	new file:   emacs.d/snippets/crystal-mode/when
+	new file:   emacs.d/snippets/crystal-mode/while
+	new file:   emacs.d/snippets/crystal-mode/zip
+	new file:   emacs.d/snippets/csharp-mode/.yas-parents
+	new file:   emacs.d/snippets/csharp-mode/attrib
+	new file:   emacs.d/snippets/csharp-mode/attrib.1
+	new file:   emacs.d/snippets/csharp-mode/attrib.2
+	new file:   emacs.d/snippets/csharp-mode/class
+	new file:   emacs.d/snippets/csharp-mode/comment
+	new file:   emacs.d/snippets/csharp-mode/comment.1
+	new file:   emacs.d/snippets/csharp-mode/comment.2
+	new file:   emacs.d/snippets/csharp-mode/comment.3
+	new file:   emacs.d/snippets/csharp-mode/fore
+	new file:   emacs.d/snippets/csharp-mode/main
+	new file:   emacs.d/snippets/csharp-mode/method
+	new file:   emacs.d/snippets/csharp-mode/namespace
+	new file:   emacs.d/snippets/csharp-mode/prop
+	new file:   emacs.d/snippets/csharp-mode/read
+	new file:   emacs.d/snippets/csharp-mode/readline
+	new file:   emacs.d/snippets/csharp-mode/region
+	new file:   emacs.d/snippets/csharp-mode/trycatch
+	new file:   emacs.d/snippets/csharp-mode/using
+	new file:   emacs.d/snippets/csharp-mode/using.1
+	new file:   emacs.d/snippets/csharp-mode/using.2
+	new file:   emacs.d/snippets/csharp-mode/write
+	new file:   emacs.d/snippets/csharp-mode/writeline
+	new file:   emacs.d/snippets/csharp-ts-mode/.yas-parents
+	new file:   emacs.d/snippets/css-mode/bg
+	new file:   emacs.d/snippets/css-mode/bg.1
+	new file:   emacs.d/snippets/css-mode/bor
+	new file:   emacs.d/snippets/css-mode/cl
+	new file:   emacs.d/snippets/css-mode/disp.block
+	new file:   emacs.d/snippets/css-mode/disp.inline
+	new file:   emacs.d/snippets/css-mode/disp.none
+	new file:   emacs.d/snippets/css-mode/ff
+	new file:   emacs.d/snippets/css-mode/fs
+	new file:   emacs.d/snippets/css-mode/mar.bottom
+	new file:   emacs.d/snippets/css-mode/mar.left
+	new file:   emacs.d/snippets/css-mode/mar.mar
+	new file:   emacs.d/snippets/css-mode/mar.margin
+	new file:   emacs.d/snippets/css-mode/mar.right
+	new file:   emacs.d/snippets/css-mode/mar.top
+	new file:   emacs.d/snippets/css-mode/pad.bottom
+	new file:   emacs.d/snippets/css-mode/pad.left
+	new file:   emacs.d/snippets/css-mode/pad.pad
+	new file:   emacs.d/snippets/css-mode/pad.padding
+	new file:   emacs.d/snippets/css-mode/pad.right
+	new file:   emacs.d/snippets/css-mode/pad.top
+	new file:   emacs.d/snippets/css-mode/v
+	new file:   emacs.d/snippets/css-ts-mode/.yas-parents
+	new file:   emacs.d/snippets/d-mode/class
+	new file:   emacs.d/snippets/d-mode/debug
+	new file:   emacs.d/snippets/d-mode/debugm
+	new file:   emacs.d/snippets/d-mode/enum
+	new file:   emacs.d/snippets/d-mode/fe
+	new file:   emacs.d/snippets/d-mode/fer
+	new file:   emacs.d/snippets/d-mode/if
+	new file:   emacs.d/snippets/d-mode/ife
+	new file:   emacs.d/snippets/d-mode/im
+	new file:   emacs.d/snippets/d-mode/main
+	new file:   emacs.d/snippets/d-mode/me
+	new file:   emacs.d/snippets/d-mode/r
+	new file:   emacs.d/snippets/d-mode/struct
+	new file:   emacs.d/snippets/d-mode/tc
+	new file:   emacs.d/snippets/d-mode/tcf
+	new file:   emacs.d/snippets/d-mode/tf
+	new file:   emacs.d/snippets/d-mode/unit
+	new file:   emacs.d/snippets/d-mode/version
+	new file:   emacs.d/snippets/d-mode/while
+	new file:   emacs.d/snippets/dart-mode/aclass
+	new file:   emacs.d/snippets/dart-mode/builtvalue
+	new file:   emacs.d/snippets/dart-mode/class
+	new file:   emacs.d/snippets/dart-mode/didchangedependencies
+	new file:   emacs.d/snippets/dart-mode/dispose
+	new file:   emacs.d/snippets/dart-mode/ext
+	new file:   emacs.d/snippets/dart-mode/for
+	new file:   emacs.d/snippets/dart-mode/fori
+	new file:   emacs.d/snippets/dart-mode/func
+	new file:   emacs.d/snippets/dart-mode/funca
+	new file:   emacs.d/snippets/dart-mode/getset
+	new file:   emacs.d/snippets/dart-mode/getter
+	new file:   emacs.d/snippets/dart-mode/impl
+	new file:   emacs.d/snippets/dart-mode/import
+	new file:   emacs.d/snippets/dart-mode/initstate
+	new file:   emacs.d/snippets/dart-mode/main
+	new file:   emacs.d/snippets/dart-mode/part
+	new file:   emacs.d/snippets/dart-mode/setter
+	new file:   emacs.d/snippets/dart-mode/statefulwidget
+	new file:   emacs.d/snippets/dart-mode/statelesswidget
+	new file:   emacs.d/snippets/dix-mode/call-macro
+	new file:   emacs.d/snippets/dix-mode/choose
+	new file:   emacs.d/snippets/dix-mode/clip
+	new file:   emacs.d/snippets/dix-mode/e-in-mono-section
+	new file:   emacs.d/snippets/dix-mode/e-in-pardef
+	new file:   emacs.d/snippets/dix-mode/let
+	new file:   emacs.d/snippets/dix-mode/lit
+	new file:   emacs.d/snippets/dix-mode/lit-tag
+	new file:   emacs.d/snippets/dix-mode/otherwise
+	new file:   emacs.d/snippets/dix-mode/p
+	new file:   emacs.d/snippets/dix-mode/par
+	new file:   emacs.d/snippets/dix-mode/pardef
+	new file:   emacs.d/snippets/dix-mode/s
+	new file:   emacs.d/snippets/dix-mode/sdef
+	new file:   emacs.d/snippets/dix-mode/section
+	new file:   emacs.d/snippets/dix-mode/var
+	new file:   emacs.d/snippets/dix-mode/when
+	new file:   emacs.d/snippets/dix-mode/with-param
+	new file:   emacs.d/snippets/dockerfile-mode/dockerize
+	new file:   emacs.d/snippets/elixir-mode/.yas-parents
+	new file:   emacs.d/snippets/elixir-mode/after
+	new file:   emacs.d/snippets/elixir-mode/call
+	new file:   emacs.d/snippets/elixir-mode/case
+	new file:   emacs.d/snippets/elixir-mode/cast
+	new file:   emacs.d/snippets/elixir-mode/cond
+	new file:   emacs.d/snippets/elixir-mode/def
+	new file:   emacs.d/snippets/elixir-mode/defmacro
+	new file:   emacs.d/snippets/elixir-mode/defmacrop
+	new file:   emacs.d/snippets/elixir-mode/defmodule
+	new file:   emacs.d/snippets/elixir-mode/defmodule_filename
+	new file:   emacs.d/snippets/elixir-mode/defp
+	new file:   emacs.d/snippets/elixir-mode/do
+	new file:   emacs.d/snippets/elixir-mode/doc
+	new file:   emacs.d/snippets/elixir-mode/fn
+	new file:   emacs.d/snippets/elixir-mode/for
+	new file:   emacs.d/snippets/elixir-mode/function
+	new file:   emacs.d/snippets/elixir-mode/function-one-line
+	new file:   emacs.d/snippets/elixir-mode/hcall
+	new file:   emacs.d/snippets/elixir-mode/hcast
+	new file:   emacs.d/snippets/elixir-mode/hinfo
+	new file:   emacs.d/snippets/elixir-mode/if
+	new file:   emacs.d/snippets/elixir-mode/ife
+	new file:   emacs.d/snippets/elixir-mode/inspect
+	new file:   emacs.d/snippets/elixir-mode/io
+	new file:   emacs.d/snippets/elixir-mode/iop
+	new file:   emacs.d/snippets/elixir-mode/mdoc
+	new file:   emacs.d/snippets/elixir-mode/pry
+	new file:   emacs.d/snippets/elixir-mode/receive
+	new file:   emacs.d/snippets/elixir-mode/test
+	new file:   emacs.d/snippets/elixir-mode/unless
+	new file:   emacs.d/snippets/elixir-mode/wt
+	new file:   emacs.d/snippets/elixir-mode/wte
+	new file:   emacs.d/snippets/elixir-ts-mode/.yas-parents
+	new file:   emacs.d/snippets/emacs-lisp-mode/add-hook
+	new file:   emacs.d/snippets/emacs-lisp-mode/and
+	new file:   emacs.d/snippets/emacs-lisp-mode/aref
+	new file:   emacs.d/snippets/emacs-lisp-mode/aset
+	new file:   emacs.d/snippets/emacs-lisp-mode/assq
+	new file:   emacs.d/snippets/emacs-lisp-mode/autoload
+	new file:   emacs.d/snippets/emacs-lisp-mode/backward-char
+	new file:   emacs.d/snippets/emacs-lisp-mode/beginning-of-line
+	new file:   emacs.d/snippets/emacs-lisp-mode/bounds-of-thing-at-point
+	new file:   emacs.d/snippets/emacs-lisp-mode/buffer-file-name
+	new file:   emacs.d/snippets/emacs-lisp-mode/buffer-modified-p
+	new file:   emacs.d/snippets/emacs-lisp-mode/buffer-substring
+	new file:   emacs.d/snippets/emacs-lisp-mode/buffer-substring-no-properties
+	new file:   emacs.d/snippets/emacs-lisp-mode/cond
+	new file:   emacs.d/snippets/emacs-lisp-mode/condition-case
+	new file:   emacs.d/snippets/emacs-lisp-mode/const
+	new file:   emacs.d/snippets/emacs-lisp-mode/copy-directory
+	new file:   emacs.d/snippets/emacs-lisp-mode/copy-file
+	new file:   emacs.d/snippets/emacs-lisp-mode/current-buffer
+	new file:   emacs.d/snippets/emacs-lisp-mode/custom-autoload
+	new file:   emacs.d/snippets/emacs-lisp-mode/defalias
+	new file:   emacs.d/snippets/emacs-lisp-mode/defcustom
+	new file:   emacs.d/snippets/emacs-lisp-mode/define-key
+	new file:   emacs.d/snippets/emacs-lisp-mode/defun
+	new file:   emacs.d/snippets/emacs-lisp-mode/defvar
+	new file:   emacs.d/snippets/emacs-lisp-mode/delete-char
+	new file:   emacs.d/snippets/emacs-lisp-mode/delete-directory
+	new file:   emacs.d/snippets/emacs-lisp-mode/delete-file
+	new file:   emacs.d/snippets/emacs-lisp-mode/delete-region
+	new file:   emacs.d/snippets/emacs-lisp-mode/directory-files
+	new file:   emacs.d/snippets/emacs-lisp-mode/dired.process_marked
+	new file:   emacs.d/snippets/emacs-lisp-mode/end-of-line
+	new file:   emacs.d/snippets/emacs-lisp-mode/error
+	new file:   emacs.d/snippets/emacs-lisp-mode/ert-deftest
+	new file:   emacs.d/snippets/emacs-lisp-mode/expand-file-name
+	new file:   emacs.d/snippets/emacs-lisp-mode/fboundp
+	new file:   emacs.d/snippets/emacs-lisp-mode/file-name-directory
+	new file:   emacs.d/snippets/emacs-lisp-mode/file-name-extension
+	new file:   emacs.d/snippets/emacs-lisp-mode/file-name-nondirectory
+	new file:   emacs.d/snippets/emacs-lisp-mode/file-name-sans-extension
+	new file:   emacs.d/snippets/emacs-lisp-mode/file-relative-name
+	new file:   emacs.d/snippets/emacs-lisp-mode/file.process
+	new file:   emacs.d/snippets/emacs-lisp-mode/file.read-lines
+	new file:   emacs.d/snippets/emacs-lisp-mode/find-file
+	new file:   emacs.d/snippets/emacs-lisp-mode/format
+	new file:   emacs.d/snippets/emacs-lisp-mode/forward-char
+	new file:   emacs.d/snippets/emacs-lisp-mode/forward-line
+	new file:   emacs.d/snippets/emacs-lisp-mode/get
+	new file:   emacs.d/snippets/emacs-lisp-mode/global-set-key
+	new file:   emacs.d/snippets/emacs-lisp-mode/goto-char
+	new file:   emacs.d/snippets/emacs-lisp-mode/grabstring
+	new file:   emacs.d/snippets/emacs-lisp-mode/grabthing
+	new file:   emacs.d/snippets/emacs-lisp-mode/header
+	new file:   emacs.d/snippets/emacs-lisp-mode/insert
+	new file:   emacs.d/snippets/emacs-lisp-mode/insert-file-contents
+	new file:   emacs.d/snippets/emacs-lisp-mode/interactive
+	new file:   emacs.d/snippets/emacs-lisp-mode/kbd
+	new file:   emacs.d/snippets/emacs-lisp-mode/kill-buffer
+	new file:   emacs.d/snippets/emacs-lisp-mode/lambda
+	new file:   emacs.d/snippets/emacs-lisp-mode/let
+	new file:   emacs.d/snippets/emacs-lisp-mode/line-beginning-position
+	new file:   emacs.d/snippets/emacs-lisp-mode/line-end-position
+	new file:   emacs.d/snippets/emacs-lisp-mode/looking-at
+	new file:   emacs.d/snippets/emacs-lisp-mode/make-directory
+	new file:   emacs.d/snippets/emacs-lisp-mode/make-local-variable
+	new file:   emacs.d/snippets/emacs-lisp-mode/mapc
+	new file:   emacs.d/snippets/emacs-lisp-mode/match-beginning
+	new file:   emacs.d/snippets/emacs-lisp-mode/match-end
+	new file:   emacs.d/snippets/emacs-lisp-mode/match-string
+	new file:   emacs.d/snippets/emacs-lisp-mode/memq
+	new file:   emacs.d/snippets/emacs-lisp-mode/message
+	new file:   emacs.d/snippets/emacs-lisp-mode/minor_mode
+	new file:   emacs.d/snippets/emacs-lisp-mode/not
+	new file:   emacs.d/snippets/emacs-lisp-mode/nth
+	new file:   emacs.d/snippets/emacs-lisp-mode/number-to-string
+	new file:   emacs.d/snippets/emacs-lisp-mode/or
+	new file:   emacs.d/snippets/emacs-lisp-mode/point
+	new file:   emacs.d/snippets/emacs-lisp-mode/point-max
+	new file:   emacs.d/snippets/emacs-lisp-mode/point-min
+	new file:   emacs.d/snippets/emacs-lisp-mode/put
+	new file:   emacs.d/snippets/emacs-lisp-mode/re-search-backward
+	new file:   emacs.d/snippets/emacs-lisp-mode/re-search-forward
+	new file:   emacs.d/snippets/emacs-lisp-mode/region-active-p
+	new file:   emacs.d/snippets/emacs-lisp-mode/region-beginning
+	new file:   emacs.d/snippets/emacs-lisp-mode/region-end
+	new file:   emacs.d/snippets/emacs-lisp-mode/rename-file
+	new file:   emacs.d/snippets/emacs-lisp-mode/replace-regexp
+	new file:   emacs.d/snippets/emacs-lisp-mode/replace-regexp-in-string
+	new file:   emacs.d/snippets/emacs-lisp-mode/save-buffer
+	new file:   emacs.d/snippets/emacs-lisp-mode/save-excursion
+	new file:   emacs.d/snippets/emacs-lisp-mode/search-backward
+	new file:   emacs.d/snippets/emacs-lisp-mode/search-backward-regexp
+	new file:   emacs.d/snippets/emacs-lisp-mode/search-forward
+	new file:   emacs.d/snippets/emacs-lisp-mode/search-forward-regexp
+	new file:   emacs.d/snippets/emacs-lisp-mode/set-buffer
+	new file:   emacs.d/snippets/emacs-lisp-mode/set-file-modes
+	new file:   emacs.d/snippets/emacs-lisp-mode/set-mark
+	new file:   emacs.d/snippets/emacs-lisp-mode/setq
+	new file:   emacs.d/snippets/emacs-lisp-mode/should
+	new file:   emacs.d/snippets/emacs-lisp-mode/skip-chars-backward
+	new file:   emacs.d/snippets/emacs-lisp-mode/skip-chars-forward
+	new file:   emacs.d/snippets/emacs-lisp-mode/split-string
+	new file:   emacs.d/snippets/emacs-lisp-mode/string-match
+	new file:   emacs.d/snippets/emacs-lisp-mode/string-to-number
+	new file:   emacs.d/snippets/emacs-lisp-mode/string=
+	new file:   emacs.d/snippets/emacs-lisp-mode/substring
+	new file:   emacs.d/snippets/emacs-lisp-mode/thing-at-point
+	new file:   emacs.d/snippets/emacs-lisp-mode/use-package
+	new file:   emacs.d/snippets/emacs-lisp-mode/use-package-binding
+	new file:   emacs.d/snippets/emacs-lisp-mode/vector
+	new file:   emacs.d/snippets/emacs-lisp-mode/when
+	new file:   emacs.d/snippets/emacs-lisp-mode/widget-get
+	new file:   emacs.d/snippets/emacs-lisp-mode/with-current-buffer
+	new file:   emacs.d/snippets/emacs-lisp-mode/word-or-region
+	new file:   emacs.d/snippets/emacs-lisp-mode/word_regexp
+	new file:   emacs.d/snippets/emacs-lisp-mode/yes-or-no-p
+	new file:   emacs.d/snippets/enh-ruby-mode/.yas-parents
+	new file:   emacs.d/snippets/ensime-mode/.yas-parents
+	new file:   emacs.d/snippets/erc-mode/blist
+	new file:   emacs.d/snippets/erc-mode/help
+	new file:   emacs.d/snippets/erlang-mode/after
+	new file:   emacs.d/snippets/erlang-mode/begin
+	new file:   emacs.d/snippets/erlang-mode/beh
+	new file:   emacs.d/snippets/erlang-mode/case
+	new file:   emacs.d/snippets/erlang-mode/compile
+	new file:   emacs.d/snippets/erlang-mode/def
+	new file:   emacs.d/snippets/erlang-mode/exp
+	new file:   emacs.d/snippets/erlang-mode/fun
+	new file:   emacs.d/snippets/erlang-mode/if
+	new file:   emacs.d/snippets/erlang-mode/ifdef
+	new file:   emacs.d/snippets/erlang-mode/ifndef
+	new file:   emacs.d/snippets/erlang-mode/imp
+	new file:   emacs.d/snippets/erlang-mode/inc
+	new file:   emacs.d/snippets/erlang-mode/inc.lib
+	new file:   emacs.d/snippets/erlang-mode/loop
+	new file:   emacs.d/snippets/erlang-mode/mod
+	new file:   emacs.d/snippets/erlang-mode/rcv
+	new file:   emacs.d/snippets/erlang-mode/rcv.after
+	new file:   emacs.d/snippets/erlang-mode/rec
+	new file:   emacs.d/snippets/erlang-mode/try
+	new file:   emacs.d/snippets/erlang-mode/undef
+	new file:   emacs.d/snippets/f90-mode/bd
+	new file:   emacs.d/snippets/f90-mode/c
+	new file:   emacs.d/snippets/f90-mode/ch
+	new file:   emacs.d/snippets/f90-mode/cx
+	new file:   emacs.d/snippets/f90-mode/dc
+	new file:   emacs.d/snippets/f90-mode/do
+	new file:   emacs.d/snippets/f90-mode/dp
+	new file:   emacs.d/snippets/f90-mode/forall
+	new file:   emacs.d/snippets/f90-mode/function
+	new file:   emacs.d/snippets/f90-mode/if
+	new file:   emacs.d/snippets/f90-mode/in
+	new file:   emacs.d/snippets/f90-mode/inc
+	new file:   emacs.d/snippets/f90-mode/intr
+	new file:   emacs.d/snippets/f90-mode/l
+	new file:   emacs.d/snippets/f90-mode/module
+	new file:   emacs.d/snippets/f90-mode/pa
+	new file:   emacs.d/snippets/f90-mode/program
+	new file:   emacs.d/snippets/f90-mode/puref
+	new file:   emacs.d/snippets/f90-mode/pures
+	new file:   emacs.d/snippets/f90-mode/re
+	new file:   emacs.d/snippets/f90-mode/subroutine
+	new file:   emacs.d/snippets/f90-mode/until
+	new file:   emacs.d/snippets/f90-mode/where
+	new file:   emacs.d/snippets/f90-mode/while
+	new file:   emacs.d/snippets/f90-mode/wr
+	new file:   emacs.d/snippets/faust-mode/button
+	new file:   emacs.d/snippets/faust-mode/case
+	new file:   emacs.d/snippets/faust-mode/checkbox
+	new file:   emacs.d/snippets/faust-mode/component
+	new file:   emacs.d/snippets/faust-mode/declare
+	new file:   emacs.d/snippets/faust-mode/declareauthor
+	new file:   emacs.d/snippets/faust-mode/declarelicense
+	new file:   emacs.d/snippets/faust-mode/declarename
+	new file:   emacs.d/snippets/faust-mode/declareversion
+	new file:   emacs.d/snippets/faust-mode/hbargraph
+	new file:   emacs.d/snippets/faust-mode/header
+	new file:   emacs.d/snippets/faust-mode/hgroup
+	new file:   emacs.d/snippets/faust-mode/hslider
+	new file:   emacs.d/snippets/faust-mode/import
+	new file:   emacs.d/snippets/faust-mode/nentry
+	new file:   emacs.d/snippets/faust-mode/par
+	new file:   emacs.d/snippets/faust-mode/process
+	new file:   emacs.d/snippets/faust-mode/processx
+	new file:   emacs.d/snippets/faust-mode/prod
+	new file:   emacs.d/snippets/faust-mode/rule
+	new file:   emacs.d/snippets/faust-mode/seq
+	new file:   emacs.d/snippets/faust-mode/sum
+	new file:   emacs.d/snippets/faust-mode/tgroup
+	new file:   emacs.d/snippets/faust-mode/vbargraph
+	new file:   emacs.d/snippets/faust-mode/vgroup
+	new file:   emacs.d/snippets/faust-mode/vslider
+	new file:   emacs.d/snippets/faust-mode/with
+	new file:   emacs.d/snippets/fish-mode/bang
+	new file:   emacs.d/snippets/fish-mode/block
+	new file:   emacs.d/snippets/fish-mode/bp
+	new file:   emacs.d/snippets/fish-mode/for
+	new file:   emacs.d/snippets/fish-mode/function
+	new file:   emacs.d/snippets/fish-mode/if
+	new file:   emacs.d/snippets/fish-mode/ife
+	new file:   emacs.d/snippets/fish-mode/sw
+	new file:   emacs.d/snippets/fish-mode/while
+	new file:   emacs.d/snippets/fundamental-mode/current-date
+	new file:   emacs.d/snippets/fundamental-mode/current-date-and-time
+	new file:   emacs.d/snippets/fundamental-mode/mode-line
+	new file:   emacs.d/snippets/gdscript-mode/class
+	new file:   emacs.d/snippets/gdscript-mode/class_name
+	new file:   emacs.d/snippets/gdscript-mode/const
+	new file:   emacs.d/snippets/gdscript-mode/enum
+	new file:   emacs.d/snippets/gdscript-mode/for
+	new file:   emacs.d/snippets/gdscript-mode/func
+	new file:   emacs.d/snippets/gdscript-mode/if
+	new file:   emacs.d/snippets/gdscript-mode/ife
+	new file:   emacs.d/snippets/gdscript-mode/match
+	new file:   emacs.d/snippets/gdscript-mode/onready
+	new file:   emacs.d/snippets/gdscript-mode/print
+	new file:   emacs.d/snippets/gdscript-mode/return
+	new file:   emacs.d/snippets/gdscript-mode/setget
+	new file:   emacs.d/snippets/gdscript-mode/static_func
+	new file:   emacs.d/snippets/gdscript-mode/var
+	new file:   emacs.d/snippets/gdscript-mode/while
+	new file:   emacs.d/snippets/git-commit-mode/.yas-parents
+	new file:   emacs.d/snippets/git-commit-mode/fixes
+	new file:   emacs.d/snippets/git-commit-mode/references
+	new file:   emacs.d/snippets/git-commit-mode/type
+

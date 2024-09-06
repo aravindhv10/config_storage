@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_sh
+# key: <sh
+# --
+#+begin_src sh :shebang #!/bin/sh :results output
+  $0
+#+end_src

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_py
+# key: <py
+# --
+#+begin_src python :shebang #!/usr/bin/python3 :results output
+  $0
+#+end_src

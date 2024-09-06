@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: mycl
+# key: mycl
+# --
+
+#define _MACRO_CLASS_NAME_ ${1:mycl}
+class _MACRO_CLASS_NAME_ {
+public:
+    using TYPE_SELF = _MACRO_CLASS_NAME_;
+
+public:
+    _MACRO_CLASS_NAME_($0){}
+    ~_MACRO_CLASS_NAME_(){}
+};
+#undef _MACRO_CLASS_NAME_
