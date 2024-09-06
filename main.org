@@ -1,0 +1,40 @@
+#+begin_src conf :tangle ./git_add.txt
+  .gitignore
+  emacs.d/early-init.el
+  emacs.d/init.el
+  emacs.d/init.org
+  main.org
+#+end_src
+
+#+begin_src conf :tangle ./rm.txt
+  .#main.org
+  emacs.d/early-init.el~
+  emacs.d/init.el~
+  emacs.d/init.org~
+  git_add.txt
+  gitignore.txt
+  main.org~
+  rm.txt
+  work.sh
+#+end_src
+
+#+begin_src conf :tangle ./gitignore.txt
+  emacs.d/auto-save-list/
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
+  sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
+
+  (sed 's@^@("git" "add" "./@g;s@$@");@g' './git_add.txt' | sort | uniq;
+   sed 's@^@("rm" "-vf" "--" "./@g;s@$@");@g' './rm.txt' | sort | uniq) \
+      | grep -v '^("git" "add" "./");$' \
+      | grep -v '^("rm" "-vf" "--" "./");$' \
+      | sh \
+  ;
+#+end_src
+
+#+begin_src elisp
+  (save-buffer)
+  (org-babel-tangle)
+  (shell-command "./work.sh")
+#+end_src
