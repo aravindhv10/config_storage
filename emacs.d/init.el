@@ -169,6 +169,230 @@
 (use-package yasnippet-snippets :ensure t :demand t)
 (use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
 
+(defun myfun/save_and_format_c ()
+  (interactive)
+  (setq mytmpline (line-number-at-pos))
+  (shell-command-on-region (point-min) (point-max) "clang-format" (current-buffer) t "*fcc error*" t)
+  (basic-save-buffer)
+  (goto-line mytmpline))
+
+(defun myfun/save_and_format_latex ()
+  (interactive)
+  (setq mytmpline (line-number-at-pos))
+  (shell-command-on-region (point-min) (point-max) "latexindent" (current-buffer) t "*latexindent error*" t)
+  (basic-save-buffer)
+  (goto-line mytmpline))
+
+(defun myfun/save_and_format_py ()
+  (interactive)
+  (setq mytmpline (line-number-at-pos))
+  (shell-command-on-region (point-min) (point-max) "yapf3" (current-buffer) t "*yapf3 error*" t)
+  (basic-save-buffer)
+  (goto-line mytmpline))
+
+(defun myfun/save_and_format_org ()
+  (interactive)
+  (setq mytmpline (line-number-at-pos))
+  (org-indent-region (point-min) (point-max))
+  (shell-command-on-region (point-min) (point-max) "expand" (current-buffer) t "*format org error*" t)
+  (basic-save-buffer)
+  (goto-line mytmpline))
+
+(defun myfun/save_and_expand ()
+  (interactive)
+  (setq mytmpline (line-number-at-pos))
+  (shell-command-on-region (point-min) (point-max) "expand" (current-buffer) t "*expand error*" t)
+  (basic-save-buffer)
+  (goto-line mytmpline))
+
+(defun myfun/abort ()
+  (interactive)
+  (keyboard-escape-quit)
+  (company-abort)
+  (company-search-abort))
+
+(defun myfun/menu_n ()
+  (interactive)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0))
+
+(defun myfun/menu_y ()
+  (interactive)
+  (menu-bar-mode 1)
+  (tool-bar-mode 1))
+
+(defun myfun/copy-org-src-block ()
+  (interactive)
+  (org-edit-src-code)
+  (kill-ring-save  (point-min) (point-max))
+  (org-edit-src-abort))
+
+(defun myfun/bb1 ()
+  (interactive)
+  (insert "()"))
+
+(defun myfun/bb2 ()
+  (interactive)
+  (insert "[]"))
+
+(defun myfun/bb3 ()
+  (interactive)
+  (insert "<>"))
+
+(defun myfun/bb4 ()
+  (interactive)
+  (insert "{}"))
+
+(defun myfun/other_window_and_menu ()
+    (interactive)
+    (other-window 1)
+    (hydra-window/body))
+
+;;Turns off elpaca-use-package-mode current declaration
+;;Note this will cause evaluate the declaration immediately. It is not deferred.
+;;Useful for configuring built-in emacs features.
+(use-package hydra
+  :ensure t
+  :demand t
+  :init
+)
+
+(use-package hydra
+  :ensure t
+  :demand t
+  :init
+  (defhydra hydra-org-cycle (:color red)
+    "org-cycle"
+    ("a"        org-cycle         "all")
+    ("c"        org-cycle-content "content")
+    ("g"        org-cycle-global  "global")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-org (:color blue)
+    "org"
+    (";"        org-toggle-comment          "comment" :color red)
+    ("e"        org-edit-src-code           "edit")
+    ("t"        org-babel-tangle            "tangle")
+    ("x"        org-babel-execute-src-block "exec")
+    ("a"        org-edit-src-abort          "abort")
+    ("c"        myfun/copy-org-src-block    "copy")
+    ("l"        hydra-org-cycle/body        "cycle")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-ivy (:color blue)
+    "ivy"
+    ("r"        ivy-resume     "resume")
+    ("y"        ivy-yasnippet  "yasnippet")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-window (:color red)
+    "window"
+    ("w" other-window          "other" :color red)
+    ("s" save-buffer           "save" :color red)
+    ("t" tear-off-window       "tear" :color red)
+    ("d" delete-window         "delete_window" :color red)
+    ("f" delete-frame          "delete_frame" :color red)
+    ("b" counsel-switch-buffer "switch_buffer" :color blue)
+    ("k" kill-buffer           "kill_buffer" :color blue)
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-menu (:color red)
+    "menu"
+    ("z" text-scale-increase     "in")
+    ("x" text-scale-decrease     "out")
+    ("f" toggle-frame-fullscreen "fullscreen")
+    ("y" myfun/menu_y            "enable")
+    ("n" myfun/menu_n            "disable")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-format (:color blue)
+    "format"
+    ("e" myfun/save_and_expand       "expand")
+    ("c" myfun/save_and_format_c     "c")
+    ("p" myfun/save_and_format_py    "py")
+    ("o" myfun/save_and_format_org   "org")
+    ("l" myfun/save_and_format_latex "latex")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-myfunc (:color blue)
+    "myfunc"
+    ("m" hydra-menu/body   "menu")
+    ("f" hydra-format/body "format")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-swiper (:color blue)
+    "swiper"
+    ("p" swiper-thing-at-point     "point")
+    ("t" swiper-all-thing-at-point "all_point")
+    ("s" swiper                    "this")
+    ("a" swiper-all                "all")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-completion (:color blue)
+    "completion"
+    ("d" company-dabbrev  "dabbrev")
+    ("c" company-complete "complete")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-counsel-file (:color blue)
+    "counsel-file"
+    ("f" counsel-find-file "find")
+    ("z" counsel-fzf       "fzf")
+    ("g" find-grep-dired   "grep")
+    ("d" counsel-dired     "dired")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-counsel (:color blue)
+    "counsel"
+    ("a" counsel-ag              "ag")
+    ("c" counsel-company         "company")
+    ("d" counsel-dired           "dired")
+    ("k" counsel-flycheck        "flycheck")
+    ("b" counsel-switch-buffer   "buffer")
+    ("f" hydra-counsel-file/body "file")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-projectile (:color blue)
+    "projectile"
+    ("e" projectile-run-eshell "eshell")
+    ("a" projectile-ag         "ag")
+    ("d" projectile-dired      "dired")
+    ("r" projectile-find-dir   "dir")
+    ("f" projectile-find-file  "file")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-all (:color blue)
+    "all"
+    ("o" hydra-org/body        "org")
+    ("i" hydra-ivy/body        "ivy")
+    ("w" hydra-window/body     "window")
+    ("m" hydra-myfunc/body     "myfunc")
+    ("s" hydra-swiper/body     "swiper")
+    ("h" hydra-completion/body "company")
+    ("c" hydra-counsel/body    "counsel")
+    ("p" hydra-projectile/body "projectile")
+    ("e" eshell                "eshell")
+    ("f" find-file-at-point    "file")
+    ("u" undo-tree-visualize   "undo")
+    ("t" treemacs              "treemacs")
+    ("l" lsp                   "lsp")
+    ("x" counsel-M-x           "M-x")
+    ("<escape>" nil "cancel" :color blue)
+    ("q" nil                   "cancel"))
+  )
+
 ;;Turns off elpaca-use-package-mode current declaration
 ;;Note this will cause evaluate the declaration immediately. It is not deferred.
 ;;Useful for configuring built-in emacs features.
