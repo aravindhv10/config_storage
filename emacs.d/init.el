@@ -70,6 +70,30 @@
 (setq modus-themes-org-blocks 'tinted-background)
 (load-theme 'modus-vivendi)
 
+(server-start)
+
+(setq eshell-prefer-lisp-functions 1)
+
+(use-package org :ensure t :demand t :init
+  (setq org-confirm-babel-evaluate nil)
+  (org-babel-do-load-languages
+   'org-babel-load-languages '(
+                               (emacs-lisp . t)
+                               (python . t)
+                               (R . t)
+                               (eshell . t)
+                               (awk . t)
+                               (sql . t)
+                               (shell . t)
+                               (sqlite . t)
+                               )))
+
+(use-package undo-tree
+  :ensure t
+  :demand t
+  :init
+  (global-undo-tree-mode))
+
 (use-package rainbow-delimiters
   :ensure t
   :demand t
@@ -88,10 +112,237 @@
   (add-hook 'prog-mode-hook 'rainbow-identifiers-mode)
   (add-hook 'text-mode-hook 'rainbow-identifiers-mode))
 
+;; Use Dabbrev with Corfu!
+(use-package dabbrev
+  ;; Swap M-/ and C-M-/
+  :bind (("M-/" . dabbrev-completion)
+         ("C-M-/" . dabbrev-expand))
+  :config
+  (add-to-list 'dabbrev-ignored-buffer-regexps "\\` ")
+  ;; Since 29.1, use `dabbrev-ignored-buffer-regexps' on older.
+  (add-to-list 'dabbrev-ignored-buffer-modes 'doc-view-mode)
+  (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)
+  (add-to-list 'dabbrev-ignored-buffer-modes 'tags-table-mode))
+
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  (corfu-preview-current nil)    ;; Disable current candidate preview
+  (corfu-preselect 'prompt)      ;; Preselect the prompt
+  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  (corfu-scroll-margin 5)        ;; Use scroll margin
+
+  ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :init
+  (global-corfu-mode)
+  )
+
+(use-package helpful :ensure t :demand t :init)
+
+;; Enable vertico
+(use-package vertico
+  :ensure t
+  :demand t
+  :custom
+  (vertico-scroll-margin 0) ;; Different scroll margin
+  (vertico-count 10) ;; Show more candidates
+  (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+(use-package consult :ensure t :demand t :init)
+
+(use-package marginalia :ensure t :demand t :init (marginalia-mode))
+
+(use-package orderless
+  :ensure t
+  :demand t
+  :config
+  ;; (defun flex-if-twiddle (pattern _index _total)
+  ;;   (when (string-suffix-p "~" pattern)
+  ;;     `(orderless-flex . ,(substring pattern 0 -1))))
+
+  ;; (defun first-initialism (pattern index _total)
+  ;;   (if (= index 0) 'orderless-initialism))
+
+  ;; (defun not-if-bang (pattern _index _total)
+  ;;   (cond
+  ;;    ((equal "!" pattern)
+  ;;     #'ignore)
+  ;;    ((string-prefix-p "!" pattern)
+  ;;     `(orderless-not . ,(substring pattern 1)))))
+
+  ;; (setq orderless-matching-styles '(orderless-regexp)
+  ;; 	orderless-style-dispatchers '(first-initialism
+  ;;                                     flex-if-twiddle
+  ;;                                     not-if-bang))
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion))))
+  ;; (completion-category-overrides '((file (styles basic partial-completion))))
+  )
+
+;; Expands to: (elpaca evil (use-package evil :demand t))
+(use-package evil :ensure t :demand t :init (evil-mode 1))
+
+(use-package yasnippet-snippets :ensure t :demand t)
+(use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
+
+(use-package hydra
+  :ensure t
+  :demand t
+  :init
+
+  (defhydra hydra-all (:color blue)
+    "all"
+    ("s" hydra-consult/body     "consult")
+    ("w" hydra-window/body     "window")
+    ("o" hydra-org/body        "org")
+    ("m" hydra-myfunc/body     "myfunc")
+    ("h" hydra-completion/body "company")
+    ("c" hydra-counsel/body    "counsel")
+    ("p" hydra-projectile/body "projectile")
+    ("e" eshell                "eshell")
+    ("f" find-file-at-point    "file")
+    ("u" undo-tree-visualize   "undo")
+    ("t" treemacs              "treemacs")
+    ("l" lsp                   "lsp")
+    ("x" counsel-M-x           "M-x")
+    ("<escape>" nil "cancel" :color blue)
+    ("q" nil                   "cancel")
+    )
+
+  (defhydra hydra-consult (:color blue)
+    "consult"
+    ("s" consult-line     "search buffer")
+    ("a" consult-line-multi "search all buffers")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-window (:color red)
+    "window"
+    ("w" other-window          "other" :color red)
+    ("s" save-buffer           "save" :color red)
+    ("t" tear-off-window       "tear" :color red)
+    ("d" delete-window         "delete_window" :color red)
+    ("f" delete-frame          "delete_frame" :color red)
+    ("b" consult-buffer "switch_buffer" :color blue)
+    ("k" kill-buffer           "kill_buffer" :color blue)
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+  
+  (defhydra hydra-org-cycle (:color red)
+    "org-cycle"
+    ("a"        org-cycle         "all")
+    ("c"        org-cycle-content "content")
+    ("g"        org-cycle-global  "global")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-org (:color blue)
+    "org"
+    (";"        org-toggle-comment          "comment" :color red)
+    ("e"        org-edit-src-code           "edit")
+    ("t"        org-babel-tangle            "tangle")
+    ("x"        org-babel-execute-src-block "exec")
+    ("a"        org-edit-src-abort          "abort")
+    ("c"        myfun/copy-org-src-block    "copy")
+    ("l"        hydra-org-cycle/body        "cycle")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+
+  (defhydra hydra-menu (:color red)
+    "menu"
+    ("z" text-scale-increase     "in")
+    ("x" text-scale-decrease     "out")
+    ("f" toggle-frame-fullscreen "fullscreen")
+    ("y" myfun/menu_y            "enable")
+    ("n" myfun/menu_n            "disable")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-format (:color blue)
+    "format"
+    ("e" myfun/save_and_expand       "expand")
+    ("c" myfun/save_and_format_c     "c")
+    ("p" myfun/save_and_format_py    "py")
+    ("o" myfun/save_and_format_org   "org")
+    ("l" myfun/save_and_format_latex "latex")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-myfunc (:color blue)
+    "myfunc"
+    ("m" hydra-menu/body   "menu")
+    ("f" hydra-format/body "format")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+
+  (defhydra hydra-completion (:color blue)
+    "completion"
+    ("d" company-dabbrev  "dabbrev")
+    ("c" company-complete "complete")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-counsel-file (:color blue)
+    "counsel-file"
+    ("f" counsel-find-file "find")
+    ("z" counsel-fzf       "fzf")
+    ("g" find-grep-dired   "grep")
+    ("d" counsel-dired     "dired")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-counsel (:color blue)
+    "counsel"
+    ("a" counsel-ag              "ag")
+    ("c" counsel-company         "company")
+    ("d" counsel-dired           "dired")
+    ("k" counsel-flycheck        "flycheck")
+    ("b" counsel-switch-buffer   "buffer")
+    ("f" hydra-counsel-file/body "file")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-projectile (:color blue)
+    "projectile"
+    ("e" projectile-run-eshell "eshell")
+    ("a" projectile-ag         "ag")
+    ("d" projectile-dired      "dired")
+    ("r" projectile-find-dir   "dir")
+    ("f" projectile-find-file  "file")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
+  )
+
 (use-package key-chord
   :ensure t
   :demand t
   :init
+  (key-chord-mode)
   (key-chord-define-global "1q" 'hydra-all/body)
   (key-chord-define-global "2q" 'hydra-all/body)
 
@@ -144,30 +395,6 @@
   (key-chord-define-global "\\l" 'evil-window-vsplit)
   (key-chord-define-global "\\]" 'evil-window-vsplit)
   (key-chord-define-global "\\[" 'evil-window-vsplit))
-
-(use-package org :ensure t :demand t :init
-  (setq org-confirm-babel-evaluate nil)
-  (org-babel-do-load-languages
-   'org-babel-load-languages '(
-                               (emacs-lisp . t)
-                               (python . t)
-                               (R . t)
-                               (eshell . t)
-                               (awk . t)
-                               (sql . t)
-                               (shell . t)
-                               (sqlite . t)
-                               )))
-
-(use-package vertico :ensure t :demand t :init (vertico-mode 1))
-
-;; Expands to: (elpaca evil (use-package evil :demand t))
-(use-package evil :ensure t :demand t :init (evil-mode 1))
-
-(use-package helpful :ensure t :demand t :init)
-
-(use-package yasnippet-snippets :ensure t :demand t)
-(use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
 
 (defun myfun/save_and_format_c ()
   (interactive)
@@ -248,152 +475,43 @@
     (other-window 1)
     (hydra-window/body))
 
-;;Turns off elpaca-use-package-mode current declaration
-;;Note this will cause evaluate the declaration immediately. It is not deferred.
-;;Useful for configuring built-in emacs features.
-(use-package hydra
-  :ensure t
-  :demand t
+(use-package emacs
+  :custom
+
+  ;; TAB cycle if there are only few candidates
+  (completion-cycle-threshold 1)
+
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (tab-always-indent 'complete)
+
+  ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
+  ;; try `cape-dict'.
+  (text-mode-ispell-word-completion nil)
+
+  ;; Hide commands in M-x which do not apply to the current mode.  Corfu
+  ;; commands are hidden, since they are not used via M-x. This setting is
+  ;; useful beyond Corfu.
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (enable-recursive-minibuffers t)
+  ;; Hide commands in M-x which do not work in the current mode.  Vertico
+  ;; commands are hidden in normal buffers. This setting is useful beyond
+  ;; Vertico.
+  (read-extended-command-predicate #'command-completion-default-include-p)
   :init
-)
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-(use-package hydra
-  :ensure t
-  :demand t
-  :init
-  (defhydra hydra-org-cycle (:color red)
-    "org-cycle"
-    ("a"        org-cycle         "all")
-    ("c"        org-cycle-content "content")
-    ("g"        org-cycle-global  "global")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-org (:color blue)
-    "org"
-    (";"        org-toggle-comment          "comment" :color red)
-    ("e"        org-edit-src-code           "edit")
-    ("t"        org-babel-tangle            "tangle")
-    ("x"        org-babel-execute-src-block "exec")
-    ("a"        org-edit-src-abort          "abort")
-    ("c"        myfun/copy-org-src-block    "copy")
-    ("l"        hydra-org-cycle/body        "cycle")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-ivy (:color blue)
-    "ivy"
-    ("r"        ivy-resume     "resume")
-    ("y"        ivy-yasnippet  "yasnippet")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-window (:color red)
-    "window"
-    ("w" other-window          "other" :color red)
-    ("s" save-buffer           "save" :color red)
-    ("t" tear-off-window       "tear" :color red)
-    ("d" delete-window         "delete_window" :color red)
-    ("f" delete-frame          "delete_frame" :color red)
-    ("b" counsel-switch-buffer "switch_buffer" :color blue)
-    ("k" kill-buffer           "kill_buffer" :color blue)
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-menu (:color red)
-    "menu"
-    ("z" text-scale-increase     "in")
-    ("x" text-scale-decrease     "out")
-    ("f" toggle-frame-fullscreen "fullscreen")
-    ("y" myfun/menu_y            "enable")
-    ("n" myfun/menu_n            "disable")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-format (:color blue)
-    "format"
-    ("e" myfun/save_and_expand       "expand")
-    ("c" myfun/save_and_format_c     "c")
-    ("p" myfun/save_and_format_py    "py")
-    ("o" myfun/save_and_format_org   "org")
-    ("l" myfun/save_and_format_latex "latex")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-myfunc (:color blue)
-    "myfunc"
-    ("m" hydra-menu/body   "menu")
-    ("f" hydra-format/body "format")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-swiper (:color blue)
-    "swiper"
-    ("p" swiper-thing-at-point     "point")
-    ("t" swiper-all-thing-at-point "all_point")
-    ("s" swiper                    "this")
-    ("a" swiper-all                "all")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-completion (:color blue)
-    "completion"
-    ("d" company-dabbrev  "dabbrev")
-    ("c" company-complete "complete")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-counsel-file (:color blue)
-    "counsel-file"
-    ("f" counsel-find-file "find")
-    ("z" counsel-fzf       "fzf")
-    ("g" find-grep-dired   "grep")
-    ("d" counsel-dired     "dired")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-counsel (:color blue)
-    "counsel"
-    ("a" counsel-ag              "ag")
-    ("c" counsel-company         "company")
-    ("d" counsel-dired           "dired")
-    ("k" counsel-flycheck        "flycheck")
-    ("b" counsel-switch-buffer   "buffer")
-    ("f" hydra-counsel-file/body "file")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-projectile (:color blue)
-    "projectile"
-    ("e" projectile-run-eshell "eshell")
-    ("a" projectile-ag         "ag")
-    ("d" projectile-dired      "dired")
-    ("r" projectile-find-dir   "dir")
-    ("f" projectile-find-file  "file")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-all (:color blue)
-    "all"
-    ("o" hydra-org/body        "org")
-    ("i" hydra-ivy/body        "ivy")
-    ("w" hydra-window/body     "window")
-    ("m" hydra-myfunc/body     "myfunc")
-    ("s" hydra-swiper/body     "swiper")
-    ("h" hydra-completion/body "company")
-    ("c" hydra-counsel/body    "counsel")
-    ("p" hydra-projectile/body "projectile")
-    ("e" eshell                "eshell")
-    ("f" find-file-at-point    "file")
-    ("u" undo-tree-visualize   "undo")
-    ("t" treemacs              "treemacs")
-    ("l" lsp                   "lsp")
-    ("x" counsel-M-x           "M-x")
-    ("<escape>" nil "cancel" :color blue)
-    ("q" nil                   "cancel"))
-  )
-
-;;Turns off elpaca-use-package-mode current declaration
-;;Note this will cause evaluate the declaration immediately. It is not deferred.
-;;Useful for configuring built-in emacs features.
-(use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
