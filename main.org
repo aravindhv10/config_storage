@@ -1,8 +1,13 @@
+* work space
+
 #+begin_src elisp
   (save-buffer)
   (org-babel-tangle)
-  (shell-command "./work.sh")
+  (shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
+
+#+RESULTS:
+: 0
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
@@ -13,6 +18,10 @@
       | grep -v '^("rm" "-vf" "--" "./");$' \
       | sh \
   ;
+
+  git status
+  git commit -m 'usual emacs update'
+  git push
 #+end_src
 
 #+begin_src conf :tangle ./git_add.txt
@@ -2277,8 +2286,14 @@
   main.org~
   rm.txt
   work.sh
+  .main.org.~undo-tree~
+  emacs.d/.init.el.~undo-tree~
+  emacs.d/.init.org.~undo-tree~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
   emacs.d/auto-save-list/
+  emacs.d/eln-cache/
+  emacs.d/elpaca/
+  emacs.d/history
 #+end_src

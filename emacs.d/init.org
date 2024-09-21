@@ -1,3 +1,10 @@
+* work space
+#+begin_src elisp
+  (save-buffer)
+  (save-some-buffer)
+  (org-babel-tangle)
+#+end_src
+
 * Packages to check
 corfu
 
@@ -112,6 +119,11 @@ corfu
   (load-theme 'modus-vivendi)
 #+end_src
 
+*** Screw tabs:
+#+begin_src elisp :tangle ./init.el
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
 *** Server related
 #+begin_src elisp :tangle ./init.el
   (server-start)
@@ -154,6 +166,75 @@ corfu
                                  )))
 #+end_src
 
+** flycheck
+#+begin_src elisp :tangle ./init.el
+  (use-package flycheck
+    :ensure t
+    :demand t
+    :init
+    (global-flycheck-mode 1)
+    )
+#+end_src
+
+** ag
+#+begin_src elisp :tangle ./init.el
+  (use-package ag
+    :ensure t
+    :demand t
+    :config
+    (setq ag-context-lines 4)
+    (setq ag-highlight-search 4)
+    (global-set-key (kbd "C-c g") 'ag)
+    :init
+    )
+#+end_src
+
+** treemacs
+#+begin_src elisp :tangle ./init.el
+  (use-package treemacs
+    :ensure t
+    :demand t
+    :config
+    :init
+    )
+#+end_src
+
+** projectile
+#+begin_src elisp :tangle ./init.el
+  (use-package projectile
+    :ensure t
+    :demand t
+    :config
+    ;; Recommended keymap prefix on macOS
+    (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+    ;; Recommended keymap prefix on Windows/Linux
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    :init
+    (projectile-mode +1)
+    )
+#+end_src
+
+** LSP
+#+begin_src elisp :tangle ./init.el
+  (use-package lsp
+    :ensure t
+    :demand t
+    :config
+    (setq gc-cons-threshold 100000000)
+    (setq read-process-output-max 1048576)
+    (setq lsp-idle-delay 0.1)
+    (setq lsp-tcp-connection-timeout 10)
+    :init
+    )
+
+  (use-package lsp-ui
+    :ensure t
+    :demand t
+    :config
+    :init
+    )
+#+end_src
+
 ** Configure undo-tree
 #+begin_src elisp :tangle ./init.el
   (use-package undo-tree
@@ -194,9 +275,6 @@ corfu
     (add-hook 'text-mode-hook 'rainbow-identifiers-mode))
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 667653 nil elpaca-process-queues nil nil 206000 nil]
-
 ** dabbrev
 #+begin_src elisp :tangle ./init.el
   ;; Use Dabbrev with Corfu!
@@ -212,14 +290,10 @@ corfu
     (add-to-list 'dabbrev-ignored-buffer-modes 'tags-table-mode))
 #+end_src
 
-
 ** helpful
 #+begin_src elisp :tangle ./init.el
   (use-package helpful :ensure t :demand t :init)
 #+end_src
-
-#+RESULTS:
-: [nil 26348 19152 670209 nil elpaca-process-queues nil nil 772000 nil]
 
 ** Vertico
 #+begin_src elisp :tangle ./init.el
@@ -236,9 +310,6 @@ corfu
     (vertico-mode))
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 673192 nil elpaca-process-queues nil nil 802000 nil]
-
 ** Saving history
 #+begin_src elisp :tangle ./init.el
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
@@ -247,23 +318,15 @@ corfu
     (savehist-mode))
 #+end_src
 
-#+RESULTS:
-
 ** consult
 #+begin_src elisp :tangle ./init.el
   (use-package consult :ensure t :demand t :init)
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 677347 nil elpaca-process-queues nil nil 977000 nil]
-
 ** marginalia
 #+begin_src elisp :tangle ./init.el
   (use-package marginalia :ensure t :demand t :init (marginalia-mode))
 #+end_src
-
-#+RESULTS:
-: [nil 26348 19152 679741 nil elpaca-process-queues nil nil 58000 nil]
 
 ** orderless
 #+begin_src elisp :tangle ./init.el
@@ -297,9 +360,6 @@ corfu
     )
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 682500 nil elpaca-process-queues nil nil 983000 nil]
-
 ** evil
 #+begin_src elisp :tangle ./init.el
   ;; Expands to: (elpaca evil (use-package evil :demand t))
@@ -310,9 +370,6 @@ corfu
     (evil-set-undo-system 'undo-tree)
     :init (evil-mode 1))
 #+end_src
-
-#+RESULTS:
-: [nil 26348 19152 684990 nil elpaca-process-queues nil nil 604000 nil]
 
 ** which key
 #+begin_src elisp :tangle ./init.el
@@ -331,9 +388,6 @@ corfu
   (use-package yasnippet-snippets :ensure t :demand t)
   (use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
 #+end_src
-
-#+RESULTS:
-: [nil 26348 19152 687992 nil elpaca-process-queues nil nil 760000 nil]
 
 ** hydra
 #+begin_src elisp :tangle ./init.el
@@ -470,9 +524,6 @@ corfu
     )
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 691484 nil elpaca-process-queues nil nil 989000 nil]
-
 ** Keychord stuff
 #+begin_src elisp :tangle ./init.el
   (use-package key-chord
@@ -534,9 +585,6 @@ corfu
     (key-chord-define-global "\\[" 'evil-window-vsplit))
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 694379 nil elpaca-process-queues nil nil 615000 nil]
-
 ** markdown
 #+begin_src elisp :tangle ./init.el
   ;; (elpaca-wait)
@@ -574,9 +622,6 @@ corfu
   ;; (use-package corfu)
 #+end_src
 
-#+RESULTS:
-: t
-
 ** Important functions
 
 *** Functions to format code
@@ -590,9 +635,6 @@ corfu
     (basic-save-buffer)
     (goto-line mytmpline))
 #+end_src
-
-#+RESULTS:
-: myfun/save_and_format_c
 
 **** LaTeX
 #+begin_src elisp :tangle ./init.el
@@ -760,12 +802,3 @@ corfu
 
 #+RESULTS:
 
-** work space
-#+begin_src elisp
-  (save-buffer)
-  (save-some-buffer)
-  (org-babel-tangle)
-#+end_src
-
-#+RESULTS:
-| /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/early-init.el | /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/init.el |

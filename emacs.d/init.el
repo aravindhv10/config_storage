@@ -74,6 +74,8 @@
 (setq modus-themes-org-blocks 'tinted-background)
 (load-theme 'modus-vivendi)
 
+(setq-default indent-tabs-mode nil)
+
 (server-start)
 
 (setq eshell-prefer-lisp-functions 1)
@@ -101,6 +103,60 @@
                                (shell . t)
                                (sqlite . t)
                                )))
+
+(use-package flycheck
+  :ensure t
+  :demand t
+  :init
+  (global-flycheck-mode 1)
+  )
+
+(use-package ag
+  :ensure t
+  :demand t
+  :config
+  (setq ag-context-lines 4)
+  (setq ag-highlight-search 4)
+  (global-set-key (kbd "C-c g") 'ag)
+  :init
+  )
+
+(use-package treemacs
+  :ensure t
+  :demand t
+  :config
+  :init
+  )
+
+(use-package projectile
+  :ensure t
+  :demand t
+  :config
+  ;; Recommended keymap prefix on macOS
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  ;; Recommended keymap prefix on Windows/Linux
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  :init
+  (projectile-mode +1)
+  )
+
+(use-package lsp
+  :ensure t
+  :demand t
+  :config
+  (setq gc-cons-threshold 100000000)
+  (setq read-process-output-max 1048576)
+  (setq lsp-idle-delay 0.1)
+  (setq lsp-tcp-connection-timeout 10)
+  :init
+  )
+
+(use-package lsp-ui
+  :ensure t
+  :demand t
+  :config
+  :init
+  )
 
 (use-package undo-tree
   :ensure t

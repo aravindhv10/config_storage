@@ -34,4 +34,10 @@
 /main.org~
 /rm.txt
 /work.sh
+/.main.org.~undo-tree~
+/emacs.d/.init.el.~undo-tree~
+/emacs.d/.init.org.~undo-tree~
 /emacs.d/auto-save-list/
+/emacs.d/eln-cache/
+/emacs.d/elpaca/
+/emacs.d/history
