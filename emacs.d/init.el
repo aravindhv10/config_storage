@@ -66,6 +66,10 @@
 ;;For example:
 ;;(use-package general :ensure (:wait t) :demand t)
 
+(setq display-line-numbers-type "relative")
+(global-display-line-numbers-mode 1)
+(global-linum-mode 1)
+
 ; (setq modus-themes-org-blocks 'gray-background)
 (setq modus-themes-org-blocks 'tinted-background)
 (load-theme 'modus-vivendi)
@@ -73,6 +77,16 @@
 (server-start)
 
 (setq eshell-prefer-lisp-functions 1)
+
+(use-package beacon
+  :ensure t
+  :demand t
+  :config
+  (global-hl-line-mode 1)
+  (global-tab-line-mode 1)
+  :init
+  (beacon-mode 1)
+  )
 
 (use-package org :ensure t :demand t :init
   (setq org-confirm-babel-evaluate nil)
@@ -93,6 +107,16 @@
   :demand t
   :init
   (global-undo-tree-mode))
+
+(use-package rainbow-mode
+  :ensure t
+  :demand t
+  :init
+  (add-hook 'prog-mode-hook 'rainbow-mode)
+  (add-hook 'text-mode-hook 'rainbow-mode)
+  (add-hook 'dired-mode-hook 'rainbow-mode)
+  (add-hook 'conf-mode-hook 'rainbow-mode)
+  )
 
 (use-package rainbow-delimiters
   :ensure t
@@ -123,31 +147,6 @@
   (add-to-list 'dabbrev-ignored-buffer-modes 'doc-view-mode)
   (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)
   (add-to-list 'dabbrev-ignored-buffer-modes 'tags-table-mode))
-
-(use-package corfu
-  ;; Optional customizations
-  :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator ?\s)          ;; Orderless field separator
-  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  (corfu-preview-current nil)    ;; Disable current candidate preview
-  (corfu-preselect 'prompt)      ;; Preselect the prompt
-  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  (corfu-scroll-margin 5)        ;; Use scroll margin
-
-  ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
-
-  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-  ;; be used globally (M-/).  See also the customization variable
-  ;; `global-corfu-modes' to exclude certain modes.
-  :init
-  (global-corfu-mode)
-  )
 
 (use-package helpful :ensure t :demand t :init)
 
@@ -202,7 +201,21 @@
   )
 
 ;; Expands to: (elpaca evil (use-package evil :demand t))
-(use-package evil :ensure t :demand t :init (evil-mode 1))
+(use-package evil
+  :ensure t
+  :demand t
+  :config
+  (evil-set-undo-system 'undo-tree)
+  :init (evil-mode 1))
+
+;; Expands to: (elpaca evil (use-package evil :demand t))
+(use-package which-key
+  :ensure t
+  :demand t
+  :config
+  (setq which-key-idle-delay 0.01)
+  :init (which-key-mode 1)
+  )
 
 (use-package yasnippet-snippets :ensure t :demand t)
 (use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
@@ -249,14 +262,6 @@
     ("k" kill-buffer           "kill_buffer" :color blue)
     ("q" hydra-all/body "all" :color blue)
     ("<escape>" nil "cancel" :color blue))
-  
-  (defhydra hydra-org-cycle (:color red)
-    "org-cycle"
-    ("a"        org-cycle         "all")
-    ("c"        org-cycle-content "content")
-    ("g"        org-cycle-global  "global")
-    ("q" hydra-all/body "all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
 
   (defhydra hydra-org (:color blue)
     "org"
@@ -269,6 +274,15 @@
     ("l"        hydra-org-cycle/body        "cycle")
     ("q" hydra-all/body "all" :color blue)
     ("<escape>" nil "cancel" :color blue))
+  
+  (defhydra hydra-org-cycle (:color red)
+    "org-cycle"
+    ("a"        org-cycle         "all")
+    ("c"        org-cycle-content "content")
+    ("g"        org-cycle-global  "global")
+    ("q" hydra-all/body "all" :color blue)
+    ("<escape>" nil "cancel" :color blue))
+
 
 
   (defhydra hydra-menu (:color red)
@@ -395,6 +409,34 @@
   (key-chord-define-global "\\l" 'evil-window-vsplit)
   (key-chord-define-global "\\]" 'evil-window-vsplit)
   (key-chord-define-global "\\[" 'evil-window-vsplit))
+
+;; (elpaca-wait)
+;; (elpaca-try corfu 1)
+(use-package markdown-mode
+  :ensure t
+  :demand t
+  :config
+  :init
+  )
+
+;; (elpaca-wait)
+;; (elpaca-try corfu 1)
+(use-package company
+  :ensure t
+  :demand t
+  :config
+  (setq company-minimum-prefix-length 0)
+  (setq company-idle-delay 0)
+  (add-hook 'prog-mode-hook 'company-mode)
+  (add-hook 'text-mode-hook 'company-mode)
+  ;; (add-hook 'eshell-mode-hook 'company-mode)
+  ;; :init
+  ;; (global-company-mode)
+  )
+
+;; (elpaca-wait)
+;; (elpaca-try corfu 1)
+;; (use-package corfu)
 
 (defun myfun/save_and_format_c ()
   (interactive)
