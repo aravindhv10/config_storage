@@ -3,7 +3,7 @@
 #+begin_src elisp
   (save-buffer)
   (org-babel-tangle)
-  (shell-command "./work.sh &" "output-shell" "error-shell")
+  (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
