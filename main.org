@@ -7,7 +7,7 @@
 #+end_src
 
 #+RESULTS:
-: 0
+: #<window 19 on output-shell>
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'

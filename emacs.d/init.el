@@ -66,9 +66,7 @@
 ;;For example:
 ;;(use-package general :ensure (:wait t) :demand t)
 
-(setq display-line-numbers-type "relative")
 (global-display-line-numbers-mode 1)
-(global-linum-mode 1)
 
 ; (setq modus-themes-org-blocks 'gray-background)
 (setq modus-themes-org-blocks 'tinted-background)
@@ -138,25 +136,6 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   :init
   (projectile-mode +1)
-  )
-
-;; (elpaca lsp)
-;; (use-package lsp
-;;   :ensure t
-;;   :demand t
-;;   :config
-;;   (setq gc-cons-threshold 100000000)
-;;   (setq read-process-output-max 1048576)
-;;   (setq lsp-idle-delay 0.1)
-;;   (setq lsp-tcp-connection-timeout 10)
-;;   :init
-;;   )
-
-(use-package lsp-ui
-  :ensure t
-  :demand t
-  :config
-  :init
   )
 
 (use-package undo-tree
@@ -303,20 +282,22 @@
 
   (defhydra hydra-consult (:color blue)
     "consult"
-    ("s" consult-line     "search buffer")
+    ("s" consult-line "search buffer")
     ("a" consult-line-multi "search all buffers")
     ("q" hydra-all/body "all" :color blue)
     ("<escape>" nil "cancel" :color blue))
 
   (defhydra hydra-window (:color red)
     "window"
-    ("w" other-window          "other" :color red)
-    ("s" save-buffer           "save" :color red)
-    ("t" tear-off-window       "tear" :color red)
-    ("d" delete-window         "delete_window" :color red)
-    ("f" delete-frame          "delete_frame" :color red)
+    ("w" other-window "other" :color red)
+    ("s" save-buffer "save" :color red)
+    ("t" tear-off-window "tear" :color red)
+    ("d" delete-window "delete_window" :color red)
+    ("f" delete-frame "delete_frame" :color red)
+    ("v" evil-window-vsplit "vertical split" :color red)
+    ("h" evil-window-split "horizontal split" :color red)
     ("b" consult-buffer "switch_buffer" :color blue)
-    ("k" kill-buffer           "kill_buffer" :color blue)
+    ("k" kill-buffer "kill_buffer" :color blue)
     ("q" hydra-all/body "all" :color blue)
     ("<escape>" nil "cancel" :color blue))
 
@@ -474,49 +455,46 @@
   :init
   )
 
-;; ;; (elpaca-wait)
-;; ;; (elpaca-try corfu 1)
-;; (use-package company
-;;   :ensure t
-;;   :demand t
-;;   :config
-;;   (setq company-minimum-prefix-length 0)
-;;   (setq company-idle-delay 0)
-;;   (add-hook 'prog-mode-hook 'company-mode)
-;;   (add-hook 'text-mode-hook 'company-mode)
-;;   ;; (add-hook 'eshell-mode-hook 'company-mode)
-;;   ;; :init
-;;   ;; (global-company-mode)
-;;   )
+(use-package company
+  :ensure t
+  :demand t
+  :config
+  (setq company-minimum-prefix-length 0)
+  (setq company-idle-delay 0)
+  (add-hook 'prog-mode-hook 'company-mode)
+  (add-hook 'text-mode-hook 'company-mode)
+  ;; (add-hook 'eshell-mode-hook 'company-mode)
+  ;; :init
+  ;; (global-company-mode)
+  )
 
-;; (elpaca-wait)
-;; (elpaca-try corfu)
 (elpaca corfu)
+
 (use-package corfu
   ;; Optional customizations
-  ;; :custom
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  ;; (corfu-auto t)                 ;; Enable auto completion
-  ;; (corfu-separator ?\s)          ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  (corfu-preview-current nil)    ;; Disable current candidate preview
+  (corfu-preselect 'prompt)      ;; Preselect the prompt
+  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  (corfu-scroll-margin 5)        ;; Use scroll margin
 
   ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
+  :hook ((prog-mode . corfu-mode)
+         (shell-mode . corfu-mode)
+         (eshell-mode . corfu-mode))
 
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
   ;; be used globally (M-/).  See also the customization variable
   ;; `global-corfu-modes' to exclude certain modes.
   :init
-  (global-corfu-mode))
+  ;; (global-corfu-mode)
+  )
 
-;; Add extensions
 (use-package cape
   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
   ;; Press C-c p ? to for help.
