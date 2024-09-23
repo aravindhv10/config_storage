@@ -1,13 +1,20 @@
 * work space
 
 #+begin_src elisp
+  (async-shell-command "git status" "output-shell" "error-shell")
+#+end_src
+
+#+RESULTS:
+: #<window 41 on output-shell>
+
+#+begin_src elisp
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 19 on output-shell>
+: #<window 15 on output-shell>
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
@@ -2247,6 +2254,7 @@
   emacs.d/snippets/yaml-mode/list
   emacs.d/snippets/yaml-mode/section
   main.org
+  scripts/compress.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
