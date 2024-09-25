@@ -109,6 +109,13 @@
   (global-flycheck-mode 1)
   )
 
+(use-package consult-ag
+  :ensure t
+  :demand t
+  :config
+  :init
+  )
+
 (use-package ag
   :ensure t
   :demand t
@@ -636,3 +643,7 @@
   (setq minibuffer-prompt-properties
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
+
+(myfun/menu_n)
+(toggle-frame-fullscreen)
+(put 'upcase-region 'disabled nil)

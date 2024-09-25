@@ -4,18 +4,6 @@
   (async-shell-command "git status" "output-shell" "error-shell")
 #+end_src
 
-#+RESULTS:
-: #<window 41 on output-shell>
-
-#+begin_src elisp
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "./work.sh" "output-shell" "error-shell")
-#+end_src
-
-#+RESULTS:
-: #<window 15 on output-shell>
-
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
 
@@ -29,6 +17,12 @@
   git status
   git commit -m 'usual emacs update'
   git push
+#+end_src
+
+#+begin_src elisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
 #+begin_src conf :tangle ./git_add.txt
