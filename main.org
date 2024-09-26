@@ -25,6 +25,9 @@
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
+#+RESULTS:
+: #<window 249 on output-shell>
+
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
   emacs.d/early-init.el
