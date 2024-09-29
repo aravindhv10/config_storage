@@ -30,7 +30,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 143 on output-shell>
+: #<window 24 on output-shell>
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
@@ -2310,4 +2310,6 @@
   emacs.d/elpaca/
   emacs.d/eshell/
   emacs.d/history
+  emacs.d/projectile-bookmarks.eld
+  emacs.d/recentf
 #+end_src
