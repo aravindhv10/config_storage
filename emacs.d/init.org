@@ -105,6 +105,11 @@ corfu
 
 ** Internal emacs configs
 
+*** whitespaces
+#+begin_src elisp :tangle ./init.el
+  (whitespace-mode 1)
+#+end_src
+
 *** electric pair mode
 #+begin_src elisp :tangle ./init.el
   (electric-pair-mode 1)

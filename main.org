@@ -30,7 +30,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 24 on output-shell>
+: #<window 44 on output-shell>
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
