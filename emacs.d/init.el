@@ -66,6 +66,8 @@
 ;;For example:
 ;;(use-package general :ensure (:wait t) :demand t)
 
+(electric-pair-mode 1)
+
 (global-display-line-numbers-mode 1)
 
 ; (setq modus-themes-org-blocks 'gray-background)
