@@ -4,6 +4,9 @@
   (async-shell-command "git status" "output-shell" "error-shell")
 #+end_src
 
+#+RESULTS:
+: #<window 109 on output-shell>
+
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
 
@@ -21,12 +24,13 @@
 
 #+begin_src elisp
   (save-buffer)
+  (save-some-buffers)
   (org-babel-tangle)
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 69 on output-shell>
+: #<window 59 on output-shell>
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
@@ -2294,11 +2298,16 @@
   .main.org.~undo-tree~
   emacs.d/.init.el.~undo-tree~
   emacs.d/.init.org.~undo-tree~
+  emacs.d/.early-init.el.~undo-tree~
+  emacs.d/.lsp-session-v1
+  emacs.d/tmp.el
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
   emacs.d/auto-save-list/
   emacs.d/eln-cache/
+  emacs.d/elpa/
   emacs.d/elpaca/
+  emacs.d/eshell/
   emacs.d/history
 #+end_src

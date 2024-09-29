@@ -37,7 +37,12 @@
 /.main.org.~undo-tree~
 /emacs.d/.init.el.~undo-tree~
 /emacs.d/.init.org.~undo-tree~
+/emacs.d/.early-init.el.~undo-tree~
+/emacs.d/.lsp-session-v1
+/emacs.d/tmp.el
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
+/emacs.d/elpa/
 /emacs.d/elpaca/
+/emacs.d/eshell/
 /emacs.d/history
