@@ -299,6 +299,7 @@
     ("w" other-window "other" :color red)
     ("s" save-buffer "save" :color red)
     ("t" tear-off-window "tear" :color red)
+    ("r" toggle-frame-fullscreen "fullscreen" :color red)
     ("d" delete-window "delete_window" :color red)
     ("f" delete-frame "delete_frame" :color red)
     ("v" evil-window-vsplit "vertical split" :color red)
@@ -380,7 +381,7 @@
     ("c" counsel-company         "company")
     ("d" counsel-dired           "dired")
     ("k" counsel-flycheck        "flycheck")
-    ("b" counsel-switch-buffer   "buffer")
+    ("b" consult-buffer "buffer")
     ("f" hydra-counsel-file/body "file")
     ("q" hydra-all/body "all" :color blue)
     ("<escape>" nil "cancel" :color blue))
@@ -408,8 +409,8 @@
   (key-chord-define-global "2w" 'myfun/other_window_and_menu)
   (key-chord-define-global "3w" 'myfun/other_window_and_menu)
 
-  (key-chord-define-global "e3" 'counsel-switch-buffer)
-  (key-chord-define-global "e4" 'counsel-switch-buffer)
+  (key-chord-define-global "e3" 'consult-buffer)
+  (key-chord-define-global "e4" 'consult-buffer)
 
   (key-chord-define-global "5t" 'hydra-format/body)
   (key-chord-define-global "6t" 'hydra-format/body)
@@ -651,6 +652,12 @@
     (interactive)
     (other-window 1)
     (hydra-window/body))
+
+
+(defun myfun/tear_and_full_screen ()
+    (interactive)
+    (tear-off-window)
+    (toggle-frame-fullscreen))
 
 (use-package emacs
   :custom

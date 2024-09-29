@@ -26,7 +26,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 249 on output-shell>
+: #<window 69 on output-shell>
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
