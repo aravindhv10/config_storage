@@ -68,6 +68,10 @@
 
 (whitespace-mode 1)
 
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(c++-mode . ("~/bin/clangd"))))
+
 (electric-pair-mode 1)
 
 (global-display-line-numbers-mode 1)

@@ -110,6 +110,14 @@ corfu
   (whitespace-mode 1)
 #+end_src
 
+*** eglot with c++
+#+begin_src elisp :tangle ./init.el
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(c++-mode . ("~/bin/clangd"))))
+#+end_src
+
+
 *** electric pair mode
 #+begin_src elisp :tangle ./init.el
   (electric-pair-mode 1)

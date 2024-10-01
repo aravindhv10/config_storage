@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 109 on output-shell>
+: #<window 39 on output-shell>
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
@@ -18,7 +18,7 @@
   ;
 
   git status
-  git commit -m 'usual emacs update'
+  git commit -m 'Added important shell and python functions'
   git push
 #+end_src
 
@@ -30,7 +30,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 44 on output-shell>
+: #<window 132 on output-shell>
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
@@ -2256,6 +2256,9 @@
   emacs.d/snippets/yaml-mode/section
   main.org
   scripts/compress.sh
+  shell_functions/important_functions.org
+  shell_functions/important_functions.py
+  shell_functions/important_functions.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
@@ -2301,6 +2304,8 @@
   emacs.d/.early-init.el.~undo-tree~
   emacs.d/.lsp-session-v1
   emacs.d/tmp.el
+  shell_functions/.important_functions.org.~undo-tree~
+  shell_functions/important_functions.org~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
