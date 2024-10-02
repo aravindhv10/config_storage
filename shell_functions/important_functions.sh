@@ -1,4 +1,14 @@
 #!/bin/sh
+install_flatpak(){
+    which flatpak && return
+    if test  "$('whoami')" = 'root'
+    then
+        apt-get install -y flatpak
+    else
+        sudo apt-get install -y flatpak
+    fi
+}
+
 install_aria(){
     if test  "$('whoami')" = 'root'
     then

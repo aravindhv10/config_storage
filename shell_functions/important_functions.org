@@ -211,6 +211,19 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
   }
 #+end_src
 
+** Installing flatpak
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  install_flatpak(){
+      which flatpak && return
+      if test  "$('whoami')" = 'root'
+      then
+          apt-get install -y flatpak
+      else
+          sudo apt-get install -y flatpak
+      fi
+  }
+#+end_src
+
 ** Fast download file:
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh

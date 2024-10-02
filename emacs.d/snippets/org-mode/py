@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: src_py
-# key: <py
+# key: <py>
 # --
-#+begin_src python :shebang #!/usr/bin/python3 :results output
-  $0
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./${0:tmp}.py
+  $1
 #+end_src

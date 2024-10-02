@@ -1,0 +1,3 @@
+#!/bin/sh
+echo 'export PATH="${HOME}/bin:${PATH}"; /app/bin/emacs-wrapper' | flatpak run --command=sh org.gnu.emacs
+exit '0'

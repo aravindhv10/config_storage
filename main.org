@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 23 on output-shell>
+: #<window 109 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -15,7 +15,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 41 on output-shell>
+: #<window 13 on output-shell>
 
 * Scripts for git related work
 
@@ -30,7 +30,7 @@
   ;
 
   git status
-  git commit -m 'Updated paths for clang'
+  git commit -m 'Added more scripts to run emacs inside flatpak'
   git push
 #+end_src
 
@@ -2261,6 +2261,9 @@
   shell_functions/important_functions.org
   shell_functions/important_functions.py
   shell_functions/important_functions.sh
+  flatpak_emacs/README.org
+  flatpak_emacs/flat_emacs.sh
+  flatpak_emacs/install.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt

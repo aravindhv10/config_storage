@@ -1,0 +1,31 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (save-some-buffers)
+  (org-babel-tangle)
+  ;; (async-shell-command "flatpak-spawn --host ./install.sh")
+#+end_src
+
+#+RESULTS:
+| /home/asd/GITLAB/aravindhv101/config_storage/flatpak_emacs/flat_emacs.sh | /home/asd/GITLAB/aravindhv101/config_storage/flatpak_emacs/install.sh |
+
+* Install llvm and rust
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
+  flatpak search sdk > ./list.sdk.txt
+  flatpak search llvm >> ./list.llvm.txt 
+  flatpak search rust >> ./list.rust.txt
+  flatpak search org.gnu.emacs >> ./list.emacs.txt
+
+  flatpak install org.freedesktop.Sdk/x86_64/24.08
+  flatpak install org.freedesktop.Sdk.Extension.llvm18/x86_64/24.08
+  flatpak install org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08
+#+end_src
+
+* Procedure to include SDK
+edit
+=${FLATPAK_INSTALL_ROOT}/var/lib/flatpak/app/org.gnu.emacs/current/${HASH}/metadata=
+to include the latest version of SDK for llvm, rust and anything else.
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./flat_emacs.sh
+  echo 'export PATH="${HOME}/bin:${PATH}"; /app/bin/emacs-wrapper' | flatpak run --command=sh org.gnu.emacs
+  exit '0'
+#+end_src
