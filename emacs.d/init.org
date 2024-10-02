@@ -6,9 +6,14 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/early-init.el | /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/init.el |
+| /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/init.el | /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/early-init.el |
 
 * Main emacs config
+
+** Setting path to include ~/bin
+#+begin_src elisp :tangle ./early-init.el
+  (setenv "PATH" (concat (concat (getenv "HOME") "/bin:") (getenv "PATH")))
+#+end_src
 
 ** Make fonts bigger
 #+begin_src elisp :tangle ./init.el
@@ -29,6 +34,7 @@
 #+RESULTS:
 
 ** ELPACA Config
+
 
 *** Prevent default emacs package manager from loading
 #+begin_src elisp :tangle ./early-init.el
@@ -108,7 +114,7 @@
   (whitespace-mode 1)
 #+end_src
 
-*** eglot with c++
+*** COMMENT eglot with c++
 #+begin_src elisp :tangle ./init.el
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
@@ -776,7 +782,7 @@
   (defun myfun/save_and_format_c ()
     (interactive)
     (setq mytmpline (line-number-at-pos))
-    (shell-command-on-region (point-min) (point-max) "~/bin/clang-format" (current-buffer) t "*fcc error*" t)
+    (shell-command-on-region (point-min) (point-max) "clang-format" (current-buffer) t "*fcc error*" t)
     (basic-save-buffer)
     (goto-line mytmpline))
 #+end_src
@@ -952,9 +958,4 @@
 
   (myfun/menu_n)
   (toggle-frame-fullscreen)
-#+end_src
-
-* Setting path to include ~/bin
-#+begin_src elisp :tangle ./init.el
-  (setenv "PATH" (concat (concat (getenv "HOME") "/bin:") (getenv "PATH")))
 #+end_src

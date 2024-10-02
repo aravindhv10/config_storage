@@ -68,10 +68,6 @@
 
 (whitespace-mode 1)
 
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(c++-mode . ("~/bin/clangd"))))
-
 (electric-pair-mode 1)
 
 (global-display-line-numbers-mode 1)
@@ -585,7 +581,7 @@
 (defun myfun/save_and_format_c ()
   (interactive)
   (setq mytmpline (line-number-at-pos))
-  (shell-command-on-region (point-min) (point-max) "~/bin/clang-format" (current-buffer) t "*fcc error*" t)
+  (shell-command-on-region (point-min) (point-max) "clang-format" (current-buffer) t "*fcc error*" t)
   (basic-save-buffer)
   (goto-line mytmpline))
 
@@ -710,5 +706,3 @@
 
 (myfun/menu_n)
 (toggle-frame-fullscreen)
-
-(setenv "PATH" (concat (concat (getenv "HOME") "/bin:") (getenv "PATH")))

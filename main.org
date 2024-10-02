@@ -15,7 +15,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 65 on output-shell>
+: #<window 41 on output-shell>
 
 * Scripts for git related work
 
