@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_conf
+# key: <conf>
+# --
+#+begin_src conf :tangle ./${0:tmp}.conf
+  $1
+#+end_src

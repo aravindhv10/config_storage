@@ -1,5 +1,7 @@
+/#main.org#
 /.#main.org
 /.main.org.~undo-tree~
+/emacs.d/#init.org#
 /emacs.d/.#init.org
 /emacs.d/.#projectile-bookmarks.eld
 /emacs.d/.early-init.el.~undo-tree~
@@ -11,6 +13,7 @@
 /emacs.d/init.org~
 /emacs.d/snippets/c++-mode/.mycl.~undo-tree~
 /emacs.d/snippets/c++-mode/mycl~
+/emacs.d/snippets/org-mode/.conf.~undo-tree~
 /emacs.d/snippets/org-mode/.figure.~undo-tree~
 /emacs.d/snippets/org-mode/.html.~undo-tree~
 /emacs.d/snippets/org-mode/.image.~undo-tree~
@@ -33,6 +36,7 @@
 /emacs.d/snippets/org-mode/.style.~undo-tree~
 /emacs.d/snippets/org-mode/.verse.~undo-tree~
 /emacs.d/snippets/org-mode/.video.~undo-tree~
+/emacs.d/snippets/org-mode/conf~
 /emacs.d/snippets/org-mode/python~
 /emacs.d/snippets/org-mode/py~
 /emacs.d/snippets/org-mode/sh~

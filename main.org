@@ -15,7 +15,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 17 on output-shell>
+: #<window 51 on output-shell>
 
 * Scripts for git related work
 
@@ -2267,11 +2267,14 @@
   shell_functions/important_functions.org
   shell_functions/important_functions.py
   shell_functions/important_functions.sh
+  emacs.d/snippets/org-mode/conf
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
+  #main.org#
   .#main.org
   .main.org.~undo-tree~
+  emacs.d/#init.org#
   emacs.d/.#init.org
   emacs.d/.#projectile-bookmarks.eld
   emacs.d/.early-init.el.~undo-tree~
@@ -2283,6 +2286,7 @@
   emacs.d/init.org~
   emacs.d/snippets/c++-mode/.mycl.~undo-tree~
   emacs.d/snippets/c++-mode/mycl~
+  emacs.d/snippets/org-mode/.conf.~undo-tree~
   emacs.d/snippets/org-mode/.figure.~undo-tree~
   emacs.d/snippets/org-mode/.html.~undo-tree~
   emacs.d/snippets/org-mode/.image.~undo-tree~
@@ -2305,6 +2309,7 @@
   emacs.d/snippets/org-mode/.style.~undo-tree~
   emacs.d/snippets/org-mode/.verse.~undo-tree~
   emacs.d/snippets/org-mode/.video.~undo-tree~
+  emacs.d/snippets/org-mode/conf~
   emacs.d/snippets/org-mode/python~
   emacs.d/snippets/org-mode/py~
   emacs.d/snippets/org-mode/sh~
