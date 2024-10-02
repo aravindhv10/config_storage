@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 109 on output-shell>
+: #<window 27 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -15,7 +15,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 115 on output-shell>
+: #<window 17 on output-shell>
 
 * Scripts for git related work
 
@@ -2256,18 +2256,28 @@
   emacs.d/snippets/yaml-mode/entry
   emacs.d/snippets/yaml-mode/list
   emacs.d/snippets/yaml-mode/section
+  fish_config/README.org
+  fish_config/config.fish
+  fish_config/copy.sh
+  flatpak_emacs/README.org
+  flatpak_emacs/flat_emacs.sh
+  flatpak_emacs/install.sh
   main.org
   scripts/compress.sh
   shell_functions/important_functions.org
   shell_functions/important_functions.py
   shell_functions/important_functions.sh
-  flatpak_emacs/README.org
-  flatpak_emacs/flat_emacs.sh
-  flatpak_emacs/install.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
   .#main.org
+  .main.org.~undo-tree~
+  emacs.d/.#init.org
+  emacs.d/.#projectile-bookmarks.eld
+  emacs.d/.early-init.el.~undo-tree~
+  emacs.d/.init.el.~undo-tree~
+  emacs.d/.init.org.~undo-tree~
+  emacs.d/.lsp-session-v1
   emacs.d/early-init.el~
   emacs.d/init.el~
   emacs.d/init.org~
@@ -2298,21 +2308,18 @@
   emacs.d/snippets/org-mode/python~
   emacs.d/snippets/org-mode/py~
   emacs.d/snippets/org-mode/sh~
+  emacs.d/tmp.el
+  fish_config/#README.org#
+  fish_config/.#README.org
+  fish_config/.README.org.~undo-tree~
+  fish_config/README.org~
   git_add.txt
   gitignore.txt
   main.org~
   rm.txt
-  work.sh
-  .main.org.~undo-tree~
-  emacs.d/.init.el.~undo-tree~
-  emacs.d/.init.org.~undo-tree~
-  emacs.d/.early-init.el.~undo-tree~
-  emacs.d/.lsp-session-v1
-  emacs.d/tmp.el
   shell_functions/.important_functions.org.~undo-tree~
   shell_functions/important_functions.org~
-  emacs.d/.#init.org
-  emacs.d/.#projectile-bookmarks.eld
+  work.sh
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt

@@ -1,0 +1,43 @@
+* work space
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+#+RESULTS:
+| /home/asd/GITLAB/aravindhv101/config_storage/fish_config/copy.sh | /home/asd/GITLAB/aravindhv101/config_storage/fish_config/config.fish |
+
+* Main config
+#+begin_src conf :tangle ./config.fish
+  fish_vi_key_bindings
+
+  set PATH {HOME}/.cargo/bin {$HOME}/bin {$PATH}
+
+  export SUDO_ASKPASS={$HOME}/SUDO_ASKPASS
+
+  function sudo
+      /usr/bin/sudo -A $argv
+  end
+
+  function top
+      /usr/bin/htop $argv
+  end
+
+  function puthere
+      mysync (cat /tmp/list) ./
+  end
+
+  function mysync
+      rsync '-avh' '--progress' $argv
+      sync ; sync
+  end
+
+  source (/usr/local/bin/starship init fish --print-full-init | psub)
+#+end_src
+
+* To destination
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  cd "$(dirname -- "${0}")"
+  mkdir -pv -- "${HOME}/.config/fish/"
+  cp -vf -- './config.fish' "${HOME}/.config/fish/config.fish"
+#+end_src
