@@ -66,8 +66,6 @@
 ;;For example:
 ;;(use-package general :ensure (:wait t) :demand t)
 
-(whitespace-mode 1)
-
 (electric-pair-mode 1)
 
 (global-display-line-numbers-mode 1)
@@ -81,6 +79,12 @@
 (server-start)
 
 (setq eshell-prefer-lisp-functions 1)
+
+(add-hook 'prog-mode-hook 'whitespace-mode)
+(add-hook 'text-mode-hook 'whitespace-mode)
+(add-hook 'conf-mode-hook 'whitespace-mode)
+
+(add-hook 'c++-mode-hook 'eglot-ensure)
 
 (use-package beacon
   :ensure t
