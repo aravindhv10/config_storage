@@ -9,7 +9,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Noto Sans Mono" :foundry "GOOG" :slant normal :weight bold :height 180 :width normal)))))
+ '(default ((t (:family "Noto Sans Mono" :foundry "GOOG" :slant normal :weight bold :height 220 :width normal)))))
 
 (defvar elpaca-installer-version 0.7)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -585,7 +585,7 @@
 (defun myfun/save_and_format_c ()
   (interactive)
   (setq mytmpline (line-number-at-pos))
-  (shell-command-on-region (point-min) (point-max) "clang-format" (current-buffer) t "*fcc error*" t)
+  (shell-command-on-region (point-min) (point-max) "~/bin/clang-format" (current-buffer) t "*fcc error*" t)
   (basic-save-buffer)
   (goto-line mytmpline))
 
@@ -710,3 +710,5 @@
 
 (myfun/menu_n)
 (toggle-frame-fullscreen)
+
+(setenv "PATH" (concat (concat (getenv "HOME") "/bin:") (getenv "PATH")))

@@ -5,7 +5,19 @@
 #+end_src
 
 #+RESULTS:
-: #<window 39 on output-shell>
+: #<window 23 on output-shell>
+
+#+begin_src elisp
+  (save-buffer)
+  (save-some-buffers)
+  (org-babel-tangle)
+  (async-shell-command "./work.sh" "output-shell" "error-shell")
+#+end_src
+
+#+RESULTS:
+: #<window 65 on output-shell>
+
+* Scripts for git related work
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
@@ -18,19 +30,9 @@
   ;
 
   git status
-  git commit -m 'Added important shell and python functions'
+  git commit -m 'Updated paths for clang'
   git push
 #+end_src
-
-#+begin_src elisp
-  (save-buffer)
-  (save-some-buffers)
-  (org-babel-tangle)
-  (async-shell-command "./work.sh" "output-shell" "error-shell")
-#+end_src
-
-#+RESULTS:
-: #<window 132 on output-shell>
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
@@ -2306,6 +2308,8 @@
   emacs.d/tmp.el
   shell_functions/.important_functions.org.~undo-tree~
   shell_functions/important_functions.org~
+  emacs.d/.#init.org
+  emacs.d/.#projectile-bookmarks.eld
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt

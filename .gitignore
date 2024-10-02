@@ -42,6 +42,8 @@
 /emacs.d/tmp.el
 /shell_functions/.important_functions.org.~undo-tree~
 /shell_functions/important_functions.org~
+/emacs.d/.#init.org
+/emacs.d/.#projectile-bookmarks.eld
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
 /emacs.d/elpa/
