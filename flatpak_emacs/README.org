@@ -1,6 +1,5 @@
 #+begin_src emacs-lisp
   (save-buffer)
-  (save-some-buffers)
   (org-babel-tangle)
   ;; (async-shell-command "flatpak-spawn --host ./install.sh")
 #+end_src
@@ -18,6 +17,7 @@
   flatpak install org.freedesktop.Sdk/x86_64/24.08
   flatpak install org.freedesktop.Sdk.Extension.llvm18/x86_64/24.08
   flatpak install org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08
+  flatpak install org.gnu.emacs
 #+end_src
 
 * Procedure to include SDK
