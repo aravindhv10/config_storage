@@ -80,10 +80,6 @@
 
 (setq eshell-prefer-lisp-functions 1)
 
-(add-hook 'prog-mode-hook 'whitespace-mode)
-(add-hook 'text-mode-hook 'whitespace-mode)
-(add-hook 'conf-mode-hook 'whitespace-mode)
-
 (add-hook 'c++-mode-hook 'eglot-ensure)
 
 (use-package beacon

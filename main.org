@@ -15,7 +15,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 51 on output-shell>
+: #<window 71 on output-shell>
 
 * Scripts for git related work
 
@@ -30,7 +30,7 @@
   ;
 
   git status
-  git commit -m 'Added more scripts to run emacs inside flatpak'
+  git commit -m 'Removed whitespace package'
   git push
 #+end_src
 
