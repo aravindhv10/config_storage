@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 27 on output-shell>
+: #<window 29 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -14,8 +14,9 @@
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
-#+RESULTS:
-: #<window 71 on output-shell>
+#+begin_src elisp
+  (async-shell-command "git commit -m 'added wrapper c++ code' ; git push" "output-shell" "error-shell")
+#+end_src
 
 * Scripts for git related work
 
@@ -30,8 +31,6 @@
   ;
 
   git status
-  git commit -m 'Removed whitespace package'
-  git push
 #+end_src
 
 #+begin_src conf :tangle ./git_add.txt
@@ -1321,6 +1320,7 @@
   emacs.d/snippets/odin-mode/whene
   emacs.d/snippets/org-mode/author
   emacs.d/snippets/org-mode/center
+  emacs.d/snippets/org-mode/conf
   emacs.d/snippets/org-mode/date
   emacs.d/snippets/org-mode/description
   emacs.d/snippets/org-mode/dot
@@ -2267,7 +2267,7 @@
   shell_functions/important_functions.org
   shell_functions/important_functions.py
   shell_functions/important_functions.sh
-  emacs.d/snippets/org-mode/conf
+  wrapper_code/wrapper.cc
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
