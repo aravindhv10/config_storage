@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 29 on output-shell>
+: #<window 83 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -15,14 +15,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 55 on output-shell>
+: #<window 71 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'added wrapper c++ code' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 43 on output-shell>
+: #<window 71 on output-shell>
 
 * Scripts for git related work
 
@@ -2274,6 +2274,7 @@
   shell_functions/important_functions.py
   shell_functions/important_functions.sh
   wrapper_code/wrapper.cc
+  flatpak_emacs/enter.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
