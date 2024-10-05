@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 241 on output-shell>
+: #<window 377 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -15,14 +15,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 205 on output-shell>
+: #<window 241 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'added wrapper code in c' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 205 on output-shell>
+: #<window 241 on output-shell>
 
 * Scripts for git related work
 
@@ -2334,6 +2334,7 @@
   shell_functions/important_functions.org~
   work.sh
   flatpak_emacs/.README.org.~undo-tree~
+  wrapper_code/.wrapper.c.~undo-tree~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt

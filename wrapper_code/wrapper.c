@@ -3,8 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 
+#define SIZE_BUFFER 1 << 22
+static char BUFFER[SIZE_BUFFER];
+
+static char const proc_self_exe[] = "/proc/self/exe";
+static char const name_ld[] = "/ld-linux-x86-64.so.2";
+static char library_path[] = "--library-path";
+
 char *get_ld(char const *path_dir_prefix) {
-  char name_ld[] = "/ld-linux-x86-64.so.2";
   size_t const len_name_ld = strlen(name_ld);
 
   size_t len_path_dir_prefix = strlen(path_dir_prefix);
@@ -48,13 +54,39 @@ char *get_name(char *in) {
   return ret;
 }
 
-int main(int const argc, char **argv) {
+char *get_prefix_dir() {
+  ssize_t const tmp = readlink(/*const char *restrict pathname =*/proc_self_exe,
+                               /*char *restrict buf =*/BUFFER,
+                               /*size_t bufsiz =*/SIZE_BUFFER);
+  BUFFER[tmp] = 0;
+  char *c = BUFFER + tmp - 1;
+  while ((*c != '/') && (c > BUFFER + 1)) {
+    --c;
+  }
+  *c = 0;
+  while ((*c != '/') && (c > BUFFER + 1)) {
+    --c;
+  }
+  c[1] = 'e';
+  c[2] = 'x';
+  c[3] = 'e';
+  c[4] = 0;
+  c = c + 4;
+  unsigned int const len = c - BUFFER;
+  char *ret = malloc(len);
 
-  char path_dir_prefix[] = "/home/asd/exe";
-  char library_path[] = "--library-path";
+  memcpy(/*void dest[restrict.n] =*/ret, /*const void src[restrict.n] =*/BUFFER,
+         /*size_t n =*/len);
+
+  return ret;
+}
+
+int main(int const argc, char **argv) {
+  char *path_dir_prefix = get_prefix_dir();
   char *name_exe = get_name(/*char const * in =*/argv[0]);
   char *path_file_ld = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
   char **final_args = (char **)malloc((argc + 4) * sizeof(char *));
+
   final_args[0] = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
   final_args[1] = library_path;
   final_args[2] = path_dir_prefix;
@@ -71,9 +103,16 @@ int main(int const argc, char **argv) {
 
   printf("failed to run... %d\n", ret);
 
+  for (int i = 0; i < argc + 3; ++i) {
+    printf("%s\n", final_args[i]);
+  }
+
   free(final_args[3]);
   free(final_args);
   free(path_file_ld);
+  free(path_dir_prefix);
 
   return ret;
 }
+
+#undef SIZE_BUFFER
