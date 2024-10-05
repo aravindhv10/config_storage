@@ -38,10 +38,21 @@ char *get_name_exe(char *path_dir_prefix, char *name_exe) {
   return ret;
 }
 
+char *get_name(char *in) {
+  char *ret = strrchr(/*const char *s =*/in, /*int c =*/'/');
+  if (ret == NULL) {
+    ret = in;
+  } else {
+    ret = ret + 1;
+  }
+  return ret;
+}
+
 int main(int const argc, char **argv) {
+
   char path_dir_prefix[] = "/home/asd/exe";
   char library_path[] = "--library-path";
-  char name_exe[] = "sk";
+  char *name_exe = get_name(/*char const * in =*/argv[0]);
   char *path_file_ld = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
   char **final_args = (char **)malloc((argc + 4) * sizeof(char *));
   final_args[0] = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
@@ -51,7 +62,7 @@ int main(int const argc, char **argv) {
                                /*char *name_exe =*/name_exe);
 
   final_args[argc + 3] = NULL;
-  for (size_t i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     final_args[3 + i] = argv[i];
   }
 
