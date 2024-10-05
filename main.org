@@ -15,7 +15,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 241 on output-shell>
+: #<window 15 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'added wrapper code in c' ; git push" "output-shell" "error-shell")

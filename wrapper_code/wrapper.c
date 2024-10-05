@@ -60,11 +60,11 @@ char *get_prefix_dir() {
                                /*size_t bufsiz =*/SIZE_BUFFER);
   BUFFER[tmp] = 0;
   char *c = BUFFER + tmp - 1;
-  while ((*c != '/') && (c > BUFFER + 1)) {
+  while (*c != '/') {
     --c;
   }
   *c = 0;
-  while ((*c != '/') && (c > BUFFER + 1)) {
+  while (*c != '/') {
     --c;
   }
   c[1] = 'e';
@@ -84,6 +84,7 @@ char *get_prefix_dir() {
 int main(int const argc, char **argv) {
   char *path_dir_prefix = get_prefix_dir();
   char *name_exe = get_name(/*char const * in =*/argv[0]);
+  // char name_exe[] = "alacritty";
   char *path_file_ld = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
   char **final_args = (char **)malloc((argc + 4) * sizeof(char *));
 
@@ -97,6 +98,10 @@ int main(int const argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     final_args[3 + i] = argv[i];
   }
+
+  /* for (int i = 0; i < argc + 3; ++i) { */
+  /*   printf("%s\n", final_args[i]); */
+  /* } */
 
   int ret = execv(/*const char *pathname =*/final_args[0],
                   /*char *const argv[] =*/final_args);
