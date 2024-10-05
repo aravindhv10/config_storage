@@ -16,7 +16,7 @@ char *get_ld(char const *path_dir_prefix) {
   size_t len_path_dir_prefix = strlen(path_dir_prefix);
 
   char *ret =
-      (char *)malloc((len_path_dir_prefix + len_name_ld) * sizeof(char));
+      (char *)malloc((len_path_dir_prefix + len_name_ld + 1) * sizeof(char));
 
   memcpy(/*void *dest =*/ret, /*const void *src =*/path_dir_prefix,
          /*size_t n =*/len_path_dir_prefix);
@@ -25,21 +25,26 @@ char *get_ld(char const *path_dir_prefix) {
          /*const void *src =*/name_ld,
          /*size_t n =*/len_name_ld);
 
+  ret[len_path_dir_prefix + len_name_ld] = 0;
+
   return ret;
 }
 
 char *get_name_exe(char *path_dir_prefix, char *name_exe) {
   size_t len_name_exe = strlen(name_exe);
   size_t len_path_dir_prefix = strlen(path_dir_prefix);
-  char *ret = malloc((len_name_exe + len_path_dir_prefix + 1) * sizeof(char));
+  char *ret = malloc((len_name_exe + len_path_dir_prefix + 2) * sizeof(char));
 
   memcpy(/*void *dest =*/ret, /*const void *src =*/path_dir_prefix,
          /*size_t n =*/len_path_dir_prefix);
 
   ret[len_path_dir_prefix] = '/';
+
   memcpy(/*void *dest =*/ret + len_path_dir_prefix + 1,
          /*const void *src =*/name_exe,
          /*size_t n =*/len_name_exe);
+
+  ret[len_path_dir_prefix + len_name_exe + 1] = 0;
 
   return ret;
 }
@@ -55,11 +60,15 @@ char *get_name(char *in) {
 }
 
 char *get_prefix_dir() {
+
   ssize_t const tmp = readlink(/*const char *restrict pathname =*/proc_self_exe,
                                /*char *restrict buf =*/BUFFER,
                                /*size_t bufsiz =*/SIZE_BUFFER);
+
   BUFFER[tmp] = 0;
+
   char *c = BUFFER + tmp - 1;
+
   while (*c != '/') {
     --c;
   }
@@ -67,12 +76,16 @@ char *get_prefix_dir() {
   while (*c != '/') {
     --c;
   }
+
   c[1] = 'e';
   c[2] = 'x';
   c[3] = 'e';
   c[4] = 0;
+
   c = c + 4;
+
   unsigned int const len = c - BUFFER;
+
   char *ret = malloc(len);
 
   memcpy(/*void dest[restrict.n] =*/ret, /*const void src[restrict.n] =*/BUFFER,
@@ -88,7 +101,7 @@ int main(int const argc, char **argv) {
   char *path_file_ld = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
   char **final_args = (char **)malloc((argc + 4) * sizeof(char *));
 
-  final_args[0] = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
+  final_args[0] = path_file_ld;
   final_args[1] = library_path;
   final_args[2] = path_dir_prefix;
   final_args[3] = get_name_exe(/*char *path_dir_prefix =*/path_dir_prefix,

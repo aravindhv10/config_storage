@@ -22,7 +22,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 241 on output-shell>
+: #<window 15 on output-shell>
 
 * Scripts for git related work
 
