@@ -362,7 +362,7 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       echo '. "${HOME}/.cargo/env"' >> "${HOME}/.zshrc"
       # echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc"
       echo 'alias cat=bat' >> "${HOME}/.zshrc"
-      echo 'alias ls=exa' >> "${HOME}/.zshrc"
+      echo 'alias ls=lsd' >> "${HOME}/.zshrc"
       echo 'alias du=dust' >> "${HOME}/.zshrc"
   }
 
@@ -374,4 +374,3 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       sudo ./aws/install
   }
 #+end_src
-

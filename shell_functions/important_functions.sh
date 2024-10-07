@@ -131,7 +131,7 @@ setup_zshrc_with_rust(){
     echo '. "${HOME}/.cargo/env"' >> "${HOME}/.zshrc"
     # echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc"
     echo 'alias cat=bat' >> "${HOME}/.zshrc"
-    echo 'alias ls=exa' >> "${HOME}/.zshrc"
+    echo 'alias ls=lsd' >> "${HOME}/.zshrc"
     echo 'alias du=dust' >> "${HOME}/.zshrc"
 }
 
