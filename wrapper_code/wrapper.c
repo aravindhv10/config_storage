@@ -3,20 +3,31 @@
 #include <string.h>
 #include <unistd.h>
 
+static inline size_t align(size_t val) {
+  size_t newval = (val >> 3) << 3;
+  if (newval == val) {
+    return val;
+  } else {
+    return ((val >> 3) + 1) << 3;
+  }
+}
+
 #define SIZE_BUFFER (1 << 22)
 
 static char BUFFER[SIZE_BUFFER];
 static int BUFFER_CURRENT;
 
-static inline char *myalloc(size_t insize) {
+static inline char *myalloc(size_t const insize) {
+  BUFFER_CURRENT = align(BUFFER_CURRENT);
   char *ret = BUFFER + BUFFER_CURRENT;
-  BUFFER_CURRENT += insize;
+  BUFFER_CURRENT += align(insize);
   return ret;
 }
 
 static char const proc_self_exe[] = "/proc/self/exe";
 static char const name_ld[] = "/ld-linux-x86-64.so.2";
 static char library_path[] = "--library-path";
+static char argv0[] = "--argv0";
 
 static inline char *get_prefix_dir() {
 
@@ -47,7 +58,7 @@ static inline char *get_prefix_dir() {
 
   c = c + 5;
 
-  unsigned int const len = c - ptr;
+  unsigned int const len = align(c - ptr);
   BUFFER_CURRENT += len;
 
   return ptr;
@@ -108,17 +119,19 @@ int main(int const argc, char **argv) {
   char *path_dir_prefix = get_prefix_dir();
   char *name_exe = get_name(/*char const * in =*/argv[0]);
   char *path_file_ld = get_ld(/*char const *path_dir_prefix =*/path_dir_prefix);
-  char **final_args = (char **)myalloc((argc + 4) * sizeof(char *));
+  char **final_args = (char **)myalloc((argc + 6) * sizeof(char *));
 
   final_args[0] = path_file_ld;
   final_args[1] = library_path;
   final_args[2] = path_dir_prefix;
-  final_args[3] = get_name_exe(/*char *path_dir_prefix =*/path_dir_prefix,
+  final_args[3] = argv0;
+  final_args[4] = argv[0];
+  final_args[5] = get_name_exe(/*char *path_dir_prefix =*/path_dir_prefix,
                                /*char *name_exe =*/name_exe);
 
-  final_args[argc + 3] = NULL;
+  final_args[argc + 5] = NULL;
   for (int i = 1; i < argc; i++) {
-    final_args[3 + i] = argv[i];
+    final_args[5 + i] = argv[i];
   }
 
   int ret = execv(/*const char *pathname =*/final_args[0],
