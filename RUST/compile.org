@@ -1,0 +1,12 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./compile.sh" "compile-output" "compile-error")
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./compile.sh
+  . /usr/lib/sdk/rust-stable/enable.sh
+  pushd lsd
+      cargo build --release
+  popd
+#+end_src

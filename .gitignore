@@ -61,6 +61,9 @@
 /work.sh
 /wrapper_code/.wrapper.c.~undo-tree~
 /add_rust_submodules.sh
+/RUST/compile.el
+/RUST/.compile.org.~undo-tree~
+/RUST/compile.org~
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
 /emacs.d/elpa/
