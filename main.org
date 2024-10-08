@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 204 on output-shell>
+: #<window 234 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -16,14 +16,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 180 on output-shell>
+: #<window 218 on output-shell>
 
 #+begin_src elisp
-  (async-shell-command "git commit -m 'Added all elpaca git paths as submodules' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'Added all rust submodules' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 186 on output-shell>
+: #<window 224 on output-shell>
 
 * Scripts for git related work
 
@@ -2284,6 +2284,8 @@
   shell_functions/important_functions.sh
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
+  RUST/dust
+  RUST/nucleo
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
