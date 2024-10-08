@@ -60,6 +60,7 @@
 /shell_functions/important_functions.org~
 /work.sh
 /wrapper_code/.wrapper.c.~undo-tree~
+/add_rust_submodules.sh
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
 /emacs.d/elpa/
@@ -70,3 +71,5 @@
 /emacs.d/elpaca/builds/
 /emacs.d/elpaca/cache/
 /emacs.d/elpaca/use-package.info
+/RUST/bin/
+/RUST/exe/

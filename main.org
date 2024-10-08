@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 166 on output-shell>
+: #<window 204 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -16,14 +16,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 144 on output-shell>
+: #<window 180 on output-shell>
 
 #+begin_src elisp
-  (async-shell-command "git commit -m 'added initial tmux submodules' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'Added all elpaca git paths as submodules' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 78 on output-shell>
+: #<window 186 on output-shell>
 
 * Scripts for git related work
 
@@ -2349,6 +2349,7 @@
   shell_functions/important_functions.org~
   work.sh
   wrapper_code/.wrapper.c.~undo-tree~
+  add_rust_submodules.sh
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
@@ -2362,7 +2363,43 @@
   emacs.d/elpaca/builds/
   emacs.d/elpaca/cache/
   emacs.d/elpaca/use-package.info
+  RUST/bin/
+  RUST/exe/
 #+end_src
+
+* Adding all rust submodules:
+
+#+begin_src elisp
+  (save-buffer)
+  (save-some-buffers)
+  (org-babel-tangle)
+  (async-shell-command "./add_rust_submodules.sh" "output-shell" "error-shell")
+#+end_src
+
+#+RESULTS:
+: #<window 196 on output-shell>
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./add_rust_submodules.sh
+  work(){
+      URL="$(grep 'url = ' "${1}/.git/config" | sed 's@ @@g;s@\t@@g;s@^url=@@g')"
+      git submodule add "${URL}" "${1}"
+  }
+
+  work ./RUST/alacritty
+  work ./RUST/bat
+  work ./RUST/dust
+  work ./RUST/lsd
+  work ./RUST/nucleo
+  work ./RUST/nushell
+  work ./RUST/ripgrep
+  work ./RUST/skim
+  work ./RUST/starship
+  work ./RUST/yazi
+  work ./RUST/zellij
+#+end_src
+
+#+RESULTS:
+: https://github.com/magit/magit.git
 
 * Adding all elpaca submodules:
 
