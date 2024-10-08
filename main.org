@@ -15,14 +15,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 83 on output-shell>
+: #<window 21 on output-shell>
 
 #+begin_src elisp
-  (async-shell-command "git commit -m 'added wrapper code in c' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'added tmux script to auto join session' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 83 on output-shell>
+: #<window 21 on output-shell>
 
 * Scripts for git related work
 

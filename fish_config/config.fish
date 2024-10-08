@@ -21,4 +21,16 @@ function mysync
     sync ; sync
 end
 
+function ls
+lsd $argv
+end
+
+function cat
+bat $argv
+end
+
+function du
+dust $argv
+end
+
 source (/usr/local/bin/starship init fish --print-full-init | psub)
