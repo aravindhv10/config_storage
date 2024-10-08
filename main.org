@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 265 on output-shell>
+: #<window 13 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -2276,6 +2276,7 @@
   wrapper_code/wrapper.cc
   flatpak_emacs/enter.sh
   wrapper_code/wrapper.c
+  scripts/tmux_auto.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
