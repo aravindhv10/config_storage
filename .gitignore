@@ -5,6 +5,7 @@
 /TMUX/tmux.dir/.#configopts
 /TMUX/tmux.dir/.main.org.~undo-tree~
 /TMUX/tmux.dir/main.org~
+/add_elpaca_submodules.sh
 /emacs.d/#init.org#
 /emacs.d/.#init.org
 /emacs.d/.#projectile-bookmarks.eld
@@ -62,8 +63,10 @@
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
 /emacs.d/elpa/
-/emacs.d/elpaca/
 /emacs.d/eshell/
 /emacs.d/history
 /emacs.d/projectile-bookmarks.eld
 /emacs.d/recentf
+/emacs.d/elpaca/builds/
+/emacs.d/elpaca/cache/
+/emacs.d/elpaca/use-package.info

@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 66 on output-shell>
+: #<window 166 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -16,14 +16,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 60 on output-shell>
+: #<window 144 on output-shell>
 
 #+begin_src elisp
-  (async-shell-command "git commit -m 'added tmux script to auto join session' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'added initial tmux submodules' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 3 on output-shell>
+: #<window 78 on output-shell>
 
 * Scripts for git related work
 
@@ -2294,6 +2294,7 @@
   TMUX/tmux.dir/.#configopts
   TMUX/tmux.dir/.main.org.~undo-tree~
   TMUX/tmux.dir/main.org~
+  add_elpaca_submodules.sh
   emacs.d/#init.org#
   emacs.d/.#init.org
   emacs.d/.#projectile-bookmarks.eld
@@ -2354,9 +2355,90 @@
   emacs.d/auto-save-list/
   emacs.d/eln-cache/
   emacs.d/elpa/
-  emacs.d/elpaca/
   emacs.d/eshell/
   emacs.d/history
   emacs.d/projectile-bookmarks.eld
   emacs.d/recentf
+  emacs.d/elpaca/builds/
+  emacs.d/elpaca/cache/
+  emacs.d/elpaca/use-package.info
 #+end_src
+
+* Adding all elpaca submodules:
+
+#+begin_src elisp
+  (save-buffer)
+  (save-some-buffers)
+  (org-babel-tangle)
+  (async-shell-command "./add_elpaca_submodules.sh" "output-shell" "error-shell")
+#+end_src
+
+#+RESULTS:
+: #<window 158 on output-shell>
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./add_elpaca_submodules.sh
+  work(){
+      URL="$(grep 'url = ' "./emacs.d/elpaca/repos/${1}/.git/config" | sed 's@ @@g;s@\t@@g;s@^url=@@g')"
+      git submodule add "${URL}" "./emacs.d/elpaca/repos/${1}"
+      echo "${URL}"
+  }
+
+  work ace-window
+  work ag
+  work annalist
+  work avy
+  work beacon
+  work cfrs
+  work company-mode
+  work compat
+  work consult
+  work consult-ag
+  work corfu
+  work dash
+  work eglot
+  work elisp-refs
+  work elpaca
+  work emacs-async
+  work emacs-dashboard
+  work emacs-which-key
+  work evil
+  work evil-collection
+  work f
+  work flycheck
+  work flymake
+  work goto-chg
+  work helpful
+  work ht
+  work hydra
+  work key-chord
+  work lsp-mode
+  work lsp-ui
+  work magit
+  work marginalia
+  work markdown-mode
+  work orderless
+  work org
+  work pfuture
+  work posframe
+  work projectile
+  work queue
+  work rainbow-blocks
+  work rainbow-delimiters
+  work rainbow-identifiers
+  work rainbow-mode
+  work s
+  work spinner
+  work tempel
+  work tempel-collection
+  work treemacs
+  work undo-tree
+  work use-package
+  work vertico
+  work with-editor
+  work yasnippet
+  work yasnippet-capf
+  work yasnippet-snippets
+#+end_src
+
+#+RESULTS:
+: https://github.com/magit/magit.git

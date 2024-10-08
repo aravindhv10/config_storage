@@ -4,3 +4,168 @@
 [submodule "TMUX/tmux.config"]
 	path = TMUX/tmux.config
 	url = https://github.com/gpakosz/.tmux.git
+[submodule "emacs.d/elpaca/repos/ace-window"]
+	path = emacs.d/elpaca/repos/ace-window
+	url = https://github.com/abo-abo/ace-window.git
+[submodule "emacs.d/elpaca/repos/ag"]
+	path = emacs.d/elpaca/repos/ag
+	url = https://github.com/Wilfred/ag.el.git
+[submodule "emacs.d/elpaca/repos/annalist"]
+	path = emacs.d/elpaca/repos/annalist
+	url = https://github.com/noctuid/annalist.el.git
+[submodule "emacs.d/elpaca/repos/avy"]
+	path = emacs.d/elpaca/repos/avy
+	url = https://github.com/abo-abo/avy.git
+[submodule "emacs.d/elpaca/repos/beacon"]
+	path = emacs.d/elpaca/repos/beacon
+	url = https://github.com/Malabarba/beacon.git
+[submodule "emacs.d/elpaca/repos/cfrs"]
+	path = emacs.d/elpaca/repos/cfrs
+	url = https://github.com/Alexander-Miller/cfrs.git
+[submodule "emacs.d/elpaca/repos/company-mode"]
+	path = emacs.d/elpaca/repos/company-mode
+	url = https://github.com/company-mode/company-mode.git
+[submodule "emacs.d/elpaca/repos/compat"]
+	path = emacs.d/elpaca/repos/compat
+	url = https://github.com/emacs-compat/compat
+[submodule "emacs.d/elpaca/repos/consult"]
+	path = emacs.d/elpaca/repos/consult
+	url = https://github.com/minad/consult.git
+[submodule "emacs.d/elpaca/repos/consult-ag"]
+	path = emacs.d/elpaca/repos/consult-ag
+	url = https://github.com/yadex205/consult-ag.git
+[submodule "emacs.d/elpaca/repos/corfu"]
+	path = emacs.d/elpaca/repos/corfu
+	url = https://github.com/minad/corfu.git
+[submodule "emacs.d/elpaca/repos/dash"]
+	path = emacs.d/elpaca/repos/dash
+	url = https://github.com/magnars/dash.el.git
+[submodule "emacs.d/elpaca/repos/eglot"]
+	path = emacs.d/elpaca/repos/eglot
+	url = https://github.com/emacs-mirror/emacs
+[submodule "emacs.d/elpaca/repos/elisp-refs"]
+	path = emacs.d/elpaca/repos/elisp-refs
+	url = https://github.com/Wilfred/elisp-refs.git
+[submodule "emacs.d/elpaca/repos/elpaca"]
+	path = emacs.d/elpaca/repos/elpaca
+	url = https://github.com/progfolio/elpaca.git
+[submodule "emacs.d/elpaca/repos/emacs-async"]
+	path = emacs.d/elpaca/repos/emacs-async
+	url = https://github.com/jwiegley/emacs-async.git
+[submodule "emacs.d/elpaca/repos/emacs-dashboard"]
+	path = emacs.d/elpaca/repos/emacs-dashboard
+	url = https://github.com/emacs-dashboard/emacs-dashboard.git
+[submodule "emacs.d/elpaca/repos/emacs-which-key"]
+	path = emacs.d/elpaca/repos/emacs-which-key
+	url = https://github.com/justbur/emacs-which-key.git
+[submodule "emacs.d/elpaca/repos/evil"]
+	path = emacs.d/elpaca/repos/evil
+	url = https://github.com/emacs-evil/evil.git
+[submodule "emacs.d/elpaca/repos/evil-collection"]
+	path = emacs.d/elpaca/repos/evil-collection
+	url = https://github.com/emacs-evil/evil-collection.git
+[submodule "emacs.d/elpaca/repos/f"]
+	path = emacs.d/elpaca/repos/f
+	url = https://github.com/rejeep/f.el.git
+[submodule "emacs.d/elpaca/repos/flycheck"]
+	path = emacs.d/elpaca/repos/flycheck
+	url = https://github.com/flycheck/flycheck.git
+[submodule "emacs.d/elpaca/repos/flymake"]
+	path = emacs.d/elpaca/repos/flymake
+	url = https://github.com/emacs-mirror/emacs
+[submodule "emacs.d/elpaca/repos/goto-chg"]
+	path = emacs.d/elpaca/repos/goto-chg
+	url = https://github.com/emacs-evil/goto-chg.git
+[submodule "emacs.d/elpaca/repos/helpful"]
+	path = emacs.d/elpaca/repos/helpful
+	url = https://github.com/Wilfred/helpful.git
+[submodule "emacs.d/elpaca/repos/ht"]
+	path = emacs.d/elpaca/repos/ht
+	url = https://github.com/Wilfred/ht.el.git
+[submodule "emacs.d/elpaca/repos/hydra"]
+	path = emacs.d/elpaca/repos/hydra
+	url = https://github.com/abo-abo/hydra.git
+[submodule "emacs.d/elpaca/repos/key-chord"]
+	path = emacs.d/elpaca/repos/key-chord
+	url = https://github.com/emacsorphanage/key-chord.git
+[submodule "emacs.d/elpaca/repos/lsp-mode"]
+	path = emacs.d/elpaca/repos/lsp-mode
+	url = https://github.com/emacs-lsp/lsp-mode.git
+[submodule "emacs.d/elpaca/repos/lsp-ui"]
+	path = emacs.d/elpaca/repos/lsp-ui
+	url = https://github.com/emacs-lsp/lsp-ui.git
+[submodule "emacs.d/elpaca/repos/magit"]
+	path = emacs.d/elpaca/repos/magit
+	url = https://github.com/magit/magit.git
+[submodule "emacs.d/elpaca/repos/marginalia"]
+	path = emacs.d/elpaca/repos/marginalia
+	url = https://github.com/minad/marginalia.git
+[submodule "emacs.d/elpaca/repos/markdown-mode"]
+	path = emacs.d/elpaca/repos/markdown-mode
+	url = https://github.com/jrblevin/markdown-mode.git
+[submodule "emacs.d/elpaca/repos/orderless"]
+	path = emacs.d/elpaca/repos/orderless
+	url = https://github.com/oantolin/orderless.git
+[submodule "emacs.d/elpaca/repos/org"]
+	path = emacs.d/elpaca/repos/org
+	url = https://git.savannah.gnu.org/git/emacs/org-mode.git
+[submodule "emacs.d/elpaca/repos/pfuture"]
+	path = emacs.d/elpaca/repos/pfuture
+	url = https://github.com/Alexander-Miller/pfuture.git
+[submodule "emacs.d/elpaca/repos/posframe"]
+	path = emacs.d/elpaca/repos/posframe
+	url = https://github.com/tumashu/posframe.git
+[submodule "emacs.d/elpaca/repos/projectile"]
+	path = emacs.d/elpaca/repos/projectile
+	url = https://github.com/bbatsov/projectile.git
+[submodule "emacs.d/elpaca/repos/queue"]
+	path = emacs.d/elpaca/repos/queue
+	url = git://git.sv.gnu.org/emacs/elpa
+[submodule "emacs.d/elpaca/repos/rainbow-blocks"]
+	path = emacs.d/elpaca/repos/rainbow-blocks
+	url = https://github.com/istib/rainbow-blocks.git
+[submodule "emacs.d/elpaca/repos/rainbow-delimiters"]
+	path = emacs.d/elpaca/repos/rainbow-delimiters
+	url = https://github.com/Fanael/rainbow-delimiters.git
+[submodule "emacs.d/elpaca/repos/rainbow-identifiers"]
+	path = emacs.d/elpaca/repos/rainbow-identifiers
+	url = https://github.com/Fanael/rainbow-identifiers.git
+[submodule "emacs.d/elpaca/repos/rainbow-mode"]
+	path = emacs.d/elpaca/repos/rainbow-mode
+	url = git://git.sv.gnu.org/emacs/elpa
+[submodule "emacs.d/elpaca/repos/s"]
+	path = emacs.d/elpaca/repos/s
+	url = https://github.com/magnars/s.el.git
+[submodule "emacs.d/elpaca/repos/spinner"]
+	path = emacs.d/elpaca/repos/spinner
+	url = https://github.com/Malabarba/spinner.el
+[submodule "emacs.d/elpaca/repos/tempel"]
+	path = emacs.d/elpaca/repos/tempel
+	url = https://github.com/minad/tempel.git
+[submodule "emacs.d/elpaca/repos/tempel-collection"]
+	path = emacs.d/elpaca/repos/tempel-collection
+	url = https://github.com/Crandel/tempel-collection.git
+[submodule "emacs.d/elpaca/repos/treemacs"]
+	path = emacs.d/elpaca/repos/treemacs
+	url = https://github.com/Alexander-Miller/treemacs.git
+[submodule "emacs.d/elpaca/repos/undo-tree"]
+	path = emacs.d/elpaca/repos/undo-tree
+	url = https://gitlab.com/tsc25/undo-tree
+[submodule "emacs.d/elpaca/repos/use-package"]
+	path = emacs.d/elpaca/repos/use-package
+	url = https://github.com/jwiegley/use-package.git
+[submodule "emacs.d/elpaca/repos/vertico"]
+	path = emacs.d/elpaca/repos/vertico
+	url = https://github.com/minad/vertico
+[submodule "emacs.d/elpaca/repos/with-editor"]
+	path = emacs.d/elpaca/repos/with-editor
+	url = https://github.com/magit/with-editor.git
+[submodule "emacs.d/elpaca/repos/yasnippet"]
+	path = emacs.d/elpaca/repos/yasnippet
+	url = https://github.com/joaotavora/yasnippet.git
+[submodule "emacs.d/elpaca/repos/yasnippet-capf"]
+	path = emacs.d/elpaca/repos/yasnippet-capf
+	url = https://github.com/elken/yasnippet-capf.git
+[submodule "emacs.d/elpaca/repos/yasnippet-snippets"]
+	path = emacs.d/elpaca/repos/yasnippet-snippets
+	url = https://github.com/AndreaCrotti/yasnippet-snippets.git
