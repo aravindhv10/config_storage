@@ -1,6 +1,6 @@
 fish_vi_key_bindings
 
-set PATH {HOME}/.cargo/bin {$HOME}/bin {$PATH}
+set PATH {$HOME}/.cargo/bin {$HOME}/bin {$PATH}
 
 export SUDO_ASKPASS={$HOME}/SUDO_ASKPASS
 
@@ -9,7 +9,7 @@ function sudo
 end
 
 function top
-    /usr/bin/htop $argv
+    htop $argv
 end
 
 function puthere
@@ -22,15 +22,23 @@ function mysync
 end
 
 function ls
-lsd $argv
+    lsd $argv
 end
 
 function cat
-bat $argv
+    bat $argv
 end
 
 function du
-dust $argv
+    dust $argv
 end
 
-source (/usr/local/bin/starship init fish --print-full-init | psub)
+function txn
+    tmux new-window $argv
+end
+
+function txp
+    tmux split-pane $argv
+end
+
+source (starship init fish --print-full-init | psub)
