@@ -212,6 +212,13 @@
     )
 #+end_src
 
+** magit
+#+begin_src elisp :tangle ./init.el
+  (use-package magit
+    :ensure t
+    :demand t
+    )
+#+end_src
 
 ** consult-ag
 #+begin_src elisp :tangle ./init.el
