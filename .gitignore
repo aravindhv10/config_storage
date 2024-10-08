@@ -1,6 +1,10 @@
 /#main.org#
 /.#main.org
 /.main.org.~undo-tree~
+/TMUX/tmux.dir/#configopts#
+/TMUX/tmux.dir/.#configopts
+/TMUX/tmux.dir/.main.org.~undo-tree~
+/TMUX/tmux.dir/main.org~
 /emacs.d/#init.org#
 /emacs.d/.#init.org
 /emacs.d/.#projectile-bookmarks.eld
@@ -44,7 +48,9 @@
 /fish_config/#README.org#
 /fish_config/.#README.org
 /fish_config/.README.org.~undo-tree~
+/fish_config/.config.fish.~undo-tree~
 /fish_config/README.org~
+/flatpak_emacs/.README.org.~undo-tree~
 /git_add.txt
 /gitignore.txt
 /main.org~
@@ -52,9 +58,7 @@
 /shell_functions/.important_functions.org.~undo-tree~
 /shell_functions/important_functions.org~
 /work.sh
-/flatpak_emacs/.README.org.~undo-tree~
 /wrapper_code/.wrapper.c.~undo-tree~
-/fish_config/.config.fish.~undo-tree~
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
 /emacs.d/elpa/

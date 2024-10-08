@@ -1,3 +1,4 @@
+
 * work space
 
 #+begin_src elisp
@@ -5,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 13 on output-shell>
+: #<window 66 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -15,14 +16,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 9 on output-shell>
+: #<window 60 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'added tmux script to auto join session' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 9 on output-shell>
+: #<window 3 on output-shell>
 
 * Scripts for git related work
 
@@ -41,6 +42,12 @@
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
+  TMUX/tmux.dir/configopts
+  TMUX/tmux.dir/configscript.sh
+  TMUX/tmux.dir/init.sh
+  TMUX/tmux.dir/install.sh
+  TMUX/tmux.dir/main.org
+  TMUX/tmux.dir/make.sh
   emacs.d/early-init.el
   emacs.d/init.el
   emacs.d/init.org
@@ -2266,23 +2273,27 @@
   fish_config/config.fish
   fish_config/copy.sh
   flatpak_emacs/README.org
+  flatpak_emacs/enter.sh
   flatpak_emacs/flat_emacs.sh
   flatpak_emacs/install.sh
   main.org
   scripts/compress.sh
+  scripts/tmux_auto.sh
   shell_functions/important_functions.org
   shell_functions/important_functions.py
   shell_functions/important_functions.sh
-  wrapper_code/wrapper.cc
-  flatpak_emacs/enter.sh
   wrapper_code/wrapper.c
-  scripts/tmux_auto.sh
+  wrapper_code/wrapper.cc
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
   #main.org#
   .#main.org
   .main.org.~undo-tree~
+  TMUX/tmux.dir/#configopts#
+  TMUX/tmux.dir/.#configopts
+  TMUX/tmux.dir/.main.org.~undo-tree~
+  TMUX/tmux.dir/main.org~
   emacs.d/#init.org#
   emacs.d/.#init.org
   emacs.d/.#projectile-bookmarks.eld
@@ -2326,7 +2337,9 @@
   fish_config/#README.org#
   fish_config/.#README.org
   fish_config/.README.org.~undo-tree~
+  fish_config/.config.fish.~undo-tree~
   fish_config/README.org~
+  flatpak_emacs/.README.org.~undo-tree~
   git_add.txt
   gitignore.txt
   main.org~
@@ -2334,9 +2347,7 @@
   shell_functions/.important_functions.org.~undo-tree~
   shell_functions/important_functions.org~
   work.sh
-  flatpak_emacs/.README.org.~undo-tree~
   wrapper_code/.wrapper.c.~undo-tree~
-  fish_config/.config.fish.~undo-tree~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt

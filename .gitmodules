@@ -1,0 +1,6 @@
+[submodule "TMUX/tmux.dir/source"]
+	path = TMUX/tmux.dir/source
+	url = https://github.com/tmux/tmux
+[submodule "TMUX/tmux.config"]
+	path = TMUX/tmux.config
+	url = https://github.com/gpakosz/.tmux.git
