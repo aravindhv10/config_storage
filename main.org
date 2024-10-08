@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 234 on output-shell>
+: #<window 280 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -16,18 +16,19 @@
 #+end_src
 
 #+RESULTS:
-: #<window 218 on output-shell>
+: #<window 254 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'Added all rust submodules' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 224 on output-shell>
+: #<window 260 on output-shell>
 
 * Scripts for git related work
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
+  git submodule update --remote
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
 
   (sed 's@^@("git" "add" "./@g;s@$@");@g' './git_add.txt' | sort | uniq;
@@ -42,13 +43,38 @@
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
+  .gitmodules
+  RUST/alacritty
+  RUST/bat
+  RUST/dust
+  RUST/nucleo
+  RUST/nushell
+  RUST/starship
+  RUST/yazi
+  RUST/zellij
   TMUX/tmux.dir/configopts
   TMUX/tmux.dir/configscript.sh
   TMUX/tmux.dir/init.sh
   TMUX/tmux.dir/install.sh
   TMUX/tmux.dir/main.org
   TMUX/tmux.dir/make.sh
+  TMUX/tmux.dir/source
   emacs.d/early-init.el
+  emacs.d/elpaca/repos/company-mode
+  emacs.d/elpaca/repos/compat
+  emacs.d/elpaca/repos/consult
+  emacs.d/elpaca/repos/corfu
+  emacs.d/elpaca/repos/eglot
+  emacs.d/elpaca/repos/elpaca
+  emacs.d/elpaca/repos/emacs-async
+  emacs.d/elpaca/repos/evil
+  emacs.d/elpaca/repos/f
+  emacs.d/elpaca/repos/flymake
+  emacs.d/elpaca/repos/key-chord
+  emacs.d/elpaca/repos/lsp-mode
+  emacs.d/elpaca/repos/marginalia
+  emacs.d/elpaca/repos/orderless
+  emacs.d/elpaca/repos/org
   emacs.d/init.el
   emacs.d/init.org
   emacs.d/snippets/.nosearch
@@ -2284,8 +2310,6 @@
   shell_functions/important_functions.sh
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
-  RUST/dust
-  RUST/nucleo
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt

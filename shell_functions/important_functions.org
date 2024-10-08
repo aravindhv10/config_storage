@@ -373,4 +373,8 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       unzip awscliv2.zip
       sudo ./aws/install
   }
+
+  'alias cat=bat' 
+  'alias ls=lsd' 
+  'alias du=dust'
 #+end_src

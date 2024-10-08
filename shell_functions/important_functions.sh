@@ -142,3 +142,7 @@ install_awscli(){
     unzip awscliv2.zip
     sudo ./aws/install
 }
+
+'alias cat=bat' 
+'alias ls=lsd' 
+'alias du=dust'

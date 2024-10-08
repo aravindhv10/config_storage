@@ -118,9 +118,6 @@
 [submodule "emacs.d/elpaca/repos/projectile"]
 	path = emacs.d/elpaca/repos/projectile
 	url = https://github.com/bbatsov/projectile.git
-[submodule "emacs.d/elpaca/repos/queue"]
-	path = emacs.d/elpaca/repos/queue
-	url = git://git.sv.gnu.org/emacs/elpa
 [submodule "emacs.d/elpaca/repos/rainbow-blocks"]
 	path = emacs.d/elpaca/repos/rainbow-blocks
 	url = https://github.com/istib/rainbow-blocks.git
