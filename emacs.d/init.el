@@ -253,7 +253,18 @@
   :demand t
   :config
   (evil-set-undo-system 'undo-tree)
-  :init (evil-mode 1))
+  :init
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-keybinding nil)
+  (evil-mode 1)
+)
+
+;; Expands to: (elpaca evil (use-package evil :demand t))
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
 
 ;; Expands to: (elpaca evil (use-package evil :demand t))
 (use-package which-key

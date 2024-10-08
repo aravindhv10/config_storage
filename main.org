@@ -15,14 +15,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 17 on output-shell>
+: #<window 9 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'added tmux script to auto join session' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 17 on output-shell>
+: #<window 21 on output-shell>
 
 * Scripts for git related work
 
@@ -2336,6 +2336,7 @@
   work.sh
   flatpak_emacs/.README.org.~undo-tree~
   wrapper_code/.wrapper.c.~undo-tree~
+  fish_config/.config.fish.~undo-tree~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt

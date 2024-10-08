@@ -54,6 +54,7 @@
 /work.sh
 /flatpak_emacs/.README.org.~undo-tree~
 /wrapper_code/.wrapper.c.~undo-tree~
+/fish_config/.config.fish.~undo-tree~
 /emacs.d/auto-save-list/
 /emacs.d/eln-cache/
 /emacs.d/elpa/
