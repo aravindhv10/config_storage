@@ -199,3 +199,9 @@
 [submodule "RUST/zellij"]
 	path = RUST/zellij
 	url = https://github.com/zellij-org/zellij.git
+[submodule "RUST/pylyzer"]
+	path = RUST/pylyzer
+	url = https://github.com/mtshiba/pylyzer.git
+[submodule "RUST/ruff"]
+	path = RUST/ruff
+	url = https://github.com/astral-sh/ruff.git
