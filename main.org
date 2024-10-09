@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 338 on output-shell>
+: #<window 636 on output-shell>
 
 #+begin_src elisp
   (save-buffer)
@@ -15,14 +15,14 @@
 #+end_src
 
 #+RESULTS:
-: #<window 360 on output-shell>
+: #<window 628 on output-shell>
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'updated all submodules' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 296 on output-shell>
+: #<window 608 on output-shell<2>>
 
 * Scripts for git related work
 
@@ -47,12 +47,17 @@
   .gitmodules
   RUST/alacritty
   RUST/bat
+  RUST/compile.org
+  RUST/compile.sh
   RUST/dust
   RUST/nucleo
   RUST/nushell
+  RUST/pylyzer
+  RUST/ruff
   RUST/starship
   RUST/yazi
   RUST/zellij
+  TMUX/tmux.config
   TMUX/tmux.dir/configopts
   TMUX/tmux.dir/configscript.sh
   TMUX/tmux.dir/init.sh
@@ -76,6 +81,7 @@
   emacs.d/elpaca/repos/marginalia
   emacs.d/elpaca/repos/orderless
   emacs.d/elpaca/repos/org
+  emacs.d/elpaca/repos/projectile
   emacs.d/init.el
   emacs.d/init.org
   emacs.d/snippets/.nosearch
@@ -2311,11 +2317,6 @@
   shell_functions/important_functions.sh
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
-  RUST/compile.org
-  RUST/compile.sh
-  RUST/dust
-  RUST/nucleo
-  TMUX/tmux.config
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
@@ -2388,18 +2389,18 @@
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
+  RUST/bin/
+  RUST/exe/
   emacs.d/auto-save-list/
   emacs.d/eln-cache/
   emacs.d/elpa/
+  emacs.d/elpaca/builds/
+  emacs.d/elpaca/cache/
+  emacs.d/elpaca/use-package.info
   emacs.d/eshell/
   emacs.d/history
   emacs.d/projectile-bookmarks.eld
   emacs.d/recentf
-  emacs.d/elpaca/builds/
-  emacs.d/elpaca/cache/
-  emacs.d/elpaca/use-package.info
-  RUST/bin/
-  RUST/exe/
 #+end_src
 
 * Adding all rust submodules:

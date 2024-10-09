@@ -205,3 +205,6 @@
 [submodule "RUST/ruff"]
 	path = RUST/ruff
 	url = https://github.com/astral-sh/ruff.git
+[submodule "RUST/fish-shell"]
+	path = RUST/fish-shell
+	url = https://github.com/fish-shell/fish-shell.git
