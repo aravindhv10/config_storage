@@ -1,28 +1,24 @@
 * work space
 
-#+begin_src elisp
+#+begin_src elisp :results output
   (async-shell-command "git status" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 636 on output-shell>
 
-#+begin_src elisp
+#+begin_src elisp :results output
   (save-buffer)
   (save-some-buffers)
   (org-babel-tangle)
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
-#+RESULTS:
-: #<window 628 on output-shell>
-
 #+begin_src elisp
   (async-shell-command "git commit -m 'updated all submodules' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 608 on output-shell<2>>
+: #<window 674 on output-shell>
 
 * Scripts for git related work
 
@@ -39,8 +35,6 @@
 
   git status
 #+end_src
-
-
 
 #+begin_src conf :tangle ./git_add.txt
   .gitignore
@@ -2317,6 +2311,7 @@
   shell_functions/important_functions.sh
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
+  fish_config/SUDO_ASKPASS
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt

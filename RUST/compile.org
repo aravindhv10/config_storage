@@ -4,9 +4,31 @@
   (async-shell-command "./compile.sh" "compile-output" "compile-error")
 #+end_src
 
+#+RESULTS:
+: #<window 718 on compile-output>
+
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./compile.sh
   . /usr/lib/sdk/rust-stable/enable.sh
-  pushd lsd
-      cargo build --release
-  popd
+
+  ls
+
+  # pushd lsd
+  #     cargo build --release
+  # popd
+
+  # pushd ruff
+  #     cargo build --release
+  # popd
+
+  # pushd pylyzer
+  #     cargo build --release
+  # popd
+
+  # pushd fish-shell/
+  #     rm -rf -- exe
+  #     mkdir exe
+  #     cmake ..
+  #     make -j4
+  #     cargo build --release
+  # popd
 #+end_src

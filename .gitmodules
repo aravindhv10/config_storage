@@ -208,3 +208,6 @@
 [submodule "RUST/fish-shell"]
 	path = RUST/fish-shell
 	url = https://github.com/fish-shell/fish-shell.git
+[submodule "emacs.d/elpaca/repos/diff-hl"]
+	path = emacs.d/elpaca/repos/diff-hl
+	url = https://github.com/dgutov/diff-hl.git

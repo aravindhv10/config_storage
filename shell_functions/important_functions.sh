@@ -119,7 +119,7 @@ install_rust(){
     . "${HOME}/.cargo/env"
     cargo install zellij --locked
     cargo install bat --locked
-    cargo install exa --locked
+    cargo install lsd --locked
     cargo install du-dust --locked
     cargo install ripgrep --locked
     # cargo install starship --locked
