@@ -13,12 +13,14 @@
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
+#+RESULTS:
+
 #+begin_src elisp
-  (async-shell-command "git commit -m 'updated all submodules' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'Added diff hl' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 674 on output-shell>
+: #<window 134 on output-shell>
 
 * Scripts for git related work
 

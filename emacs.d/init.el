@@ -280,6 +280,8 @@
   :init (which-key-mode 1)
   )
 
+(use-package diff-hl :ensure t :demand t :init (global-diff-hl-mode))
+
 (use-package yasnippet-snippets :ensure t :demand t)
 (use-package yasnippet :ensure t :demand t :init (yas-global-mode 1))
 

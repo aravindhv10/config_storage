@@ -5,9 +5,6 @@
   (org-babel-tangle)
 #+end_src
 
-#+RESULTS:
-| /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/init.el | /home/asd/GITLAB/aravindhv101/config_storage/emacs.d/early-init.el |
-
 * Main emacs config
 
 ** Setting path to include ~/bin
@@ -31,10 +28,7 @@
    '(default ((t (:family "Noto Sans Mono" :foundry "GOOG" :slant normal :weight bold :height 220 :width normal)))))
 #+end_src
 
-#+RESULTS:
-
 ** ELPACA Config
-
 
 *** Prevent default emacs package manager from loading
 #+begin_src elisp :tangle ./early-init.el
@@ -83,9 +77,6 @@
   (elpaca `(,@elpaca-order))
 #+end_src
 
-#+RESULTS:
-: [nil 26348 19152 425823 nil elpaca-process-queues nil nil 36000 nil]
-
 *** Setup wrapper for use-package
 #+begin_src elisp :tangle ./init.el
   ;; Install a package via the elpaca macro
@@ -105,10 +96,7 @@
   ;;(use-package general :ensure (:wait t) :demand t)
 #+end_src
 
-#+RESULTS:
-
 ** Internal emacs configs
-
 
 *** COMMENT eglot with c++
 #+begin_src elisp :tangle ./init.el
@@ -455,6 +443,11 @@
     (setq which-key-idle-delay 0.01)
     :init (which-key-mode 1)
     )
+#+end_src
+
+** diff-hl
+#+begin_src elisp :tangle ./init.el
+  (use-package diff-hl :ensure t :demand t :init (global-diff-hl-mode))
 #+end_src
 
 ** yasnippet related
