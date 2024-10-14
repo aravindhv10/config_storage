@@ -3,12 +3,26 @@
 #include <string.h>
 #include <unistd.h>
 
+static char proc_self_exe[] = "/proc/self/exe";
+static size_t const len_proc_self_exe =
+    (sizeof(proc_self_exe) / sizeof(char)) - 1;
+
+static char name_ld[] = "/ld-linux-x86-64.so.2";
+static size_t const len_name_ld = (sizeof(name_ld) / sizeof(char)) - 1;
+
+static char library_path[] = "--library-path";
+static size_t const len_library_path =
+    (sizeof(library_path) / sizeof(char)) - 1;
+
+static char argv0[] = "--argv0";
+static size_t const len_argv0 = (sizeof(argv0) / sizeof(char)) - 1;
+
 static inline size_t align(size_t val) {
-  size_t newval = (val >> 3) << 3;
+  size_t newval = val & (~7);
   if (newval == val) {
     return val;
   } else {
-    return ((val >> 3) + 1) << 3;
+    return newval + 8;
   }
 }
 
@@ -23,11 +37,6 @@ static inline char *myalloc(size_t const insize) {
   BUFFER_CURRENT += align(insize);
   return ret;
 }
-
-static char const proc_self_exe[] = "/proc/self/exe";
-static char const name_ld[] = "/ld-linux-x86-64.so.2";
-static char library_path[] = "--library-path";
-static char argv0[] = "--argv0";
 
 static inline char *get_prefix_dir() {
 
@@ -56,7 +65,7 @@ static inline char *get_prefix_dir() {
   c[3] = 'e';
   c[4] = 0;
 
-  c = c + 5;
+  c += 5;
 
   unsigned int const len = align(c - ptr);
   BUFFER_CURRENT += len;
@@ -65,9 +74,9 @@ static inline char *get_prefix_dir() {
 }
 
 static inline char *get_ld(char const *path_dir_prefix) {
-  size_t const len_name_ld = strlen(name_ld);
+  /* size_t const len_name_ld = strlen(name_ld); */
 
-  size_t len_path_dir_prefix = strlen(path_dir_prefix);
+  size_t const len_path_dir_prefix = strlen(path_dir_prefix);
 
   char *ret =
       (char *)myalloc((len_path_dir_prefix + len_name_ld + 1) * sizeof(char));

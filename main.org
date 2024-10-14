@@ -20,7 +20,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 134 on output-shell>
+: #<window 21 on output-shell>
 
 * Scripts for git related work
 
