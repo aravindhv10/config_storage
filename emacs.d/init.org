@@ -5,6 +5,9 @@
   (org-babel-tangle)
 #+end_src
 
+#+RESULTS:
+| /home/asd/config_storage/emacs.d/init.el | /home/asd/config_storage/emacs.d/early-init.el |
+
 * Main emacs config
 
 ** Setting path to include ~/bin
@@ -202,11 +205,19 @@
 
 ** magit
 #+begin_src elisp :tangle ./init.el
+  (use-package transient
+    :ensure t
+    :demand t
+    )
+
   (use-package magit
     :ensure t
     :demand t
     )
 #+end_src
+
+#+RESULTS:
+: [nil 26384 43185 608046 nil elpaca-process-queues nil nil 514000 nil]
 
 ** consult-ag
 #+begin_src elisp :tangle ./init.el

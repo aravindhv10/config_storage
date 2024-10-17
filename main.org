@@ -2314,6 +2314,7 @@
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
   fish_config/SUDO_ASKPASS
+  .gitmodules
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
