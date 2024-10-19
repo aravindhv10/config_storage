@@ -266,6 +266,7 @@
   (evil-collection-init))
 
 (use-package evil-surround
+  :after evil
   :ensure t
   :config
   (global-evil-surround-mode 1))
