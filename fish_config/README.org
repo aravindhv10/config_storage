@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 887 on *Async Shell Command*>
+: #<window 143 on *Async Shell Command*>
 
 * Main config
 
@@ -30,13 +30,13 @@
       htop $argv
   end
 
-  function puthere
-      mysync (cat /tmp/list) ./
-  end
-
   function mysync
       rsync '-avh' '--progress' $argv
       sync ; sync
+  end
+
+  function puthere
+      mysync (cat /tmp/list) ./
   end
 
   function ls
@@ -58,6 +58,15 @@
   function txp
       tmux split-pane $argv
   end
+#+end_src
+
+
+** nice abbreviations
+#+begin_src conf :tangle ./config.fish
+  abbr --add --position command -- ls lsd
+  abbr --add --position command -- top htop
+  abbr --add --position command -- cat bat
+  abbr --add --position command -- du dust
 #+end_src
 
 ** starship prompt

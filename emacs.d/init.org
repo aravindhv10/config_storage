@@ -204,20 +204,23 @@
 #+end_src
 
 ** magit
+
+*** COMMENT transient dependency
 #+begin_src elisp :tangle ./init.el
   (use-package transient
     :ensure t
     :demand t
+    (:wait t)
     )
+#+end_src
 
+*** COMMENT magit
+#+begin_src elisp :tangle ./init.el
   (use-package magit
     :ensure t
     :demand t
     )
 #+end_src
-
-#+RESULTS:
-: [nil 26384 43185 608046 nil elpaca-process-queues nil nil 514000 nil]
 
 ** consult-ag
 #+begin_src elisp :tangle ./init.el
@@ -293,6 +296,14 @@
 #+end_src
 
 ** Configure undo-tree
+#+begin_src elisp :tangle ./init.el
+  (use-package vundo
+    :ensure t
+    :demand t
+    )
+#+end_src
+
+** COMMENT Configure undo-tree
 #+begin_src elisp :tangle ./init.el
   (use-package undo-tree
     :ensure t
@@ -426,7 +437,7 @@
     :ensure t
     :demand t
     :config
-    (evil-set-undo-system 'undo-tree)
+    (evil-set-undo-system 'undo-redo)
     :init
     (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
     (setq evil-want-keybinding nil)
@@ -442,6 +453,14 @@
     :ensure t
     :config
     (evil-collection-init))
+#+end_src
+
+*** evil surround
+#+begin_src elisp :tangle ./init.el
+  (use-package evil-surround
+    :ensure t
+    :config
+    (global-evil-surround-mode 1))
 #+end_src
 
 ** which key
@@ -627,8 +646,8 @@
     (key-chord-define-global "7y" 'hydra-window/body)
     (key-chord-define-global "6y" 'hydra-window/body)
 
-    (key-chord-define-global "8u" 'undo-tree-visualize)
-    (key-chord-define-global "7u" 'undo-tree-visualize)
+    (key-chord-define-global "8u" 'vundo)
+    (key-chord-define-global "7u" 'vundo)
 
     (key-chord-define-global "i9" 'hydra-counsel-file/body)
     (key-chord-define-global "i8" 'hydra-counsel-file/body)

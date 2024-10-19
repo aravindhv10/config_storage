@@ -49,3 +49,6 @@
 [submodule "emacs.d/elpaca/repos/diff-hl"]
 	path = emacs.d/elpaca/repos/diff-hl
 	url = https://github.com/dgutov/diff-hl.git
+[submodule "RUST/uv"]
+	path = RUST/uv
+	url = https://github.com/astral-sh/uv.git

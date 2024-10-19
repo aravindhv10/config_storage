@@ -10,13 +10,13 @@ function top
     htop $argv
 end
 
-function puthere
-    mysync (cat /tmp/list) ./
-end
-
 function mysync
     rsync '-avh' '--progress' $argv
     sync ; sync
+end
+
+function puthere
+    mysync (cat /tmp/list) ./
 end
 
 function ls
@@ -38,6 +38,11 @@ end
 function txp
     tmux split-pane $argv
 end
+
+abbr --add --position command -- ls lsd
+abbr --add --position command -- top htop
+abbr --add --position command -- cat bat
+abbr --add --position command -- du dust
 
 function fish_prompt
     switch "$fish_key_bindings"

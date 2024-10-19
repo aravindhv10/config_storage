@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 718 on compile-output>
+: #<window 45 on compile-output>
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./compile.sh
   . /usr/lib/sdk/rust-stable/enable.sh
@@ -31,4 +31,8 @@
   #     make -j4
   #     cargo build --release
   # popd
+
+  pushd uv
+      cargo build --release
+  popd
 #+end_src

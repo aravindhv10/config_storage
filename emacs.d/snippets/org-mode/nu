@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_nu
+# key: <nu>
+# --
+#+begin_src sh :shebang #!/usr/local/bin/nu :results output :tangle ./${0:tmp}.nu
+  $1
+#+end_src

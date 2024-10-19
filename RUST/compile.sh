@@ -22,3 +22,7 @@ ls
 #     make -j4
 #     cargo build --release
 # popd
+
+pushd uv
+    cargo build --release
+popd

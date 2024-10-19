@@ -113,16 +113,6 @@
   (global-flycheck-mode 1)
   )
 
-(use-package transient
-  :ensure t
-  :demand t
-  )
-
-(use-package magit
-  :ensure t
-  :demand t
-  )
-
 (use-package consult-ag
   :ensure t
   :demand t
@@ -159,11 +149,10 @@
   (projectile-mode +1)
   )
 
-(use-package undo-tree
+(use-package vundo
   :ensure t
   :demand t
-  :init
-  (global-undo-tree-mode))
+  )
 
 (use-package rainbow-mode
   :ensure t
@@ -262,7 +251,7 @@
   :ensure t
   :demand t
   :config
-  (evil-set-undo-system 'undo-tree)
+  (evil-set-undo-system 'undo-redo)
   :init
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-want-keybinding nil)
@@ -275,6 +264,11 @@
   :ensure t
   :config
   (evil-collection-init))
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
 
 ;; Expands to: (elpaca evil (use-package evil :demand t))
 (use-package which-key
@@ -445,8 +439,8 @@
   (key-chord-define-global "7y" 'hydra-window/body)
   (key-chord-define-global "6y" 'hydra-window/body)
 
-  (key-chord-define-global "8u" 'undo-tree-visualize)
-  (key-chord-define-global "7u" 'undo-tree-visualize)
+  (key-chord-define-global "8u" 'vundo)
+  (key-chord-define-global "7u" 'vundo)
 
   (key-chord-define-global "i9" 'hydra-counsel-file/body)
   (key-chord-define-global "i8" 'hydra-counsel-file/body)

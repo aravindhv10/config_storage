@@ -16,16 +16,16 @@
 #+RESULTS:
 
 #+begin_src elisp
-  (async-shell-command "git commit -m 'Added diff hl' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'some cleanup' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 21 on output-shell>
+: #<window 55 on output-shell>
 
 * Scripts for git related work
 
 #+begin_src sh :shebang #!/bin/sh :tangle ./work.sh
-  git submodule update --remote
+  git submodule update --init --recursive --remote
   sed 's@^@/@g' './rm.txt' './gitignore.txt' > './.gitignore'
 
   (sed 's@^@("git" "add" "./@g;s@$@");@g' './git_add.txt' | sort | uniq;
@@ -46,11 +46,13 @@
   RUST/compile.org
   RUST/compile.sh
   RUST/dust
+  RUST/fish-shell
   RUST/nucleo
   RUST/nushell
   RUST/pylyzer
   RUST/ruff
   RUST/starship
+  RUST/uv
   RUST/yazi
   RUST/zellij
   TMUX/tmux.config
@@ -62,22 +64,6 @@
   TMUX/tmux.dir/make.sh
   TMUX/tmux.dir/source
   emacs.d/early-init.el
-  emacs.d/elpaca/repos/company-mode
-  emacs.d/elpaca/repos/compat
-  emacs.d/elpaca/repos/consult
-  emacs.d/elpaca/repos/corfu
-  emacs.d/elpaca/repos/eglot
-  emacs.d/elpaca/repos/elpaca
-  emacs.d/elpaca/repos/emacs-async
-  emacs.d/elpaca/repos/evil
-  emacs.d/elpaca/repos/f
-  emacs.d/elpaca/repos/flymake
-  emacs.d/elpaca/repos/key-chord
-  emacs.d/elpaca/repos/lsp-mode
-  emacs.d/elpaca/repos/marginalia
-  emacs.d/elpaca/repos/orderless
-  emacs.d/elpaca/repos/org
-  emacs.d/elpaca/repos/projectile
   emacs.d/init.el
   emacs.d/init.org
   emacs.d/snippets/.nosearch
@@ -1383,6 +1369,7 @@
   emacs.d/snippets/org-mode/language
   emacs.d/snippets/org-mode/link
   emacs.d/snippets/org-mode/matrix
+  emacs.d/snippets/org-mode/nu
   emacs.d/snippets/org-mode/options
   emacs.d/snippets/org-mode/py
   emacs.d/snippets/org-mode/python
@@ -2299,6 +2286,7 @@
   emacs.d/snippets/yaml-mode/list
   emacs.d/snippets/yaml-mode/section
   fish_config/README.org
+  fish_config/SUDO_ASKPASS
   fish_config/config.fish
   fish_config/copy.sh
   flatpak_emacs/README.org
@@ -2313,8 +2301,6 @@
   shell_functions/important_functions.sh
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
-  fish_config/SUDO_ASKPASS
-  .gitmodules
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
@@ -2384,6 +2370,8 @@
   RUST/compile.el
   RUST/.compile.org.~undo-tree~
   RUST/compile.org~
+  ..gitmodules.~undo-tree~
+  emacs.d/snippets/org-mode/nu~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
@@ -2392,13 +2380,17 @@
   emacs.d/auto-save-list/
   emacs.d/eln-cache/
   emacs.d/elpa/
-  emacs.d/elpaca/builds/
-  emacs.d/elpaca/cache/
-  emacs.d/elpaca/use-package.info
+  emacs.d/elpaca/
   emacs.d/eshell/
   emacs.d/history
   emacs.d/projectile-bookmarks.eld
   emacs.d/recentf
+  emacs.d/.cache/
+  emacs.d/elpaca/repos/evil-surround/
+  emacs.d/elpaca/repos/transient/
+  emacs.d/elpaca/repos/vundo/
+  emacs.d/flycheck_init.el
+  emacs.d/transient/
 #+end_src
 
 * Adding all rust submodules:
@@ -2431,85 +2423,3 @@
   work ./RUST/yazi
   work ./RUST/zellij
 #+end_src
-
-#+RESULTS:
-: https://github.com/magit/magit.git
-
-* Adding all elpaca submodules:
-
-#+begin_src elisp
-  (save-buffer)
-  (save-some-buffers)
-  (org-babel-tangle)
-  (async-shell-command "./add_elpaca_submodules.sh" "output-shell" "error-shell")
-#+end_src
-
-#+RESULTS:
-: #<window 158 on output-shell>
-
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./add_elpaca_submodules.sh
-  work(){
-      URL="$(grep 'url = ' "./emacs.d/elpaca/repos/${1}/.git/config" | sed 's@ @@g;s@\t@@g;s@^url=@@g')"
-      git submodule add "${URL}" "./emacs.d/elpaca/repos/${1}"
-      echo "${URL}"
-  }
-
-  work ace-window
-  work ag
-  work annalist
-  work avy
-  work beacon
-  work cfrs
-  work company-mode
-  work compat
-  work consult
-  work consult-ag
-  work corfu
-  work dash
-  work eglot
-  work elisp-refs
-  work elpaca
-  work emacs-async
-  work emacs-dashboard
-  work emacs-which-key
-  work evil
-  work evil-collection
-  work f
-  work flycheck
-  work flymake
-  work goto-chg
-  work helpful
-  work ht
-  work hydra
-  work key-chord
-  work lsp-mode
-  work lsp-ui
-  work magit
-  work marginalia
-  work markdown-mode
-  work orderless
-  work org
-  work pfuture
-  work posframe
-  work projectile
-  work queue
-  work rainbow-blocks
-  work rainbow-delimiters
-  work rainbow-identifiers
-  work rainbow-mode
-  work s
-  work spinner
-  work tempel
-  work tempel-collection
-  work treemacs
-  work undo-tree
-  work use-package
-  work vertico
-  work with-editor
-  work yasnippet
-  work yasnippet-capf
-  work yasnippet-snippets
-#+end_src
-
-#+RESULTS:
-: https://github.com/magit/magit.git
