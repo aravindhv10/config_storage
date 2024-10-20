@@ -1,16 +1,26 @@
+* Generic script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./generic-1.sh
+  pushd "${1}"
+      cargo build --release
+      cp '-vf' -- "target/release/${1}" "${HOME}/exe/"
+      ln '-vfs' -- './c_wrapper' "${HOME}/bin/${1}"
+  popd
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+  './generic-1.sh' 'lsd'
+  './generic-1.sh' 'fd'
+  './generic-1.sh' 'uv'
+#+end_src
+
 #+begin_src emacs-lisp
   (save-buffer)
   (org-babel-tangle)
-  (async-shell-command "./compile.sh" "compile-output" "compile-error")
+  (async-shell-command "'./all_install.sh'" "compile-output" "compile-error")
 #+end_src
-
-#+RESULTS:
-: #<window 45 on compile-output>
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./compile.sh
   . /usr/lib/sdk/rust-stable/enable.sh
-
-  ls
 
   # pushd lsd
   #     cargo build --release
@@ -32,7 +42,7 @@
   #     cargo build --release
   # popd
 
-  pushd uv
-      cargo build --release
-  popd
+  # pushd uv
+  #     cargo build --release
+  # popd
 #+end_src

@@ -52,3 +52,6 @@
 [submodule "RUST/uv"]
 	path = RUST/uv
 	url = https://github.com/astral-sh/uv.git
+[submodule "RUST/fd"]
+	path = RUST/fd
+	url = https://github.com/sharkdp/fd.git

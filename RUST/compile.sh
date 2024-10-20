@@ -1,8 +1,6 @@
 #!/bin/sh
 . /usr/lib/sdk/rust-stable/enable.sh
 
-ls
-
 # pushd lsd
 #     cargo build --release
 # popd
@@ -23,6 +21,6 @@ ls
 #     cargo build --release
 # popd
 
-pushd uv
-    cargo build --release
-popd
+# pushd uv
+#     cargo build --release
+# popd

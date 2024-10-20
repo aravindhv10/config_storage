@@ -4,16 +4,12 @@
   (async-shell-command "git status" "output-shell" "error-shell")
 #+end_src
 
-#+RESULTS:
-
 #+begin_src elisp :results output
   (save-buffer)
   (save-some-buffers)
   (org-babel-tangle)
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
-
-#+RESULTS:
 
 #+begin_src elisp
   (async-shell-command "git commit -m 'some cleanup' ; git push" "output-shell" "error-shell")
@@ -42,15 +38,18 @@
   .gitignore
   .gitmodules
   RUST/alacritty
+  RUST/all_install.sh
   RUST/bat
   RUST/compile.org
   RUST/compile.sh
   RUST/dust
   RUST/fish-shell
+  RUST/generic-1.sh
   RUST/nucleo
   RUST/nushell
   RUST/pylyzer
   RUST/ruff
+  RUST/setup_fd.sh
   RUST/starship
   RUST/uv
   RUST/yazi
@@ -2301,17 +2300,26 @@
   shell_functions/important_functions.sh
   wrapper_code/wrapper.c
   wrapper_code/wrapper.cc
+  wrapper_code/wrapper.org
+  wrapper_code/wrapper.sh
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
   #main.org#
   .#main.org
+  ..gitmodules.~undo-tree~
   .main.org.~undo-tree~
+  RUST/#compile.org#
+  RUST/.#compile.org
+  RUST/.compile.org.~undo-tree~
+  RUST/compile.el
+  RUST/compile.org~
   TMUX/tmux.dir/#configopts#
   TMUX/tmux.dir/.#configopts
   TMUX/tmux.dir/.main.org.~undo-tree~
   TMUX/tmux.dir/main.org~
   add_elpaca_submodules.sh
+  add_rust_submodules.sh
   emacs.d/#init.org#
   emacs.d/.#init.org
   emacs.d/.#projectile-bookmarks.eld
@@ -2348,6 +2356,7 @@
   emacs.d/snippets/org-mode/.verse.~undo-tree~
   emacs.d/snippets/org-mode/.video.~undo-tree~
   emacs.d/snippets/org-mode/conf~
+  emacs.d/snippets/org-mode/nu~
   emacs.d/snippets/org-mode/python~
   emacs.d/snippets/org-mode/py~
   emacs.d/snippets/org-mode/sh~
@@ -2365,13 +2374,11 @@
   shell_functions/.important_functions.org.~undo-tree~
   shell_functions/important_functions.org~
   work.sh
+  wrapper_code/#wrapper.org#
+  wrapper_code/.#wrapper.org
   wrapper_code/.wrapper.c.~undo-tree~
-  add_rust_submodules.sh
-  RUST/compile.el
-  RUST/.compile.org.~undo-tree~
-  RUST/compile.org~
-  ..gitmodules.~undo-tree~
-  emacs.d/snippets/org-mode/nu~
+  wrapper_code/wrapper.el
+  wrapper_code/wrapper.org~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt
