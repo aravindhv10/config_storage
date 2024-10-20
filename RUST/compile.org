@@ -1,7 +1,17 @@
-* Generic script
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "'./all_install.sh'" "compile-output" "compile-error")
+#+end_src
+
+#+RESULTS:
+: #<window 175 on compile-output>
+
+* Generic install script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./generic-1.sh
+  . '/usr/lib/sdk/rust-stable/enable.sh'
   pushd "${1}"
-      cargo build --release
+      'cargo' 'build' '--release'
       cp '-vf' -- "target/release/${1}" "${HOME}/exe/"
       ln '-vfs' -- './c_wrapper' "${HOME}/bin/${1}"
   popd
@@ -9,19 +19,22 @@
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
   './generic-1.sh' 'lsd'
-  './generic-1.sh' 'fd'
-  './generic-1.sh' 'uv'
-#+end_src
 
-#+begin_src emacs-lisp
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "'./all_install.sh'" "compile-output" "compile-error")
+  './generic-1.sh' 'fd'
+
+  './generic-1.sh' 'bat'
+
+  './generic-1.sh' 'yazi'
+
+  './generic-1.sh' 'uv'
+  pushd './uv/target/release'
+      cp -vf -- uvx uv "${HOME}/exe/"
+      ln '-vfs' -- './c_wrapper' "${HOME}/bin/uv"
+      ln '-vfs' -- './c_wrapper' "${HOME}/bin/uvx"
+  popd
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./compile.sh
-  . /usr/lib/sdk/rust-stable/enable.sh
-
   # pushd lsd
   #     cargo build --release
   # popd

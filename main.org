@@ -4,6 +4,8 @@
   (async-shell-command "git status" "output-shell" "error-shell")
 #+end_src
 
+#+RESULTS:
+
 #+begin_src elisp :results output
   (save-buffer)
   (save-some-buffers)
@@ -11,12 +13,14 @@
   (async-shell-command "./work.sh" "output-shell" "error-shell")
 #+end_src
 
+#+RESULTS:
+
 #+begin_src elisp
-  (async-shell-command "git commit -m 'some cleanup' ; git push" "output-shell" "error-shell")
+  (async-shell-command "git commit -m 'eGneral enhancements' ; git push" "output-shell" "error-shell")
 #+end_src
 
 #+RESULTS:
-: #<window 252 on output-shell>
+: #<window 111 on output-shell>
 
 * Scripts for git related work
 
