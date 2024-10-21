@@ -5,18 +5,15 @@
 #+end_src
 
 #+RESULTS:
-: #<window 175 on compile-output>
+: #<window 226 on compile-output>
 
-* Generic install script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./generic-1.sh
-  . '/usr/lib/sdk/rust-stable/enable.sh'
-  pushd "${1}"
-      'cargo' 'build' '--release'
-      cp '-vf' -- "target/release/${1}" "${HOME}/exe/"
-      ln '-vfs' -- './c_wrapper' "${HOME}/bin/${1}"
-  popd
+* tmp
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+  './generic-1.sh' 'yazi'
 #+end_src
 
+
+* COMMENT Install all packages
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
   './generic-1.sh' 'lsd'
 
@@ -34,28 +31,12 @@
   popd
 #+end_src
 
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./compile.sh
-  # pushd lsd
-  #     cargo build --release
-  # popd
-
-  # pushd ruff
-  #     cargo build --release
-  # popd
-
-  # pushd pylyzer
-  #     cargo build --release
-  # popd
-
-  # pushd fish-shell/
-  #     rm -rf -- exe
-  #     mkdir exe
-  #     cmake ..
-  #     make -j4
-  #     cargo build --release
-  # popd
-
-  # pushd uv
-  #     cargo build --release
-  # popd
+* Generic install script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./generic-1.sh
+  . '/usr/lib/sdk/rust-stable/enable.sh'
+  pushd "${1}"
+      'cargo' 'build' '--release'
+      cp '-vf' -- "target/release/${1}" "${HOME}/exe/"
+      ln '-vfs' -- './c_wrapper' "${HOME}/bin/${1}"
+  popd
 #+end_src

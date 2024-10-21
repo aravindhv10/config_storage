@@ -378,3 +378,15 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
   'alias ls=lsd' 
   'alias du=dust'
 #+end_src
+
+** using yazi
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  function y() {
+  	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  	yazi "$@" --cwd-file="$tmp"
+  	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+  		builtin cd -- "$cwd"
+  	fi
+  	rm -f -- "$tmp"
+  }
+#+end_src

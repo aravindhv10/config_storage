@@ -39,6 +39,15 @@ function txp
     tmux split-pane $argv
 end
 
+function y
+	set tmp (mktemp -t "yazi-cwd.XXXXXX")
+	yazi $argv --cwd-file="$tmp"
+	if set cwd (command cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+		builtin cd -- "$cwd"
+	end
+	rm -f -- "$tmp"
+end
+
 abbr --add --position command -- ls lsd
 abbr --add --position command -- top htop
 abbr --add --position command -- cat bat
@@ -131,6 +140,7 @@ function disable_transience --description 'remove transient prompt keybindings'
     bind --user -e \r
     bind --user -M insert -e \r
 end
+
 
 # Set up the session key that will be used to store logs
 # We don't use `random [min] [max]` because it is unavailable in older versions of fish shell
