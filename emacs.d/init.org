@@ -214,7 +214,7 @@
     )
 #+end_src
 
-*** COMMENT magit
+*** magit
 #+begin_src elisp :tangle ./init.el
   (use-package magit
     :ensure t
