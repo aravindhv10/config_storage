@@ -49,7 +49,7 @@ function y
 end
 
 function sd
-    cd (fd | sk)
+    cd (fd -t d | sk)
 end
 
 abbr --add --position command -- ls lsd
