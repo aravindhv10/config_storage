@@ -165,6 +165,17 @@
   :demand t
   )
 
+(use-package eee
+  :ensure (:type git :host github :repo "eval-exec/eee.el"
+                 :files (:defaults "*.el" "*.sh"))
+
+  :config
+  
+  ;; Should have wezterm or alacritty installed, more terminal application is supporting...
+  ;; Issues and pull requests are welcome
+  (setq ee-terminal-command "alacritty")
+  )
+
 (use-package rainbow-mode
   :ensure t
   :demand t

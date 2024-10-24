@@ -303,6 +303,20 @@
     )
 #+end_src
 
+** Configure eee
+#+begin_src elisp :tangle ./init.el
+  (use-package eee
+    :ensure (:type git :host github :repo "eval-exec/eee.el"
+                   :files (:defaults "*.el" "*.sh"))
+
+    :config
+    
+    ;; Should have wezterm or alacritty installed, more terminal application is supporting...
+    ;; Issues and pull requests are welcome
+    (setq ee-terminal-command "alacritty")
+    )
+#+end_src
+
 ** COMMENT Configure undo-tree
 #+begin_src elisp :tangle ./init.el
   (use-package undo-tree
