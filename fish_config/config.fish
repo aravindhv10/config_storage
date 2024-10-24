@@ -48,6 +48,10 @@ function y
 	rm -f -- "$tmp"
 end
 
+function sd
+    cd (fd | sk)
+end
+
 abbr --add --position command -- ls lsd
 abbr --add --position command -- top htop
 abbr --add --position command -- cat bat

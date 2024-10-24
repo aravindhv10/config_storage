@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 554 on *Async Shell Command*>
+: #<window 243 on *Async Shell Command*>
 
 * Main config
 
@@ -66,6 +66,10 @@
   		builtin cd -- "$cwd"
   	end
   	rm -f -- "$tmp"
+  end
+
+  function sd
+      cd (fd | sk)
   end
 #+end_src
 
