@@ -844,6 +844,14 @@
 
 ** Important functions
 
+*** function for quickly going to the link
+#+begin_src emacs-lisp :tangle ./init.el
+  (defun quicknav () (interactive) (dired (file-truename "~/link")))
+#+end_src
+
+#+RESULTS:
+: quicknav
+
 *** Functions to format code
 
 **** C and C++

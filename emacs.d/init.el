@@ -618,6 +618,8 @@
   (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
 
+(defun quicknav () (interactive) (dired (file-truename "./link")))
+
 (defun myfun/save_and_format_c ()
   (interactive)
   (setq mytmpline (line-number-at-pos))
