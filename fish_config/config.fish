@@ -52,6 +52,10 @@ function sd
     cd (fd -t d | sk)
 end
 
+function lh
+    ln -vfs -- (realpath .) {$HOME}/link
+end
+
 abbr --add --position command -- ls lsd
 abbr --add --position command -- top htop
 abbr --add --position command -- cat bat

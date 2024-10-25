@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 31 on *Async Shell Command*>
+: #<window 150 on *Async Shell Command*>
 
 * Main config
 
@@ -70,6 +70,10 @@
 
   function sd
       cd (fd -t d | sk)
+  end
+
+  function lh
+      ln -vfs -- (realpath .) {$HOME}/link
   end
 #+end_src
 
