@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 150 on *Async Shell Command*>
+: #<window 192 on *Async Shell Command*>
 
 * Main config
 
@@ -73,6 +73,7 @@
   end
 
   function lh
+      rm -vf -- {$HOME}/link
       ln -vfs -- (realpath .) {$HOME}/link
   end
 #+end_src

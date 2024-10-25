@@ -53,6 +53,7 @@ function sd
 end
 
 function lh
+    rm -vf -- {$HOME}/link
     ln -vfs -- (realpath .) {$HOME}/link
 end
 
