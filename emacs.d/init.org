@@ -216,10 +216,12 @@
 
 *** magit
 #+begin_src elisp :tangle ./init.el
-  (use-package magit
-    :ensure t
-    :demand t
-    )
+  (use-package magit :ensure t :demand t)
+#+end_src
+
+*** magit-lfs
+#+begin_src elisp :tangle ./init.el
+  (use-package magit-lfs :ensure t :demand t)
 #+end_src
 
 ** consult-ag

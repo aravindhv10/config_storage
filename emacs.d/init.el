@@ -119,10 +119,9 @@
   :demand t
   )
 
-(use-package magit
-  :ensure t
-  :demand t
-  )
+(use-package magit :ensure t :demand t)
+
+(use-package magit-lfs :ensure t :demand t)
 
 (use-package consult-ag
   :ensure t
@@ -618,7 +617,7 @@
   (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
 
-(defun quicknav () (interactive) (dired (file-truename "./link")))
+(defun quicknav () (interactive) (dired (file-truename "~/link")))
 
 (defun myfun/save_and_format_c ()
   (interactive)
