@@ -55,3 +55,6 @@
 [submodule "RUST/fd"]
 	path = RUST/fd
 	url = https://github.com/sharkdp/fd.git
+[submodule "RUST/atuin"]
+	path = RUST/atuin
+	url = https://github.com/atuinsh/atuin.git
