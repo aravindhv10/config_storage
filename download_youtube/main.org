@@ -1,0 +1,37 @@
+* Install the downloader
+
+** Actual install script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
+  uv venv ./venv
+  . ./venv/bin/activate
+  git clone --depth 1 'https://github.com/yt-dlp/yt-dlp.git'
+  pushd 'yt-dlp'
+      git pull
+      uv pip install -e .
+  popd
+#+end_src
+
+** Run the script
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./install.sh" "log" "err")
+#+end_src
+
+* Download the videos
+
+** Script to download
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./down.sh
+  . ./venv/bin/activate
+  mkdir -pv -- 'videos'
+  pushd 'videos'
+      yt-dlp 'https://www.youtube.com/watch?v=wjZofJX0v4M&t=267s'
+  popd
+#+end_src
+
+** Run the downloader
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./down.sh" "log" "err")
+#+end_src
