@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 34 on log>
+: #<window 71 on log>
 
 * Prepare the destination dir
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
@@ -31,7 +31,7 @@
 
 ** Main script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./enter_emacs_flatpak
-  exec flatpak run "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
+  exec alacritty -e flatpak run "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
 #+end_src
 
 ** Copy the script
@@ -43,11 +43,35 @@
 
 ** Main script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./tmux_auto
-tmux has && exec tmux attach
-exec tmux new
+  tmux has && exec tmux attach
+  exec tmux new
 #+end_src
 
 ** Copy the script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
   cp -vf -- './tmux_auto' "${HOME}/bin/"
+#+end_src
+
+* Emacs daemon
+
+** The script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./emd
+  exec emacs-wrapper --bg-daemon=def
+#+end_src
+
+** Copy the script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cp -vf -- './emd' "${HOME}/bin/"
+#+end_src
+
+* Emacs client
+
+** The script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./emc
+  exec  emacsclient -c ${@}
+#+end_src
+
+** Copy the script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cp -vf -- './emc' "${HOME}/bin/"
 #+end_src
