@@ -5,11 +5,11 @@
 #+end_src
 
 #+RESULTS:
-: #<window 56 on compile-output>
+: #<window 690 on compile-output>
 
 * tmp
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
-  './generic-1.sh' 'atuin'
+  './generic-1.sh' 'zellij'
 #+end_src
 
 
@@ -22,6 +22,8 @@
   './generic-1.sh' 'bat'
 
   './generic-1.sh' 'yazi'
+
+  './generic-1.sh' 'atuin'
 
   './generic-1.sh' 'uv'
   pushd './uv/target/release'

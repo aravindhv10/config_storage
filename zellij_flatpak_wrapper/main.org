@@ -1,0 +1,53 @@
+* WORK SPACE
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./do_copy.sh" "log" "err")
+#+end_src
+
+#+RESULTS:
+: #<window 34 on log>
+
+* Prepare the destination dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  mkdir -pv -- "${HOME}/bin" "${HOME}/exe"
+#+end_src
+
+* Zellij scripts inside the container
+
+** Main script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./zellij
+  export PATH="${HOME}/exe:${HOME}/bin:${HOME}/scripts:/usr/lib/sdk/llvm18/bin:/usr/lib/sdk/rust-stable/bin:${PATH}"
+  export SHELL="${HOME}/exe/nu"
+  exec 'zellij' 'attach' '--create' 'def'
+#+end_src
+
+** Copy the script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cp -vf -- './zellij' "${HOME}/bin/"
+#+end_src
+
+* Script to start the container
+
+** Main script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./enter_emacs_flatpak
+  exec flatpak run "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
+#+end_src
+
+** Copy the script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cp -vf -- './enter_emacs_flatpak' "${HOME}/bin/"
+#+end_src
+
+* Script to start tmux easily
+
+** Main script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./tmux_auto
+tmux has && exec tmux attach
+exec tmux new
+#+end_src
+
+** Copy the script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cp -vf -- './tmux_auto' "${HOME}/bin/"
+#+end_src

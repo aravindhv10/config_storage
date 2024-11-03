@@ -1,0 +1,2 @@
+#!/bin/sh
+exec flatpak run "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
