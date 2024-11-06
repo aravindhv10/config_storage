@@ -58,3 +58,6 @@
 [submodule "RUST/atuin"]
 	path = RUST/atuin
 	url = https://github.com/atuinsh/atuin.git
+[submodule "RUST/zoxide"]
+	path = RUST/zoxide
+	url = https://github.com/ajeetdsouza/zoxide.git
