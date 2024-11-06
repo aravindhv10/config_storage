@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND='noninteractive'
 WORKDIR '/root'
 
 RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
     echo 'Starting apt-get stuff' \
     && apt-get -y update \
     && apt-get install -y \
