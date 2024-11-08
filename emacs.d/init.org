@@ -412,6 +412,40 @@
   (use-package marginalia :ensure t :demand t :init (marginalia-mode))
 #+end_src
 
+** EAT
+
+*** COMMENT Test
+#+begin_src elisp :tangle ./init.el
+    (use-package eat
+      :config
+      ;; For `eat-eshell-mode'.
+      (add-hook 'eshell-load-hook #'eat-eshell-mode)
+
+      ;; For `eat-eshell-visual-command-mode'.
+      (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
+      )
+#+end_src
+
+*** Small
+#+begin_src elisp :tangle ./init.el
+  (use-package eat
+
+    :ensure t
+
+    :demand t
+
+    :config
+    ;; For `eat-eshell-mode'.
+    (add-hook 'eshell-load-hook #'eat-eshell-mode)
+
+    ;; For `eat-eshell-visual-command-mode'.
+    (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
+    )
+#+end_src
+
+#+RESULTS:
+: [nil 26413 50038 615680 nil elpaca-process-queues nil nil 81000 nil]
+
 ** orderless
 #+begin_src elisp :tangle ./init.el
   (use-package orderless

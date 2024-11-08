@@ -2383,6 +2383,8 @@
   wrapper_code/.wrapper.c.~undo-tree~
   wrapper_code/wrapper.el
   wrapper_code/wrapper.org~
+  zellij_flatpak_wrapper/#main.org#
+  zellij_flatpak_wrapper/main.org~
 #+end_src
 
 #+begin_src conf :tangle ./gitignore.txt

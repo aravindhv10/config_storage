@@ -238,6 +238,20 @@
 
 (use-package marginalia :ensure t :demand t :init (marginalia-mode))
 
+(use-package eat
+
+  :ensure t
+
+  :demand t
+
+  :config
+  ;; For `eat-eshell-mode'.
+  (add-hook 'eshell-load-hook #'eat-eshell-mode)
+
+  ;; For `eat-eshell-visual-command-mode'.
+  (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
+  )
+
 (use-package orderless
   :ensure t
   :demand t
