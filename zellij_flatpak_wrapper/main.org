@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 101 on log>
+: #<window 14 on log>
 
 * Prepare the destination dir
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
@@ -31,7 +31,7 @@
 
 ** Main script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./enter_emacs_flatpak
-  exec alacritty -e flatpak run '-talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
+  exec alacritty -e flatpak run '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
 #+end_src
 
 ** Copy the script
