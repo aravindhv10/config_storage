@@ -1,2 +1,2 @@
 #!/bin/sh
-exec alacritty -e flatpak run "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
+exec alacritty -e flatpak run '-talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
