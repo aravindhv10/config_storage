@@ -1,0 +1,95 @@
+* COMMENT work space
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+* Main shell code for setup
+
+** Create venv
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  cd "$('dirname' '--' "${0}")"
+  'python3' '-m' 'venv' './venv'
+#+end_src
+
+** Upgrade pip and wheel
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  . './venv/bin/activate'
+
+  'pip3' 'install' '--upgrade' \
+      'pip' \
+      'wheel' \
+  ;
+#+end_src
+
+** Installing torch
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  . './venv/bin/activate'
+
+  'pip3' 'install' \
+      '--index-url' 'https://download.pytorch.org/whl/cpu' \
+      'torch' \
+      'torchvision' \
+      'torchaudio' \
+  ;
+#+end_src
+
+** Installing accelerate
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  . './venv/bin/activate'
+
+  'pip3' 'install' \
+      'accelerate' \
+  ;
+#+end_src
+
+** Installing transformers
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  . './venv/bin/activate'
+
+  'pip3' 'install' \
+      'git+https://github.com/huggingface/transformers.git@refs/pull/33410/head' \
+  ;
+#+end_src
+
+* Main code for inference
+
+** shell code
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./infer.sh
+  cd "$('dirname' '--' "${0}")"
+  . './venv/bin/activate'
+  'python3' './infer.py'
+#+end_src
+
+** python code
+
+*** Imports related
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./infer.py
+  import torch
+  from transformers import AutoModelForCausalLM
+  from transformers import AutoTokenizer
+#+end_src
+
+*** COMMENT Main inference execution
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./infer.py
+  model = AutoModelForCausalLM.from_pretrained(
+      "HF1BitLLM/Llama3-8B-1.58-100B-tokens",
+      device_map="cuda",
+      torch_dtype=torch.bfloat16,
+  )
+#+end_src
+
+*** Main model code
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./infer.py
+  model = AutoModelForCausalLM.from_pretrained("HF1BitLLM/Llama3-8B-1.58-100B-tokens")
+  tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
+#+end_src
+
+*** Main inference execution
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./infer.py
+  input_text = "Daniel went back to the the the garden. Mary travelled to the kitchen. Sandra journeyed to the kitchen. Sandra went to the hallway. John went to the bedroom. Mary went back to the garden. Where is Mary?\nAnswer:"
+  input_ids = tokenizer.encode(input_text, return_tensors="pt").cuda()
+  output = model.generate(input_ids, max_length=10, do_sample=False)
+  generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+  print(generated_text)
+#+end_src

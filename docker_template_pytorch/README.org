@@ -87,7 +87,7 @@
   RUN \
       echo 'Starting uv download' \
       && curl -LsSf 'https://astral.sh/uv/install.sh' | sh \
-      && cp -vf -- '/root/.cargo/bin/uv' '/usr/local/bin/' \
+      && cp -vf -- "${HOME}/.cargo/bin/uv" '/usr/local/bin/' \
       && echo 'Done uv download' ;
 #+end_src
 
@@ -95,7 +95,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
-      && uv venv '/root/venv' \
+      && uv venv "${HOME}/venv" \
       && echo 'done' ;
 #+end_src
 
@@ -105,7 +105,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
-      && . /root/venv/bin/activate \
+      && . "${HOME}/venv/bin/activate" \
       && uv pip install -U \
           pip \
           setuptools \
@@ -117,7 +117,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
-      && . /root/venv/bin/activate \
+      && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           torch \
           torchao \
@@ -130,7 +130,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
-      && . /root/venv/bin/activate \
+      && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           accelerate \
           deepspeed \
@@ -152,7 +152,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
-      && . /root/venv/bin/activate \
+      && . "${HOME}/venv/bin/activate" \
       && uv pip install --no-deps \
           autoawq-kernels \
           auto-gptq \
