@@ -125,8 +125,7 @@ RUN \
     && cd transformers \
     && . /root/venv/bin/activate \
     && uv pip install -e . \
-    && echo 'done' \
-;
+    && echo 'done' ;
 
 RUN \
     echo 'starting' \
@@ -135,8 +134,7 @@ RUN \
     && cd diffusers \
     && . /root/venv/bin/activate \
     && uv pip install -e . \
-    && echo 'done' \
-;
+    && echo 'done' ;
 
 FROM cuda_deb_uv_pip as cuda_deb_uv_pip_flash
 
@@ -167,7 +165,7 @@ EXPOSE 8888/tcp
 
 COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
 
-FROM cuda_deb_uv_pip_flash_jupyter
+FROM cuda_deb_uv_pip_flash_jupyter as cuda_deb_uv_pip_flash_jupyter_inference
 
 COPY './default_config.yaml' '/root/default_config.yaml'
 
@@ -176,3 +174,5 @@ COPY './docker.infer_qwen.sh' '/root/docker.infer_qwen.sh'
 
 COPY './docker.infer_flux.py' '/root/docker.infer_flux.py'
 COPY './docker.infer_flux.sh' '/root/docker.infer_flux.sh'
+
+FROM cuda_deb_uv_pip_flash_jupyter_inference
