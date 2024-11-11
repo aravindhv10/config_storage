@@ -17,6 +17,7 @@ sudo docker run                                                          \
     --ulimit memlock=-1                                                  \
     --ulimit stack=67108864                                              \
     --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+    -p '0.0.0.0:8888:8888/tcp'                                           \
     -v "CACHE:/root/.cache"                                              \
     -v "${INPUT}:/data/input"                                            \
     -v "${OUTPUT}:/data/output"                                          \

@@ -1,0 +1,10 @@
+#!/bin/sh
+'git' 'clone' '--depth' '1' 'https://github.com/microsoft/BitNet.git'
+cd 'BitNet'
+'rm' '-rf' '--' './venv'
+'python3' '-m' 'venv' './venv'
+. './venv/bin/activate'
+'python3' '-m' 'pip' 'install' '-U' 'pip'
+'python3' '-m' 'pip' 'install' '-r' './requirements.txt'
+'huggingface-cli' 'download' 'brunopio/Llama3-8B-1.58-100B-tokens-GGUF' '--local-dir' './models/Llama3-8B-1.58-100B-tokens'
+'python3' 'run_inference.py' '-m' './models/Llama3-8B-1.58-100B-tokens/Llama3-8B-1.58-100B-tokens-TQ1_0.gguf' '-p' "Daniel went back to the the the garden. Mary travelled to the kitchen. Sandra journeyed to the kitchen. Sandra went to the hallway. John went to the bedroom. Mary went back to the garden. Where is Mary?\nAnswer:" '-n' '6' '-temp' '0'

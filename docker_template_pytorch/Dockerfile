@@ -29,23 +29,22 @@ RUN \
         neovim \
         python3-dev \
         python3-pip \
-    && rm -rf /var/lib/apt/lists \
     && echo 'Done apt-get stuff' ;
 
 RUN \
     echo 'Starting uv download' \
     && curl -LsSf 'https://astral.sh/uv/install.sh' | sh \
-    && cp -vf -- '/root/.cargo/bin/uv' '/usr/local/bin/' \
+    && cp -vf -- "${HOME}/.local/bin/uv" '/usr/local/bin/' \
     && echo 'Done uv download' ;
 
 RUN \
     echo 'starting' \
-    && uv venv '/root/venv' \
+    && uv venv "${HOME}/venv" \
     && echo 'done' ;
 
 RUN \
     echo 'starting' \
-    && . /root/venv/bin/activate \
+    && . "${HOME}/venv/bin/activate" \
     && uv pip install -U \
         pip \
         setuptools \
@@ -54,7 +53,7 @@ RUN \
 
 RUN \
     echo 'starting' \
-    && . /root/venv/bin/activate \
+    && . "${HOME}/venv/bin/activate" \
     && uv pip install \
         torch \
         torchao \
@@ -64,7 +63,7 @@ RUN \
 
 RUN \
     echo 'starting' \
-    && . /root/venv/bin/activate \
+    && . "${HOME}/venv/bin/activate" \
     && uv pip install \
         accelerate \
         deepspeed \
@@ -83,7 +82,7 @@ RUN \
 
 RUN \
     echo 'starting' \
-    && . /root/venv/bin/activate \
+    && . "${HOME}/venv/bin/activate" \
     && uv pip install --no-deps \
         autoawq-kernels \
         auto-gptq \
@@ -93,9 +92,9 @@ RUN \
 
 RUN \
     echo 'starting' \
-    && . /root/venv/bin/activate \
-    && pip3 install \
-        flash-attn \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        jupyterlab \
     && echo 'done' ;
 
 RUN \
@@ -118,7 +117,6 @@ RUN \
     && echo 'done' \
 ;
 
-COPY './docker.infer_qwen.py' '/root/docker.infer_qwen.py'
-COPY './docker.infer_qwen.sh' '/root/docker.infer_qwen.sh'
+EXPOSE 8888/tcp
 
-COPY './default_config.yaml' '/root/default_config.yaml'
+COPY ./docker.start_jupyter_lab.sh /root/docker.start_jupyter_lab.sh
