@@ -1,8 +1,8 @@
 #!/bin/sh
 mkdir -pv -- "${2}"
 
-INPUT="$(realpath -- "${1}")"
-OUTPUT="$(realpath -- "${2}")"
+export INPUT="$(realpath -- "${1}")"
+export OUTPUT="$(realpath -- "${2}")"
 
 cd "$('dirname' '--' "${0}")"
 

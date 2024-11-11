@@ -120,13 +120,6 @@ RUN \
 
 RUN \
     echo 'starting' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        jupyterlab \
-    && echo 'done' ;
-
-RUN \
-    echo 'starting' \
     && cd /root \
     && git clone --depth 1 'https://github.com/huggingface/transformers.git' \
     && cd transformers \
@@ -157,15 +150,24 @@ RUN \
 RUN \
     echo 'starting' \
     && . /root/venv/bin/activate \
-    && uv pip install --no-build-isolation \
+    && uv pip install \
         xformers \
     && echo 'done' ;
 
-FROM cuda_deb_uv_pip_flash
+FROM cuda_deb_uv_pip_flash as cuda_deb_uv_pip_flash_jupyter
+
+RUN \
+    echo 'starting' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        jupyterlab \
+    && echo 'done' ;
 
 EXPOSE 8888/tcp
 
 COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
+
+FROM cuda_deb_uv_pip_flash_jupyter
 
 COPY './default_config.yaml' '/root/default_config.yaml'
 

@@ -8,7 +8,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 451 on log>
+: #<window 588 on log>
 
 ** shell stuff
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./work.sh
@@ -16,14 +16,14 @@
   git status
 #+end_src
 
-* Main code
+* Basic preparation
 
 ** Basic configs
 
 *** Docker container names
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  IMAGE_NAME='jupyter_torch'
-  CONTAINER_NAME="${IMAGE_NAME}_1"
+  export IMAGE_NAME='jupyter_torch'
+  export CONTAINER_NAME="${IMAGE_NAME}_1"
 
   docker_build(){
       sudo docker image build \
@@ -86,6 +86,8 @@
   docker_build
 #+end_src
 
+* Installing UV
+
 ** Next stage of build
 #+begin_src conf :tangle ./Dockerfile
   FROM cuda_deb as cuda_deb_uv
@@ -107,6 +109,8 @@
       && uv venv "${HOME}/venv" \
       && echo 'done' ;
 #+end_src
+
+* Installing essential deep learning libraries
 
 ** pip stage of the build
 #+begin_src conf :tangle ./Dockerfile
@@ -162,7 +166,7 @@
       && echo 'done' ;
 #+end_src
 
-*** Extra libraries
+*** More Extra libraries
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
@@ -202,17 +206,9 @@
       && echo 'done' ;
 #+end_src
 
-*** jupyter lab
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'starting' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          jupyterlab \
-      && echo 'done' ;
-#+end_src
+** Clone and install from source
 
-** Clone and install latest transformers
+*** Transformers
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
@@ -225,7 +221,7 @@
   ;
 #+end_src
 
-** Clone and install latest diffusers
+*** Diffusers
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
@@ -238,14 +234,16 @@
   ;
 #+end_src
 
-** flash attn part
+* flash attn part
+
+** Inheriting from previous section
 #+begin_src conf :tangle ./Dockerfile
   FROM cuda_deb_uv_pip as cuda_deb_uv_pip_flash
 #+end_src
 
 ** flash attn
 
-**** COMMENT using uv
+*** COMMENT using uv
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
@@ -255,7 +253,7 @@
       && echo 'done' ;
 #+end_src
 
-**** using pip
+*** using pip
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
@@ -265,21 +263,31 @@
       && echo 'done' ;
 #+end_src
 
-** xformers
-
-*** using uv
+** Install xformers
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'starting' \
       && . /root/venv/bin/activate \
-      && uv pip install --no-build-isolation \
+      && uv pip install \
           xformers \
       && echo 'done' ;
 #+end_src
 
-** Final image
+* Image for jupyter
+
+** Main docker image
 #+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb_uv_pip_flash
+  FROM cuda_deb_uv_pip_flash as cuda_deb_uv_pip_flash_jupyter
+#+end_src
+
+** jupyter lab
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'starting' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          jupyterlab \
+      && echo 'done' ;
 #+end_src
 
 ** Expose the jupyterlab port
@@ -287,12 +295,47 @@
   EXPOSE 8888/tcp
 #+end_src
 
-** Script to run the docker iamge
+** Script to start jupyterlab server
+
+*** Copy the script
+#+begin_src conf :tangle ./Dockerfile
+  COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
+#+end_src
+
+*** Main shell script for starting jupyterlab
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.start_jupyter_lab.sh
+  cd '/data/output'
+  cd "${HOME}"
+  . "${HOME}/venv/bin/activate"
+  exec 'jupyter' 'lab' '--allow-root' '--ip=0.0.0.0'
+#+end_src
+
+* Script to run the docker iamge
+
+** List of command line arguments
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.txt
+  --tty
+  --interactive
+  --rm
+  --gpus all
+  --ipc host                                                           
+  --ulimit memlock=-1                                                  
+  --ulimit stack=67108864                                              
+  --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' 
+  -p '0.0.0.0:8888:8888/tcp'                                           
+  -v "CACHE:/root/.cache"                                              
+  -v "${INPUT}:/data/input"                                            
+  -v "${OUTPUT}:/data/output"                                          
+  "${IMAGE_NAME}"                                                      
+  '/bin/bash'                                                          
+#+end_src
+
+** Main script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
   mkdir -pv -- "${2}"
 
-  INPUT="$(realpath -- "${1}")"
-  OUTPUT="$(realpath -- "${2}")"
+  export INPUT="$(realpath -- "${1}")"
+  export OUTPUT="$(realpath -- "${2}")"
 
   cd "$('dirname' '--' "${0}")"
 
@@ -316,19 +359,11 @@
   ;
 #+end_src
 
-** Start the server inside the container
+* Inference image for large models
 
-*** Copy the script
+** The image declaration
 #+begin_src conf :tangle ./Dockerfile
-  COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
-#+end_src
-
-*** Main shell script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.start_jupyter_lab.sh
-  cd '/data/output'
-  cd "${HOME}"
-  . "${HOME}/venv/bin/activate"
-  exec 'jupyter' 'lab' '--allow-root' '--ip=0.0.0.0'
+  FROM cuda_deb_uv_pip_flash_jupyter
 #+end_src
 
 ** Huggingface accelerate config
