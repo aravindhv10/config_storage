@@ -8,7 +8,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 630 on log>
+: #<window 672 on log>
 
 ** shell stuff
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./work.sh
@@ -303,7 +303,6 @@
 *** Main shell script for starting jupyterlab
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.start_jupyter_lab.sh
   cd '/data/output'
-  cd "${HOME}"
   . "${HOME}/venv/bin/activate"
   exec 'jupyter' 'lab' '--allow-root' '--ip=0.0.0.0'
 #+end_src
