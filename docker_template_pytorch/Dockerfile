@@ -1,7 +1,7 @@
 # FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel
 # FROM pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
 # FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-devel
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 as cuda_deb
+FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS cuda_deb
 
 ENV HOME='/root'
 ENV DEBIAN_FRONTEND='noninteractive'
@@ -31,7 +31,7 @@ RUN \
         python3-pip \
     && echo 'Done apt-get stuff' ;
 
-FROM cuda_deb as cuda_deb_uv
+FROM cuda_deb AS cuda_deb_uv
 
 RUN \
     echo 'Starting uv download' \
@@ -44,7 +44,7 @@ RUN \
     && uv venv "${HOME}/venv" \
     && echo 'done' ;
 
-FROM cuda_deb_uv as cuda_deb_uv_pip
+FROM cuda_deb_uv AS cuda_deb_uv_pip
 
 RUN \
     echo 'starting' \
@@ -136,7 +136,7 @@ RUN \
     && uv pip install -e . \
     && echo 'done' ;
 
-FROM cuda_deb_uv_pip as cuda_deb_uv_pip_flash
+FROM cuda_deb_uv_pip AS cuda_deb_uv_pip_flash
 
 RUN \
     echo 'starting' \
@@ -152,7 +152,7 @@ RUN \
         xformers \
     && echo 'done' ;
 
-FROM cuda_deb_uv_pip_flash as cuda_deb_uv_pip_flash_jupyter
+FROM cuda_deb_uv_pip_flash AS cuda_deb_uv_pip_flash_jupyter
 
 RUN \
     echo 'starting' \
@@ -165,7 +165,7 @@ EXPOSE 8888/tcp
 
 COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
 
-FROM cuda_deb_uv_pip_flash_jupyter as cuda_deb_uv_pip_flash_jupyter_inference
+FROM cuda_deb_uv_pip_flash_jupyter AS cuda_deb_uv_pip_flash_jupyter_inference
 
 COPY './default_config.yaml' '/root/default_config.yaml'
 
