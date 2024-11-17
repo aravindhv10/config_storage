@@ -21,9 +21,11 @@ sudo docker run
 --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472'
 -v "${INPUT}:/data/input"
 -v "${OUTPUT}:/data/output"
+
 -v "CACHE:/root/.cache"
 
 -p '0.0.0.0:8888:8888/tcp'
 
 "${IMAGE_NAME}"
 '/bin/bash' ;
+# '/root/docker.start_jupyter_lab.sh' ;

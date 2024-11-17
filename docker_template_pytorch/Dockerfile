@@ -158,6 +158,7 @@ RUN \
     echo 'starting' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
+        ipywidgets \
         jupyterlab \
     && echo 'done' ;
 
@@ -174,5 +175,8 @@ COPY './docker.infer_qwen.sh' '/root/docker.infer_qwen.sh'
 
 COPY './docker.infer_flux.py' '/root/docker.infer_flux.py'
 COPY './docker.infer_flux.sh' '/root/docker.infer_flux.sh'
+
+COPY './docker.infer_molmo.py' '/root/docker.infer_molmo.py'
+COPY './docker.infer_molmo.sh' '/root/docker.infer_molmo.sh'
 
 FROM cuda_deb_uv_pip_flash_jupyter_inference
