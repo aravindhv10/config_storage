@@ -66,6 +66,8 @@
   TMUX/tmux.dir/main.org
   TMUX/tmux.dir/make.sh
   TMUX/tmux.dir/source
+  docker_template_pytorch/docker.infer_molmo.py
+  docker_template_pytorch/docker.infer_molmo.sh
   emacs.d/early-init.el
   emacs.d/init.el
   emacs.d/init.org
