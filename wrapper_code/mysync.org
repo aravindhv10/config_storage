@@ -1,12 +1,16 @@
-#+begin_src emacs-lisp :tangle yes
+* Work space
+
+** elisp
+#+begin_src emacs-lisp
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "./mysync.sh" "log" "error")
 #+end_src
 
 #+RESULTS:
-: #<window 2872 on log>
+: #<window 2928 on log>
 
+** shell
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./mysync.sh
   cd "$('dirname' '--' "${0}")"
   'gcc' './mysync.c' '-Ofast' '-mtune=native' '-march=native' '-static' '-o' './mysync.exe'
@@ -36,11 +40,9 @@
 ** COMMENT Constants as variables
 #+begin_src c :tangle ./mysync.c
   static unsigned char const BUFFER_ALIGNMENT_POW = 3;
-  static unsigned char const BUFFER_DIVISION_CHECK =
-      (1 << BUFFER_ALIGNMENT_POW) - 1;
+  static unsigned char const BUFFER_DIVISION_CHECK = (1 << BUFFER_ALIGNMENT_POW) - 1;
   static unsigned char const BUFFER_SIZE_POW = 21;
-  static unsigned long const BUFFER_SIZE = 1 << BUFFER_SIZE_POW
-                                             << BUFFER_ALIGNMENT_POW;
+  static unsigned long const BUFFER_SIZE = 1 << BUFFER_SIZE_POW << BUFFER_ALIGNMENT_POW;
 #+end_src
 
 ** Define buffers
@@ -51,17 +53,17 @@
 
 ** Main memory allocation code
 #+begin_src c :tangle ./mysync.c
-  static unsigned char *BUFFER_GET_CURRENT_POSITION() {
+  static inline unsigned char *BUFFER_GET_CURRENT_POSITION() {
     return BUFFER + (BUFFER_CURRENT_POSITION << BUFFER_ALIGNMENT_POW);
   }
 
-  static unsigned char *BUFFER_ALLOC_POW(unsigned long const in) {
+  static inline unsigned char *BUFFER_ALLOC_POW(unsigned long const in) {
     unsigned char *ret = BUFFER_GET_CURRENT_POSITION();
     BUFFER_CURRENT_POSITION += in;
     return ret;
   }
 
-  static unsigned char *BUFFER_ALLOC(unsigned long const in) {
+  static inline unsigned char *BUFFER_ALLOC(unsigned long const in) {
     unsigned long const tmp = in >> BUFFER_ALIGNMENT_POW;
     if (in & BUFFER_DIVISION_CHECK) {
       return BUFFER_ALLOC_POW(tmp + 1);
@@ -100,7 +102,4 @@
 
     return ret;
   }
-#+end_src
-
-#+begin_src c :tangle ./mysync.c
 #+end_src

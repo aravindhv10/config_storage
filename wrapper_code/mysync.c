@@ -11,17 +11,17 @@
 static unsigned char BUFFER[BUFFER_SIZE];
 static unsigned long BUFFER_CURRENT_POSITION = 0;
 
-static unsigned char *BUFFER_GET_CURRENT_POSITION() {
+static inline unsigned char *BUFFER_GET_CURRENT_POSITION() {
   return BUFFER + (BUFFER_CURRENT_POSITION << BUFFER_ALIGNMENT_POW);
 }
 
-static unsigned char *BUFFER_ALLOC_POW(unsigned long const in) {
+static inline unsigned char *BUFFER_ALLOC_POW(unsigned long const in) {
   unsigned char *ret = BUFFER_GET_CURRENT_POSITION();
   BUFFER_CURRENT_POSITION += in;
   return ret;
 }
 
-static unsigned char *BUFFER_ALLOC(unsigned long const in) {
+static inline unsigned char *BUFFER_ALLOC(unsigned long const in) {
   unsigned long const tmp = in >> BUFFER_ALIGNMENT_POW;
   if (in & BUFFER_DIVISION_CHECK) {
     return BUFFER_ALLOC_POW(tmp + 1);
@@ -54,5 +54,3 @@ int main(int const argc, char **argv) {
 
   return ret;
 }
-
-
