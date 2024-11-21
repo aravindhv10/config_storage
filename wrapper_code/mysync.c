@@ -34,23 +34,33 @@ static char *rsync_path = "/usr/bin/rsync";
 static char *arg1 = "-avh";
 static char *arg2 = "--progress";
 
-int main(int const argc, char **argv) {
+#define push(NAME)                                                             \
+  argv_new[index] = NAME;                                                      \
+  index += 1
+
+char **get_argv(int const argc, char **argv) {
   int const total_size = argc + 3;
 
   char **argv_new = (char **)BUFFER_ALLOC(
       /*unsigned long const in =*/total_size * sizeof(char *));
 
-  argv_new[0] = argv[0];
-  argv_new[1] = arg1;
-  argv_new[2] = arg2;
-  argv_new[argc + 2] = NULL;
+  int index = 0;
 
+  push(rsync_path);
+  push(arg1);
+  push(arg2);
   for (int i = 1; i < argc; ++i) {
-    argv_new[2 + i] = argv[i];
+    push(argv[i]);
   }
+  push(NULL);
 
-  int ret = execvp(/*const char *file =*/rsync_path,
-                   /*char *const argv[] =*/argv_new);
+  return argv_new;
+}
 
+#undef push
+
+int main(int const argc, char **argv) {
+  char **argv_new = get_argv(/*int const argc =*/argc, /*char **argv =*/argv);
+  int const ret = execvp(/*const char *file =*/rsync_path, /*char *const argv[] =*/argv_new);
   return ret;
 }

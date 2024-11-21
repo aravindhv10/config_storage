@@ -795,3 +795,4 @@
 
 (myfun/menu_n)
 (toggle-frame-fullscreen)
+(put 'upcase-region 'disabled nil)
