@@ -61,6 +61,7 @@ char **get_argv(int const argc, char **argv) {
 
 int main(int const argc, char **argv) {
   char **argv_new = get_argv(/*int const argc =*/argc, /*char **argv =*/argv);
-  int const ret = execvp(/*const char *file =*/rsync_path, /*char *const argv[] =*/argv_new);
+  int const ret = execvp(/*const char *file =*/argv_new[0],
+                         /*char *const argv[] =*/argv_new);
   return ret;
 }

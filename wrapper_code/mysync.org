@@ -8,7 +8,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 3084 on log>
+: #<window 3206 on log>
 
 ** shell
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./mysync.sh
@@ -112,7 +112,8 @@
 #+begin_src c :tangle ./mysync.c
   int main(int const argc, char **argv) {
     char **argv_new = get_argv(/*int const argc =*/argc, /*char **argv =*/argv);
-    int const ret = execvp(/*const char *file =*/rsync_path, /*char *const argv[] =*/argv_new);
+    int const ret = execvp(/*const char *file =*/argv_new[0],
+                           /*char *const argv[] =*/argv_new);
     return ret;
   }
 #+end_src
