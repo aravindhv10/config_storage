@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "$('dirname' '--' "${0}")"
 . './functions.sh'
 
 set_up_repo

@@ -9,6 +9,7 @@
 
 * Main install file
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  cd "$('dirname' '--' "${0}")"
   . './functions.sh'
 #+end_src
 
