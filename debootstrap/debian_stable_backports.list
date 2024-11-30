@@ -7,7 +7,7 @@ deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/sta
 deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-i386 ./
 deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-amd64 ./
 
-deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/source/Sources ./
-deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/source/Sources ./
-deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/source/Sources ./
-deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/source/Sources ./
+deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/source/ ./
+deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/source/ ./
+deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/source/ ./
+deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/source/ ./

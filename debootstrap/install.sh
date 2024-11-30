@@ -2,6 +2,10 @@
 cd "$('dirname' '--' "${0}")"
 . './functions.sh'
 
+set_up_repo
+
+do_bind_all
+
 do_copy_conf
 do_apt_update
 

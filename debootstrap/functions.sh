@@ -3,9 +3,9 @@ export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 export DEBIAN_FRONTEND='noninteractive'
 
 function set_up_repo  {
+    mountpoint ../repo && return
     pushd ../
     sudo -A mkdir -pv -- ./repo
-    mountpoint ./repo && return
     sudo -A ln -vfs -- /dev/disk/by-partlabel/A_2_EXT4 ./repo/
     sudo -A mv -vf -- ./repo/A_2_EXT4 ./repo/link
     sudo -A mount -o ro ./repo/link ./repo
@@ -26,7 +26,9 @@ function install_deb_testing {
 }
 
 function do_bind {
+    mountpoint "..${1}" && return
     pushd ../
+    echo "binding ${1}"
     sudo -A mount -o bind "${1}" ".${1}"
     popd
 }
@@ -43,7 +45,9 @@ function do_bind_all {
 }
 
 function do_unbind {
+    mountpoint "..${1}" || return
     pushd ../
+    echo "unbinding ${1}"
     sudo -A umount ".${1}"
     popd
 }
@@ -93,6 +97,12 @@ function do_apt_update_upgrade {
     popd
 }
 
+function do_apt_build {
+    pushd ../
+    sudo -A chroot ./ apt-get build-dep -y -f ${@}
+    popd
+}
+
 function do_apt_install {
     pushd ../
     sudo -A chroot ./ apt-get install -m -y -f ${@}
@@ -106,8 +116,10 @@ function do_apt_search {
 }
 
 function do_apt_install_standard {
-    do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi 
-    do_apt_install lightdm sddm
+    do_apt_install eatmydata build-essential tmux flatpak vim neovim
+    do_apt_install firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
+    do_apt_install lightdm sddm btrfs-progs lvm2
     do_apt_install lxqt kwin-x11 kwin-wayland i3
     do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
+    do_apt_build tmux flatpak
 }
