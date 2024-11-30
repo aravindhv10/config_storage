@@ -1,0 +1,187 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  ;; (async-shell-command "flatpak-spawn --host ./install.sh" "log" "err")
+#+end_src
+
+#+RESULTS:
+| /home/asd/config_storage/debootstrap/debian.list | /home/asd/config_storage/debootstrap/install.sh |
+
+* Main install scripts
+
+** Initial prep
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+  export DEBIAN_FRONTEND='noninteractive'
+#+end_src
+
+** Functions to set up repo mounts
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function set_up_repo  {
+      pushd ../
+      sudo -A mkdir -pv -- ./repo
+      mountpoint ./repo && return
+      sudo -A ln -vfs -- /dev/disk/by-partlabel/A_2_EXT4 ./repo/
+      sudo -A mv -vf -- ./repo/A_2_EXT4 ./repo/link
+      sudo -A mount -o ro ./repo/link ./repo
+      ls ./repo
+      popd
+  }
+#+end_src
+
+** Functions for main debootstrap install
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function install_deb {
+      pushd ../
+      sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate stable "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
+      popd
+  }
+#+end_src
+
+
+** Function to mount bind directories from host
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_bind {
+      pushd ../
+      sudo -A mount -o bind "${1}" ".${1}"
+      popd
+  }
+
+  function do_bind_all {
+      do_bind '/dev'
+      do_bind '/dev/pts'
+      do_bind '/dev/shm'
+
+      do_bind '/proc'
+      do_bind '/sys'
+      do_bind '/tmp'
+      do_bind '/run'
+  }
+#+end_src
+
+** Function to unmount directories from host
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_unbind {
+      pushd ../
+      sudo -A umount ".${1}"
+      popd
+  }
+
+  function do_unbind_all {
+      do_unbind '/dev/pts'
+      do_unbind '/dev/shm'
+      do_unbind '/dev'
+
+      do_unbind '/proc'
+      do_unbind '/sys'
+      do_unbind '/tmp'
+      do_unbind '/run'
+  }
+#+end_src
+
+** Prepare the configs
+
+*** The script
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_copy_conf {
+      sudo -A cp -vf -- './debian.list' '../etc/apt/sources.list.d/'
+  }
+#+end_src
+
+*** The main config
+
+**** Testing
+#+begin_src conf :tangle ./debian.list
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free-firmware/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free-firmware/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/contrib/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/contrib/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-amd64 ./
+#+end_src
+
+**** Stable
+#+begin_src conf :tangle ./debian.list
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/contrib/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/contrib/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-amd64 ./
+#+end_src
+
+**** Stable-backports
+#+begin_src conf :tangle ./debian.list
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/binary-amd64 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-i386 ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-amd64 ./
+#+end_src
+
+** Run apt update stuff inside the chroot
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_apt_update {
+      pushd ../
+      sudo -A chroot ./ apt-get update
+      popd
+  }
+#+end_src
+
+** Run apt update and upgrade stuff inside the chroot
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_apt_update_upgrade {
+      pushd ../
+      sudo -A chroot ./ apt-get update
+      sudo -A chroot ./ apt-get -y dist-upgrade
+      popd
+  }
+#+end_src
+
+** Run apt install stuff inside the chroot
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_apt_install {
+      pushd ../
+      sudo -A chroot ./ apt-get install -y ${@}
+      popd
+  }
+#+end_src
+
+** Run apt search stuff inside the chroot
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  function do_apt_search {
+      pushd ../
+      sudo -A chroot ./ apt-cache search ${@}
+      popd
+  }
+#+end_src
+
+** Main execution
+
+*** Updates
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_copy_conf
+  do_apt_update
+#+end_src
+
+*** COMMENT search
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_apt_search firmware
+#+end_src
+
+*** COMMENT Installs
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
+#+end_src
+
+*** Upgrades
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_apt_update_upgrade
+#+end_src
