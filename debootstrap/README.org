@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/debootstrap/debian.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
+| /home/asd/config_storage/debootstrap/debian_stable_backports.list | /home/asd/config_storage/debootstrap/debian_stable.list | /home/asd/config_storage/debootstrap/debian_testing.list | /home/asd/config_storage/debootstrap/xanmod.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
 
 * Main install file
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
@@ -99,15 +99,38 @@
 
 *** The script
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
-  function do_copy_conf {
-      sudo -A cp -vf -- './debian.list' '../etc/apt/sources.list.d/'
+  function do_copy_conf_testing {
+      sudo -A cp -vf -- './debian_testing.list' '../etc/apt/sources.list.d/'
   }
+
+  function do_copy_conf_stable {
+      sudo -A cp -vf -- './debian_stable.list' '../etc/apt/sources.list.d/'
+  }
+
+  function do_copy_conf_stable_backports {
+      sudo -A cp -vf -- './debian_stable_backports.list' '../etc/apt/sources.list.d/'
+  }
+
+  function do_copy_conf_xanmod {
+      sudo -A cp -vf -- './xanmod.list' '../etc/apt/sources.list.d/'
+  }
+
+  function do_copy_conf {
+      do_copy_conf_testing
+      do_copy_conf_xanmod
+  }
+#+end_src
+
+*** The xanmod config
+#+begin_src conf :tangle ./xanmod.list
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/XANMOD/dists/releases/main/binary-amd64/ ./
+  deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/XANMOD/dists/releases/main/binary-i386/ ./
 #+end_src
 
 *** The main config
 
 **** Testing
-#+begin_src conf :tangle ./debian.list
+#+begin_src conf :tangle ./debian_testing.list
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free-firmware/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free-firmware/binary-amd64 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free/binary-i386 ./
@@ -117,14 +140,14 @@
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-amd64 ./
 
-  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/contrib/source/Sources
-  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/source/Sources
-  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free-firmware/source/Sources
-  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free/source/Sources
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/contrib/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free-firmware/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/non-free/source/Sources ./
 #+end_src
 
-**** COMMENT Stable
-#+begin_src conf :tangle ./debian.list
+**** Stable
+#+begin_src conf :tangle ./debian_stable.list
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-amd64 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free/binary-i386 ./
@@ -133,10 +156,15 @@
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/contrib/binary-amd64 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-amd64 ./
+
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/contrib/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free/source/Sources ./
 #+end_src
 
-**** COMMENT Stable-backports
-#+begin_src conf :tangle ./debian.list
+**** Stable-backports
+#+begin_src conf :tangle ./debian_stable_backports.list
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-amd64 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/binary-i386 ./
@@ -145,6 +173,11 @@
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/binary-amd64 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-amd64 ./
+
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/source/Sources ./
+  deb-src [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/source/Sources ./
 #+end_src
 
 ** Run apt update stuff inside the chroot
@@ -187,25 +220,26 @@
 ** Run install for standard list of packages
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_apt_install_standard {
-    do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi 
-    do_apt_install lightdm
-    do_apt_install lxqt kwin-x11 kwin-wayland i3
+      do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi 
+      do_apt_install lightdm sddm
+      do_apt_install lxqt kwin-x11 kwin-wayland i3
+      do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
   }
 #+end_src
 
 ** Main execution
 
-*** mount repo
+*** COMMENT mount repo
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   set_up_repo
 #+end_src
 
-*** Install root fs
+*** COMMENT Install root fs
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   install_deb_testing
 #+end_src
 
-*** Mount important filesystems
+*** COMMENT Mount important filesystems
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   do_bind_all
 #+end_src
@@ -231,7 +265,7 @@
   do_apt_update_upgrade
 #+end_src
 
-*** unmount all fs
+*** COMMENT unmount all fs
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   do_unbind_all
 #+end_src

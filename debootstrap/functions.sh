@@ -59,8 +59,25 @@ function do_unbind_all {
     do_unbind '/run'
 }
 
+function do_copy_conf_testing {
+    sudo -A cp -vf -- './debian_testing.list' '../etc/apt/sources.list.d/'
+}
+
+function do_copy_conf_stable {
+    sudo -A cp -vf -- './debian_stable.list' '../etc/apt/sources.list.d/'
+}
+
+function do_copy_conf_stable_backports {
+    sudo -A cp -vf -- './debian_stable_backports.list' '../etc/apt/sources.list.d/'
+}
+
+function do_copy_conf_xanmod {
+    sudo -A cp -vf -- './xanmod.list' '../etc/apt/sources.list.d/'
+}
+
 function do_copy_conf {
-    sudo -A cp -vf -- './debian.list' '../etc/apt/sources.list.d/'
+    do_copy_conf_testing
+    do_copy_conf_xanmod
 }
 
 function do_apt_update {
@@ -89,7 +106,8 @@ function do_apt_search {
 }
 
 function do_apt_install_standard {
-  do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi 
-  do_apt_install lightdm
-  do_apt_install lxqt kwin-x11 kwin-wayland i3
+    do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi 
+    do_apt_install lightdm sddm
+    do_apt_install lxqt kwin-x11 kwin-wayland i3
+    do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
 }

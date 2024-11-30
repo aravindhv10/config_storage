@@ -1,0 +1,2 @@
+deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/XANMOD/dists/releases/main/binary-amd64/ ./
+deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/XANMOD/dists/releases/main/binary-i386/ ./
