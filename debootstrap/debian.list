@@ -6,21 +6,3 @@ deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/tes
 deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/contrib/binary-amd64 ./
 deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-i386 ./
 deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-amd64 ./
-
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-amd64 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free/binary-amd64 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/contrib/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/contrib/binary-amd64 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-amd64 ./
-
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-amd64 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free/binary-amd64 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/contrib/binary-amd64 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-i386 ./
-deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/main/binary-amd64 ./

@@ -5,18 +5,23 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/debootstrap/debian.list | /home/asd/config_storage/debootstrap/install.sh |
+| /home/asd/config_storage/debootstrap/debian.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
 
-* Main install scripts
+* Main install file
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  . './functions.sh'
+#+end_src
+
+* Main install preparations
 
 ** Initial prep
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
   export DEBIAN_FRONTEND='noninteractive'
 #+end_src
 
 ** Functions to set up repo mounts
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function set_up_repo  {
       pushd ../
       sudo -A mkdir -pv -- ./repo
@@ -30,17 +35,27 @@
 #+end_src
 
 ** Functions for main debootstrap install
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  function install_deb {
+
+*** Stable
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
+  function install_deb_stable {
       pushd ../
       sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate stable "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
       popd
   }
 #+end_src
 
+*** Testing
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
+  function install_deb_testing {
+      pushd ../
+      sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate testing "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
+      popd
+  }
+#+end_src
 
 ** Function to mount bind directories from host
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_bind {
       pushd ../
       sudo -A mount -o bind "${1}" ".${1}"
@@ -60,7 +75,7 @@
 #+end_src
 
 ** Function to unmount directories from host
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_unbind {
       pushd ../
       sudo -A umount ".${1}"
@@ -82,7 +97,7 @@
 ** Prepare the configs
 
 *** The script
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_copy_conf {
       sudo -A cp -vf -- './debian.list' '../etc/apt/sources.list.d/'
   }
@@ -102,7 +117,7 @@
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/testing/main/binary-amd64 ./
 #+end_src
 
-**** Stable
+**** COMMENT Stable
 #+begin_src conf :tangle ./debian.list
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/non-free-firmware/binary-amd64 ./
@@ -114,7 +129,7 @@
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable/main/binary-amd64 ./
 #+end_src
 
-**** Stable-backports
+**** COMMENT Stable-backports
 #+begin_src conf :tangle ./debian.list
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-i386 ./
   deb [trusted=yes] file:///repo/everything/apt-mirror/MY_MIRRORS/DEBIAN/dists/stable-backports/non-free-firmware/binary-amd64 ./
@@ -127,7 +142,7 @@
 #+end_src
 
 ** Run apt update stuff inside the chroot
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_apt_update {
       pushd ../
       sudo -A chroot ./ apt-get update
@@ -136,7 +151,7 @@
 #+end_src
 
 ** Run apt update and upgrade stuff inside the chroot
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_apt_update_upgrade {
       pushd ../
       sudo -A chroot ./ apt-get update
@@ -146,7 +161,7 @@
 #+end_src
 
 ** Run apt install stuff inside the chroot
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_apt_install {
       pushd ../
       sudo -A chroot ./ apt-get install -y ${@}
@@ -155,7 +170,7 @@
 #+end_src
 
 ** Run apt search stuff inside the chroot
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_apt_search {
       pushd ../
       sudo -A chroot ./ apt-cache search ${@}
@@ -163,7 +178,29 @@
   }
 #+end_src
 
+** Run install for standard list of packages
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
+  function do_apt_install_standard {
+    do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
+  }
+#+end_src
+
 ** Main execution
+
+*** mount repo
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  set_up_repo
+#+end_src
+
+*** Install root fs
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  install_deb_testing
+#+end_src
+
+*** Mount important filesystems
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_bind_all
+#+end_src
 
 *** Updates
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
@@ -176,12 +213,17 @@
   do_apt_search firmware
 #+end_src
 
-*** COMMENT Installs
+*** Installs
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
+  do_apt_install_standard
 #+end_src
 
-*** Upgrades
+*** COMMENT Upgrades
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   do_apt_update_upgrade
+#+end_src
+
+*** unmount all fs
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_unbind_all
 #+end_src
