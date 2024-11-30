@@ -6,29 +6,8 @@ function sudo
     /usr/bin/sudo -A $argv
 end
 
-function top
-    htop $argv
-end
-
-function mysync
-    rsync '-avh' '--progress' $argv
-    sync ; sync
-end
-
 function puthere
     mysync (cat /tmp/list) ./
-end
-
-function ls
-    lsd $argv
-end
-
-function cat
-    bat $argv
-end
-
-function du
-    dust $argv
 end
 
 function txn
@@ -39,16 +18,7 @@ function txp
     tmux split-pane $argv
 end
 
-function y
-	set tmp (mktemp -t "yazi-cwd.XXXXXX")
-	yazi $argv --cwd-file="$tmp"
-	if set cwd (command cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
-		builtin cd -- "$cwd"
-	end
-	rm -f -- "$tmp"
-end
-
-function sd
+function xs
     cd (fd -t d | sk)
 end
 
@@ -57,10 +27,24 @@ function lh
     ln -vfs -- (realpath .) {$HOME}/link
 end
 
+function mk
+    fd . | sk > ./mark.txt
+    cat ./mark.txt
+end
+
 abbr --add --position command -- ls lsd
 abbr --add --position command -- top htop
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
+
+function y
+	set tmp (mktemp -t "yazi-cwd.XXXXXX")
+	yazi $argv --cwd-file="$tmp"
+	if set cwd (command cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+		builtin cd -- "$cwd"
+	end
+	rm -f -- "$tmp"
+end
 
 # =============================================================================
 #

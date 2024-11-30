@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 192 on *Async Shell Command*>
+: #<window 55 on *Async Shell Command*>
 
 * Main config
 
@@ -20,12 +20,8 @@
   export SUDO_ASKPASS={$HOME}/SUDO_ASKPASS
 #+end_src
 
-** nice functions
+** COMMENT Functions which were moved into abbr
 #+begin_src conf :tangle ./config.fish
-  function sudo
-      /usr/bin/sudo -A $argv
-  end
-
   function top
       htop $argv
   end
@@ -33,10 +29,6 @@
   function mysync
       rsync '-avh' '--progress' $argv
       sync ; sync
-  end
-
-  function puthere
-      mysync (cat /tmp/list) ./
   end
 
   function ls
@@ -50,6 +42,17 @@
   function du
       dust $argv
   end
+#+end_src
+
+** nice functions
+#+begin_src conf :tangle ./config.fish
+  function sudo
+      /usr/bin/sudo -A $argv
+  end
+
+  function puthere
+      mysync (cat /tmp/list) ./
+  end
 
   function txn
       tmux new-window $argv
@@ -59,6 +62,31 @@
       tmux split-pane $argv
   end
 
+  function xs
+      cd (fd -t d | sk)
+  end
+
+  function lh
+      rm -vf -- {$HOME}/link
+      ln -vfs -- (realpath .) {$HOME}/link
+  end
+
+  function mk
+      fd . | sk > ./mark.txt
+      cat ./mark.txt
+  end
+#+end_src
+
+** nice abbreviations
+#+begin_src conf :tangle ./config.fish
+  abbr --add --position command -- ls lsd
+  abbr --add --position command -- top htop
+  abbr --add --position command -- cat bat
+  abbr --add --position command -- du dust
+#+end_src
+
+** yazi
+#+begin_src conf :tangle ./config.fish
   function y
   	set tmp (mktemp -t "yazi-cwd.XXXXXX")
   	yazi $argv --cwd-file="$tmp"
@@ -67,24 +95,6 @@
   	end
   	rm -f -- "$tmp"
   end
-
-  function sd
-      cd (fd -t d | sk)
-  end
-
-  function lh
-      rm -vf -- {$HOME}/link
-      ln -vfs -- (realpath .) {$HOME}/link
-  end
-#+end_src
-
-
-** nice abbreviations
-#+begin_src conf :tangle ./config.fish
-  abbr --add --position command -- ls lsd
-  abbr --add --position command -- top htop
-  abbr --add --position command -- cat bat
-  abbr --add --position command -- du dust
 #+end_src
 
 ** zoxide cd
