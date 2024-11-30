@@ -78,7 +78,7 @@ function do_apt_update_upgrade {
 
 function do_apt_install {
     pushd ../
-    sudo -A chroot ./ apt-get install -y ${@}
+    sudo -A chroot ./ apt-get install -m -y -f ${@}
     popd
 }
 
@@ -89,5 +89,7 @@ function do_apt_search {
 }
 
 function do_apt_install_standard {
-  do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
+  do_apt_install eatmydata build-essential firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi 
+  do_apt_install lightdm
+  do_apt_install lxqt kwin-x11 kwin-wayland i3
 }
