@@ -1,6 +1,4 @@
 #!/bin/sh
-'./generic-1.sh' 'zoxide'
-
 './generic-1.sh' 'alacritty'
 
 './generic-1.sh' 'atuin'
