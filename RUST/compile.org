@@ -6,12 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 334 on compile-output>
-
-* tmp
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
-  './generic-1.sh' 'zoxide'
-#+end_src
+: #<window 59 on compile-output>
 
 * Install all packages
 
