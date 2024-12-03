@@ -40,6 +40,7 @@
 *** Stable
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function install_deb_stable {
+      ls ../usr/bin/apt && return
       pushd ../
       sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate stable "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
       popd
@@ -49,6 +50,7 @@
 *** Testing
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function install_deb_testing {
+      ls ../usr/bin/apt && return
       pushd ../
       sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate testing "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
       popd
@@ -235,12 +237,22 @@
   function do_apt_install_standard {
       do_apt_install eatmydata build-essential tmux flatpak vim neovim
       do_apt_install firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
-      do_apt_install lightdm sddm btrfs-progs lvm2
+      do_apt_install lightdm sddm btrfs-progs lvm2 parted gdisk
       do_apt_install lxqt kwin-x11 kwin-wayland i3
       do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
       do_apt_build tmux flatpak
   }
 #+end_src
+
+** Setup fstab
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
+  function write_fstab {
+    echo "$(grep $(realpath ..) /proc/self/mounts | cut -d ' ' -f1)	/	btrfs	compress=zstd:3,autodefrag,rw	0	1" > ../etc/fstab
+  }
+#+end_src
+
+#+RESULTS:
+: /home/asd/GITLAB/aravindhv101/config_storage	/	btrfs	compress=zstd:3,autodefrag,rw	0	1
 
 ** Main execution
 
@@ -249,7 +261,7 @@
   set_up_repo
 #+end_src
 
-*** COMMENT Install root fs
+*** Install root fs
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   install_deb_testing
 #+end_src
@@ -279,6 +291,12 @@
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   do_apt_update_upgrade
 #+end_src
+
+*** Write fstab
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  write_fstab
+#+end_src
+
 
 *** COMMENT unmount all fs
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh

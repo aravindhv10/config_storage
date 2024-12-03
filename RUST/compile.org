@@ -1,3 +1,4 @@
+* work space
 #+begin_src emacs-lisp
   (save-buffer)
   (org-babel-tangle)
@@ -12,20 +13,80 @@
   './generic-1.sh' 'zoxide'
 #+end_src
 
-* COMMENT Install all packages
+* Install all packages
+
+** alacritty
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
-  './generic-1.sh' 'lsd'
+'./generic-1.sh' 'alacritty'
+#+end_src
 
-  './generic-1.sh' 'fd'
+** atuin
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'atuin'
+#+end_src
 
-  './generic-1.sh' 'bat'
+** bat
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'bat'
+#+end_src
 
-  './generic-1.sh' 'yazi'
+** dust
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'dust'
+#+end_src
 
-  './generic-1.sh' 'atuin'
+** fd
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'fd'
+#+end_src
 
-  './generic-1.sh' 'zellij'
+** lsd
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'lsd'
+#+end_src
 
+** nushell
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'nushell'
+#+end_src
+
+** ripgrep
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'ripgrep'
+#+end_src
+
+** ruff
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'ruff'
+#+end_src
+
+** skim
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'skim'
+#+end_src
+
+** starship
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'starship'
+#+end_src
+
+** yazi
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'yazi'
+#+end_src
+
+** zellij
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'zellij'
+#+end_src
+
+** zoxide
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'zoxide'
+#+end_src
+
+** uv
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
   './generic-1.sh' 'uv'
   pushd './uv/target/release'
       cp -vf -- uvx uv "${HOME}/exe/"

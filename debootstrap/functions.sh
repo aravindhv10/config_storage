@@ -118,7 +118,7 @@ function do_apt_search {
 function do_apt_install_standard {
     do_apt_install eatmydata build-essential tmux flatpak vim neovim
     do_apt_install firmware-misc-nonfree amd64-microcode intel-microcode firmware-linux-nonfree firmware-linux live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
-    do_apt_install lightdm sddm btrfs-progs lvm2
+    do_apt_install lightdm sddm btrfs-progs lvm2 parted gdisk
     do_apt_install lxqt kwin-x11 kwin-wayland i3
     do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
     do_apt_build tmux flatpak
