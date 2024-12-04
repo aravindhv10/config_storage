@@ -1,6 +1,7 @@
 #!/bin/sh
 mkdir -pv -- "${HOME}/bin" "${HOME}/exe"
 
+rm -vf -- "${HOME}/bin/zellij"
 cp -vf -- './zellij' "${HOME}/bin/"
 
 cp -vf -- './enter_emacs_flatpak' "${HOME}/bin/"

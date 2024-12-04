@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/GITLAB/aravindhv101/config_storage/flatpak_emacs/enter.sh | /home/asd/GITLAB/aravindhv101/config_storage/flatpak_emacs/flat_emacs.sh | /home/asd/GITLAB/aravindhv101/config_storage/flatpak_emacs/install.sh |
+| /home/asd/config_storage/flatpak_emacs/enter.sh | /home/asd/config_storage/flatpak_emacs/flat_emacs.sh | /home/asd/config_storage/flatpak_emacs/install.sh |
 
 * Install llvm and rust
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
@@ -14,10 +14,11 @@
   flatpak search rust >> ./list.rust.txt
   flatpak search org.gnu.emacs >> ./list.emacs.txt
 
-  flatpak install org.freedesktop.Sdk/x86_64/24.08
-  flatpak install org.freedesktop.Sdk.Extension.llvm18/x86_64/24.08
+  flatpak install org.freedesktop.Sdk.Extension.llvm19/x86_64/24.08
   flatpak install org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08
+  flatpak install org.freedesktop.Sdk/x86_64/24.08
   flatpak install org.gnu.emacs
+  flatpak install org.kde.Sdk/x86_64/6.8
 #+end_src
 
 * Procedure to include SDK
@@ -26,7 +27,7 @@ edit
 to include the latest version of SDK for llvm, rust and anything else.
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./flat_emacs.sh
-  echo 'export PATH="${HOME}/bin:${PATH}"; source /usr/lib/sdk/llvm18/enable.sh; source /usr/lib/sdk/rust-stable/enable.sh; /app/bin/emacs-wrapper' | flatpak run '-talk-name=org.freedesktop.Flatpak' '--command=sh' org.gnu.emacs
+  echo 'export PATH="${HOME}/bin:${PATH}"; source /usr/lib/sdk/llvm19/enable.sh; source /usr/lib/sdk/rust-stable/enable.sh; /app/bin/emacs-wrapper' | flatpak run '-talk-name=org.freedesktop.Flatpak' '--command=sh' org.gnu.emacs
   exit '0'
 #+end_src
 
