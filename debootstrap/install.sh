@@ -4,9 +4,15 @@ cd "$('dirname' '--' "${0}")"
 
 set_up_repo
 
+install_deb_testing
+
 do_bind_all
 
 do_copy_conf
 do_apt_update
 
 do_apt_install_standard
+
+write_fstab
+
+do_unbind_all

@@ -22,6 +22,8 @@
 #+end_src
 
 ** Functions to set up repo mounts
+
+*** The function
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function set_up_repo  {
       mountpoint ../repo && return
@@ -35,12 +37,17 @@
   }
 #+end_src
 
+*** call the function in the install script
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  set_up_repo
+#+end_src
+
 ** Functions for main debootstrap install
 
 *** Stable
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function install_deb_stable {
-      ls ../usr/bin/apt && return
+      ls ../usr/bin/dpkg && return
       pushd ../
       sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate stable "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
       popd
@@ -50,11 +57,16 @@
 *** Testing
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function install_deb_testing {
-      ls ../usr/bin/apt && return
+      ls ../usr/bin/dpkg && return
       pushd ../
       sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate testing "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
       popd
   }
+#+end_src
+
+*** Install root fs
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  install_deb_testing
 #+end_src
 
 ** Function to mount bind directories from host
@@ -77,6 +89,11 @@
       do_bind '/tmp'
       do_bind '/run'
   }
+#+end_src
+
+*** Mount important filesystems
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_bind_all
 #+end_src
 
 ** Function to unmount directories from host
@@ -195,6 +212,12 @@
   }
 #+end_src
 
+*** Updates
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_copy_conf
+  do_apt_update
+#+end_src
+
 ** Run apt update and upgrade stuff inside the chroot
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function do_apt_update_upgrade {
@@ -203,6 +226,11 @@
       sudo -A chroot ./ apt-get -y dist-upgrade
       popd
   }
+#+end_src
+
+*** COMMENT Upgrades
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_apt_update_upgrade
 #+end_src
 
 ** Run apt build-dep stuff inside the chroot
@@ -244,6 +272,11 @@
   }
 #+end_src
 
+*** Installs
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  do_apt_install_standard
+#+end_src
+
 ** Setup fstab
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function write_fstab {
@@ -251,54 +284,22 @@
   }
 #+end_src
 
+*** Write fstab
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
+  write_fstab
+#+end_src
+
 #+RESULTS:
 : /home/asd/GITLAB/aravindhv101/config_storage	/	btrfs	compress=zstd:3,autodefrag,rw	0	1
 
 ** Main execution
-
-*** mount repo
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  set_up_repo
-#+end_src
-
-*** Install root fs
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  install_deb_testing
-#+end_src
-
-*** Mount important filesystems
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  do_bind_all
-#+end_src
-
-*** Updates
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  do_copy_conf
-  do_apt_update
-#+end_src
 
 *** COMMENT search
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   do_apt_search firmware
 #+end_src
 
-*** Installs
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  do_apt_install_standard
-#+end_src
-
-*** COMMENT Upgrades
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  do_apt_update_upgrade
-#+end_src
-
-*** Write fstab
-#+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
-  write_fstab
-#+end_src
-
-
-*** COMMENT unmount all fs
+*** unmount all fs
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   do_unbind_all
 #+end_src

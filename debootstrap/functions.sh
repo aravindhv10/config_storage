@@ -14,12 +14,14 @@ function set_up_repo  {
 }
 
 function install_deb_stable {
+    ls ../usr/bin/dpkg && return
     pushd ../
     sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate stable "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
     popd
 }
 
 function install_deb_testing {
+    ls ../usr/bin/dpkg && return
     pushd ../
     sudo -A debootstrap --arch=amd64 --no-check-gpg --no-check-certificate testing "$(realpath .)" "file://$(realpath ./repo/everything/apt-mirror/MY_MIRRORS/DEBIAN)"
     popd
@@ -122,4 +124,8 @@ function do_apt_install_standard {
     do_apt_install lxqt kwin-x11 kwin-wayland i3
     do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
     do_apt_build tmux flatpak
+}
+
+function write_fstab {
+  echo "$(grep $(realpath ..) /proc/self/mounts | cut -d ' ' -f1)	/	btrfs	compress=zstd:3,autodefrag,rw	0	1" > ../etc/fstab
 }
