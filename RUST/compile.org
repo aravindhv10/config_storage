@@ -10,67 +10,72 @@
 
 * Install all packages
 
-** alacritty
+** bottom
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+'./generic-1.sh' 'bottom'
+#+end_src
+
+** COMMENT alacritty
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'alacritty'
 #+end_src
 
-** atuin
+** COMMENT atuin
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'atuin'
 #+end_src
 
-** bat
+** COMMENT bat
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'bat'
 #+end_src
 
-** dust
+** COMMENT dust
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'dust'
 #+end_src
 
-** fd
+** COMMENT fd
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'fd'
 #+end_src
 
-** lsd
+** COMMENT lsd
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'lsd'
 #+end_src
 
-** nushell
+** COMMENT nushell
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'nushell'
 #+end_src
 
-** ripgrep
+** COMMENT ripgrep
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'ripgrep'
 #+end_src
 
-** ruff
+** COMMENT ruff
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'ruff'
 #+end_src
 
-** skim
+** COMMENT skim
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'skim'
 #+end_src
 
-** starship
+** COMMENT starship
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'starship'
 #+end_src
 
-** yazi
+** COMMENT yazi
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'yazi'
 #+end_src
 
-** zellij
+** COMMENT zellij
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
 './generic-1.sh' 'zellij'
 #+end_src

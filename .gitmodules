@@ -61,3 +61,6 @@
 [submodule "RUST/zoxide"]
 	path = RUST/zoxide
 	url = https://github.com/ajeetdsouza/zoxide.git
+[submodule "RUST/bottom"]
+	path = RUST/bottom
+	url = https://github.com/ClementTsang/bottom.git

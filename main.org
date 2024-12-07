@@ -2315,6 +2315,7 @@
   .#main.org
   ..gitmodules.~undo-tree~
   .main.org.~undo-tree~
+  BitNet/main.org~
   RUST/#compile.org#
   RUST/.#compile.org
   RUST/.compile.org.~undo-tree~
@@ -2326,6 +2327,7 @@
   TMUX/tmux.dir/main.org~
   add_elpaca_submodules.sh
   add_rust_submodules.sh
+  debootstrap/README.org~
   emacs.d/#init.org#
   emacs.d/.#init.org
   emacs.d/.#projectile-bookmarks.eld
@@ -2380,9 +2382,15 @@
   shell_functions/.important_functions.org.~undo-tree~
   shell_functions/important_functions.org~
   work.sh
+  wrapper_code/#mysync.c#
   wrapper_code/#wrapper.org#
   wrapper_code/.#wrapper.org
   wrapper_code/.wrapper.c.~undo-tree~
+  wrapper_code/a.out
+  wrapper_code/cc/cc.org~
+  wrapper_code/cxx/cc.org~
+  wrapper_code/cxx/main.org~
+  wrapper_code/mysync.org~
   wrapper_code/wrapper.el
   wrapper_code/wrapper.org~
   zellij_flatpak_wrapper/#main.org#
