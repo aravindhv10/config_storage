@@ -1,4 +1,4 @@
 #!/bin/sh
-export PATH="${HOME}/exe:${HOME}/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/app/bin:/usr/bin"
+export PATH="${HOME}/exe:${HOME}/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/app/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:"
 export SHELL="${HOME}/exe/nu"
-exec 'zellij' 'attach' '--create' 'def'
+exec "${HOME}/exe/zellij" 'attach' '--create'

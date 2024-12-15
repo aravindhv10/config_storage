@@ -2308,6 +2308,7 @@
   wrapper_code/wrapper.cc
   wrapper_code/wrapper.org
   wrapper_code/wrapper.sh
+  debootstrap/README.org
 #+end_src
 
 #+begin_src conf :tangle ./rm.txt
