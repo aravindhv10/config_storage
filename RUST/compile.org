@@ -104,6 +104,37 @@
   popd
 #+end_src
 
+** helix
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+  pushd './helix'
+      cargo build --release
+      cp -vf -- './target/release/hx' "${HOME}/exe/"
+  popd
+
+  pushd "${HOME}/bin/"
+      ln -vfs ./c_wrapper ./hx
+  popd
+#+end_src
+
+* Get all dependencies
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+  pushd "${HOME}/exe"
+      find ./ -type f \
+          | sed 's@^@("ldd" "@g ; s@$@")@g' \
+          | sh \
+          | sed 's@\t@ @g' \
+          | grep '=>' \
+          | grep ' (0x' \
+          | grep ')$' \
+          | tr ' ' '\n' \
+          | grep '/lib' \
+          | sort \
+          | uniq \
+          | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+          | sh ;
+  popd
+#+end_src
+
 * Generic install script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./generic-1.sh
   . '/usr/lib/sdk/rust-stable/enable.sh'

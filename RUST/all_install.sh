@@ -35,3 +35,28 @@ pushd './uv/target/release'
     ln '-vfs' -- './c_wrapper' "${HOME}/bin/uv"
     ln '-vfs' -- './c_wrapper' "${HOME}/bin/uvx"
 popd
+
+pushd './helix'
+    cargo build --release
+    cp -vf -- './target/release/hx' "${HOME}/exe/"
+popd
+
+pushd "${HOME}/bin/"
+    ln -vfs ./c_wrapper ./hx
+popd
+
+pushd "${HOME}/exe"
+    find ./ -type f \
+        | sed 's@^@("ldd" "@g ; s@$@")@g' \
+        | sh \
+        | sed 's@\t@ @g' \
+        | grep '=>' \
+        | grep ' (0x' \
+        | grep ')$' \
+        | tr ' ' '\n' \
+        | grep '/lib' \
+        | sort \
+        | uniq \
+        | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+        | sh ;
+popd
