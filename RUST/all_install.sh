@@ -5,6 +5,8 @@
 
 './generic-1.sh' 'bat'
 
+'./generic-1.sh' 'bottom'
+
 './generic-1.sh' 'dust'
 
 './generic-1.sh' 'fd'
