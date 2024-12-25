@@ -64,3 +64,6 @@
 [submodule "RUST/bottom"]
 	path = RUST/bottom
 	url = https://github.com/ClementTsang/bottom.git
+[submodule "RUST/helix"]
+	path = RUST/helix
+	url = https://github.com/helix-editor/helix.git
