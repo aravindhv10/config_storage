@@ -1,3 +1,8 @@
 #!/bin/sh
-tmux has && exec tmux attach
-exec tmux new
+if tmux has
+then
+    exec tmux attach
+else
+    exec tmux
+fi
+exit '0'
