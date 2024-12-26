@@ -1,8 +1,8 @@
 #!/bin/sh
 if tmux has
 then
-    exec tmux attach -- /bin/bash
+    exec tmux attach
 else
-    exec tmux -- /bin/bash
+    exec tmux new -- /bin/bash
 fi
 exit '0'
