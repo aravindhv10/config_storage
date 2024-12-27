@@ -123,9 +123,10 @@ function do_apt_install_standard {
     do_apt_install lightdm sddm btrfs-progs lvm2 parted gdisk
     do_apt_install lxqt kwin-x11 kwin-wayland i3
     do_apt_install 'linux-headers-6.6.63-x64v3-xanmod1' 'linux-image-6.6.63-x64v3-xanmod1'
+    do_apt_install git git-lfs wayland-protocols libwayland-dev meson acpi fish zsh curl
     do_apt_build tmux flatpak
 }
 
 function write_fstab {
-  echo "$(grep $(realpath ..) /proc/self/mounts | cut -d ' ' -f1)	/	btrfs	compress=zstd:3,autodefrag,rw	0	1" > ../etc/fstab
+  cp ./fstab ../etc/fstab
 }

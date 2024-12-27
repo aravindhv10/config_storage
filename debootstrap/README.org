@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/debootstrap/debian_stable_backports.list | /home/asd/config_storage/debootstrap/debian_stable.list | /home/asd/config_storage/debootstrap/debian_testing.list | /home/asd/config_storage/debootstrap/xanmod.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
+| /home/asd/config_storage/debootstrap/fstab | /home/asd/config_storage/debootstrap/debian_stable_backports.list | /home/asd/config_storage/debootstrap/debian_stable.list | /home/asd/config_storage/debootstrap/debian_testing.list | /home/asd/config_storage/debootstrap/xanmod.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
 
 * Main install file
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
@@ -279,9 +279,18 @@
 #+end_src
 
 ** Setup fstab
+
+*** Good fstab example
+#+begin_src conf :tangle ./fstab
+  /dev/disk/by-partlabel/linux	/		btrfs	compress=zstd:3,ssd,discard=async,space_cache,autodefrag,subvol=/debian_testing,rw	0	1
+  /dev/disk/by-partlabel/swap	none		swap	sw											0	0
+  none				/tmp		tmpfs	size=2147483648										0	0
+#+end_src
+
+*** function to copy
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./functions.sh
   function write_fstab {
-    echo "$(grep $(realpath ..) /proc/self/mounts | cut -d ' ' -f1)	/	btrfs	compress=zstd:3,autodefrag,rw	0	1" > ../etc/fstab
+    cp ./fstab ../etc/fstab
   }
 #+end_src
 
@@ -289,9 +298,6 @@
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   write_fstab
 #+end_src
-
-#+RESULTS:
-: /home/asd/GITLAB/aravindhv101/config_storage	/	btrfs	compress=zstd:3,autodefrag,rw	0	1
 
 ** Main execution
 
