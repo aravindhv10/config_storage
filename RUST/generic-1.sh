@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 . '/usr/lib/sdk/rust-stable/enable.sh'
 pushd "${1}"
     'cargo' 'build' '--release'

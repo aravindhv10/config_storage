@@ -1,11 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 './generic-1.sh' 'alacritty'
 
 './generic-1.sh' 'atuin'
 
 './generic-1.sh' 'bat'
-
-'./generic-1.sh' 'bottom'
 
 './generic-1.sh' 'dust'
 
@@ -43,6 +41,15 @@ popd
 
 pushd "${HOME}/bin/"
     ln -vfs ./c_wrapper ./hx
+popd
+
+pushd './bottom'
+    cargo build --release
+    cp -vf -- './target/release/btm' "${HOME}/exe/"
+popd
+
+pushd "${HOME}/bin/"
+    ln -vfs ./c_wrapper ./btm
 popd
 
 pushd "${HOME}/exe"

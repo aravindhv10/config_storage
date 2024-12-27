@@ -20,82 +20,77 @@
 * Install all packages
 
 ** alacritty
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'alacritty'
 #+end_src
 
 ** atuin
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'atuin'
 #+end_src
 
 ** bat
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'bat'
 #+end_src
 
-** bottom
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
-'./generic-1.sh' 'bottom'
-#+end_src
-
 ** dust
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'dust'
 #+end_src
 
 ** fd
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'fd'
 #+end_src
 
 ** lsd
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'lsd'
 #+end_src
 
 ** nushell
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'nushell'
 #+end_src
 
 ** ripgrep
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'ripgrep'
 #+end_src
 
 ** ruff
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'ruff'
 #+end_src
 
 ** skim
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'skim'
 #+end_src
 
 ** starship
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'starship'
 #+end_src
 
 ** yazi
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'yazi'
 #+end_src
 
 ** zellij
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'zellij'
 #+end_src
 
 ** zoxide
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'zoxide'
 #+end_src
 
 ** uv
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
   './generic-1.sh' 'uv'
   pushd './uv/target/release'
       cp -vf -- uvx uv "${HOME}/exe/"
@@ -105,7 +100,7 @@
 #+end_src
 
 ** helix
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
   pushd './helix'
       cargo build --release
       cp -vf -- './target/release/hx' "${HOME}/exe/"
@@ -116,8 +111,21 @@
   popd
 #+end_src
 
+** bottom
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
+  pushd './bottom'
+      cargo build --release
+      cp -vf -- './target/release/btm' "${HOME}/exe/"
+  popd
+
+  pushd "${HOME}/bin/"
+      ln -vfs ./c_wrapper ./btm
+  popd
+#+end_src
+
+
 * Get all dependencies
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./all_install.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
   pushd "${HOME}/exe"
       find ./ -type f \
           | sed 's@^@("ldd" "@g ; s@$@")@g' \
@@ -136,7 +144,7 @@
 #+end_src
 
 * Generic install script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./generic-1.sh
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./generic-1.sh
   . '/usr/lib/sdk/rust-stable/enable.sh'
   pushd "${1}"
       'cargo' 'build' '--release'
