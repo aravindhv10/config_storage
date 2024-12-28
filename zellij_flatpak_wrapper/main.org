@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 133 on log>
+: #<window 23 on log>
 
 * Prepare the destination dir
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
@@ -17,7 +17,7 @@
 
 ** Main script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./zellij
-  export PATH="${HOME}/exe:${HOME}/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/app/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:"
+  export PATH="${HOME}/exe:${HOME}/bin:/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/app/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:"
   export SHELL="${HOME}/exe/nu"
   exec "${HOME}/exe/zellij" 'attach' '--create'
 #+end_src
