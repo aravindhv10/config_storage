@@ -1,0 +1,8 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "height": 32,
+    "modules-left": ["pulseaudio", "sndio", "wireplumber"],
+    "modules-center": ["tray", "network", "clock"],
+    "modules-right": ["battery", "upower", "temperature", "states"]
+}
