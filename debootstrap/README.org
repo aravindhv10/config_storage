@@ -866,6 +866,7 @@
   kaddressbook-data
   kalendarac
   kamera
+  kanshi
   kate
   kate-data
   kcalc
@@ -1365,6 +1366,7 @@
   libgif7:amd64
   libgio-2.0-dev:amd64
   libgio-2.0-dev-bin
+  libgirara-gtk3-4:amd64
   libgirepository-1.0-1:amd64
   libgirepository-1.0-dev:amd64
   libgirepository-2.0-0:amd64
@@ -3513,6 +3515,8 @@
   wireless-regdb
   wireless-tools
   wireplumber
+  wlogout
+  wlsunset
   wm-icons
   wofi
   wpasupplicant
@@ -3630,6 +3634,8 @@
   yelp
   yelp-xsl
   yt-dlp
+  zathura
+  zathura-pdf-poppler:amd64
   zenity
   zenity-common
   zip
@@ -3642,3 +3648,4 @@
   zstd
   zutty
 #+end_src
+
