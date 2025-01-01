@@ -4,7 +4,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/wrapper_code/foot_server/main.c |
+| /home/asd/config_storage/wrapper_code/foot_server/main.c | /home/asd/config_storage/wrapper_code/foot_server/main.sh |
 
 * shell script to compile
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.sh
