@@ -1,0 +1,3 @@
+#!/bin/sh
+exec "$(fd . "${HOME}/.nebius/bin" "${HOME}/bin" '/usr/local/sbin' '/usr/local/bin' '/usr/sbin' '/usr/bin' '/sbin' '/bin' '/app/bin' '/var/tmp/flatpak.dir/install/var/lib/flatpak/exports/bin/' | sk)"
+exit '0'
