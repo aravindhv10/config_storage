@@ -1,0 +1,49 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+#+RESULTS:
+| /home/asd/config_storage/wrapper_code/foot_server/main.c |
+
+* shell script to compile
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.sh
+    gcc -Ofast -mtune=native -march=native -static ./main.c -o main.exe
+#+end_src
+
+* Main c code
+
+** headers to include
+#+begin_src c :tangle ./main.c
+#include <sys/wait.h>
+#include <unistd.h>
+#+end_src
+
+** Important global variables
+#+begin_src c :tangle ./main.c
+  static char arg0[] = "/usr/bin/foot";
+  static char arg1[] = "--server";
+  static char *const args[3] = {arg0, arg1, NULL};
+#+end_src
+
+** Function calling the external program
+#+begin_src c :tangle ./main.c
+  void forker() {
+    pid_t pid = fork();
+    if (pid == 0) {
+      execv(arg0, args);
+    } else {
+      waitpid(pid, NULL, 0);
+    }
+  }
+#+end_src
+
+** Main function calling the server function in infinite loop
+#+begin_src c :tangle ./main.c
+int main() {
+  while (1) {
+    forker();
+  }
+  return 1;
+}
+#+end_src
