@@ -80,8 +80,8 @@ plugins = \
 close_top_view = <super> KEY_F4 | <super> KEY_C
 
 # Workspaces arranged into a grid: 3 × 3.
-vwidth = 5
-vheight = 3
+vwidth = 10
+vheight = 2
 
 # Prefer client-side decoration or server-side decoration
 preferred_decoration_mode = client
@@ -131,7 +131,7 @@ gamma = wlsunset -l 13 -L 77.6
 # Idle configuration
 # https://github.com/swaywm/swayidle
 # https://github.com/swaywm/swaylock
-# idle = swayidle before-sleep swaylock
+idle = swayidle before-sleep swaylock
 
 # XDG desktop portal
 # Needed by some GTK applications
@@ -170,26 +170,26 @@ command_tmuxmain = footclient --fullscreen -e tmux_auto
 binding_emacs = <super> <ctrl> KEY_2
 command_emacs = emacs_server
 
+binding_alsamixer = <super> <ctrl> KEY_9
+command_alsamixer = footclient --fullscreen -e alsamixer
+
+binding_firefox = <super> <ctrl> KEY_0
+command_firefox = firefox
+
 binding_emacs_flatpak = <super> <ctrl> KEY_Q
 command_emacs_flatpak = footclient --fullscreen -e enter_emacs_flatpak
 
 binding_okular = <super> <ctrl> KEY_W
 command_okular = footclient --fullscreen -e ~/bin/read_pdf
 
-binding_alacrittymaster = <super> <ctrl> KEY_E
+binding_alacrittymaster = <super> <ctrl> KEY_R
 command_alacrittymaster = alacritty_master
 
-binding_alacrittydaemon = <super> <ctrl> KEY_R
+binding_alacrittydaemon = <super> <ctrl> KEY_T
 command_alacrittydaemon = alacritty_daemon -e launcher
 
-binding_firefox = <super> <ctrl> KEY_A
-command_firefox = firefox
-
-binding_brave = <super> <ctrl> KEY_S
+binding_brave = <super> <ctrl> KEY_P
 command_brave = brave
-
-binding_alsamixer = <super> <ctrl> KEY_D
-command_alsamixer = footclient --fullscreen -e alsamixer
 
 # Start your launcher
 # https://hg.sr.ht/~scoopta/wofi
@@ -299,32 +299,43 @@ binding_2 = <super> KEY_2
 binding_3 = <super> KEY_3
 binding_4 = <super> KEY_4
 binding_5 = <super> KEY_5
-binding_6 = <super> KEY_Q
-binding_7 = <super> KEY_W
-binding_8 = <super> KEY_E
-binding_9 = <super> KEY_R
-binding_10 = <super> KEY_T
-binding_11 = <super> KEY_A
-binding_12 = <super> KEY_S
-binding_13 = <super> KEY_D
-binding_14 = <super> KEY_F
-binding_15 = <super> KEY_G
+binding_6 = <super> KEY_6
+binding_7 = <super> KEY_7
+binding_8 = <super> KEY_8
+binding_9 = <super> KEY_9
+binding_10 = <super> KEY_0
+binding_11 = <super> KEY_Q
+binding_12 = <super> KEY_W
+binding_13 = <super> KEY_E
+binding_14 = <super> KEY_R
+binding_15 = <super> KEY_T
+binding_16 = <super> KEY_Y
+binding_17 = <super> KEY_U
+binding_18 = <super> KEY_I
+binding_19 = <super> KEY_O
+binding_20 = <super> KEY_P
 
 with_win_1 = <super> <shift> KEY_1
 with_win_2 = <super> <shift> KEY_2
 with_win_3 = <super> <shift> KEY_3
 with_win_4 = <super> <shift> KEY_4
 with_win_5 = <super> <shift> KEY_5
-with_win_6 = <super> <shift> KEY_Q
-with_win_7 = <super> <shift> KEY_W
-with_win_8 = <super> <shift> KEY_E
-with_win_9 = <super> <shift> KEY_R
-with_win_10 = <super> <shift> KEY_T
-with_win_11 = <super> <shift> KEY_A
-with_win_12 = <super> <shift> KEY_S
-with_win_13 = <super> <shift> KEY_D
-with_win_14 = <super> <shift> KEY_F
-with_win_15 = <super> <shift> KEY_G
+with_win_6 = <super> <shift> KEY_6
+with_win_7 = <super> <shift> KEY_7
+with_win_8 = <super> <shift> KEY_8
+with_win_9 = <super> <shift> KEY_9
+with_win_10 = <super> <shift> KEY_0
+with_win_11 = <super> <shift> KEY_Q
+with_win_12 = <super> <shift> KEY_W
+with_win_13 = <super> <shift> KEY_E
+with_win_14 = <super> <shift> KEY_R
+with_win_15 = <super> <shift> KEY_T
+with_win_16 = <super> <shift> KEY_Y
+with_win_17 = <super> <shift> KEY_U
+with_win_18 = <super> <shift> KEY_I
+with_win_19 = <super> <shift> KEY_O
+with_win_20 = <super> <shift> KEY_P
+
 
 # Show an overview of all workspaces.
 [expo]

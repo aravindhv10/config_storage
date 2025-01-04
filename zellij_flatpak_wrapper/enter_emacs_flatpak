@@ -1,3 +1,3 @@
 #!/bin/sh
-exec flatpak run '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
+exec flatpak run '--device=all' '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
 exec alacritty -e flatpak run '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
