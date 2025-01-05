@@ -3,13 +3,13 @@
     "layer": "top", // Waybar at top layer
     "position": "bottom", // Waybar position (top|bottom|left|right)
     "height": 32, // Waybar height (to be removed for auto height)
-    // "width": 1280, // Waybar width
+//  "width": 1280, // Waybar width
     "spacing": 4, // Gaps between modules (4px)
-    // Choose the order of the modules
+//  Choose the order of the modules
     "modules-left": [
         "custom/media",
-	"wlr/taskbar",
-	"wlr/workspaces"
+        "wlr/taskbar",
+        "wlr/workspaces"
     ],
     "modules-center": [
     ],
@@ -56,16 +56,6 @@
             "unlocked": ""
         }
     },
-    "sway/mode": {
-        "format": "<span style=\"italic\">{}</span>"
-    },
-    "sway/scratchpad": {
-        "format": "{icon} {count}",
-        "show-empty": false,
-        "format-icons": ["", ""],
-        "tooltip": true,
-        "tooltip-format": "{app}: {title}"
-    },
     "mpd": {
         "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
         "format-disconnected": "Disconnected ",
@@ -100,7 +90,7 @@
         }
     },
     "tray": {
-        // "icon-size": 21,
+        "icon-size": 24,
         "spacing": 10
     },
     "clock": {
@@ -130,7 +120,7 @@
     },
     "battery": {
         "states": {
-            // "good": 95,
+            "good": 95,
             "warning": 30,
             "critical": 15
         },
@@ -147,15 +137,15 @@
         "bat": "BAT2"
     },
     "power-profiles-daemon": {
-      "format": "{icon}",
-      "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
-      "tooltip": true,
-      "format-icons": {
+    "format": "{icon}",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
         "default": "",
         "performance": "",
         "balanced": "",
         "power-saver": ""
-      }
+    }
     },
     "network": {
         // "interface": "wlp2*", // (Optional) To force the use of this interface
@@ -199,22 +189,22 @@
     },
     "custom/power": {
         "format" : "⏻ ",
-		"tooltip": false,
-		"menu": "on-click",
-		"menu-file": "$HOME/.config/waybar/power_menu.xml", // Menu file in resources folder
-		"menu-actions": {
-			"shutdown": "shutdown",
-			"reboot": "reboot",
-			"suspend": "systemctl suspend",
-			"hibernate": "systemctl hibernate"
-		}
+                "tooltip": false,
+                "menu": "on-click",
+                "menu-file": "$HOME/.config/waybar/power_menu.xml", // Menu file in resources folder
+                "menu-actions": {
+                        "shutdown": "shutdown",
+                        "reboot": "reboot",
+                        "suspend": "systemctl suspend",
+                        "hibernate": "systemctl hibernate"
+                }
     },
-	"wlr/taskbar": {
-		"format": "{icon}",
-		"icon-size": 24,
-		"icon-theme": "Numix-Circle",
-		"tooltip-format": "{title}",
-		"on-click": "activate",
-		"on-click-middle": "close",
-	}
+    "wlr/taskbar": {
+            "format": "{icon}",
+            "icon-size": 24,
+            "icon-theme": "Numix-Circle",
+            "tooltip-format": "{title}",
+            "on-click": "activate",
+            "on-click-middle": "close",
+    }
 }
