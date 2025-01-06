@@ -67,3 +67,6 @@
 [submodule "RUST/helix"]
 	path = RUST/helix
 	url = https://github.com/helix-editor/helix.git
+[submodule "RUST/igrep"]
+	path = RUST/igrep
+	url = https://github.com/konradsz/igrep.git

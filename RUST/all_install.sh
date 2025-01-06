@@ -1,4 +1,6 @@
 #!/bin/bash
+'./generic-1.sh' 'igrep' 'ig'
+
 './generic-1.sh' 'alacritty'
 
 './generic-1.sh' 'atuin'

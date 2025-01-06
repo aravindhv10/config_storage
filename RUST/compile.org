@@ -19,6 +19,11 @@
 
 * Install all packages
 
+** igrep
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
+'./generic-1.sh' 'igrep' 'ig'
+#+end_src
+
 ** alacritty
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'alacritty'
@@ -146,9 +151,15 @@
 * Generic install script
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./generic-1.sh
   . '/usr/lib/sdk/rust-stable/enable.sh'
+  if test "${#}" '-ge' '2'
+  then
+      FILE_NAME="${2}"
+  else
+      FILE_NAME="${1}"
+  fi
   pushd "${1}"
       'cargo' 'build' '--release'
-      cp '-vf' -- "target/release/${1}" "${HOME}/exe/"
+      cp '-vf' -- "target/release/${FILE_NAME}" "${HOME}/exe/"
       ln '-vfs' -- './c_wrapper' "${HOME}/bin/${1}"
   popd
 #+end_src
