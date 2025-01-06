@@ -1,0 +1,25 @@
+* COMMENT work space
+#+begin_src emacs-lisp
+  (save-buffer)
+  (shell-command "mkdir -pv -- './bin'" "log" "err")
+  (org-babel-tangle)
+#+end_src
+
+#+RESULTS:
+| /home/asd/scripts/bin/edit_scripts.sh | /home/asd/scripts/bin/sudo_fish.sh |
+
+* Active
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./bin/sudo_fish.sh
+  export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+  sudo -A 'fish'
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./bin/edit_scripts.sh
+  cd "$(dirname -- "$(realpath -- "${0}")")/.."
+  emacsclient -c 
+#+end_src
+
+* COMMENT inactive
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./bin/sample.sh
+#+end_src
