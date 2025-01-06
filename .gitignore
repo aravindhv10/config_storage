@@ -17,6 +17,7 @@
 /add_elpaca_submodules.sh
 /add_rust_submodules.sh
 /debootstrap/README.org~
+/dnsmasq/README.org~
 /emacs.d/#init.org#
 /emacs.d/.#init.org
 /emacs.d/.#projectile-bookmarks.eld
@@ -83,6 +84,7 @@
 /foot/foot.org~
 /git_add.txt
 /gitignore.txt
+/launcher_script_template/scripts/main.org~
 /main.org~
 /rm.txt
 /scripts/alacritty_master.sh~
