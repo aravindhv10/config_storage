@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/scripts/bin/edit_scripts.sh | /home/asd/scripts/bin/sudo_fish.sh |
+| /home/asd/config_storage/launcher_script_template/scripts/bin/edit_scripts.sh | /home/asd/config_storage/launcher_script_template/scripts/bin/sudo_fish.sh |
 
 * Active
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./bin/sudo_fish.sh
@@ -16,7 +16,7 @@
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./bin/edit_scripts.sh
   cd "$(dirname -- "$(realpath -- "${0}")")/.."
-  emacsclient -c 
+  emacsclient -c './main.org'
 #+end_src
 
 * COMMENT inactive
