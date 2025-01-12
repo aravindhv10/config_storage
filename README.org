@@ -1,0 +1,38 @@
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cd 'alacritty_config'
+    mkdir -pv -- "${HOME}/.config/alacritty/"
+    cp -vf -- './alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
+  cd ..
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  mkdir -pv -- "${HOME}/.emacs.d"
+  mysync 'emacs.d' "${HOME}/.emacs.d"
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cd 'fish_config'
+    mkdir -pv -- "${HOME}/.config/fish/"
+    cp -vf -- './config.fish' "${HOME}/.config/fish/config.fish"
+    cp -vf -- './SUDO_ASKPASS' "${HOME}/SUDO_ASKPASS"
+  cd ..
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output
+  flatpak_emacs
+  foot
+  hyprland
+  kde_shortcuts
+  launcher_script_template
+  main.org
+  scripts
+  shell_functions
+  wayfire_config
+  wrapper_code
+  zellij_flatpak_wrapper
+  zram_config
+#+end_src

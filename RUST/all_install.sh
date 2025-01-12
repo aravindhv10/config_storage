@@ -1,4 +1,6 @@
 #!/bin/bash
+'./generic-1.sh' 'miniserve'
+
 './generic-1.sh' 'igrep' 'ig'
 
 './generic-1.sh' 'alacritty'
@@ -36,23 +38,9 @@ pushd './uv/target/release'
     ln '-vfs' -- './c_wrapper' "${HOME}/bin/uvx"
 popd
 
-pushd './helix'
-    cargo build --release
-    cp -vf -- './target/release/hx' "${HOME}/exe/"
-popd
+'./generic-1.sh' './helix' 'hx'
 
-pushd "${HOME}/bin/"
-    ln -vfs ./c_wrapper ./hx
-popd
-
-pushd './bottom'
-    cargo build --release
-    cp -vf -- './target/release/btm' "${HOME}/exe/"
-popd
-
-pushd "${HOME}/bin/"
-    ln -vfs ./c_wrapper ./btm
-popd
+'./generic-1.sh' 'bottom' 'btm'
 
 pushd "${HOME}/exe"
     find ./ -type f \

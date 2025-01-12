@@ -19,6 +19,11 @@
 
 * Install all packages
 
+** miniserve
+#+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
+'./generic-1.sh' 'miniserve'
+#+end_src
+
 ** igrep
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
 './generic-1.sh' 'igrep' 'ig'
@@ -106,28 +111,13 @@
 
 ** helix
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
-  pushd './helix'
-      cargo build --release
-      cp -vf -- './target/release/hx' "${HOME}/exe/"
-  popd
-
-  pushd "${HOME}/bin/"
-      ln -vfs ./c_wrapper ./hx
-  popd
+  './generic-1.sh' './helix' 'hx'
 #+end_src
 
 ** bottom
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
-  pushd './bottom'
-      cargo build --release
-      cp -vf -- './target/release/btm' "${HOME}/exe/"
-  popd
-
-  pushd "${HOME}/bin/"
-      ln -vfs ./c_wrapper ./btm
-  popd
+  './generic-1.sh' 'bottom' 'btm'
 #+end_src
-
 
 * Get all dependencies
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
