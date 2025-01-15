@@ -15,13 +15,13 @@
 
 './generic-1.sh' 'lsd'
 
-'./generic-1.sh' 'nushell'
+'./generic-1.sh' 'nushell' 'nu'
 
-'./generic-1.sh' 'ripgrep'
+'./generic-1.sh' 'ripgrep' 'rg'
 
 './generic-1.sh' 'ruff'
 
-'./generic-1.sh' 'skim'
+'./generic-1.sh' 'skim' 'sk'
 
 './generic-1.sh' 'starship'
 

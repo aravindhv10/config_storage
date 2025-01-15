@@ -61,12 +61,12 @@
 
 ** nushell
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
-'./generic-1.sh' 'nushell'
+'./generic-1.sh' 'nushell' 'nu'
 #+end_src
 
 ** ripgrep
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
-'./generic-1.sh' 'ripgrep'
+'./generic-1.sh' 'ripgrep' 'rg'
 #+end_src
 
 ** ruff
@@ -76,7 +76,7 @@
 
 ** skim
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./all_install.sh
-'./generic-1.sh' 'skim'
+'./generic-1.sh' 'skim' 'sk'
 #+end_src
 
 ** starship
