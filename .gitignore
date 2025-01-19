@@ -113,3 +113,6 @@
 /zellij_flatpak_wrapper/main.org~
 /README.org~
 /debootstrap/#README.org#
+/wireguard_scripts/README.org~
+/wireguard_scripts/privatekey
+/wireguard_scripts/publickey

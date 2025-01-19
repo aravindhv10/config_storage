@@ -1,0 +1,21 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+#+RESULTS:
+| /home/asd/config_storage/wireguard_scripts/connect.sh | /home/asd/config_storage/wireguard_scripts/interface.sh | /home/asd/config_storage/wireguard_scripts/generate_key.sh |
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./generate_key.sh
+  wg genkey | tee privatekey | wg pubkey > publickey
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./interface.sh
+  ip link add wg0 type wireguard
+  ip addr add 10.0.0.1/24 dev wg0
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./connect.sh
+  wg set wg0 listen-port 443 private-key ./privatekey peer "${PEER_KEY}" allowed-ips 10.0.0.2/24 endpoint "${IP}:${PORT}"
+  ip link set wg0 up
+#+end_src
