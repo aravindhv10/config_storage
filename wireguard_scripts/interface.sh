@@ -1,3 +1,4 @@
 #!/bin/sh
+. './config.sh'
 ip link add wg0 type wireguard
-ip addr add 10.0.0.1/24 dev wg0
+ip addr add "${SELF_INTERNAL_IP}/24" dev wg0

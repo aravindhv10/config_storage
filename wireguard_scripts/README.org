@@ -4,18 +4,27 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/wireguard_scripts/connect.sh | /home/asd/config_storage/wireguard_scripts/interface.sh | /home/asd/config_storage/wireguard_scripts/generate_key.sh |
+| /home/asd/config_storage/wireguard_scripts/connect.sh | /home/asd/config_storage/wireguard_scripts/interface.sh | /home/asd/config_storage/wireguard_scripts/generate_key.sh | /home/asd/config_storage/wireguard_scripts/config.sh |
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./config.sh
+  SELF_INTERNAL_IP='10.0.0.1'
+  PEER_INTERNAL_IP='10.0.0.2'
+  PEER_PUBLIC_KEY=''
+  PEER_EXTERNAL_IP=''
+#+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./generate_key.sh
   wg genkey | tee privatekey | wg pubkey > publickey
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./interface.sh
+  . './config.sh'
   ip link add wg0 type wireguard
-  ip addr add 10.0.0.1/24 dev wg0
+  ip addr add "${SELF_INTERNAL_IP}/24" dev wg0
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./connect.sh
-  wg set wg0 listen-port 443 private-key ./privatekey peer "${PEER_PUBLIC_KEY}" allowed-ips 10.0.0.2/32 endpoint "${IP}:${PORT}"
+  . './config.sh'
+  wg set wg0 listen-port 443 private-key ./privatekey peer "${PEER_PUBLIC_KEY}" allowed-ips "${PEER_INTERNAL_IP}/32" endpoint "${PEER_EXTERNAL_IP}:${PORT}"
   ip link set wg0 up
 #+end_src
