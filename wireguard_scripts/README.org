@@ -11,6 +11,7 @@
   PEER_INTERNAL_IP='10.0.0.2'
   PEER_PUBLIC_KEY=''
   PEER_EXTERNAL_IP=''
+  PORT=443
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./generate_key.sh
