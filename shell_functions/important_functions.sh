@@ -191,3 +191,33 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/Wilfred/difftastic.git'
     get_rust_package 'https://github.com/fish-shell/fish-shell.git'
 }
+
+get_all_deps(){
+    find ./ -type l \
+        | sed 's@^@("ldd" "@g ; s@$@")@g' \
+        | sh \
+        | sed 's@\t@ @g' \
+        | grep '=>' \
+        | grep ' (0x' \
+        | grep ')$' \
+        | tr ' ' '\n' \
+        | grep '/lib' \
+        | sort \
+        | uniq \
+        | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+        | sh ;
+
+    find ./ -type f \
+        | sed 's@^@("ldd" "@g ; s@$@")@g' \
+        | sh \
+        | sed 's@\t@ @g' \
+        | grep '=>' \
+        | grep ' (0x' \
+        | grep ')$' \
+        | tr ' ' '\n' \
+        | grep '/lib' \
+        | sort \
+        | uniq \
+        | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+        | sh ;
+}

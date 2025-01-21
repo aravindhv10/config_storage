@@ -434,3 +434,37 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       get_rust_package 'https://github.com/fish-shell/fish-shell.git'
   }
 #+end_src
+
+
+*** get all libs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_all_deps(){
+      find ./ -type l \
+          | sed 's@^@("ldd" "@g ; s@$@")@g' \
+          | sh \
+          | sed 's@\t@ @g' \
+          | grep '=>' \
+          | grep ' (0x' \
+          | grep ')$' \
+          | tr ' ' '\n' \
+          | grep '/lib' \
+          | sort \
+          | uniq \
+          | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+          | sh ;
+
+      find ./ -type f \
+          | sed 's@^@("ldd" "@g ; s@$@")@g' \
+          | sh \
+          | sed 's@\t@ @g' \
+          | grep '=>' \
+          | grep ' (0x' \
+          | grep ')$' \
+          | tr ' ' '\n' \
+          | grep '/lib' \
+          | sort \
+          | uniq \
+          | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+          | sh ;
+  }
+#+end_src
