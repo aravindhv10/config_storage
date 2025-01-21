@@ -431,5 +431,6 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       get_rust_package 'https://github.com/helix-editor/helix.git'
       get_rust_package 'https://github.com/ClementTsang/bottom.git'
       get_rust_package 'https://github.com/Wilfred/difftastic.git'
+      get_rust_package 'https://github.com/fish-shell/fish-shell.git'
   }
 #+end_src

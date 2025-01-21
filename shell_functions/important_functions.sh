@@ -189,4 +189,5 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/helix-editor/helix.git'
     get_rust_package 'https://github.com/ClementTsang/bottom.git'
     get_rust_package 'https://github.com/Wilfred/difftastic.git'
+    get_rust_package 'https://github.com/fish-shell/fish-shell.git'
 }
