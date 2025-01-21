@@ -143,10 +143,6 @@ install_awscli(){
     sudo ./aws/install
 }
 
-'alias cat=bat' 
-'alias ls=lsd' 
-'alias du=dust'
-
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	yazi "$@" --cwd-file="$tmp"
@@ -154,4 +150,21 @@ function y() {
 		builtin cd -- "$cwd"
 	fi
 	rm -f -- "$tmp"
+}
+
+get_rust_package(){
+    get_repo "${1}"
+    . '/usr/lib/sdk/rust-stable/enable.sh'
+    cargo build --release
+    mkdir -pv -- "${HOME}/RUST/exe/"
+    if test "${#}" '-ge' '2'
+    then
+        shift
+        cd 'target/release'
+        cp -vf -- ${@} "${HOME}/RUST/exe/"
+    else
+        FILE_NAME="$(basename -- "$(realpath .)")"
+        cd 'target/release'
+        cp -vf -- "${FILE_NAME}" "${HOME}/RUST/exe/"
+    fi
 }

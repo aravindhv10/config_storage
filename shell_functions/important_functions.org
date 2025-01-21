@@ -373,10 +373,6 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       unzip awscliv2.zip
       sudo ./aws/install
   }
-
-  'alias cat=bat' 
-  'alias ls=lsd' 
-  'alias du=dust'
 #+end_src
 
 ** using yazi
@@ -388,5 +384,25 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
   		builtin cd -- "$cwd"
   	fi
   	rm -f -- "$tmp"
+  }
+#+end_src
+
+** Installing rust packages
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_rust_package(){
+      get_repo "${1}"
+      . '/usr/lib/sdk/rust-stable/enable.sh'
+      cargo build --release
+      mkdir -pv -- "${HOME}/RUST/exe/"
+      if test "${#}" '-ge' '2'
+      then
+          shift
+          cd 'target/release'
+          cp -vf -- ${@} "${HOME}/RUST/exe/"
+      else
+          FILE_NAME="$(basename -- "$(realpath .)")"
+          cd 'target/release'
+          cp -vf -- "${FILE_NAME}" "${HOME}/RUST/exe/"
+      fi
   }
 #+end_src
