@@ -163,8 +163,30 @@ get_rust_package(){
         cd 'target/release'
         cp -vf -- ${@} "${HOME}/RUST/exe/"
     else
-        FILE_NAME="$(basename -- "$(realpath .)")"
         cd 'target/release'
-        cp -vf -- "${FILE_NAME}" "${HOME}/RUST/exe/"
+        find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${HOME}/RUST/exe/" ';'
     fi
+}
+
+get_rust_packages_standard(){
+    get_rust_package 'https://github.com/alacritty/alacritty.git'
+    get_rust_package 'https://github.com/konradsz/igrep.git'
+    get_rust_package 'https://github.com/svenstaro/miniserve.git'
+    get_rust_package 'https://github.com/atuinsh/atuin.git'
+    get_rust_package 'https://github.com/sharkdp/bat.git'
+    get_rust_package 'https://github.com/bootandy/dust.git'
+    get_rust_package 'https://github.com/sharkdp/fd.git'
+    get_rust_package 'https://github.com/lsd-rs/lsd.git'
+    get_rust_package 'https://github.com/nushell/nushell.git'
+    get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
+    get_rust_package 'https://github.com/astral-sh/ruff.git'
+    get_rust_package 'https://github.com/skim-rs/skim.git'
+    get_rust_package 'https://github.com/starship/starship.git'
+    get_rust_package 'https://github.com/sxyazi/yazi.git'
+    get_rust_package 'https://github.com/zellij-org/zellij.git'
+    get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
+    get_rust_package 'https://github.com/astral-sh/uv.git'
+    get_rust_package 'https://github.com/helix-editor/helix.git'
+    get_rust_package 'https://github.com/ClementTsang/bottom.git'
+    get_rust_package 'https://github.com/Wilfred/difftastic.git'
 }
