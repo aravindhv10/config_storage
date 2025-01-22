@@ -665,6 +665,13 @@
   (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
 
+(use-package rustic
+  :ensure t
+  :config
+  (setq rustic-format-on-save nil)
+  :custom
+  (rustic-cargo-use-last-stored-arguments t))
+
 (defun quicknav () (interactive) (dired (file-truename "~/link")))
 
 (defun myfun/save_and_format_c ()
