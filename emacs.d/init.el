@@ -669,6 +669,7 @@
   :ensure t
   :config
   (setq rustic-format-on-save nil)
+  (setq rustic-lsp-client 'eglot)
   :custom
   (rustic-cargo-use-last-stored-arguments t))
 
