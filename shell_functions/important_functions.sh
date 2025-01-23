@@ -192,6 +192,19 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/svenstaro/miniserve.git'
     get_rust_package 'https://github.com/sxyazi/yazi.git'
     get_rust_package 'https://github.com/zellij-org/zellij.git'
+    get_rust_package 'https://github.com/BurntSushi/xsv.git'
+    get_rust_package 'https://github.com/dalance/procs.git'
+    get_rust_package 'https://github.com/darakian/ddh.git'
+    get_rust_package 'https://github.com/redox-os/ion.git'
+    get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
+    get_rust_package 'https://github.com/watchexec/watchexec.git'
+    get_rust_package 'https://github.com/gblach/reflicate.git'
+    get_rust_package 'https://github.com/gblach/imge.git'
+    get_rust_package 'https://github.com/your-tools/ruplacer.git'
+    get_rust_package 'https://github.com/whitfin/runiq.git'
+    get_rust_package 'https://github.com/vishaltelangre/ff.git'
+    get_rust_package 'https://github.com/shshemi/tabiew.git'
+    get_rust_package 'https://github.com/RaphGL/Tuckr.git'
 }
 
 get_all_deps(){
