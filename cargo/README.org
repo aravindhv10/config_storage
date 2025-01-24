@@ -1,0 +1,30 @@
+* COMMENT work space
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+* Script to copy
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  cd "$(dirname -- "${0}")"
+  CARGO_HOME="${HOME}/.cargo"
+  mkdir -pv -- "${CARGO_HOME}"
+  cp -vf -- './config.toml' "${CARGO_HOME}/config.toml"
+#+end_src
+
+* Main config
+#+begin_src conf :tangle ./config.toml
+  [build]
+  rustflags = ["-C","target-cpu=x86-64-v3"]
+  incremental = true
+
+  [profile.release]
+  inherits = "dev"
+  opt-level = 3
+  debug = false
+  strip = true
+  overflow-checks = false
+  lto = true
+  incremental = true
+  rpath = true
+#+end_src
