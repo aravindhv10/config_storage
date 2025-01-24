@@ -1,13 +1,12 @@
 [build]
-rustflags = ["-C","target-cpu=x86-64-v3"]
+rustflags = ["-C","target-cpu=x86-64-v3","-C","link-args=-Wl,-rpath=$ORIGIN/../lib"]
 incremental = true
 
 [profile.release]
-inherits = "dev"
 opt-level = 3
 debug = false
 strip = true
 overflow-checks = false
 lto = true
 incremental = true
-rpath = true
+rpath = false

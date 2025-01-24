@@ -155,16 +155,18 @@ function y() {
 get_rust_package(){
     get_repo "${1}"
     . '/usr/lib/sdk/rust-stable/enable.sh'
+    DIR_DEST="${HOME}/RUST/bin/"
+    # export RUSTFLAGS='-C target-cpu=x86-64-v3'
     cargo build --release
-    mkdir -pv -- "${HOME}/RUST/exe/"
+    mkdir -pv -- "${DIR_DEST}"
     if test "${#}" '-ge' '2'
     then
         shift
         cd 'target/release'
-        cp -vf -- ${@} "${HOME}/RUST/exe/"
+        cp -vf -- ${@} "${DIR_DEST}"
     else
         cd 'target/release'
-        find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${HOME}/RUST/exe/" ';'
+        find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
     fi
 }
 

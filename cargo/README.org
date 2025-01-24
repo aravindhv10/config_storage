@@ -4,6 +4,9 @@
   (org-babel-tangle)
 #+end_src
 
+#+RESULTS:
+| /home/asd/config_storage/cargo/config.toml | /home/asd/config_storage/cargo/copy.sh |
+
 * Script to copy
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
   cd "$(dirname -- "${0}")"
@@ -15,11 +18,10 @@
 * Main config
 #+begin_src conf :tangle ./config.toml
   [build]
-  rustflags = ["-C","target-cpu=x86-64-v3"]
+  rustflags = ["-C","target-cpu=x86-64-v3","-C","link-args=-Wl,-rpath=$ORIGIN/../lib"]
   incremental = true
 
   [profile.release]
-  inherits = "dev"
   opt-level = 3
   debug = false
   strip = true
