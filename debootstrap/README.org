@@ -4,9 +4,6 @@
   ;; (async-shell-command "flatpak-spawn --host ./install.sh" "log" "err")
 #+end_src
 
-#+RESULTS:
-| /home/asd/config_storage/debootstrap/installed | /home/asd/config_storage/debootstrap/fstab | /home/asd/config_storage/debootstrap/debian_stable_backports.list | /home/asd/config_storage/debootstrap/debian_stable.list | /home/asd/config_storage/debootstrap/debian_testing.list | /home/asd/config_storage/debootstrap/xanmod.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
-
 * Main install file
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
   cd "$('dirname' '--' "${0}")"
@@ -272,7 +269,7 @@
       do_apt_install git git-lfs wayland-protocols libwayland-dev meson acpi fish zsh curl grim
       do_apt_install wayfire foot zram-tools systemd-zram-generator tasksel pdf2svg light
       do_apt_install task-desktop task-gnome-desktop task-kde-desktop task-laptop task-lxqt-desktop
-      do_apt_install task-ssh-server task-web-server task-xfce-desktop
+      do_apt_install task-ssh-server task-web-server task-xfce-desktop waypipe
       do_apt_install wireguard byobu tmux lxc lxc-templates lxctl distrobuilder libvirt-daemon-driver-lxc
       do_apt_build tmux flatpak
   }
