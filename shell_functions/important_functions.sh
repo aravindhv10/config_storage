@@ -176,6 +176,10 @@ get_squashfs_tools () {
 get_rust_package(){
     get_repo "${1}"
     . '/usr/lib/sdk/rust-stable/enable.sh'
+    . '/usr/lib/sdk/llvm19/enable.sh'
+    export CC='clang'
+    export CXX='clang++'
+    export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
     mkdir -pv -- '/var/tmp/RUST/lib64/' '/var/tmp/RUST/bin/'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
     DIR_DEST='/var/tmp/RUST/bin/'
