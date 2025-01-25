@@ -152,6 +152,26 @@ function y() {
 	rm -f -- "$tmp"
 }
 
+get_squashfs_tools () {
+    get_repo 'https://github.com/plougher/squashfs-tools.git'
+    cd "${HOME}/GITHUB/plougher/squashfs-tools/"
+    git checkout .
+    cd "./squashfs-tools"
+    sd 'GZIP_SUPPORT = 1' '# GZIP_SUPPORT = 1' './Makefile'
+    sd '#ZSTD_SUPPORT = 1' 'ZSTD_SUPPORT = 1' './Makefile'
+    sd 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
+    sd 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
+    sd 'CFLAGS ?= -O2' 'CFLAGS ?= -O3' './Makefile'
+    . '/usr/lib/sdk/llvm19/enable.sh'
+    export CC='clang'
+    export CXX='clang++'
+    export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+    mkdir -pv -- '/var/tmp/squashfs/lib64' '/var/tmp/squashfs/bin' '/var/tmp/squashfs/man/man1'
+    cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+    make clean
+    make -j4
+}
+
 get_rust_package(){
     get_repo "${1}"
     . '/usr/lib/sdk/rust-stable/enable.sh'

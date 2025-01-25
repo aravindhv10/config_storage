@@ -387,6 +387,85 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
   }
 #+end_src
 
+** Download and compile squashfs tools
+
+*** shell function
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_squashfs_tools () {
+      get_repo 'https://github.com/plougher/squashfs-tools.git'
+      cd "${HOME}/GITHUB/plougher/squashfs-tools/"
+      git checkout .
+      cd "./squashfs-tools"
+      sd 'GZIP_SUPPORT = 1' '# GZIP_SUPPORT = 1' './Makefile'
+      sd '#ZSTD_SUPPORT = 1' 'ZSTD_SUPPORT = 1' './Makefile'
+      sd 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
+      sd 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
+      sd 'CFLAGS ?= -O2' 'CFLAGS ?= -O3' './Makefile'
+      . '/usr/lib/sdk/llvm19/enable.sh'
+      export CC='clang'
+      export CXX='clang++'
+      export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+      mkdir -pv -- '/var/tmp/squashfs/lib64' '/var/tmp/squashfs/bin' '/var/tmp/squashfs/man/man1'
+      cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+      make clean
+      make -j4
+  }
+#+end_src
+
+*** Changes to makefile
+#+begin_src conf
+diff --git a/squashfs-tools/Makefile b/squashfs-tools/Makefile
+index 704e22a4..a61f7081 100755
+--- a/squashfs-tools/Makefile
++++ b/squashfs-tools/Makefile
+@@ -19,7 +19,7 @@ ifndef CONFIG
+ # Obviously, you must select at least one of the available gzip, xz, lzo,
+ # lz4, zstd or lzma (deprecated) compression types.
+ #
+-GZIP_SUPPORT = 1
++#GZIP_SUPPORT = 1
+ 
+ ########### Building XZ support #############
+ #
+@@ -84,7 +84,7 @@ GZIP_SUPPORT = 1
+ # To build install the library and uncomment
+ # the ZSTD_SUPPORT line below.
+ #
+-#ZSTD_SUPPORT = 1
++ZSTD_SUPPORT = 1
+ 
+ 
+ ######## Specifying default compression ########
+@@ -93,7 +93,7 @@ GZIP_SUPPORT = 1
+ # in Mksquashfs.  Obviously the compression algorithm must have been
+ # selected to be built
+ #
+-COMP_DEFAULT = gzip
++COMP_DEFAULT = zstd
+ 
+ 
+ ###############################################
+@@ -163,7 +163,7 @@ USE_PREBUILT_MANPAGES = n
+ # To skip building and installing manpages,
+ # unset INSTALL_MANPAGES_DIR or set to ""
+ #
+-INSTALL_PREFIX = /usr/local
++INSTALL_PREFIX = /var/tmp/squashfs
+ INSTALL_DIR = $(INSTALL_PREFIX)/bin
+ INSTALL_MANPAGES_DIR = $(INSTALL_PREFIX)/man/man1
+ 
+@@ -229,7 +229,7 @@ UNSQUASHFS_OBJS = unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o \
+ 	swap.o compressor.o unsquashfs_info.o date.o memory.o print_pager.o \
+ 	unsquashfs_help.o
+ 
+-CFLAGS ?= -O2
++CFLAGS ?= -O3
+ CFLAGS += $(EXTRA_CFLAGS) $(INCLUDEDIR) -D_FILE_OFFSET_BITS=64 \
+ 	-D_LARGEFILE_SOURCE -D_GNU_SOURCE -DCOMP_DEFAULT=\"$(COMP_DEFAULT)\" \
+ 	-Wall
+#+end_src
+
+
 ** Installing rust packages
 
 *** Main function:
