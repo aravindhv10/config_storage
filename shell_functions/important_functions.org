@@ -539,6 +539,7 @@ index 704e22a4..a61f7081 100755
       get_rust_package 'https://github.com/vishaltelangre/ff.git'
       get_rust_package 'https://github.com/shshemi/tabiew.git'
       get_rust_package 'https://github.com/RaphGL/Tuckr.git'
+      get_rust_package 'https://github.com/sharkdp/hyperfine.git'
   }
 #+end_src
 

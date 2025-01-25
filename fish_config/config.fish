@@ -1,4 +1,4 @@
-set PATH /var/tmp/RUST/bin /var/tmp/squashfs/bin {$HOME}/exe {$HOME}/bin /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin
+set PATH /var/tmp/all/bin {$HOME}/exe {$HOME}/bin /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin
 
 export SUDO_ASKPASS={$HOME}/SUDO_ASKPASS
 

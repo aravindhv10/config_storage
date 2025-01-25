@@ -234,6 +234,7 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/vishaltelangre/ff.git'
     get_rust_package 'https://github.com/shshemi/tabiew.git'
     get_rust_package 'https://github.com/RaphGL/Tuckr.git'
+    get_rust_package 'https://github.com/sharkdp/hyperfine.git'
 }
 
 get_all_deps(){
