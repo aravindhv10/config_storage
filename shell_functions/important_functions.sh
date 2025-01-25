@@ -155,7 +155,9 @@ function y() {
 get_rust_package(){
     get_repo "${1}"
     . '/usr/lib/sdk/rust-stable/enable.sh'
-    DIR_DEST="${HOME}/RUST/bin/"
+    mkdir -pv -- '/var/tmp/RUST/lib64/' '/var/tmp/RUST/bin/'
+    cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
+    DIR_DEST='/var/tmp/RUST/bin/'
     cargo build --release
     mkdir -pv -- "${DIR_DEST}"
     if test "${#}" '-ge' '2'
