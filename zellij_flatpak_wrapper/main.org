@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 482 on log>
+: #<window 544 on log>
 
 * Prepare the destination dir
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
@@ -17,9 +17,9 @@
 
 ** Main script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./zellij.sh
-  export PATH="${HOME}/exe:${HOME}/bin:/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/app/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:"
-  export SHELL="${HOME}/exe/nu"
-  exec "${HOME}/exe/zellij" 'attach' '--create'
+  export PATH="/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+  export SHELL='nu'
+  exec 'zellij' 'attach' '--create'
 #+end_src
 
 ** Copy the script
@@ -55,7 +55,7 @@
 
 ** The script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./emc.sh
-  exec  emacsclient -c ${@}
+  exec emacsclient -c ${@}
 #+end_src
 
 ** Copy the script
