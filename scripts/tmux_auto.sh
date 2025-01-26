@@ -1,4 +1,5 @@
 #!/bin/sh
+exec byobu-tmux
 if tmux has
 then
     exec tmux attach
