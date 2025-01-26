@@ -152,6 +152,21 @@ function y() {
 	rm -f -- "$tmp"
 }
 
+get_emacs () {
+    . '/usr/lib/sdk/rust-stable/enable.sh'
+    . '/usr/lib/sdk/llvm19/enable.sh'
+    export CC='clang'
+    export CXX='clang++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/emacs/lib64/ld-linux-x86-64.so.2'
+    mkdir -pv -- '/var/tmp/emacs/lib64' '/var/tmp/emacs/bin'
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/emacs/lib64/ld-linux-x86-64.so.2'
+    get_repo 'https://github.com/emacs-mirror/emacs.git'
+    git checkout .
+    ./autogen.sh
+    './configure' '--prefix=/var/tmp/emacs/' '--enable-link-time-optimization' '--with-tree-sitter'
+}
+
 get_squashfs_tools () {
     mkdir -pv -- '/var/tmp/squashfs/lib64' '/var/tmp/squashfs/bin' '/var/tmp/squashfs/man/man1'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
@@ -182,7 +197,7 @@ get_rust_package(){
     export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
     export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
     mkdir -pv -- '/var/tmp/RUST/lib64/' '/var/tmp/RUST/bin/'
-    cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
     DIR_DEST='/var/tmp/RUST/bin/'
     cargo build --release
     mkdir -pv -- "${DIR_DEST}"
@@ -235,6 +250,22 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/shshemi/tabiew.git'
     get_rust_package 'https://github.com/RaphGL/Tuckr.git'
     get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+}
+
+get_tree_sitter () {
+    get_rust_package 'https://github.com/tree-sitter/tree-sitter.git'
+    cd ../../
+    make -j4
+    mv libtree-sitter.* /var/tmp/RUST/lib64/
+    cd lib
+    rm -rf build
+    mkdir -pv -- build
+    cd build
+    cmake ../
+    rg '/usr/local' | cut -d ':' -f1 | runiq
+    sd '/usr/local' '/var/tmp/RUST' $(rg '/usr/local' | cut -d ':' -f1 | runiq)
+    make -j4
+    make install
 }
 
 get_all_deps(){
