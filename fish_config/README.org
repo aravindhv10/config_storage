@@ -6,13 +6,13 @@
 #+end_src
 
 #+RESULTS:
-: #<window 496 on *Async Shell Command*>
+: #<window 17 on *Async Shell Command*>
 
 * Main config
 
 ** path
 #+begin_src conf :tangle ./config.fish
-  set PATH /var/tmp/all/bin {$HOME}/exe {$HOME}/bin /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin
+  set PATH /var/tmp/all/bin {$HOME}/bin /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin
 #+end_src
 
 ** sudo without password

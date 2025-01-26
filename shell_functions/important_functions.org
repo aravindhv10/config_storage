@@ -581,8 +581,8 @@ index 704e22a4..a61f7081 100755
 
 ** Important paths
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.bashrc
-  export PATH="/var/tmp/RUST/bin:/var/tmp/squashfs/bin:${HOME}/exe:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
-  export LD_LIBRARY_PATH="/var/tmp/RUST/lib64:/var/tmp/squashfs/lib64"
+  export PATH="/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+  # export LD_LIBRARY_PATH="/var/tmp/RUST/lib64:/var/tmp/squashfs/lib64"
 #+end_src
 
 ** starship
