@@ -152,21 +152,6 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-get_emacs () {
-    . '/usr/lib/sdk/rust-stable/enable.sh'
-    . '/usr/lib/sdk/llvm19/enable.sh'
-    export CC='clang'
-    export CXX='clang++'
-    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
-    export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/emacs/lib64/ld-linux-x86-64.so.2'
-    mkdir -pv -- '/var/tmp/emacs/lib64' '/var/tmp/emacs/bin'
-    cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/emacs/lib64/ld-linux-x86-64.so.2'
-    get_repo 'https://github.com/emacs-mirror/emacs.git'
-    git checkout .
-    ./autogen.sh
-    './configure' '--prefix=/var/tmp/emacs/' '--enable-link-time-optimization' '--with-tree-sitter'
-}
-
 get_squashfs_tools () {
     mkdir -pv -- '/var/tmp/squashfs/lib64' '/var/tmp/squashfs/bin' '/var/tmp/squashfs/man/man1'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
@@ -212,6 +197,24 @@ get_rust_package(){
     fi
 }
 
+get_helix_editor(){
+    get_repo 'https://github.com/helix-editor/helix.git'
+    . '/usr/lib/sdk/rust-stable/enable.sh'
+    . '/usr/lib/sdk/llvm19/enable.sh'
+    export CC='clang'
+    export CXX='clang++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
+    mkdir -pv -- '/var/tmp/RUST/lib64/' '/var/tmp/RUST/bin/'
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
+    DIR_DEST='/var/tmp/RUST/bin/'
+    cargo build --release
+    cp -apf ./runtime/ /var/tmp/RUST/bin/
+    cd 'target/release'
+    find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+    # cargo install --path helix-term
+}
+
 get_rust_packages_standard(){
     get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
     get_rust_package 'https://github.com/ClementTsang/bottom.git'
@@ -250,6 +253,7 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/shshemi/tabiew.git'
     get_rust_package 'https://github.com/RaphGL/Tuckr.git'
     get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+    get_helix_editor
 }
 
 get_tree_sitter () {
