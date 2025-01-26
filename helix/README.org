@@ -1,0 +1,20 @@
+* COMMENT work space
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./copy.sh" "log" "err")
+#+end_src
+
+#+RESULTS:
+: #<window 348 on log>
+
+* Main config
+
+#+begin_src conf :tangle ./config.toml
+  theme = "modus_vivendi_tritanopia"
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  mkdir -pv -- "${HOME}/.config/helix"
+  cp -vf -- './config.toml' "${HOME}/.config/helix/"
+#+end_src
