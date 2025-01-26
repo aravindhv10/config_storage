@@ -5,12 +5,15 @@
 #+end_src
 
 #+RESULTS:
-: #<window 54 on log>
+: #<window 450 on log>
 
 #+begin_src conf :tangle ./alacritty.toml
   [window]
   decorations = "None"
   startup_mode = "Fullscreen"
+
+  [font]
+  size = 16
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh

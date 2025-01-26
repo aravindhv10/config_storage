@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 23 on log>
+: #<window 482 on log>
 
 * Prepare the destination dir
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
@@ -16,7 +16,7 @@
 * Zellij scripts inside the container
 
 ** Main script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./zellij
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./zellij.sh
   export PATH="${HOME}/exe:${HOME}/bin:/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/app/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:"
   export SHELL="${HOME}/exe/nu"
   exec "${HOME}/exe/zellij" 'attach' '--create'
@@ -24,56 +24,41 @@
 
 ** Copy the script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  rm -vf -- "${HOME}/bin/zellij"
-  cp -vf -- './zellij' "${HOME}/bin/"
+  cp -vf -- './zellij.sh' "${HOME}/bin/"
 #+end_src
 
 * Script to start the container
 
 ** Main script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./enter_emacs_flatpak
-  exec flatpak run '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
-  exec alacritty -e flatpak run '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./enter_emacs_flatpak.sh
+  exec flatpak run '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij.sh" 'org.gnu.emacs'
 #+end_src
 
 ** Copy the script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  cp -vf -- './enter_emacs_flatpak' "${HOME}/bin/"
-#+end_src
-
-* Script to start tmux easily
-
-** Main script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./tmux_auto
-  tmux has && exec tmux attach
-  exec tmux new
-#+end_src
-
-** Copy the script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  cp -vf -- './tmux_auto' "${HOME}/bin/"
+  cp -vf -- './enter_emacs_flatpak.sh' "${HOME}/bin/"
 #+end_src
 
 * Emacs daemon
 
 ** The script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./emd
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./emd.sh
   exec emacs-wrapper --bg-daemon=def
 #+end_src
 
 ** Copy the script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  cp -vf -- './emd' "${HOME}/bin/"
+  cp -vf -- './emd.sh' "${HOME}/bin/"
 #+end_src
 
 * Emacs client
 
 ** The script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./emc
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./emc.sh
   exec  emacsclient -c ${@}
 #+end_src
 
 ** Copy the script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  cp -vf -- './emc' "${HOME}/bin/"
+  cp -vf -- './emc.sh' "${HOME}/bin/"
 #+end_src

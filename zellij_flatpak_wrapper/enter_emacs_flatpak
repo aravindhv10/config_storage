@@ -1,2 +1,0 @@
-#!/bin/sh
-exec flatpak run '--device=all' '--talk-name=org.freedesktop.Flatpak' "--command=${HOME}/bin/zellij" 'org.gnu.emacs'

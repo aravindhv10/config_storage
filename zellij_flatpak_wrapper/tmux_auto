@@ -1,3 +1,0 @@
-#!/bin/sh
-tmux has && exec tmux attach
-exec tmux new

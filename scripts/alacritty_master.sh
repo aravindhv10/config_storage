@@ -1,20 +1,9 @@
 #!/bin/sh
-# RES="$(fd -ts -g -d1 'Alacritty-wayland-*.sock' "/run/user/$(id -u)/" | wc -l)"
-# fd -ts -F -d1 'Alacritty-wayland-' "/run/user/$(id -u)/"
+export PATH="/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
 if fd -ts -g -d1 'Alacritty-wayland-*.sock$' "/run/user/$(id -u)/" -q
 then
-    if tmux has
-    then
-        exec alacritty msg create-window -e tmux attach
-    else
-        exec alacritty msg create-window -e tmux new -- /bin/bash
-    fi
+    exec alacritty msg create-window -e tmux_auto.sh
 else
-    if tmux has
-    then
-        exec alacritty -e tmux attach
-    else
-        exec alacritty -e tmux new -- /bin/bash
-    fi
+    exec alacritty -e tmux_auto.sh
 fi
 exit '0'
