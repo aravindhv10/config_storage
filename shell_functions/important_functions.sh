@@ -154,7 +154,7 @@ function y() {
 
 get_squashfs_tools () {
     mkdir -pv -- '/var/tmp/squashfs/lib64' '/var/tmp/squashfs/bin' '/var/tmp/squashfs/man/man1'
-    cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
     get_repo 'https://github.com/plougher/squashfs-tools.git'
     cd "${HOME}/GITHUB/plougher/squashfs-tools/"
     git checkout .
@@ -167,7 +167,7 @@ get_squashfs_tools () {
     . '/usr/lib/sdk/llvm19/enable.sh'
     export CC='clang'
     export CXX='clang++'
-    export LDFLAGS='-Wl,-rpath=$ORIGIN/../lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+    export LDFLAGS='-Wl,-rpath=/var/tmp/squashfs/lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
     make clean
     make -j4
     make -j4 install
