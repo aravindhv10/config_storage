@@ -211,7 +211,8 @@ get_helix_editor(){
     cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
     DIR_DEST='/var/tmp/RUST/bin/'
     cargo build --release
-    cp -apf ./runtime/ /var/tmp/RUST/bin/
+    cp -apf -- './runtime' '/var/tmp/RUST/bin/'
+    rm -vrf -- '/var/tmp/RUST/bin/runtime/grammars/sources'
     cd 'target/release'
     find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
     # cargo install --path helix-term
