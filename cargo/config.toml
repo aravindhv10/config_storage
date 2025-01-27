@@ -1,5 +1,5 @@
 [build]
-rustflags = ["-C","target-cpu=x86-64-v3","-C","link-args=-Wl,-rpath=$ORIGIN/../lib64","-C","link-args=-Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2"]
+rustflags = ["-C","target-cpu=x86-64-v3","-C","link-args=-Wl,-rpath=/var/tmp/RUST/lib64","-C","link-args=-Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2"]
 incremental = true
 
 [profile.release]

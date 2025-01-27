@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/cargo/config.toml | /home/asd/config_storage/cargo/copy.sh |
+| /home/cloudphysician/config_storage/cargo/config.toml | /home/cloudphysician/config_storage/cargo/copy.sh |
 
 * Script to copy
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
@@ -18,7 +18,7 @@
 * Main config
 #+begin_src conf :tangle ./config.toml
   [build]
-  rustflags = ["-C","target-cpu=x86-64-v3","-C","link-args=-Wl,-rpath=$ORIGIN/../lib64","-C","link-args=-Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2"]
+  rustflags = ["-C","target-cpu=x86-64-v3","-C","link-args=-Wl,-rpath=/var/tmp/RUST/lib64","-C","link-args=-Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2"]
   incremental = true
 
   [profile.release]
