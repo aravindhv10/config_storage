@@ -19,7 +19,7 @@ function txp
 end
 
 function xs
-    cd (fd -t d | sk)
+    cd (fd -t d -t l | sk)
 end
 
 function lh
