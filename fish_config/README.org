@@ -6,13 +6,13 @@
 #+end_src
 
 #+RESULTS:
-: #<window 15 on *Async Shell Command*>
+: #<window 158 on *Async Shell Command*>
 
 * Main config
 
 ** path
 #+begin_src conf :tangle ./config.fish
-  set PATH /var/tmp/all/bin {$HOME}/bin /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin
+  set PATH /usr/lib/sdk/texlive/bin/x86_64-linux /usr/lib/sdk/texlive/bin /usr/lib/sdk/rust-stable/bin /usr/lib/sdk/llvm19/bin /var/tmp/all/bin {$HOME}/bin /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin
 #+end_src
 
 ** sudo without password

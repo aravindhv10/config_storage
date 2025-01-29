@@ -307,3 +307,7 @@ get_all_deps(){
         | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
         | sh ;
 }
+
+get_inside_path(){
+    export PATH="/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+}

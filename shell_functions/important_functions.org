@@ -624,6 +624,12 @@ index 704e22a4..a61f7081 100755
   }
 #+end_src
 
+** get all libs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_inside_path(){
+      export PATH="/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+  }
+#+end_src
 
 * Add stuff to bashrc
 
