@@ -311,3 +311,21 @@ get_all_deps(){
 get_inside_path(){
     export PATH="/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
 }
+
+get_glibc () {
+    get_repo 'https://github.com/bminor/glibc.git' 'master'
+    git checkout 'tags/glibc-2.41'
+    CONFIGURE="$('realpath' './configure')"
+    BUILD_DIR="${HOME}/build/glibc"
+    INSTALL_DIR='/var/tmp/glibc'
+    rm -rf -- "${BUILD_DIR}"
+    mkdir -pv -- "${BUILD_DIR}" "${INSTALL_DIR}"
+    cd "${BUILD_DIR}"
+    . '/usr/lib/sdk/llvm19/enable.sh'
+    export CC='gcc'
+    export CXX='g++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    # export CFLAGS=''
+    "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
+    make -j4
+}
