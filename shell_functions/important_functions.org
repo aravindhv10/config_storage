@@ -564,6 +564,7 @@ index 704e22a4..a61f7081 100755
       get_rust_package 'https://github.com/shshemi/tabiew.git'
       get_rust_package 'https://github.com/RaphGL/Tuckr.git'
       get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+      get_rust_package 'https://github.com/latex-lsp/texlab.git'
       get_rust_package 'https://github.com/usagi-flow/evil-helix.git'
       mv -vf -- '/var/tmp/RUST/bin/hx' '/var/tmp/RUST/bin/hx_evil'
       get_helix_editor
