@@ -328,4 +328,5 @@ get_glibc () {
     # export CFLAGS=''
     "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
     make -j4
+    make -j4 install
 }

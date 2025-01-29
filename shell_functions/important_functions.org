@@ -649,6 +649,7 @@ index 704e22a4..a61f7081 100755
       # export CFLAGS=''
       "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
       make -j4
+      make -j4 install
   }
 #+end_src
 
