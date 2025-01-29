@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 158 on *Async Shell Command*>
+: #<window 108 on *Async Shell Command*>
 
 * Main config
 
@@ -277,14 +277,8 @@
   end
 
   bind \cr _atuin_search
-  bind -k up _atuin_bind_up
-  bind \eOA _atuin_bind_up
-  bind \e\[A _atuin_bind_up
   if bind -M insert > /dev/null 2>&1
   bind -M insert \cr _atuin_search
-  bind -M insert -k up _atuin_bind_up
-  bind -M insert \eOA _atuin_bind_up
-  bind -M insert \e\[A _atuin_bind_up
   end
 #+end_src
 
