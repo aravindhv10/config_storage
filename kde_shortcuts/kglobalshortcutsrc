@@ -261,7 +261,22 @@ switch to next activity=none,,Switch to Next Activity
 switch to previous activity=none,,Switch to Previous Activity
 toggle do not disturb=none,,Toggle do not disturb
 
-[services][M_F3.desktop]
+[services][net.local.M_C_A.desktop]
+_launch=Meta+Ctrl+A
+
+[services][net.local.M_C_Q.desktop]
+_launch=Meta+Ctrl+Q
+
+[services][net.local.M_C_S.desktop]
+_launch=Meta+Ctrl+S
+
+[services][net.local.M_C_W.desktop]
+_launch=Meta+Ctrl+W
+
+[services][net.local.M_F1.desktop]
+_launch=Meta+F1
+
+[services][net.local.M_F3.desktop]
 _launch=Meta+F3
 
 [services][org.kde.dolphin.desktop]
