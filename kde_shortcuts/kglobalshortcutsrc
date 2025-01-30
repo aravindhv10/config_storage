@@ -276,6 +276,9 @@ _launch=Meta+Ctrl+W
 [services][net.local.M_F1.desktop]
 _launch=Meta+F1
 
+[services][net.local.M_F2.desktop]
+_launch=Meta+F2
+
 [services][net.local.M_F3.desktop]
 _launch=Meta+F3
 
