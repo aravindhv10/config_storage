@@ -1,0 +1,2 @@
+#!/bin/sh
+exec footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
