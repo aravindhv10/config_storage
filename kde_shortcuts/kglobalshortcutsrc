@@ -261,14 +261,8 @@ switch to next activity=none,,Switch to Next Activity
 switch to previous activity=none,,Switch to Previous Activity
 toggle do not disturb=none,,Toggle do not disturb
 
-[services][net.local.brave.desktop]
-_launch=Meta+Ctrl+S
-
-[services][net.local.emacs_server.desktop]
-_launch=Meta+Ctrl+1
-
-[services][net.local.firefox.desktop]
-_launch=Meta+Ctrl+A
+[services][M_F3.desktop]
+_launch=Meta+F3
 
 [services][org.kde.dolphin.desktop]
 _launch=none
