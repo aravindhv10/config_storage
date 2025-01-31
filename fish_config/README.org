@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 145 on *Async Shell Command*>
+: #<window 237 on *Async Shell Command*>
 
 * Main config
 
@@ -84,6 +84,7 @@
   abbr --add --position command -- cat bat
   abbr --add --position command -- du dust
   abbr --add --position command -- cd z
+  abbr --add --position command -- argc aria2c -c -x16 -j16
 #+end_src
 
 ** Vi bindings

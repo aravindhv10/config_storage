@@ -37,6 +37,7 @@ abbr --add --position command -- top btm -b --process_command
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
 abbr --add --position command -- cd z
+abbr --add --position command -- argc aria2c -c -x16 -j16
 
 fish_vi_key_bindings
 
