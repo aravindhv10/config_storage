@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 108 on *Async Shell Command*>
+: #<window 81 on *Async Shell Command*>
 
 * Main config
 
@@ -80,7 +80,7 @@
 ** nice abbreviations
 #+begin_src conf :tangle ./config.fish
   abbr --add --position command -- ls lsd
-  abbr --add --position command -- top btm -b -T --process_command
+  abbr --add --position command -- top btm -b --process_command
   abbr --add --position command -- cat bat
   abbr --add --position command -- du dust
   abbr --add --position command -- cd z

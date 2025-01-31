@@ -33,7 +33,7 @@ function mk
 end
 
 abbr --add --position command -- ls lsd
-abbr --add --position command -- top btm -b -T --process_command
+abbr --add --position command -- top btm -b --process_command
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
 abbr --add --position command -- cd z
