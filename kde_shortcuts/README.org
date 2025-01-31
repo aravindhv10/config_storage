@@ -4,11 +4,15 @@
 #+end_src
 
 #+RESULTS:
-| /home/cloudphysician/config_storage/kde_shortcuts/kglobalshortcutsrc | /home/cloudphysician/config_storage/kde_shortcuts/copy.sh |
+| /home/asd/config_storage/kde_shortcuts/kglobalshortcutsrc | /home/asd/config_storage/kde_shortcuts/copy.sh |
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
   cd "$(dirname -- "${0}")"
-  cp -vf -- './kglobalshortcutsrc' "${HOME}/.config/"
+  mkdir -pv -- "${HOME}/.local/share" "${HOME}/.config"
+  cp -vf    -- './kglobalshortcutsrc' "${HOME}/.config/"
+  cp -vapf  -- './applications'       "${HOME}/.local/share"
+  sudo find ./scripts -type f -exec cp {} /usr/local/bin/ -vf ';'
+  exit '0'
 #+end_src
 
 #+begin_src conf :tangle ./kglobalshortcutsrc
