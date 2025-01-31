@@ -38,6 +38,8 @@ abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
 abbr --add --position command -- cd z
 
+fish_vi_key_bindings
+
 function y
     set tmp (mktemp -t "yazi-cwd.XXXXXX")
     yazi $argv --cwd-file="$tmp"

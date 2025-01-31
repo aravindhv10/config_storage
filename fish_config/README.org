@@ -6,7 +6,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 81 on *Async Shell Command*>
+: #<window 145 on *Async Shell Command*>
 
 * Main config
 
@@ -84,6 +84,11 @@
   abbr --add --position command -- cat bat
   abbr --add --position command -- du dust
   abbr --add --position command -- cd z
+#+end_src
+
+** Vi bindings
+#+begin_src conf :tangle ./config.fish
+  fish_vi_key_bindings
 #+end_src
 
 ** yazi
