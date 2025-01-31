@@ -83,7 +83,7 @@
   MoveZoomUp=none,none,Move Zoomed Area Upwards
   Overview=Meta+Ctrl+Space,Meta+W,Toggle Overview
   Setup Window Shortcut=none,,Setup Window Shortcut
-  Show Desktop=none,Meta+D,Peek at Desktop
+  Show Desktop=Meta+Esc,Meta+D,Peek at Desktop
   Suspend Compositing=Alt+Shift+F12,Alt+Shift+F12,Suspend Compositing
   Switch One Desktop Down=Meta+Ctrl+Down\tMeta+Down,Meta+Ctrl+Down,Switch One Desktop Down
   Switch One Desktop Up=Meta+Up\tMeta+Ctrl+Up,Meta+Ctrl+Up,Switch One Desktop Up
