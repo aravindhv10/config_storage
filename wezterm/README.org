@@ -1,0 +1,26 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+#+RESULTS:
+| /home/asd/config_storage/wezterm/wezterm.lua | /home/asd/config_storage/wezterm/copy.sh |
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  cd "$(dirname -- "${0}")"
+  cp -vf -- './wezterm.lua' "${HOME}/.wezterm.lua "
+  exit '0'
+#+end_src
+
+#+begin_src conf :tangle ./wezterm.lua
+  -- Pull in the wezterm API
+  local wezterm = require 'wezterm'
+
+  -- This will hold the configuration.
+  local config = wezterm.config_builder()
+
+  config.default_prog = { '/usr/local/bin/fish', '-l' }
+
+  -- and finally, return the configuration to wezterm
+  return config
+#+end_src
