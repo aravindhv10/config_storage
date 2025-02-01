@@ -261,20 +261,68 @@ switch to next activity=none,,Switch to Next Activity
 switch to previous activity=none,,Switch to Previous Activity
 toggle do not disturb=none,,Toggle do not disturb
 
+[services][net.local.M_C_0.desktop]
+_launch=Meta+Ctrl+0
+
 [services][net.local.M_C_1.desktop]
 _launch=Meta+Ctrl+1
 
-[services][net.local.M_C_A.desktop]
-_launch=Meta+Ctrl+A
+[services][net.local.M_C_2.desktop]
+_launch=Meta+Ctrl+2
+
+[services][net.local.M_C_3.desktop]
+_launch=Meta+Ctrl+3
+
+[services][net.local.M_C_4.desktop]
+_launch=Meta+Ctrl+4
+
+[services][net.local.M_C_5.desktop]
+_launch=Meta+Ctrl+5
+
+[services][net.local.M_C_6.desktop]
+_launch=Meta+Ctrl+6
+
+[services][net.local.M_C_7.desktop]
+_launch=Meta+Ctrl+7
+
+[services][net.local.M_C_8.desktop]
+_launch=Meta+Ctrl+8
+
+[services][net.local.M_C_9.desktop]
+_launch=Meta+Ctrl+9
+
+[services][net.local.M_C_0.desktop]
+_launch=Meta+Ctrl+0
 
 [services][net.local.M_C_Q.desktop]
 _launch=Meta+Ctrl+Q
 
+[services][net.local.M_C_W.desktop]
+_launch=Meta+Ctrl+W
+
+[services][net.local.M_C_E.desktop]
+_launch=Meta+Ctrl+E
+
+[services][net.local.M_C_R.desktop]
+_launch=Meta+Ctrl+R
+
+[services][net.local.M_C_T.desktop]
+_launch=Meta+Ctrl+T
+
+[services][net.local.M_C_A.desktop]
+_launch=Meta+Ctrl+A
+
 [services][net.local.M_C_S.desktop]
 _launch=Meta+Ctrl+S
 
-[services][net.local.M_C_W.desktop]
-_launch=Meta+Ctrl+W
+[services][net.local.M_C_D.desktop]
+_launch=Meta+Ctrl+D
+
+[services][net.local.M_C_F.desktop]
+_launch=Meta+Ctrl+F
+
+[services][net.local.M_C_G.desktop]
+_launch=Meta+Ctrl+G
 
 [services][net.local.M_F1.desktop]
 _launch=Meta+F1
