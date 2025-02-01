@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh
+exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh # TEST

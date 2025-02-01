@@ -55,7 +55,7 @@ exec /usr/local/bin/wezterm
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_W
-exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh
+exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh # TEST
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_E
@@ -91,7 +91,7 @@ exec /usr/local/bin/brave
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F1
-exec footclient -F -e /usr/local/bin/tmux_auto.sh
+exec footclient -F -e /usr/local/bin/tmux_auto.sh # @
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F2
