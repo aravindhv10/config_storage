@@ -1,0 +1,39 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+#+RESULTS:
+| /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 |
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_1
+exec /usr/local/bin/emacs_server
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_A
+exec /usr/local/bin/firefox
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
+exec footclient -F -e /usr/local/bin/tmux_auto.sh
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_S
+exec /usr/local/bin/brave
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_W
+exec footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F1
+exec footclient -F -e /usr/local/bin/tmux_auto.sh
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F2
+exec footclient -F -e /usr/local/bin/fish
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F3
+exec /app/bin/emacsclient -c
+#+end_src
