@@ -48,6 +48,29 @@
   ./work_slave.sh 'M_C_D'
   ./work_slave.sh 'M_C_F'
   ./work_slave.sh 'M_C_G'
+
+  ./work_slave.sh 'M_A_1'
+  ./work_slave.sh 'M_A_2'
+  ./work_slave.sh 'M_A_3'
+  ./work_slave.sh 'M_A_4'
+  ./work_slave.sh 'M_A_5'
+  ./work_slave.sh 'M_A_6'
+  ./work_slave.sh 'M_A_7'
+  ./work_slave.sh 'M_A_8'
+  ./work_slave.sh 'M_A_9'
+  ./work_slave.sh 'M_A_0'
+
+  ./work_slave.sh 'M_A_Q'
+  ./work_slave.sh 'M_A_W'
+  ./work_slave.sh 'M_A_E'
+  ./work_slave.sh 'M_A_R'
+  ./work_slave.sh 'M_A_T'
+
+  ./work_slave.sh 'M_A_A'
+  ./work_slave.sh 'M_A_S'
+  ./work_slave.sh 'M_A_D'
+  ./work_slave.sh 'M_A_F'
+  ./work_slave.sh 'M_A_G'
 #+end_src
 
 ** Cleanup

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=/usr/local/bin/M_A_9
+Name=M_A_9
+NoDisplay=true
+StartupNotify=false
+Type=Application
+X-KDE-GlobalAccel-CommandShortcut=true
