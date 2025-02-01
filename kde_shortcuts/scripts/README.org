@@ -141,7 +141,7 @@ exec /usr/local/bin/brave
 #+end_src
 
 #+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_Q
-  for i in (ps | where name == wezterm).pid {kill  $i}
+  for i in (ps | where name =~ wezterm).pid {kill  $i}
 #+end_src
 
 #+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_W

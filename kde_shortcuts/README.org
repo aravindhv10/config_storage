@@ -65,7 +65,7 @@
   _k_friendly_name=Keyboard Layout Switcher
 
   [kaccess]
-  Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off
+  Toggle Screen Reader On and Off=none,Meta+Alt+S,Toggle Screen Reader On and Off
   _k_friendly_name=Accessibility
 
   [kcm_touchpad]
@@ -366,10 +366,10 @@
   _launch=Meta+Alt+Q
 
   [services][net.local.M_A_R.desktop]
-  _launch=
+  _launch=Meta+Alt+R
 
   [services][net.local.M_A_S.desktop]
-  _launch=
+  _launch=Meta+Alt+S
 
   [services][net.local.M_A_T.desktop]
   _launch=Meta+Alt+T
@@ -457,6 +457,7 @@
 
   [services][org.kde.spectacle.desktop]
   RecordRegion=none
+  RecordScreen=none
   RecordWindow=none
   _launch=Print
 #+end_src
