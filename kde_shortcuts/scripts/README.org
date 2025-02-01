@@ -4,46 +4,50 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_G | /home/asd/config_storage/kde_shortcuts/scripts/M_C_F | /home/asd/config_storage/kde_shortcuts/scripts/M_C_D | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_T | /home/asd/config_storage/kde_shortcuts/scripts/M_C_R | /home/asd/config_storage/kde_shortcuts/scripts/M_C_E | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_0 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_9 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_8 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_7 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_6 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_5 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_4 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_3 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_2 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 |
+| /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_G | /home/asd/config_storage/kde_shortcuts/scripts/M_C_F | /home/asd/config_storage/kde_shortcuts/scripts/M_C_D | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_T | /home/asd/config_storage/kde_shortcuts/scripts/M_C_R | /home/asd/config_storage/kde_shortcuts/scripts/M_C_E | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_0 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_9 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_8 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_7 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_6 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_5 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_4 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_3 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_2 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 | /home/asd/config_storage/kde_shortcuts/scripts/M_ESC |
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_ESC
+exec wlogout
+#+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_1
 exec /usr/local/bin/emacs_server
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_2
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_3
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_4
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_5
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_6
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_7
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_8
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_9
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_0
-exec /app/bin/emacsclient
+exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
