@@ -67,7 +67,7 @@ exec /usr/local/bin/alacritty_master.sh
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_T
-exec /usr/local/bin/alacritty_daemon.sh
+exec /usr/local/bin/alacritty_daemon.sh -e '/usr/local/bin/fish'
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_A
