@@ -4,26 +4,86 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 |
+| /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_G | /home/asd/config_storage/kde_shortcuts/scripts/M_C_F | /home/asd/config_storage/kde_shortcuts/scripts/M_C_D | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_T | /home/asd/config_storage/kde_shortcuts/scripts/M_C_R | /home/asd/config_storage/kde_shortcuts/scripts/M_C_E | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_0 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_9 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_8 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_7 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_6 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_5 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_4 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_3 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_2 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 |
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_1
 exec /usr/local/bin/emacs_server
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_2
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_3
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_4
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_5
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_6
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_7
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_8
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_9
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_0
+exec /app/bin/emacsclient
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
+exec /usr/local/bin/wezterm
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_W
+exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_E
+exec /usr/bin/footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_R
+exec /usr/local/bin/alacritty_master.sh
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_T
+exec /usr/local/bin/alacritty_daemon.sh
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_A
 exec /usr/local/bin/firefox
 #+end_src
 
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
-exec footclient -F -e /usr/local/bin/tmux_auto.sh
-#+end_src
-
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_S
 exec /usr/local/bin/brave
 #+end_src
 
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_W
-exec footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_D
+exec /usr/local/bin/brave
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_F
+exec /usr/local/bin/brave
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_G
+exec /usr/local/bin/brave
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F1

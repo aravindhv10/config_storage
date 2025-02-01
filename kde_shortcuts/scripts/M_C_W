@@ -1,2 +1,2 @@
 #!/bin/sh
-exec footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
+exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh
