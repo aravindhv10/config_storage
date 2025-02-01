@@ -1,0 +1,2 @@
+#!/usr/local/bin/nu
+for i in (ps | where name == wezterm).pid {kill  $i}

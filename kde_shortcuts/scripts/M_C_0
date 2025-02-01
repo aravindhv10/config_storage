@@ -1,2 +1,2 @@
 #!/bin/sh
-exec pkill waybar
+exec /usr/bin/waybar

@@ -261,6 +261,29 @@ switch to next activity=none,,Switch to Next Activity
 switch to previous activity=none,,Switch to Previous Activity
 toggle do not disturb=none,,Toggle do not disturb
 
+[services][org.kde.spectacle.desktop]
+RecordRegion=none
+RecordWindow=none
+_launch=Print
+
+[services][org.kde.plasma.emojier.desktop]
+_launch=Meta+Ctrl+Alt+Shift+Space
+
+[services][org.kde.dolphin.desktop]
+_launch=none
+
+[services][org.kde.plasma-systemmonitor.desktop]
+_launch=none
+
+[services][net.local.M_F1.desktop]
+_launch=Meta+F1
+
+[services][net.local.M_F2.desktop]
+_launch=Meta+F2
+
+[services][net.local.M_F3.desktop]
+_launch=Meta+F3
+
 [services][net.local.M_C_0.desktop]
 _launch=Meta+Ctrl+0
 
@@ -324,25 +347,62 @@ _launch=Meta+Ctrl+F
 [services][net.local.M_C_G.desktop]
 _launch=Meta+Ctrl+G
 
-[services][net.local.M_F1.desktop]
-_launch=Meta+F1
+[services][net.local.M_A_1.desktop]
+_launch=Meta+Alt+1
 
-[services][net.local.M_F2.desktop]
-_launch=Meta+F2
+[services][net.local.M_A_2.desktop]
+_launch=Meta+Alt+2
 
-[services][net.local.M_F3.desktop]
-_launch=Meta+F3
+[services][net.local.M_A_3.desktop]
+_launch=Meta+Alt+3
 
-[services][org.kde.dolphin.desktop]
-_launch=none
+[services][net.local.M_A_4.desktop]
+_launch=Meta+Alt+4
 
-[services][org.kde.plasma-systemmonitor.desktop]
-_launch=none
+[services][net.local.M_A_5.desktop]
+_launch=Meta+Alt+5
 
-[services][org.kde.plasma.emojier.desktop]
-_launch=Meta+Ctrl+Alt+Shift+Space
+[services][net.local.M_A_6.desktop]
+_launch=Meta+Alt+6
 
-[services][org.kde.spectacle.desktop]
-RecordRegion=none
-RecordWindow=none
-_launch=Print
+[services][net.local.M_A_7.desktop]
+_launch=Meta+Alt+7
+
+[services][net.local.M_A_8.desktop]
+_launch=Meta+Alt+8
+
+[services][net.local.M_A_9.desktop]
+_launch=Meta+Alt+9
+
+[services][net.local.M_A_0.desktop]
+_launch=Meta+Alt+0
+
+[services][net.local.M_A_Q.desktop]
+_launch=Meta+Alt+Q
+
+[services][net.local.M_A_W.desktop]
+_launch=Meta+Alt+W
+
+[services][net.local.M_A_E.desktop]
+_launch=Meta+Alt+E
+
+[services][net.local.M_A_R.desktop]
+_launch=Meta+Alt+R
+
+[services][net.local.M_A_T.desktop]
+_launch=Meta+Alt+T
+
+[services][net.local.M_A_A.desktop]
+_launch=Meta+Alt+A
+
+[services][net.local.M_A_S.desktop]
+_launch=Meta+Alt+S
+
+[services][net.local.M_A_D.desktop]
+_launch=Meta+Alt+D
+
+[services][net.local.M_A_F.desktop]
+_launch=Meta+Alt+F
+
+[services][net.local.M_A_G.desktop]
+_launch=Meta+Alt+G

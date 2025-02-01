@@ -4,11 +4,27 @@
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_G | /home/asd/config_storage/kde_shortcuts/scripts/M_C_F | /home/asd/config_storage/kde_shortcuts/scripts/M_C_D | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_T | /home/asd/config_storage/kde_shortcuts/scripts/M_C_R | /home/asd/config_storage/kde_shortcuts/scripts/M_C_E | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_0 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_9 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_8 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_7 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_6 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_5 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_4 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_3 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_2 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 | /home/asd/config_storage/kde_shortcuts/scripts/M_ESC |
+| /home/asd/config_storage/kde_shortcuts/scripts/M_A_G | /home/asd/config_storage/kde_shortcuts/scripts/M_A_F | /home/asd/config_storage/kde_shortcuts/scripts/M_A_D | /home/asd/config_storage/kde_shortcuts/scripts/M_A_S | /home/asd/config_storage/kde_shortcuts/scripts/M_A_A | /home/asd/config_storage/kde_shortcuts/scripts/M_A_T | /home/asd/config_storage/kde_shortcuts/scripts/M_A_R | /home/asd/config_storage/kde_shortcuts/scripts/M_A_E | /home/asd/config_storage/kde_shortcuts/scripts/M_A_W | /home/asd/config_storage/kde_shortcuts/scripts/M_A_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_A_0 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_9 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_8 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_7 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_6 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_5 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_4 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_3 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_2 | /home/asd/config_storage/kde_shortcuts/scripts/M_A_1 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_G | /home/asd/config_storage/kde_shortcuts/scripts/M_C_F | /home/asd/config_storage/kde_shortcuts/scripts/M_C_D | /home/asd/config_storage/kde_shortcuts/scripts/M_C_S | /home/asd/config_storage/kde_shortcuts/scripts/M_C_A | /home/asd/config_storage/kde_shortcuts/scripts/M_C_T | /home/asd/config_storage/kde_shortcuts/scripts/M_C_R | /home/asd/config_storage/kde_shortcuts/scripts/M_C_E | /home/asd/config_storage/kde_shortcuts/scripts/M_C_W | /home/asd/config_storage/kde_shortcuts/scripts/M_C_Q | /home/asd/config_storage/kde_shortcuts/scripts/M_C_0 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_9 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_8 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_7 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_6 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_5 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_4 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_3 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_2 | /home/asd/config_storage/kde_shortcuts/scripts/M_C_1 | /home/asd/config_storage/kde_shortcuts/scripts/M_F3 | /home/asd/config_storage/kde_shortcuts/scripts/M_F2 | /home/asd/config_storage/kde_shortcuts/scripts/M_F1 | /home/asd/config_storage/kde_shortcuts/scripts/M_ESC |
+
+* Simples
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_ESC
 exec wlogout
 #+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F1
+exec footclient -F -e /usr/local/bin/tmux_auto.sh # @
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F2
+exec footclient -F -e /usr/local/bin/fish
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F3
+exec /app/bin/emacsclient -c
+#+end_src
+
+* Controls
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_1
 exec /usr/local/bin/emacs_server
@@ -47,7 +63,7 @@ exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_0
-exec pkill waybar
+exec /usr/bin/waybar
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
@@ -90,14 +106,104 @@ exec /usr/local/bin/brave
 exec /usr/local/bin/brave
 #+end_src
 
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F1
-exec footclient -F -e /usr/local/bin/tmux_auto.sh # @
+* Alts
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_1
+  for i in (ps | where name == emacs_server).pid {kill  $i}
 #+end_src
 
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F2
-exec footclient -F -e /usr/local/bin/fish
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_2
 #+end_src
 
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F3
-exec /app/bin/emacsclient -c
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_3
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_4
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_5
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_6
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_7
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_8
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_9
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_0
+  for i in (ps | where name == waybar).pid {kill  $i}
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_Q
+  for i in (ps | where name == wezterm).pid {kill  $i}
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_W
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_E
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_R
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_T
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_A
+  for i in (ps | where name =~ firefox).pid {kill  $i}
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_S
+  for i in (ps | where name == brave).pid {kill  $i}
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_D
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_F
+#+end_src
+
+#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_G
+#+end_src
+
+* COMMENT WORK SPACE
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./work.py
+  def printer(asd):
+      print("#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_" + str(asd))
+      print("kill (echo ...(ps | where name =~ firefox).pid)")
+      print("#+end_src")
+      print("")
+
+  mylist = [
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '0',
+      'Q',
+      'W',
+      'E',
+      'R',
+      'T',
+      'A',
+      'S',
+      'D',
+      'F',
+      'G',
+  ]
+  for i in mylist:
+      printer(asd=i)
 #+end_src
