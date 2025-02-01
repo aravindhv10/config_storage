@@ -11,35 +11,70 @@ config.keys = {
   {
     key = '/',
     mods = 'CTRL|ALT',
-    action = wezterm.action.ShowLauncher ,
+    action = wezterm.action.ShowLauncher,
+  },
+  {
+    key = 'LeftArrow',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.SplitPane {
+      direction = 'Left',
+      command = { args = { '/usr/local/bin/fish' } },
+      size = { Percent = 50 },
+    },
+  },
+  {
+    key = 'RightArrow',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.SplitPane {
+      direction = 'Right',
+      command = { args = { '/usr/local/bin/fish' } },
+      size = { Percent = 50 },
+    },
+  },
+  {
+    key = 'DownArrow',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.SplitPane {
+      direction = 'Down',
+      command = { args = { '/usr/local/bin/fish' } },
+      size = { Percent = 50 },
+    },
+  },
+  {
+    key = 'UpArrow',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.SplitPane {
+      direction = 'Up',
+      command = { args = { '/usr/local/bin/fish' } },
+      size = { Percent = 50 },
+    },
   },
 }
 
- 
 config.launch_menu = {
   {
     label = 'fish',
     args = { '/usr/local/bin/fish', '-l' },
   },
-
   {
     label = 'Bash',
     args = { '/bin/bash', '-l' },
   },
-
   {
     label = 'tmux',
     args = { '/usr/local/bin/tmux_auto.sh' },
   },
-
   {
     label = 'top',
     args = { '/usr/local/bin/btm', '-b', '--process_command' },
   },
-
   {
     label = 'alsamixer',
     args = { 'alsamixer' },
+  },
+  {
+    label = 'launcher',
+    args = { '/usr/local/bin/launcher.sh' },
   },
 }
 
