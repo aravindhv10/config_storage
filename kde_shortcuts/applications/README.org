@@ -1,0 +1,67 @@
+#+begin_src emacs-lisp
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./work.sh" "log" "err")
+#+end_src
+
+#+RESULTS:
+: #<window 575 on log>
+
+* Main script
+
+** Script for automation
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./work_slave.sh
+  cd "$(dirname -- "${0}")"
+  sd 'M_#' "${1}" < 'net.local.M_#.desktop' > "net.local.${1}.desktop"
+#+end_src
+
+** cd to the dir in main script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./work.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** Call the example script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./work.sh
+  ./work_slave.sh 'M_F1'
+  ./work_slave.sh 'M_F2'
+  ./work_slave.sh 'M_F3'
+
+  ./work_slave.sh 'M_C_1'
+  ./work_slave.sh 'M_C_2'
+  ./work_slave.sh 'M_C_3'
+  ./work_slave.sh 'M_C_4'
+  ./work_slave.sh 'M_C_5'
+  ./work_slave.sh 'M_C_6'
+  ./work_slave.sh 'M_C_7'
+  ./work_slave.sh 'M_C_8'
+  ./work_slave.sh 'M_C_9'
+  ./work_slave.sh 'M_C_0'
+
+  ./work_slave.sh 'M_C_Q'
+  ./work_slave.sh 'M_C_W'
+  ./work_slave.sh 'M_C_E'
+  ./work_slave.sh 'M_C_R'
+  ./work_slave.sh 'M_C_T'
+
+  ./work_slave.sh 'M_C_A'
+  ./work_slave.sh 'M_C_S'
+  ./work_slave.sh 'M_C_D'
+  ./work_slave.sh 'M_C_F'
+  ./work_slave.sh 'M_C_G'
+#+end_src
+
+** Cleanup
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./work.sh
+  rm -vf -- './net.local.M_#.desktop' './work_slave.sh' './work.sh' 'README.org~'
+#+end_src
+
+* Example desktop file
+#+begin_src conf :tangle ./net.local.M_#.desktop
+[Desktop Entry]
+Exec=/usr/local/bin/M_#
+Name=M_#
+NoDisplay=true
+StartupNotify=false
+Type=Application
+X-KDE-GlobalAccel-CommandShortcut=true
+#+end_src

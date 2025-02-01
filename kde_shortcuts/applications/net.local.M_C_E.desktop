@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=/usr/local/bin/M_C_E
+Name=M_C_E
+NoDisplay=true
+StartupNotify=false
+Type=Application
+X-KDE-GlobalAccel-CommandShortcut=true
