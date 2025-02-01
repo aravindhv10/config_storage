@@ -1,14 +1,15 @@
 #+begin_src emacs-lisp
   (save-buffer)
   (org-babel-tangle)
+  (async-shell-command "./copy.sh" "log" "err")
 #+end_src
 
 #+RESULTS:
-| /home/asd/config_storage/wezterm/wezterm.lua | /home/asd/config_storage/wezterm/copy.sh |
+: #<window 141 on log>
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
   cd "$(dirname -- "${0}")"
-  cp -vf -- './wezterm.lua' "${HOME}/.wezterm.lua "
+  cp -vf -- './wezterm.lua' "${HOME}/.wezterm.lua"
   exit '0'
 #+end_src
 
@@ -20,7 +21,43 @@
   local config = wezterm.config_builder()
 
   config.default_prog = { '/usr/local/bin/fish', '-l' }
+  config.use_fancy_tab_bar = false
 
-  -- and finally, return the configuration to wezterm
+  config.keys = {
+    {
+      key = '/',
+      mods = 'CTRL|ALT',
+      action = wezterm.action.ShowLauncher ,
+    },
+  }
+
+   
+  config.launch_menu = {
+    {
+      label = 'fish',
+      args = { '/usr/local/bin/fish', '-l' },
+    },
+
+    {
+      label = 'Bash',
+      args = { '/bin/bash', '-l' },
+    },
+
+    {
+      label = 'tmux',
+      args = { '/usr/local/bin/tmux_auto.sh' },
+    },
+
+    {
+      label = 'top',
+      args = { '/usr/local/bin/btm', '-b', '--process_command' },
+    },
+
+    {
+      label = 'alsamixer',
+      args = { 'alsamixer' },
+    },
+  }
+
   return config
 #+end_src
