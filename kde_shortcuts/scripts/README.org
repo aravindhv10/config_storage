@@ -47,7 +47,7 @@ exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_0
-exec /app/bin/emacsclient -c
+exec pkill waybar
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
