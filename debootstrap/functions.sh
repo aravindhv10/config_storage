@@ -127,7 +127,7 @@ function do_apt_install_standard {
     do_apt_install git git-lfs wayland-protocols libwayland-dev meson acpi fish zsh curl grim
     do_apt_install wayfire foot zram-tools systemd-zram-generator tasksel pdf2svg light
     do_apt_install task-desktop task-gnome-desktop task-kde-desktop task-laptop task-lxqt-desktop
-    do_apt_install task-ssh-server task-web-server task-xfce-desktop waypipe podman buildah
+    do_apt_install task-ssh-server task-web-server task-xfce-desktop waypipe podman buildah guix nix-bin
     do_apt_install wireguard byobu tmux lxc lxc-templates lxctl distrobuilder libvirt-daemon-driver-lxc
     do_apt_build tmux flatpak
 }
