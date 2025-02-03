@@ -123,7 +123,7 @@ function do_apt_install_standard {
     do_apt_install live-task-non-free-firmware-pc live-task-non-free-firmware-server bluez-firmware firmware-iwlwifi
     do_apt_install lightdm sddm btrfs-progs lvm2 parted gdisk network-manager network-manager-gnome
     do_apt_install lxqt kwin-x11 kwin-wayland i3 htop aria2 rsync emacs mako-notifier btop
-    do_apt_install linux-headers-6.6.69-x64v3-xanmod1 linux-image-6.6.69-x64v3-xanmod1
+    do_apt_install linux-headers-6.6.70-x64v3-xanmod1 linux-image-6.6.70-x64v3-xanmod1
     do_apt_install git git-lfs wayland-protocols libwayland-dev meson acpi fish zsh curl grim
     do_apt_install wayfire foot zram-tools systemd-zram-generator tasksel pdf2svg light
     do_apt_install task-desktop task-gnome-desktop task-kde-desktop task-laptop task-lxqt-desktop
