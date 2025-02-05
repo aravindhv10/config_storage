@@ -313,6 +313,22 @@ get_inside_path(){
 }
 
 get_glibc () {
+    get_repo 'https://github.com/tmux/tmux.git' 'master'
+    sh './autogen.sh'
+    mkdir -pv -- "${HOME}/build/tmux"
+    cd "${HOME}/build/tmux"
+    export CC='gcc'
+    export CXX='g++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS='-Wl,-rpath=/var/tmp/tmux/lib -Wl,--dynamic-linker=/var/tmp/tmux/lib/ld-linux-x86-64.so.2'
+    mkdir -pv -- '/var/tmp/tmux/lib'
+    cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/tmux/lib/ld-linux-x86-64.so.2'
+    "${HOME}/GITHUB/tmux/tmux/configure" '--prefix=/var/tmp/tmux' '--enable-sixel'
+    make -j4
+    make -j4 install
+}
+
+get_glibc () {
     get_repo 'https://github.com/bminor/glibc.git' 'master'
     git checkout 'tags/glibc-2.41'
     CONFIGURE="$('realpath' './configure')"
