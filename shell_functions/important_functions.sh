@@ -312,7 +312,7 @@ get_inside_path(){
     export PATH="/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
 }
 
-get_glibc () {
+get_tmux () {
     get_repo 'https://github.com/tmux/tmux.git' 'master'
     sh './autogen.sh'
     mkdir -pv -- "${HOME}/build/tmux"
