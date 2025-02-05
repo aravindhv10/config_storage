@@ -312,6 +312,22 @@ get_inside_path(){
     export PATH="/usr/lib/sdk/texlive/bin/x86_64-linux:/usr/lib/sdk/texlive/bin:/usr/lib/sdk/llvm19/bin:/usr/lib/sdk/rust-stable/bin:/var/tmp/all/bin:${HOME}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
 }
 
+get_byobu () {
+    get_repo 'https://github.com/dustinkirkland/byobu.git' 'master'
+    sh './autogen.sh'
+    mkdir -pv -- "${HOME}/build/byobu"
+    cd "${HOME}/build/byobu"
+    export CC='gcc'
+    export CXX='g++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS='-Wl,-rpath=/var/tmp/byobu/lib -Wl,--dynamic-linker=/var/tmp/byobu/lib/ld-linux-x86-64.so.2'
+    mkdir -pv -- '/var/tmp/byobu/lib'
+    cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/byobu/lib/ld-linux-x86-64.so.2'
+    "${HOME}/GITHUB/dustinkirkland/byobu/configure" '--prefix=/var/tmp/byobu'
+    make -j4
+    make -j4 install
+}
+
 get_tmux () {
     get_repo 'https://github.com/tmux/tmux.git' 'master'
     sh './autogen.sh'
