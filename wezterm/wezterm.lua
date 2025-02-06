@@ -7,6 +7,8 @@ local config = wezterm.config_builder()
 config.default_prog = { '/usr/local/bin/fish', '-l' }
 config.use_fancy_tab_bar = false
 
+config.color_scheme = 'Modus-Vivendi'
+
 config.keys = {
   {
     key = '/',

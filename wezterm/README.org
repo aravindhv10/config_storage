@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-: #<window 195 on log>
+: #<window 21 on log>
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
   cd "$(dirname -- "${0}")"
@@ -22,6 +22,8 @@
 
   config.default_prog = { '/usr/local/bin/fish', '-l' }
   config.use_fancy_tab_bar = false
+
+  config.color_scheme = 'Modus-Vivendi'
 
   config.keys = {
     {
