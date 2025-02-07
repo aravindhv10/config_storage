@@ -6,12 +6,15 @@
 #+end_src
 
 #+RESULTS:
-: #<window 348 on log>
+: #<window 53 on log>
 
 * Main config
 
 #+begin_src conf :tangle ./config.toml
   theme = "modus_vivendi_tritanopia"
+
+  [editor]
+  true-color = true
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh

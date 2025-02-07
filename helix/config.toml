@@ -1,1 +1,4 @@
 theme = "modus_vivendi_tritanopia"
+
+[editor]
+true-color = true
