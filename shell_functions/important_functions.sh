@@ -196,7 +196,7 @@ get_rust_package(){
     else
         cd 'target/release'
         find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
-        cd "${DIR_DEST}/exe"
+        cd "/var/tmp/${PKG_NAME}/exe/"
         find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
         get_all_deps
         get_all_deps
