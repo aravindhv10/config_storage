@@ -1,13 +1,11 @@
 * COMMENT Work space
 
 ** elisp
-#+begin_src elisp :results output
+#+begin_src elisp :results silent
   (save-buffer)
   (save-some-buffers)
   (org-babel-tangle)
 #+end_src
-
-#+RESULTS:
 
 * COMMENT Sample
 
@@ -381,7 +379,7 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
 
 ** using yazi
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
-  function y() {
+  y() {
   	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
   	yazi "$@" --cwd-file="$tmp"
   	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then

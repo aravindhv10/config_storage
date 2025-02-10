@@ -2,7 +2,7 @@
 # name: elisp
 # key: elisp_
 # --
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results silent
 (save-buffer)
 (org-babel-tangle)
 #+end_src
