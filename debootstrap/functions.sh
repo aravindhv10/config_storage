@@ -129,6 +129,7 @@ function do_apt_install_standard {
     do_apt_install task-desktop task-gnome-desktop task-kde-desktop task-laptop task-lxqt-desktop
     do_apt_install task-ssh-server task-web-server task-xfce-desktop waypipe podman buildah guix nix-bin
     do_apt_install wireguard byobu tmux lxc lxc-templates lxctl distrobuilder libvirt-daemon-driver-lxc
+    do_apt_install qt5-style-kvantum qt5-style-kvantum-themes materia-kde
     do_apt_build tmux flatpak
 }
 
