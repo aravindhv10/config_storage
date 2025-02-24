@@ -134,6 +134,7 @@ exec /usr/local/bin/brave
 #+end_src
 
 #+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_9
+  for i in (ps | where name == mako).pid {kill  $i}
 #+end_src
 
 #+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_0
