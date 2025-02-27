@@ -131,7 +131,7 @@ function do_apt_install_standard {
     do_apt_install wireguard byobu tmux lxc lxc-templates lxctl distrobuilder libvirt-daemon-driver-lxc
     do_apt_install qt5-style-kvantum qt5-style-kvantum-themes python3-ipython ipython3
     do_apt_install arc-kde breeze-gtk-theme kde-style-oxygen-qt6 plasma-integration
-    do_apt_install liboxygenstyle6-6 liboxygenstyleconfig6-6 qgnomeplatform-qt6
+    do_apt_install liboxygenstyle6-6 liboxygenstyleconfig6-6 qgnomeplatform-qt6 gnuplot audacity
     do_apt_build tmux flatpak
 }
 

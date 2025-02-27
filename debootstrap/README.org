@@ -5,7 +5,7 @@
 #+end_src
 
 #+RESULTS:
-| /home/cloudphysician/config_storage/debootstrap/installed | /home/cloudphysician/config_storage/debootstrap/fstab | /home/cloudphysician/config_storage/debootstrap/debian_stable_backports.list | /home/cloudphysician/config_storage/debootstrap/debian_stable.list | /home/cloudphysician/config_storage/debootstrap/debian_testing.list | /home/cloudphysician/config_storage/debootstrap/xanmod.list | /home/cloudphysician/config_storage/debootstrap/functions.sh | /home/cloudphysician/config_storage/debootstrap/install.sh |
+| /home/asd/config_storage/debootstrap/installed | /home/asd/config_storage/debootstrap/fstab | /home/asd/config_storage/debootstrap/debian_stable_backports.list | /home/asd/config_storage/debootstrap/debian_stable.list | /home/asd/config_storage/debootstrap/debian_testing.list | /home/asd/config_storage/debootstrap/xanmod.list | /home/asd/config_storage/debootstrap/functions.sh | /home/asd/config_storage/debootstrap/install.sh |
 
 * Main install file
 #+begin_src sh :shebang #!/bin/bash :results output :tangle ./install.sh
@@ -283,7 +283,7 @@
       do_apt_install wireguard byobu tmux lxc lxc-templates lxctl distrobuilder libvirt-daemon-driver-lxc
       do_apt_install qt5-style-kvantum qt5-style-kvantum-themes python3-ipython ipython3
       do_apt_install arc-kde breeze-gtk-theme kde-style-oxygen-qt6 plasma-integration
-      do_apt_install liboxygenstyle6-6 liboxygenstyleconfig6-6 qgnomeplatform-qt6
+      do_apt_install liboxygenstyle6-6 liboxygenstyleconfig6-6 qgnomeplatform-qt6 gnuplot audacity
       do_apt_build tmux flatpak
   }
 #+end_src
