@@ -273,16 +273,16 @@ get_rust_packages_standard(){
 
 get_tree_sitter () {
     get_rust_package 'https://github.com/tree-sitter/tree-sitter.git'
-    cd ../../
+    cd "${HOME}/GITHUB/tree-sitter/tree-sitter"
     make -j4
-    mv libtree-sitter.* /var/tmp/RUST/lib64/
+    mv libtree-sitter.* /var/tmp/tree-sitter/
     cd lib
     rm -rf build
     mkdir -pv -- build
     cd build
     cmake ../
     rg '/usr/local' | cut -d ':' -f1 | runiq
-    sd '/usr/local' '/var/tmp/RUST' $(rg '/usr/local' | cut -d ':' -f1 | runiq)
+    sd '/usr/local' '/var/tmp/tree-sitter' $(rg '/usr/local' | cut -d ':' -f1 | runiq)
     make -j4
     make install
 }
