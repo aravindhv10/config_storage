@@ -175,19 +175,26 @@ get_squashfs_tools () {
 
 get_rust_package(){
     get_repo "${1}"
+
     PKG_NAME="$('basename' "$(realpath .)")"
+
     . '/usr/lib/sdk/rust-stable/enable.sh'
     . '/usr/lib/sdk/llvm19/enable.sh'
+
     export CC='clang'
     export CXX='clang++'
     export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
     export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
     export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
     mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
     cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
     DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
     cargo build --release
-    mkdir -pv -- "${DIR_DEST}"
+
     if test "${#}" '-ge' '2'
     then
         shift
@@ -207,24 +214,80 @@ get_rust_package(){
     fi
 }
 
-get_helix_editor(){
-    get_repo 'https://github.com/helix-editor/helix.git'
+get_helix_evil_editor(){
+    get_repo 'https://github.com/usagi-flow/evil-helix.git'
+
+    PKG_NAME="$('basename' "$(realpath .)")"
+
     . '/usr/lib/sdk/rust-stable/enable.sh'
     . '/usr/lib/sdk/llvm19/enable.sh'
+
     export CC='clang'
     export CXX='clang++'
     export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
-    export LDFLAGS='-Wl,-rpath=/var/tmp/RUST/lib64 -Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
-    export RUSTFLAGS='-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/RUST/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
-    mkdir -pv -- '/var/tmp/RUST/lib64/' '/var/tmp/RUST/bin/'
-    cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/RUST/lib64/ld-linux-x86-64.so.2'
-    DIR_DEST='/var/tmp/RUST/bin/'
+    export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+    export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+    mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+    DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
     cargo build --release
-    cp -apf -- './runtime' '/var/tmp/RUST/bin/'
-    rm -vrf -- '/var/tmp/RUST/bin/runtime/grammars/sources'
+
+    cp -apf -- './runtime' "${DIR_DEST}"
+    rm -vrf -- "${DIR_DEST}/runtime/grammars/sources" 
+
     cd 'target/release'
     find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
-    # cargo install --path helix-term
+    mkdir -pv -- "/var/tmp/${PKG_NAME}/exe/"
+    cd "/var/tmp/${PKG_NAME}/exe/"
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    find ./ -type f -exec mv -vf {} ../lib64/ ';'
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+}
+
+get_helix_editor(){
+    get_repo 'https://github.com/helix-editor/helix.git'
+
+    PKG_NAME="$('basename' "$(realpath .)")"
+
+    . '/usr/lib/sdk/rust-stable/enable.sh'
+    . '/usr/lib/sdk/llvm19/enable.sh'
+
+    export CC='clang'
+    export CXX='clang++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+    export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+    mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+    DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
+    cargo build --release
+
+    cp -apf -- './runtime' "${DIR_DEST}"
+    rm -vrf -- "${DIR_DEST}/runtime/grammars/sources" 
+
+    cd 'target/release'
+    find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+    mkdir -pv -- "/var/tmp/${PKG_NAME}/exe/"
+    cd "/var/tmp/${PKG_NAME}/exe/"
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    find ./ -type f -exec mv -vf {} ../lib64/ ';'
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
 }
 
 get_rust_packages_standard(){
@@ -267,8 +330,8 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/sharkdp/hyperfine.git'
     get_rust_package 'https://github.com/latex-lsp/texlab.git'
     get_rust_package 'https://github.com/usagi-flow/evil-helix.git'
-    mv -vf -- '/var/tmp/RUST/bin/hx' '/var/tmp/RUST/bin/hx_evil'
     get_helix_editor
+    get_helix_evil_editor
 }
 
 get_tree_sitter () {
