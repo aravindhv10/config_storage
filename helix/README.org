@@ -1,5 +1,5 @@
 * COMMENT work space
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "./copy.sh" "log" "err")
@@ -11,7 +11,7 @@
 * Main config
 
 #+begin_src conf :tangle ./config.toml
-  theme = "modus_vivendi_tritanopia"
+  theme = "modus_vivendi"
 
   [editor]
   true-color = true
