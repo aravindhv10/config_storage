@@ -166,9 +166,6 @@
   # XDG desktop portal
   # Needed by some GTK applications
   portal = /usr/libexec/xdg-desktop-portal
-#+end_src
-
-#+begin_src conf :tangle ./wayfire.ini
   bar = waybar
   footterminal = foot_server
   networkmanager = nm-applet
@@ -189,9 +186,16 @@
   # Applications ─────────────────────────────────────────────────────────────────
 #+end_src
 
+* Keyboard shortcuts
 #+begin_src conf :tangle ./wayfire.ini
   [command]
 
+  binding_mc_esc = <super> KEY_ESC
+  command_mc_esc = /usr/local/bin/M_ESC
+#+end_src
+
+** F
+#+begin_src conf :tangle ./wayfire.ini
   binding_f1 = <super> KEY_F1
   command_f1 = /usr/local/bin/M_F1
 
@@ -200,7 +204,10 @@
 
   binding_f3 = <super> KEY_F3
   command_f3 = /usr/local/bin/M_F3
+#+end_src
 
+** CTRL
+#+begin_src conf :tangle ./wayfire.ini
   binding_mcq = <super> <ctrl> KEY_Q
   command_mcq = /usr/local/bin/M_C_Q
 
@@ -260,11 +267,118 @@
 
   binding_mc0 = <super> <ctrl> KEY_0
   command_mc0 = /usr/local/bin/M_C_0
-
-  binding_mc_esc = <super> KEY_ESC
-  command_mc_esc = /usr/local/bin/M_ESC
 #+end_src
 
+** ALT
+
+*** generating
+
+**** elisp
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./tmp.sh" "log" "err")
+#+end_src
+
+**** template
+#+begin_src conf :tangle ./tmp.ini
+  binding_mc# = <super> <alt> KEY_#
+  command_mc# = /usr/local/bin/M_A_#
+#+end_src
+
+**** script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./tmp.sh
+  work(){
+      sed "s@#@${1}@g" './tmp.ini'
+      echo ''
+  }
+
+  work  Q
+  work  W
+  work  E
+  work  R
+  work  T
+  work  A
+  work  S
+  work  D
+  work  F
+  work  G
+  work  0
+  work  1
+  work  2
+  work  3
+  work  4
+  work  5
+  work  6
+  work  7
+  work  8
+  work  9
+#+end_src
+
+*** Main
+#+begin_src conf :tangle ./wayfire.ini
+  binding_mcQ = <super> <alt> KEY_Q
+  command_mcQ = /usr/local/bin/M_A_Q
+
+  binding_mcW = <super> <alt> KEY_W
+  command_mcW = /usr/local/bin/M_A_W
+
+  binding_mcE = <super> <alt> KEY_E
+  command_mcE = /usr/local/bin/M_A_E
+
+  binding_mcR = <super> <alt> KEY_R
+  command_mcR = /usr/local/bin/M_A_R
+
+  binding_mcT = <super> <alt> KEY_T
+  command_mcT = /usr/local/bin/M_A_T
+
+  binding_mcA = <super> <alt> KEY_A
+  command_mcA = /usr/local/bin/M_A_A
+
+  binding_mcS = <super> <alt> KEY_S
+  command_mcS = /usr/local/bin/M_A_S
+
+  binding_mcD = <super> <alt> KEY_D
+  command_mcD = /usr/local/bin/M_A_D
+
+  binding_mcF = <super> <alt> KEY_F
+  command_mcF = /usr/local/bin/M_A_F
+
+  binding_mcG = <super> <alt> KEY_G
+  command_mcG = /usr/local/bin/M_A_G
+
+  binding_mc0 = <super> <alt> KEY_0
+  command_mc0 = /usr/local/bin/M_A_0
+
+  binding_mc1 = <super> <alt> KEY_1
+  command_mc1 = /usr/local/bin/M_A_1
+
+  binding_mc2 = <super> <alt> KEY_2
+  command_mc2 = /usr/local/bin/M_A_2
+
+  binding_mc3 = <super> <alt> KEY_3
+  command_mc3 = /usr/local/bin/M_A_3
+
+  binding_mc4 = <super> <alt> KEY_4
+  command_mc4 = /usr/local/bin/M_A_4
+
+  binding_mc5 = <super> <alt> KEY_5
+  command_mc5 = /usr/local/bin/M_A_5
+
+  binding_mc6 = <super> <alt> KEY_6
+  command_mc6 = /usr/local/bin/M_A_6
+
+  binding_mc7 = <super> <alt> KEY_7
+  command_mc7 = /usr/local/bin/M_A_7
+
+  binding_mc8 = <super> <alt> KEY_8
+  command_mc8 = /usr/local/bin/M_A_8
+
+  binding_mc9 = <super> <alt> KEY_9
+  command_mc9 = /usr/local/bin/M_A_9
+#+end_src
+
+** misc
 #+begin_src conf :tangle ./wayfire.ini
   # Screenshots
   # https://wayland.emersion.fr/grim/
