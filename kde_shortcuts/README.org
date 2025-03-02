@@ -1,11 +1,10 @@
 * COMMENT WORK SPACE
-#+begin_src emacs-lisp
+
+** ELISP
+#+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
 #+end_src
-
-#+RESULTS:
-| /home/asd/config_storage/kde_shortcuts/kglobalshortcutsrc | /home/asd/config_storage/kde_shortcuts/copy.sh | /home/asd/config_storage/kde_shortcuts/work.py |
 
 * Main script to print lengthy stuff
 #+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./work.py
@@ -48,7 +47,7 @@
   mkdir -pv -- "${HOME}/.local/share" "${HOME}/.config"
   cp -vf    -- './kglobalshortcutsrc' "${HOME}/.config/"
   cp -vapf  -- './applications'       "${HOME}/.local/share"
-  find '../application_shortcut_scripts/' '-type' 'f' | grep '^\../application_shortcut_scripts/M.*_.*$' | sed 's@^@("cp" "-vf" "--" "@g ; s@$@" "/usr/local/bin/");@g'
+  '../application_shortcut_scripts/copy.sh'
   exit '0'
 #+end_src
 
