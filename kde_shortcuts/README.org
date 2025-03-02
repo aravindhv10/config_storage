@@ -48,7 +48,7 @@
   mkdir -pv -- "${HOME}/.local/share" "${HOME}/.config"
   cp -vf    -- './kglobalshortcutsrc' "${HOME}/.config/"
   cp -vapf  -- './applications'       "${HOME}/.local/share"
-  find './scripts/' '-type' 'f' | grep '^\./scripts/M.*_.*$' | sed 's@^@("cp" "-vf" "--" "@g ; s@$@" "/usr/local/bin/");@g' | sudo sh
+  find '../application_shortcut_scripts/' '-type' 'f' | grep '^\../application_shortcut_scripts/M.*_.*$' | sed 's@^@("cp" "-vf" "--" "@g ; s@$@" "/usr/local/bin/");@g'
   exit '0'
 #+end_src
 
