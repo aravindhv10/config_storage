@@ -1,0 +1,24 @@
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+* Kernel commandline
+
+** Main header
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./cmdline.sh
+  tail -n +4 "${0}" | tr '\n' ' '
+  exit '0'
+#+end_src
+
+** basic commandline
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./cmdline.sh
+  dolvm
+#+end_src
+
+** for zswap
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./cmdline.sh
+  zswap.max_pool_percent=80
+  zswap.zpool=zsmalloc
+#+end_src
