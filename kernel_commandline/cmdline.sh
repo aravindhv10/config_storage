@@ -4,5 +4,6 @@ exit '0'
 
 dolvm
 
+zswap.enabled=1
 zswap.max_pool_percent=80
 zswap.zpool=zsmalloc

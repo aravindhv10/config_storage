@@ -19,6 +19,7 @@
 
 ** for zswap
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./cmdline.sh
+  zswap.enabled=1
   zswap.max_pool_percent=80
   zswap.zpool=zsmalloc
 #+end_src
