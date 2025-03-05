@@ -30,7 +30,7 @@ static inline unsigned char *BUFFER_ALLOC(unsigned long const in) {
   }
 }
 
-static char *rsync_path = "/usr/bin/rsync";
+static char *rsync_path = "rsync";
 static char *arg1 = "-avh";
 static char *arg2 = "--progress";
 

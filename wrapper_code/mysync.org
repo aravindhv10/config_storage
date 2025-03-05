@@ -8,13 +8,13 @@
 #+end_src
 
 #+RESULTS:
-: #<window 3206 on log>
+: #<window 27 on log>
 
 ** shell
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./mysync.sh
   cd "$('dirname' '--' "${0}")"
-  'gcc' './mysync.c' '-Ofast' '-mtune=native' '-march=native' '-static' '-o' './mysync.exe'
-  'mv' '-vf' '--' './mysync.exe' "${HOME}/bin/mysync"
+  'gcc' './mysync.c' '-Ofast' '-mtune=native' '-march=native' '-o' './mysync.exe'
+  # 'mv' '-vf' '--' './mysync.exe' "${HOME}/bin/mysync"
 #+end_src
 
 #+RESULTS:
@@ -75,7 +75,7 @@
 
 ** Extra argument additions to rsync
 #+begin_src c :tangle ./mysync.c
-  static char *rsync_path = "/usr/bin/rsync";
+  static char *rsync_path = "rsync";
   static char *arg1 = "-avh";
   static char *arg2 = "--progress";
 #+end_src
