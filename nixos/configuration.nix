@@ -55,8 +55,12 @@
   services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
+  # services.displayManager.sddm.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+
   services.desktopManager.plasma6.enable = true;
+  # services.xserver.desktopManager.gnome.enable = true;
+
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -117,6 +121,7 @@
     aria2
     atuin
     bat
+    gdm
     bottom
     brave
     byobu
