@@ -13,7 +13,6 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
-  boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/179e39de-fcea-47c2-b5e1-a8dcc000d8c6";
@@ -27,10 +26,6 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  fileSystems."/tmp" =
-    { device = "none";
-      fsType = "tmpfs";
-    };
 
   swapDevices = [ {
     device = "/dev/disk/by-partlabel/swap0";
