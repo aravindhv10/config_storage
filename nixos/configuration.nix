@@ -143,6 +143,7 @@
     squashfsTools
     starship
     tmux
+    unzip
     uv
     vim
     wezterm
