@@ -104,11 +104,16 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    acpi
     alacritty
     aria2
+    atuin
+    bat
     bottom
     brave
     byobu
+    dnsmasq
+    dust
     emacs30
     fd
     fish
@@ -126,23 +131,24 @@
     helix
     htop
     lsd
-    atuin
     man-pages
     man-pages-posix
-    zoxide
-    ripgrep
     neovim
     nushell
     parted
     python3Full
+    rclone
+    ripgrep
     skim
     squashfsTools
     starship
     tmux
     uv
     vim
+    wezterm
     wget
-    bat
+    zip
+    zoxide
 ];
 
   # Some programs need SUID wrappers, can be configured further or are

@@ -1,7 +1,7 @@
 * Work space
 
 ** elisp
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "./mysync.sh" "log" "error")
@@ -14,7 +14,6 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./mysync.sh
   cd "$('dirname' '--' "${0}")"
   'gcc' './mysync.c' '-Ofast' '-mtune=native' '-march=native' '-o' './mysync.exe'
-  # 'mv' '-vf' '--' './mysync.exe' "${HOME}/bin/mysync"
 #+end_src
 
 #+RESULTS:

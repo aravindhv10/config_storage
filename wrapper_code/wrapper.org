@@ -1,16 +1,12 @@
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "./wrapper.sh" "wrapper-log" "wrapper-error")
 #+end_src
 
-#+RESULTS:
-: #<window 45 on wrapper-log>
-
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./wrapper.sh
   cd "$('dirname' '--' "${0}")"
-  'gcc' './wrapper.c' '-Ofast' '-mtune=native' '-march=native' '-static' '-o' './wrapper.exe'
-  'mv' '-vf' '--' './wrapper.exe' "${HOME}/bin/c_wrapper"
+  'gcc' './wrapper.c' '-Ofast' '-mtune=native' '-march=native' '-o' './wrapper.exe'
 #+end_src
 
 #+begin_src c :tangle ./wrapper.c
