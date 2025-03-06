@@ -121,7 +121,6 @@
     aria2
     atuin
     bat
-    gdm
     bottom
     brave
     byobu
@@ -139,6 +138,7 @@
     foot
     fzf
     gcc
+    gdm
     git
     grc
     helix
@@ -163,9 +163,10 @@
     vim
     wezterm
     wget
+    yazi
     zip
     zoxide
-];
+    ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
