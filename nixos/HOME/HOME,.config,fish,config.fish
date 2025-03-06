@@ -11,6 +11,7 @@ abbr --add --position command -- du dust
 abbr --add --position command -- cd z
 abbr --add --position command -- argc aria2c -c -x16 -j16
 abbr --add --position command -- tx byobu-tmux
+abbr --add --position command -- sx exec sudo -A byobu-tmux
 
 fish_vi_key_bindings
 
