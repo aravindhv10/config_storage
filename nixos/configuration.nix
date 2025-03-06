@@ -123,6 +123,21 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+
+
+  virtualisation.containers.enable = true;
+  virtualisation = {
+    podman = {
+      enable = true;
+
+      # Create a `docker` alias for podman, to use it as a drop-in replacement
+      dockerCompat = true;
+
+      # Required for containers under podman-compose to be able to talk to each other.
+      defaultNetwork.settings.dns_enabled = true;
+    };
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -131,15 +146,17 @@
     aria2
     atuin
     bat
-    clinfo
-    ruff
     bottom
     brave
     byobu
+    clinfo
+    dive # look into docker image layers
     dnsmasq
+    docker-compose # start group of containers for dev
     dust
     emacs30
     fd
+    file
     fish
     fishPlugins.done
     fishPlugins.forgit
@@ -150,22 +167,30 @@
     foot
     fzf
     gcc
+    gcc14Stdenv
     gdm
     git
     grc
     helix
     htop
+    libgcc
     lsd
     man-pages
     man-pages-posix
+    miniserve
     mpv
     neovim
+    nix-index
     nushell
     parted
+    podman
+    podman-compose # start group of containers for dev
+    podman-tui # status of containers in the terminal
     python3Full
     qbittorrent-enhanced
     rclone
     ripgrep
+    ruff
     skim
     squashfsTools
     starship
