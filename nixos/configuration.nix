@@ -121,6 +121,7 @@
     aria2
     atuin
     bat
+    ruff
     bottom
     brave
     byobu
@@ -181,6 +182,27 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  
+services.dnsmasq = {
+    enable = true;
+
+    alwaysKeepRunning = true;
+    resolveLocalQueries = true;
+
+    settings = {
+      server = [ "192.168.1.254" "4.2.2.2" "8.8.8.8" "8.8.8.4" "8.8.4.4" "76.76.2.0" "76.76.10.0" "9.9.9.9" "149.112.112.112" "208.67.222.222" "208.67.220.220" "1.1.1.1" "1.0.0.1" "94.140.14.14" "94.140.15.15" "185.228.168.9" "185.228.169.9" "76.76.19.19" "76.223.122.150" ] ;
+      local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
+      log-queries = true; # Log results of all DNS queries
+      bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
+      domain-needed = true; # Don't forward requests without dots or domain parts to upstream nameservers
+
+      dnssec = true; # Enable DNSSEC
+      # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
+      trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
+    };
+  };
+
+ 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
