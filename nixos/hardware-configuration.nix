@@ -11,8 +11,23 @@
 
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelModules = [ "kvm-amd" "amdgpu" ];
   boot.extraModulePackages = [ ];
+  environment.variables = {
+    ROC_ENABLE_PRE_VEGA = "1";
+  };
+
+  hardware.graphics.enable32Bit = true;
+
+  hardware.opengl.extraPackages = with pkgs; [
+    amdvlk
+  ];
+  # For 32 bit applications 
+  hardware.opengl.extraPackages32 = with pkgs; [
+    driversi686Linux.amdvlk
+  ];
+
+
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/179e39de-fcea-47c2-b5e1-a8dcc000d8c6";
