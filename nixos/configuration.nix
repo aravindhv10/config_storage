@@ -78,6 +78,28 @@
     variant = "";
   };
 
+
+  # services.xserver.desktopManager.gnome.enable = true;
+
+  # environment.gnome.excludePackages = (with pkgs; [
+  #   atomix # puzzle game
+  #   cheese # webcam tool
+  #   epiphany # web browser
+  #   evince # document viewer
+  #   geary # email reader
+  #   gedit # text editor
+  #   gnome-characters
+  #   gnome-music
+  #   gnome-photos
+  #   gnome-terminal
+  #   gnome-tour
+  #   hitori # sudoku game
+  #   iagno # go game
+  #   tali # poker game
+  #   totem # video player
+  # ]);
+
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
   documentation.enable = true;
@@ -146,6 +168,7 @@
     aria2
     atuin
     bat
+    alsa-utils
     bottom
     brave
     byobu
