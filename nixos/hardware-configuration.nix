@@ -19,11 +19,17 @@
       efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
     };
     grub = {
-       efiSupport = true;
-       #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
-       device = "/dev/nvme0n1";
+        efiSupport = true;
+        #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
+        device = "/dev/nvme0n1";
+        extraEntries = ''
+        menuentry "debian" {
+        linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+        initrd /i
+        }
+        '' ;
     };
-  };
+   };
 
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
