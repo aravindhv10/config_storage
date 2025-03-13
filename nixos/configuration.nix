@@ -270,6 +270,7 @@
     nushell
     parted
     pavucontrol
+    pciutils
     podman
     podman-compose # start group of containers for dev
     podman-tui # status of containers in the terminal
