@@ -11,9 +11,27 @@
     ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-#  boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+  # boot.loader.systemd-boot.enable = true;
+  # boot.loader.efi.canTouchEfiVariables = true;
+
+  boot.loader = {
+    efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
+    };
+    grub = {
+       efiSupport = true;
+       #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
+       device = "nodev";
+    };
+  };
+
+
+
+
+  
+  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
+  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
   boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
@@ -62,8 +80,6 @@
     rocmPackages.clr.icd
   ];
 
-
-
   # Enable the KDE Plasma Desktop Environment.
   # services.displayManager.sddm.enable = true;
   services.xserver.displayManager.gdm.enable = true;
@@ -79,25 +95,26 @@
   };
 
 
-  # services.xserver.desktopManager.gnome.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 
-  # environment.gnome.excludePackages = (with pkgs; [
-  #   atomix # puzzle game
-  #   cheese # webcam tool
-  #   epiphany # web browser
-  #   evince # document viewer
-  #   geary # email reader
-  #   gedit # text editor
-  #   gnome-characters
-  #   gnome-music
-  #   gnome-photos
-  #   gnome-terminal
-  #   gnome-tour
-  #   hitori # sudoku game
-  #   iagno # go game
-  #   tali # poker game
-  #   totem # video player
-  # ]);
+  environment.gnome.excludePackages = (with pkgs; [
+    atomix # puzzle game
+    cheese # webcam tool
+    epiphany # web browser
+    evince # document viewer
+    geary # email reader
+    gedit # text editor
+    gnome-characters
+    gnome-music
+    gnome-photos
+    gnome-terminal
+    gnome-tour
+    hitori # sudoku game
+    iagno # go game
+    tali # poker game
+    totem # video player
+    seahorse
+  ]);
 
 
   # Enable CUPS to print documents.
@@ -107,7 +124,7 @@
   documentation.dev.enable = true;
 
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  # hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -121,6 +138,65 @@
     # no need to redefine it in your config for now)
     #media-session.enable = true;
   };
+  services.pipewire.extraConfig.pipewire."91-null-sinks" = {
+    "context.objects" = [
+      {
+        # A default dummy driver. This handles nodes marked with the "node.always-driver"
+        # properyty when no other driver is currently active. JACK clients need this.
+        factory = "spa-node-factory";
+        args = {
+          "factory.name" = "support.node.driver";
+          "node.name" = "Dummy-Driver";
+          "priority.driver" = 8000;
+        };
+      }
+      {
+        factory = "adapter";
+        args = {
+          "factory.name" = "support.null-audio-sink";
+          "node.name" = "Microphone-Proxy";
+          "node.description" = "Microphone";
+          "media.class" = "Audio/Source/Virtual";
+          "audio.position" = "MONO";
+        };
+      }
+      {
+        factory = "adapter";
+        args = {
+          "factory.name" = "support.null-audio-sink";
+          "node.name" = "Main-Output-Proxy";
+          "node.description" = "Main Output";
+          "media.class" = "Audio/Sink";
+          "audio.position" = "FL,FR";
+        };
+      }
+    ];
+  };
+
+  services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
+    "context.properties" = [
+      {
+        name = "libpipewire-module-protocol-pulse";
+        args = { };
+      }
+    ];
+    "pulse.properties" = {
+      "pulse.min.req" = "32/48000";
+      "pulse.default.req" = "32/48000";
+      "pulse.max.req" = "32/48000";
+      "pulse.min.quantum" = "32/48000";
+      "pulse.max.quantum" = "32/48000";
+    };
+    "stream.properties" = {
+      "node.latency" = "32/48000";
+      "resample.quality" = 1;
+    };
+  };
+
+  services.pipewire.socketActivation = false; 
+  # Start WirePlumber (with PipeWire) at boot.
+  systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
+
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -129,12 +205,13 @@
   users.users.asd = {
     isNormalUser = true;
     description = "asd";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" ];
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
     ];
   };
+  users.users.asd.linger = true; # keep user services running
 
   programs.fish.enable = true;
   users.defaultUserShell = pkgs.fish;
@@ -165,10 +242,10 @@
   environment.systemPackages = with pkgs; [
     acpi
     alacritty
+    alsa-utils
     aria2
     atuin
     bat
-    alsa-utils
     bottom
     brave
     byobu
@@ -198,6 +275,7 @@
     htop
     libgcc
     lsd
+    lxc
     man-pages
     man-pages-posix
     miniserve
@@ -206,6 +284,7 @@
     nix-index
     nushell
     parted
+    pavucontrol
     podman
     podman-compose # start group of containers for dev
     podman-tui # status of containers in the terminal
@@ -226,7 +305,7 @@
     yazi
     zip
     zoxide
-    ];
+   ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
