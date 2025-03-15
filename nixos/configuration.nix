@@ -3,8 +3,9 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
-{
+let
+  unstable = import <nixos-unstable> {} ;
+in {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
@@ -13,8 +14,13 @@
  
   # boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
   # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+
+
+
+  
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
   boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+
 
   fileSystems."/tmp" =
     { device = "none";
@@ -221,6 +227,11 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+
+
+
+
+
   environment.systemPackages = with pkgs; [
     acpi
     alacritty
@@ -244,7 +255,7 @@
     emacs30
     fd
     file
-    fish
+    unstable.fish
     fishPlugins.done
     fishPlugins.forgit
     fishPlugins.fzf-fish
