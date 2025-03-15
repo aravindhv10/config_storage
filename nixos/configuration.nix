@@ -225,6 +225,7 @@
     acpi
     alacritty
     alsa-utils
+    appstream
     aria2
     atuin
     bat
@@ -232,7 +233,10 @@
     brave
     byobu
     clinfo
+    cmake
+    curl
     debootstrap
+    difftastic
     dive # look into docker image layers
     dnsmasq
     docker-compose # start group of containers for dev
@@ -248,37 +252,54 @@
     fishPlugins.hydro
     flatpak
     foot
+    fuse3
     fzf
     gcc
     gcc14Stdenv
+    gdk-pixbuf
     gdm
     git
-    grub2_efi
-    grub2
+    glib
+    gpgme
     grc
+    grub2
+    grub2_efi
+    gsettings-desktop-schemas
     helix
     htop
+    json-glib
+    libarchive
+    libcap
     libgcc
+    librsvg
+    libseccomp
+    libxml2
     lsd
     lxc
     man-pages
     man-pages-posix
+    meson
     miniserve
     mpv
     neovim
     nix-index
     nushell
+    openssl
     parted
     pavucontrol
     pciutils
+    pkg-config
     podman
     podman-compose # start group of containers for dev
     podman-tui # status of containers in the terminal
+    python3
     python3Full
     qbittorrent-enhanced
     rclone
     ripgrep
     ruff
+    rustc
+    cargo
     skim
     squashfsTools
     starship
@@ -286,11 +307,15 @@
     unzip
     uv
     vim
+    wayland
+    wayland-protocols
     wezterm
     wget
+    xorg.libXau
     yazi
     zip
     zoxide
+    zstd
    ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -305,6 +330,7 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  services.flatpak.enable = true;
 
   
 services.dnsmasq = {
