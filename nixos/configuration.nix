@@ -256,12 +256,12 @@ in {
     fd
     file
     unstable.fish
-    fishPlugins.done
-    fishPlugins.forgit
-    fishPlugins.fzf-fish
-    fishPlugins.grc
-    fishPlugins.hydro
-    flatpak
+    # fishPlugins.done
+    # fishPlugins.forgit
+    # fishPlugins.fzf-fish
+    # fishPlugins.grc
+    # fishPlugins.hydro
+    unstable.flatpak
     foot
     fuse3
     fzf
@@ -311,6 +311,7 @@ in {
     ruff
     rustc
     cargo
+    (callPackage /root/debMirror.nix {})
     skim
     squashfsTools
     starship
