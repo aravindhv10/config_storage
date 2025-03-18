@@ -17,7 +17,9 @@ in {
 
 
 
-  
+  # boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+
+  # boot.kernelPackages = pkgs.linuxPackages_6_1; 
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
   boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
@@ -68,8 +70,11 @@ in {
   ];
 
   # Enable the KDE Plasma Desktop Environment.
-  # services.displayManager.sddm.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm.settings.General.DisplayServer = "wayland";
+
+  # services.xserver.displayManager.gdm.enable = true;
 
   services.desktopManager.plasma6.enable = true;
   # services.xserver.desktopManager.gnome.enable = true;
@@ -256,6 +261,7 @@ in {
     fd
     file
     unstable.fish
+    nix-ld
     # fishPlugins.done
     # fishPlugins.forgit
     # fishPlugins.fzf-fish
@@ -293,9 +299,12 @@ in {
     miniserve
     mpv
     neovim
+    networkmanager-openconnect
     nix-index
     nushell
+    openconnect
     openssl
+    oxygen
     parted
     pavucontrol
     pciutils

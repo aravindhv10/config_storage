@@ -547,6 +547,13 @@
   (key-chord-define-global "\\]" 'evil-window-vsplit)
   (key-chord-define-global "\\[" 'evil-window-vsplit))
 
+(use-package nix-mode
+  :ensure t
+  :demand t
+  :config
+  :init
+  )
+
 (use-package markdown-mode
   :ensure t
   :demand t

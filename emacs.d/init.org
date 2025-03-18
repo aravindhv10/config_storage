@@ -775,6 +775,16 @@
     (key-chord-define-global "\\[" 'evil-window-vsplit))
 #+end_src
 
+** nix
+#+begin_src elisp :tangle ./init.el
+  (use-package nix-mode
+    :ensure t
+    :demand t
+    :config
+    :init
+    )
+#+end_src
+
 ** markdown
 #+begin_src elisp :tangle ./init.el
   (use-package markdown-mode
