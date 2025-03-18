@@ -8,10 +8,18 @@ abbr --add --position command -- ls lsd
 abbr --add --position command -- top btm -b --process_command
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
-abbr --add --position command -- cd z
+
+
 abbr --add --position command -- argc aria2c -c -x16 -j16
-abbr --add --position command -- tx byobu-tmux
-abbr --add --position command -- sx exec sudo -A byobu-tmux
+
+abbr --add --position command -- qa byobu-tmux
+abbr --add --position command -- aq byobu-tmux
+
+abbr --add --position command -- az exec sudo -A byobu-tmux
+abbr --add --position command -- za exec sudo -A byobu-tmux
+
+abbr --add --position command -- cd z
+abbr --add --position command -- dc z
 
 fish_vi_key_bindings
 
