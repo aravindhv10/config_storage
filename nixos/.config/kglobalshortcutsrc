@@ -87,7 +87,7 @@ Switch to Desktop 16=Meta+A,,Switch to Desktop 16
 Switch to Desktop 17=Meta+S,,Switch to Desktop 17
 Switch to Desktop 18=Meta+D,,Switch to Desktop 18
 Switch to Desktop 19=Meta+F,,Switch to Desktop 19
-Switch to Desktop 2=Ctrl+F2\tMeta+2,Ctrl+F2,Switch to Desktop 2
+Switch to Desktop 2=Meta+2,Ctrl+F2,Switch to Desktop 2
 Switch to Desktop 20=Meta+G,,Switch to Desktop 20
 Switch to Desktop 3=Meta+3,Ctrl+F3,Switch to Desktop 3
 Switch to Desktop 4=Meta+4,Ctrl+F4,Switch to Desktop 4
@@ -401,6 +401,9 @@ _launch=Meta+F1
 _launch=Meta+F2
 
 [services][net.local.M_F3.desktop]
+_launch=Meta+F3
+
+[services][net.local.emacsclient.desktop]
 _launch=Meta+F3
 
 [services][net.local.footclient.desktop]
