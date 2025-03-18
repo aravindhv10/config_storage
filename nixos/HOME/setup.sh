@@ -1,9 +1,16 @@
 #!/bin/sh
-mkdir -pv -- "${HOME}/.config/"
+C(){
+    mkdir -pv -- "$('dirname' -- "${2}")"
+    cp -vf -- "${1}" "${2}"
+}
 
-cp -vf -- './HOME,important_functions.sh' "${HOME}/important_functions.sh"
+C './HOME,.wezterm.lua' "${HOME}/.wezterm.lua"
 
-cp -vf -- './HOME,.bashrc' "${HOME}/.bashrc"
+C './HOME,.config,foot,foot.ini' "${HOME}/.config/foot/foot.ini"
+
+C './HOME,important_functions.sh' "${HOME}/important_functions.sh"
+
+C './HOME,.bashrc' "${HOME}/.bashrc"
 
 mkdir -pv -- "${HOME}/.config/fish"
 cp -vf -- './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
