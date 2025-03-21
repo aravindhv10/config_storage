@@ -4,85 +4,23 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
-    ];
 
+imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 
-  # Bootloader.
-  # boot.loader.systemd-boot.enable = true;
-  # boot.loader.efi.canTouchEfiVariables = true;
+fileSystems."/" = {
+  device = "/dev/disk/by-partlabel/linux";
+  fsType = "btrfs";
+  options = [ "subvol=@" "compress=zstd:3" ];
+};
 
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
-    };
-    grub = {
-        efiSupport = true;
-        #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
-        device = "/dev/nvme0n1";
-        extraEntries = ''
-        menuentry "debian" {
-        linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-        initrd /i
-        }
+fileSystems."/boot" = {
+  device = "/dev/disk/by-partlabel/efi";
+  fsType = "vfat";
+  options = [ "fmask=0077" "dmask=0077" ];
+};
 
-        menuentry "nixos_debian_kernel" {
-        linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-        initrd /i
-        }
+swapDevices = [{device = "/dev/disk/by-partlabel/swap0";}];
 
-
-        
-        '' ;
-    };
-   };
-
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-  boot.extraModulePackages = [ ];
-  environment.variables = {
-    ROC_ENABLE_PRE_VEGA = "1";
-  };
-
-  hardware.graphics.enable32Bit = true;
-
-  hardware.opengl.extraPackages = with pkgs; [
-    amdvlk
-  ];
-  # For 32 bit applications 
-  hardware.opengl.extraPackages32 = with pkgs; [
-    driversi686Linux.amdvlk
-  ];
-
-
-
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/179e39de-fcea-47c2-b5e1-a8dcc000d8c6";
-      fsType = "btrfs";
-      options = [ "subvol=@" "compress=zstd:3" ];
-    };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/1FB8-09D5";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-
-
-  swapDevices = [ {
-    device = "/dev/disk/by-partlabel/swap0";
-  } ];
-
-  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-  # (the default) this is the recommended approach. When using systemd-networkd it's
-  # still possible to use this option, but it's recommended to use it in conjunction
-  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-  networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp1s0.useDHCP = lib.mkDefault true;
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
+
+

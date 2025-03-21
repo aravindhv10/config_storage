@@ -1,3 +1,9 @@
+* WORK SPACE
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
 * hardware-configuration
 
 ** inputs used
@@ -9,19 +15,19 @@
 #+end_src
 
 ** Start the main function
-#+begin_src nix :tangle ./configuration.nix
+#+begin_src nix :tangle ./hardware-configuration.nix
   {
 #+end_src
 
 *** Import important stuff
-#+begin_src nix :tangle ./configuration.nix
+#+begin_src nix :tangle ./hardware-configuration.nix
   imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 #+end_src
 
 *** List of fiesystems
 
 **** Main root filesystem
-#+begin_src nix :tangle ./configuration.nix
+#+begin_src nix :tangle ./hardware-configuration.nix
   fileSystems."/" = {
     device = "/dev/disk/by-partlabel/linux";
     fsType = "btrfs";
@@ -30,7 +36,7 @@
 #+end_src
 
 **** EFI boot partition
-#+begin_src nix :tangle ./configuration.nix
+#+begin_src nix :tangle ./hardware-configuration.nix
   fileSystems."/boot" = {
     device = "/dev/disk/by-partlabel/efi";
     fsType = "vfat";
@@ -39,19 +45,18 @@
 #+end_src
 
 *** Swap stuff
-#+begin_src nix :tangle ./configuration.nix
+#+begin_src nix :tangle ./hardware-configuration.nix
   swapDevices = [{device = "/dev/disk/by-partlabel/swap0";}];
 #+end_src
 
 ** Done with hardware configuration
-#+begin_src nix :tangle ./configuration.nix
+#+begin_src nix :tangle ./hardware-configuration.nix
   }
 #+end_src
 
-* TOSORT
+* Main config
 
-
-
+** Header
 #+begin_src nix :tangle ./configuration.nix
   # Edit this configuration file to define what should be installed on
   # your system.  Help is available in the configuration.nix(5) man page
@@ -59,28 +64,95 @@
   { config, pkgs, ... }:
 #+end_src
 
+** Additional definitions
+
+*** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   let
 #+end_src
 
+*** DEFINE
+
+**** importing unstable
 #+begin_src nix :tangle ./configuration.nix
   unstable = import <nixos-unstable> {} ;
+#+end_src
+
+**** Import my changes
+#+begin_src nix :tangle ./configuration.nix
   custom = import /home/asd/GITHUB/NixOS/nixpkgs {} ;
 #+end_src
 
+*** END
 #+begin_src nix :tangle ./configuration.nix
-  in {
+  in
 #+end_src
 
+** Main part of the config
+
+*** BEGIN
+#+begin_src nix :tangle ./configuration.nix
+  {
+#+end_src
+
+*** DEFINE
+
+**** Import hardware configuration
 #+begin_src nix :tangle ./configuration.nix
   imports = [./hardware-configuration.nix];
 #+end_src
 
-#+begin_src nix :tangle ./configuration.nix
+**** Bootloader.
 
-  # Bootloader.
-  # boot.loader.systemd-boot.enable = true;
-  # boot.loader.efi.canTouchEfiVariables = true;
+***** BEGIN
+#+begin_src nix :tangle ./configuration.nix
+  boot.loader = {
+#+end_src
+
+
+***** MAIN
+
+****** COMMENT systemd boot
+#+begin_src nix :tangle ./configuration.nix
+  systemd-boot.enable = true;
+#+end_src
+
+****** EFI Related
+#+begin_src nix :tangle ./configuration.nix
+  efi = {
+    canTouchEfiVariables = true;
+    efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
+  };
+#+end_src
+
+****** GRUB Related
+#+begin_src nix :tangle ./configuration.nix
+  grub = {
+      efiSupport = true;
+      #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
+      device = "/dev/nvme0n1";
+      extraEntries = ''
+      menuentry "debian" {
+      linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+      initrd /i
+      }
+
+      menuentry "nixos_debian_kernel" {
+      linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+      initrd /i
+      }
+      '' ;
+  };
+#+end_src
+
+***** END
+#+begin_src nix :tangle ./configuration.nix
+   };
+#+end_src
+
+
+**** Rest
+#+begin_src nix :tangle ./configuration.nix
 
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
@@ -119,28 +191,6 @@
     # boot.kernelPackages = pkgs.linuxPackages_6_12; 
     # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
-    };
-    grub = {
-        efiSupport = true;
-        #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
-        device = "/dev/nvme0n1";
-        extraEntries = ''
-        menuentry "debian" {
-        linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-        initrd /i
-        }
-
-        menuentry "nixos_debian_kernel" {
-        linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-        initrd /i
-        }
-        '' ;
-    };
-   };
 
     boot.kernelPackages = let
         linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
@@ -539,10 +589,12 @@
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
     system.stateVersion = "24.11"; # Did you read the comment?
 
-  }
 #+end_src
 
-
+*** END
+#+begin_src nix :tangle ./configuration.nix
+  }
+#+end_src
 
 * Sample
 
