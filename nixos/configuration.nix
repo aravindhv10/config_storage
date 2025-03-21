@@ -61,23 +61,17 @@ hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 hardware.graphics.enable32Bit = true;
 hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 
 boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
 fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
 
-networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+networking.hostName = "nixos";
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+networking.networkmanager.enable = true;
 
-  # Enable networking
-  networking.networkmanager.enable = true;
-
-  # Set your time zone.
+# Set your time zone.
   time.timeZone = "Asia/Kolkata";
 
   # Select internationalisation properties.

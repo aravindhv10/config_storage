@@ -244,12 +244,12 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 ***** Xanmod
 
-****** Latest
+****** COMMENT Latest
 #+begin_src nix :tangle ./configuration.nix
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 #+end_src
 
-****** COMMENT Stable
+****** Stable
 #+begin_src nix :tangle ./configuration.nix
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 #+end_src
@@ -277,25 +277,42 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** Kernel command line
 #+begin_src nix :tangle ./configuration.nix
-    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+  boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 #+end_src
 
 **** Mount tmpfs on /tmp
 #+begin_src nix :tangle ./configuration.nix
-    fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
+  fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
+#+end_src
+
+**** Hostname
+Define your hostname.
+#+begin_src nix :tangle ./configuration.nix
+  networking.hostName = "nixos";
+#+end_src
+
+**** Networking stuff
+
+***** COMMENT wpa_supplicant
+Enables wireless support via wpa_supplicant.
+#+begin_src nix :tangle ./configuration.nix
+  networking.wireless.enable = true;
+#+end_src
+
+***** COMMENT Proxy
+Configure network proxy if necessary
+#+begin_src nix :tangle ./configuration.nix
+  networking.proxy.default = "http://user:password@proxy:port/";
+  networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+#+end_src
+
+***** Enable networking with network manager
+#+begin_src nix :tangle ./configuration.nix
+  networking.networkmanager.enable = true;
 #+end_src
 
 **** Rest
 #+begin_src nix :tangle ./configuration.nix
-    networking.hostName = "nixos"; # Define your hostname.
-    # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-    # Configure network proxy if necessary
-    # networking.proxy.default = "http://user:password@proxy:port/";
-    # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-    # Enable networking
-    networking.networkmanager.enable = true;
 
     # Set your time zone.
     time.timeZone = "Asia/Kolkata";
