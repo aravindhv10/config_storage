@@ -5,24 +5,53 @@
 { config, pkgs, ... }:
 let
   unstable = import <nixos-unstable> {} ;
+  custom = import /home/asd/GITHUB/NixOS/nixpkgs {} ;
 in {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
-
  
   # boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
   # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 
-
-
   # boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
 
   # boot.kernelPackages = pkgs.linuxPackages_6_1; 
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
-  boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+  # boot.kernelPackages = pkgs.linuxPackages_6_12; 
+  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 
+  boot.kernelPackages = let
+      linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
+
+        buildLinux (args // rec {
+          version = "6.12";
+          modDirVersion = version;
+
+          src =
+            /home/asd/GITHUB/torvalds/linux-6.12.tar;
+            # /home/asd/GITHUB/torvalds/linux-6.12 ;
+          #fetchurl {
+          #  url = "file:///home/asd/GITHUB/torvalds/linux-6.12.tar" ;
+            # After the first build attempt, look for "hash mismatch" and then 2 lines below at the "got:" line.
+            # Use "sha256-....." value here.
+          #  hash = "";
+          #};
+          
+          kernelPatches = [];
+
+          extraConfig = ''
+          '';
+
+          extraMeta.branch = "6.12";
+        } // (args.argsOverride or {}));
+      linux_sgx = pkgs.callPackage linux_sgx_pkg{};
+    in 
+      pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
+
+  # boot.kernelPackages = custom.linuxPackages_6_12 ;
+  
+  boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
   fileSystems."/tmp" =
     { device = "none";
@@ -238,6 +267,7 @@ in {
 
 
   environment.systemPackages = with pkgs; [
+    catppuccin-kde
     acpi
     alacritty
     alsa-utils
