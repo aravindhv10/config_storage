@@ -56,12 +56,13 @@
 
 * Main config
 
+Edit this configuration file to define what should be installed on
+your system.  Help is available in the configuration.nix(5) man page
+and in the NixOS manual (accessible by running ‘nixos-help’).
+
 ** Header
 #+begin_src nix :tangle ./configuration.nix
-  # Edit this configuration file to define what should be installed on
-  # your system.  Help is available in the configuration.nix(5) man page
-  # and in the NixOS manual (accessible by running ‘nixos-help’).
-  { config, pkgs, ... }:
+  { config, lib, pkgs, modulesPath, ... }:
 #+end_src
 
 ** Additional definitions
@@ -126,22 +127,61 @@
 #+end_src
 
 ****** GRUB Related
+
+******* BEGIN
 #+begin_src nix :tangle ./configuration.nix
   grub = {
-      efiSupport = true;
-      #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
-      device = "/dev/nvme0n1";
+#+end_src
+
+******* MAIN
+
+******** EFI support
+#+begin_src nix :tangle ./configuration.nix
+  efiSupport = true;
+#+end_src
+
+******** Device
+#+begin_src nix :tangle ./configuration.nix
+  device = "/dev/nvme0n1";
+#+end_src
+
+******** COMMENT efiInstallAsRemovable
+#+begin_src nix :tangle ./configuration.nix
+  efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
+#+end_src
+
+******** Extra entries
+
+********* BEGIN
+#+begin_src nix :tangle ./configuration.nix
       extraEntries = ''
-      menuentry "debian" {
+#+end_src
+
+********* MAIN
+
+********** Debian
+#+begin_src nix :tangle ./configuration.nix
+  menuentry "debian" {
       linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
       initrd /i
-      }
+  }
+#+end_src
 
-      menuentry "nixos_debian_kernel" {
+********** Nixos with debian kernel
+#+begin_src nix :tangle ./configuration.nix
+  menuentry "nixos_debian_kernel" {
       linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
       initrd /i
-      }
-      '' ;
+  }
+#+end_src
+
+********* END
+#+begin_src nix :tangle ./configuration.nix
+  '' ;
+#+end_src
+
+******* END
+#+begin_src nix :tangle ./configuration.nix
   };
 #+end_src
 
@@ -150,85 +190,103 @@
    };
 #+end_src
 
+**** Networking
+Enables DHCP on each ethernet and wireless interface. In case of scripted networking
+(the default) this is the recommended approach. When using systemd-networkd it's
+still possible to use this option, but it's recommended to use it in conjunction
+with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+#+begin_src nix :tangle ./configuration.nix
+  networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.wlp1s0.useDHCP = lib.mkDefault true;
+#+end_src
+
+**** Host platform and firmware
+#+begin_src nix :tangle ./configuration.nix
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+#+end_src
+
+**** Initrd and kernel modules
+#+begin_src nix :tangle ./configuration.nix
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
+  boot.initrd.kernelModules = [];
+  boot.kernelModules = [ "kvm-amd" "amdgpu" ];
+  boot.extraModulePackages = [];
+#+end_src
+
+**** Env vars
+#+begin_src nix :tangle ./configuration.nix
+  environment.variables = {ROC_ENABLE_PRE_VEGA = "1";};
+#+end_src
+
+**** GPU drivers related
+#+begin_src nix :tangle ./configuration.nix
+  hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
+#+end_src
+
+***** For 32 bit applications 
+#+begin_src nix :tangle ./configuration.nix
+  hardware.graphics.enable32Bit = true;
+  hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
+#+end_src
+
+**** Kernel Package
+
+***** COMMENT 6.12
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxPackages_6_12; 
+#+end_src
+
+***** COMMENT 6.6
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
+#+end_src
+
+***** Xanmod
+
+****** Latest
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+#+end_src
+
+****** COMMENT Stable
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
+#+end_src
+
+***** COMMENT Custom build
+#+begin_src nix :tangle ./configuration.nix
+  boot.kernelPackages =
+  let
+      linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
+          buildLinux (
+              args // rec {
+                  version = "6.12";
+                  modDirVersion = version;
+                  src = /home/asd/GITHUB/torvalds/linux-6.12.tar;
+                  kernelPatches = [];
+                  extraConfig = ''
+                  '';
+                  extraMeta.branch = "6.12";
+              } // (args.argsOverride or {})
+          );
+      linux_sgx = pkgs.callPackage linux_sgx_pkg{};
+  in 
+      pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
+#+end_src
+
+**** Kernel command line
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+#+end_src
+
+**** Mount tmpfs on /tmp
+#+begin_src nix :tangle ./configuration.nix
+    fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
+#+end_src
 
 **** Rest
 #+begin_src nix :tangle ./configuration.nix
-
-
-  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-  # (the default) this is the recommended approach. When using systemd-networkd it's
-  # still possible to use this option, but it's recommended to use it in conjunction
-  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-  networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp1s0.useDHCP = lib.mkDefault true;
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-  boot.extraModulePackages = [ ];
-  environment.variables = {
-    ROC_ENABLE_PRE_VEGA = "1";
-  };
-
-  hardware.graphics.enable32Bit = true;
-
-  hardware.opengl.extraPackages = with pkgs; [
-    amdvlk
-  ];
-  # For 32 bit applications 
-  hardware.opengl.extraPackages32 = with pkgs; [
-    driversi686Linux.amdvlk
-  ];
-    # boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
-    # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-
-    # boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
-
-    # boot.kernelPackages = pkgs.linuxPackages_6_1; 
-    # boot.kernelPackages = pkgs.linuxPackages_6_12; 
-    # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
-
-
-    boot.kernelPackages = let
-        linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
-
-          buildLinux (args // rec {
-            version = "6.12";
-            modDirVersion = version;
-
-            src =
-              /home/asd/GITHUB/torvalds/linux-6.12.tar;
-              # /home/asd/GITHUB/torvalds/linux-6.12 ;
-            #fetchurl {
-            #  url = "file:///home/asd/GITHUB/torvalds/linux-6.12.tar" ;
-              # After the first build attempt, look for "hash mismatch" and then 2 lines below at the "got:" line.
-              # Use "sha256-....." value here.
-            #  hash = "";
-            #};
-            
-            kernelPatches = [];
-
-            extraConfig = ''
-            '';
-
-            extraMeta.branch = "6.12";
-          } // (args.argsOverride or {}));
-        linux_sgx = pkgs.callPackage linux_sgx_pkg{};
-      in 
-        pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-
-    # boot.kernelPackages = custom.linuxPackages_6_12 ;
-    
-    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
-
-    fileSystems."/tmp" =
-      { device = "none";
-        fsType = "tmpfs";
-      };
-
     networking.hostName = "nixos"; # Define your hostname.
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -265,9 +323,6 @@
       "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
     ];
 
-    hardware.opengl.extraPackages = with pkgs; [
-      rocmPackages.clr.icd
-    ];
 
     # Enable the KDE Plasma Desktop Environment.
     services.displayManager.sddm.enable = true;

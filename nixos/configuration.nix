@@ -1,7 +1,4 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-{ config, pkgs, ... }:
+{ config, lib, pkgs, modulesPath, ... }:
 
 let
 
@@ -23,28 +20,29 @@ efi = {
 };
 
 grub = {
-    efiSupport = true;
-    #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
-    device = "/dev/nvme0n1";
-    extraEntries = ''
-    menuentry "debian" {
+
+efiSupport = true;
+
+device = "/dev/nvme0n1";
+
+extraEntries = ''
+
+menuentry "debian" {
     linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
     initrd /i
-    }
+}
 
-    menuentry "nixos_debian_kernel" {
+menuentry "nixos_debian_kernel" {
     linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
     initrd /i
-    }
-    '' ;
-};
+}
+
+'' ;
 
 };
 
-# Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-# (the default) this is the recommended approach. When using systemd-networkd it's
-# still possible to use this option, but it's recommended to use it in conjunction
-# with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+};
+
 networking.useDHCP = lib.mkDefault true;
 # networking.interfaces.wlp1s0.useDHCP = lib.mkDefault true;
 
@@ -52,70 +50,24 @@ nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
 boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-boot.initrd.kernelModules = [ ];
+boot.initrd.kernelModules = [];
 boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-boot.extraModulePackages = [ ];
-environment.variables = {
-  ROC_ENABLE_PRE_VEGA = "1";
-};
+boot.extraModulePackages = [];
+
+environment.variables = {ROC_ENABLE_PRE_VEGA = "1";};
+
+hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 
 hardware.graphics.enable32Bit = true;
+hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-hardware.opengl.extraPackages = with pkgs; [
-  amdvlk
-];
-# For 32 bit applications 
-hardware.opengl.extraPackages32 = with pkgs; [
-  driversi686Linux.amdvlk
-];
-  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
-  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 
-  # boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
-  # boot.kernelPackages = pkgs.linuxPackages_6_1; 
-  # boot.kernelPackages = pkgs.linuxPackages_6_12; 
-  # boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
+fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
 
-
-  boot.kernelPackages = let
-      linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
-
-        buildLinux (args // rec {
-          version = "6.12";
-          modDirVersion = version;
-
-          src =
-            /home/asd/GITHUB/torvalds/linux-6.12.tar;
-            # /home/asd/GITHUB/torvalds/linux-6.12 ;
-          #fetchurl {
-          #  url = "file:///home/asd/GITHUB/torvalds/linux-6.12.tar" ;
-            # After the first build attempt, look for "hash mismatch" and then 2 lines below at the "got:" line.
-            # Use "sha256-....." value here.
-          #  hash = "";
-          #};
-          
-          kernelPatches = [];
-
-          extraConfig = ''
-          '';
-
-          extraMeta.branch = "6.12";
-        } // (args.argsOverride or {}));
-      linux_sgx = pkgs.callPackage linux_sgx_pkg{};
-    in 
-      pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-
-  # boot.kernelPackages = custom.linuxPackages_6_12 ;
-  
-  boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
-
-  fileSystems."/tmp" =
-    { device = "none";
-      fsType = "tmpfs";
-    };
-
-  networking.hostName = "nixos"; # Define your hostname.
+networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -151,9 +103,6 @@ hardware.opengl.extraPackages32 = with pkgs; [
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
   ];
 
-  hardware.opengl.extraPackages = with pkgs; [
-    rocmPackages.clr.icd
-  ];
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
