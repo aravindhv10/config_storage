@@ -4,8 +4,6 @@ let
 
 unstable = import <nixos-unstable> {} ;
 
-custom = import /home/asd/GITHUB/NixOS/nixpkgs {} ;
-
 in
 
 {
@@ -114,7 +112,6 @@ networking.networkmanager.enable = true;
     layout = "us";
     variant = "";
   };
-
 
   services.xserver.desktopManager.gnome.enable = true;
 

@@ -79,7 +79,7 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
   unstable = import <nixos-unstable> {} ;
 #+end_src
 
-**** Import my changes
+**** COMMENT Import my changes
 #+begin_src nix :tangle ./configuration.nix
   custom = import /home/asd/GITHUB/NixOS/nixpkgs {} ;
 #+end_src
@@ -311,27 +311,30 @@ Configure network proxy if necessary
   networking.networkmanager.enable = true;
 #+end_src
 
+**** Set your time zone.
+#+begin_src nix :tangle ./configuration.nix
+  time.timeZone = "Asia/Kolkata";
+#+end_src
+
+**** Select internationalisation properties.
+#+begin_src nix :tangle ./configuration.nix
+  i18n.defaultLocale = "en_IN";
+
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_IN";
+    LC_IDENTIFICATION = "en_IN";
+    LC_MEASUREMENT = "en_IN";
+    LC_MONETARY = "en_IN";
+    LC_NAME = "en_IN";
+    LC_NUMERIC = "en_IN";
+    LC_PAPER = "en_IN";
+    LC_TELEPHONE = "en_IN";
+    LC_TIME = "en_IN";
+  };
+#+end_src
+
 **** Rest
 #+begin_src nix :tangle ./configuration.nix
-
-    # Set your time zone.
-    time.timeZone = "Asia/Kolkata";
-
-    # Select internationalisation properties.
-    i18n.defaultLocale = "en_IN";
-
-    i18n.extraLocaleSettings = {
-      LC_ADDRESS = "en_IN";
-      LC_IDENTIFICATION = "en_IN";
-      LC_MEASUREMENT = "en_IN";
-      LC_MONETARY = "en_IN";
-      LC_NAME = "en_IN";
-      LC_NUMERIC = "en_IN";
-      LC_PAPER = "en_IN";
-      LC_TELEPHONE = "en_IN";
-      LC_TIME = "en_IN";
-    };
-
     # Enable the X11 windowing system.
     # You can disable this if you're only using the Wayland session.
     services.xserver.enable = true;
