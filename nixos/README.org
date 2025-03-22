@@ -257,7 +257,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
 #+end_src
 
-***** Xanmod
+***** COMMENT Xanmod
 
 ****** COMMENT Latest
 #+begin_src nix :tangle ./configuration.nix
@@ -269,16 +269,16 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 #+end_src
 
-***** COMMENT Custom build
+***** Custom build
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
       linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
           buildLinux (
               args // rec {
-                  version = "6.12";
+                  version = "6.13";
                   modDirVersion = version;
-                  src = /home/asd/GITHUB/torvalds/linux-6.12.tar;
+                  src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
                   kernelPatches = [];
                   extraConfig = ''
                   '';
@@ -297,7 +297,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** Mount tmpfs on /tmp
 #+begin_src nix :tangle ./configuration.nix
-  fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
+  fileSystems."/tmp" = {device = "none"; fsType = "tmpfs"; size="8589934592"};
 #+end_src
 
 **** Hostname
@@ -365,7 +365,7 @@ You can disable this if you're only using the Wayland session.
   services.displayManager.sddm.settings.General.DisplayServer = "wayland";
 #+end_src
 
-***** GDM
+***** COMMENT GDM
 #+begin_src nix :tangle ./configuration.nix
   services.xserver.displayManager.gdm.enable = true;
 #+end_src
