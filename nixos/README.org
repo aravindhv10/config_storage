@@ -276,13 +276,13 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
       linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
           buildLinux (
               args // rec {
-                  version = "6.13";
+                  version = "6.13.0";
                   modDirVersion = version;
                   src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
                   kernelPatches = [];
                   extraConfig = ''
                   '';
-                  extraMeta.branch = "6.12";
+                  extraMeta.branch = "6.13.0";
               } // (args.argsOverride or {})
           );
       linux_sgx = pkgs.callPackage linux_sgx_pkg{};
@@ -297,7 +297,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** Mount tmpfs on /tmp
 #+begin_src nix :tangle ./configuration.nix
-  fileSystems."/tmp" = {device = "none"; fsType = "tmpfs"; size="8589934592"};
+  fileSystems."/tmp" = {device = "none"; fsType = "tmpfs"; };
 #+end_src
 
 **** Hostname
