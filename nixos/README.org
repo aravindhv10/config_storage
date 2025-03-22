@@ -5,8 +5,10 @@
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
-          git add 'configuration.nix' ;
+          nixfmt 'configuration.nix' ;
+          nixfmt 'hardware-configuration.nix' ;
           git add 'do_copy.sh' ;
+          git add 'configuration.nix' ;
           git add 'hardware-configuration.nix' ;
           git add 'README.org' ;
           rm -vf -- '#configuration.nix#' ;
@@ -662,7 +664,6 @@ You can disable this if you're only using the Wayland session.
     neovim
     networkmanager-openconnect
     nh
-    nixfmt
     nix-index
     nix-ld
     nushell
@@ -689,6 +690,7 @@ You can disable this if you're only using the Wayland session.
     tmux
     unstable.fish
     unstable.flatpak
+    unstable.nixfmt-rfc-style
     unzip
     uv
     vim

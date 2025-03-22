@@ -1,351 +1,400 @@
-{ config, lib, pkgs, modulesPath, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
 
 let
 
-unstable = import <nixos-unstable> {} ;
+  unstable = import <nixos-unstable> { };
 
 in
 
 {
 
-imports = [./hardware-configuration.nix];
+  imports = [ ./hardware-configuration.nix ];
 
-boot.loader = {
+  boot.loader = {
 
-efi = {
-  canTouchEfiVariables = true;
-  efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
-};
+    efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
+    };
 
-grub = {
+    grub = {
 
-efiSupport = true;
+      efiSupport = true;
 
-device = "/dev/nvme0n1";
+      device = "/dev/nvme0n1";
 
-extraEntries = ''
+      extraEntries = ''
 
-menuentry "debian" {
-    linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-    initrd /i
-}
+        menuentry "debian" {
+            linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+            initrd /i
+        }
 
-menuentry "nixos_debian_kernel" {
-    linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-    initrd /i
-}
+        menuentry "nixos_debian_kernel" {
+            linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+            initrd /i
+        }
 
-'' ;
+      '';
 
-};
+    };
 
-};
+  };
 
-networking.useDHCP = lib.mkDefault true;
+  networking.useDHCP = lib.mkDefault true;
 
-nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-boot.initrd.kernelModules = [];
-boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-boot.extraModulePackages = [];
+  boot.initrd.availableKernelModules = [
+    "nvme"
+    "xhci_pci"
+    "ahci"
+    "uas"
+    "sd_mod"
+  ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [
+    "kvm-amd"
+    "amdgpu"
+  ];
+  boot.extraModulePackages = [ ];
 
-environment.variables = {ROC_ENABLE_PRE_VEGA = "1";};
+  environment.variables = {
+    ROC_ENABLE_PRE_VEGA = "1";
+  };
 
-hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
+  hardware.opengl.extraPackages = [
+    pkgs.amdvlk
+    pkgs.rocmPackages.clr.icd
+  ];
 
-systemd.tmpfiles.rules = [
-  "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
-];
+  systemd.tmpfiles.rules = [
+    "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
+  ];
 
-hardware.graphics.enable32Bit = true;
-hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
+  hardware.graphics.enable32Bit = true;
+  hardware.opengl.extraPackages32 = [ pkgs.driversi686Linux.amdvlk ];
 
-boot.kernelPackages =
-let
-    linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
+  boot.kernelPackages =
+    let
+      linux_sgx_pkg =
+        { fetchurl, buildLinux, ... }@args:
         buildLinux (
-            args // rec {
-                version = "6.13.0";
-                modDirVersion = version;
-                src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
-                kernelPatches = [];
-                extraConfig = ''
-                '';
-                extraMeta.branch = "6.13.0";
-            } // (args.argsOverride or {})
+          args
+          // rec {
+            version = "6.13.0";
+            modDirVersion = version;
+            src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
+            kernelPatches = [ ];
+            extraConfig = '''';
+            extraMeta.branch = "6.13.0";
+          }
+          // (args.argsOverride or { })
         );
-    linux_sgx = pkgs.callPackage linux_sgx_pkg{};
-in 
+      linux_sgx = pkgs.callPackage linux_sgx_pkg { };
+    in
     pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 
-boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+  boot.kernelParams = [
+    "zswap.enabled=1"
+    "zswap.max_pool_percent=80"
+  ];
 
-boot.tmp.useTmpfs = true ;
-boot.tmp.tmpfsSize = "80%" ;
+  boot.tmp.useTmpfs = true;
+  boot.tmp.tmpfsSize = "80%";
 
-networking.hostName = "nixos";
+  networking.hostName = "nixos";
 
-networking.networkmanager.enable = true;
+  networking.networkmanager.enable = true;
 
-time.timeZone = "Asia/Kolkata";
+  time.timeZone = "Asia/Kolkata";
 
-i18n.defaultLocale = "en_IN";
+  i18n.defaultLocale = "en_IN";
 
-i18n.extraLocaleSettings = {
-  LC_ADDRESS = "en_IN";
-  LC_IDENTIFICATION = "en_IN";
-  LC_MEASUREMENT = "en_IN";
-  LC_MONETARY = "en_IN";
-  LC_NAME = "en_IN";
-  LC_NUMERIC = "en_IN";
-  LC_PAPER = "en_IN";
-  LC_TELEPHONE = "en_IN";
-  LC_TIME = "en_IN";
-};
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_IN";
+    LC_IDENTIFICATION = "en_IN";
+    LC_MEASUREMENT = "en_IN";
+    LC_MONETARY = "en_IN";
+    LC_NAME = "en_IN";
+    LC_NUMERIC = "en_IN";
+    LC_PAPER = "en_IN";
+    LC_TELEPHONE = "en_IN";
+    LC_TIME = "en_IN";
+  };
 
-services.xserver.enable = true;
-services.xserver.videoDrivers = [ "amdgpu" ];
+  services.xserver.enable = true;
+  services.xserver.videoDrivers = [ "amdgpu" ];
 
-services.displayManager.sddm.enable = true;
-services.displayManager.sddm.wayland.enable = true;
-services.displayManager.sddm.settings.General.DisplayServer = "wayland";
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm.settings.General.DisplayServer = "wayland";
 
-services.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
-services.xserver.xkb = {
-  layout = "us";
-  variant = "";
-};
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
 
-services.printing.enable = true;
-documentation.enable = true;
-documentation.man.enable = true;
-documentation.dev.enable = true;
+  services.printing.enable = true;
+  documentation.enable = true;
+  documentation.man.enable = true;
+  documentation.dev.enable = true;
 
-# hardware.pulseaudio.enable = false;
-security.rtkit.enable = true;
-services.pipewire = {
-  enable = true;
-  alsa.enable = true;
-  alsa.support32Bit = true;
-  pulse.enable = true;
-  # If you want to use JACK applications, uncomment this
-  #jack.enable = true;
+  # hardware.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
 
-  # use the example session manager (no others are packaged yet so this is enabled by default,
-  # no need to redefine it in your config for now)
-  #media-session.enable = true;
-};
+    # use the example session manager (no others are packaged yet so this is enabled by default,
+    # no need to redefine it in your config for now)
+    #media-session.enable = true;
+  };
 
-# services.pipewire.extraConfig.pipewire."91-null-sinks" = {
+  # services.pipewire.extraConfig.pipewire."91-null-sinks" = {
   # "context.objects" = [
-    # {
-      # # A default dummy driver. This handles nodes marked with the "node.always-driver"
-      # # properyty when no other driver is currently active. JACK clients need this.
-      # factory = "spa-node-factory";
-      # args = {
-        # "factory.name" = "support.node.driver";
-        # "node.name" = "Dummy-Driver";
-        # "priority.driver" = 8000;
-      # };
-    # }
-    # {
-      # factory = "adapter";
-      # args = {
-        # "factory.name" = "support.null-audio-sink";
-        # "node.name" = "Microphone-Proxy";
-        # "node.description" = "Microphone";
-        # "media.class" = "Audio/Source/Virtual";
-        # "audio.position" = "MONO";
-      # };
-    # }
-    # {
-      # factory = "adapter";
-      # args = {
-        # "factory.name" = "support.null-audio-sink";
-        # "node.name" = "Main-Output-Proxy";
-        # "node.description" = "Main Output";
-        # "media.class" = "Audio/Sink";
-        # "audio.position" = "FL,FR";
-      # };
-    # }
+  # {
+  # # A default dummy driver. This handles nodes marked with the "node.always-driver"
+  # # properyty when no other driver is currently active. JACK clients need this.
+  # factory = "spa-node-factory";
+  # args = {
+  # "factory.name" = "support.node.driver";
+  # "node.name" = "Dummy-Driver";
+  # "priority.driver" = 8000;
+  # };
+  # }
+  # {
+  # factory = "adapter";
+  # args = {
+  # "factory.name" = "support.null-audio-sink";
+  # "node.name" = "Microphone-Proxy";
+  # "node.description" = "Microphone";
+  # "media.class" = "Audio/Source/Virtual";
+  # "audio.position" = "MONO";
+  # };
+  # }
+  # {
+  # factory = "adapter";
+  # args = {
+  # "factory.name" = "support.null-audio-sink";
+  # "node.name" = "Main-Output-Proxy";
+  # "node.description" = "Main Output";
+  # "media.class" = "Audio/Sink";
+  # "audio.position" = "FL,FR";
+  # };
+  # }
   # ];
-# };
+  # };
 
-# services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
+  # services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
   # "context.properties" = [
-    # {
-      # name = "libpipewire-module-protocol-pulse";
-      # args = { };
-    # }
+  # {
+  # name = "libpipewire-module-protocol-pulse";
+  # args = { };
+  # }
   # ];
   # "pulse.properties" = {
-    # "pulse.min.req" = "32/48000";
-    # "pulse.default.req" = "32/48000";
-    # "pulse.max.req" = "32/48000";
-    # "pulse.min.quantum" = "32/48000";
-    # "pulse.max.quantum" = "32/48000";
+  # "pulse.min.req" = "32/48000";
+  # "pulse.default.req" = "32/48000";
+  # "pulse.max.req" = "32/48000";
+  # "pulse.min.quantum" = "32/48000";
+  # "pulse.max.quantum" = "32/48000";
   # };
   # "stream.properties" = {
-    # "node.latency" = "32/48000";
-    # "resample.quality" = 1;
+  # "node.latency" = "32/48000";
+  # "resample.quality" = 1;
   # };
-# };
+  # };
 
-# services.pipewire.socketActivation = false; 
-# Start WirePlumber (with PipeWire) at boot.
-# systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
+  # services.pipewire.socketActivation = false;
+  # Start WirePlumber (with PipeWire) at boot.
+  # systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
 
-services.xserver.libinput.enable = true;
+  services.xserver.libinput.enable = true;
 
-users.users.asd = {
-  isNormalUser = true;
-  description = "asd";
-  extraGroups = [ "networkmanager" "wheel" "audio" ];
-  packages = with pkgs; [
-    kdePackages.kate
-    # thunderbird
-  ];
-};
-
-programs.fish.enable = true;
-
-users.defaultUserShell = pkgs.fish;
-
-programs.firefox.enable = true;
-
-nixpkgs.config.allowUnfree = true;
-
-virtualisation.containers.enable = true;
-virtualisation = {
-  podman = {
-    enable = true;
-
-    # Create a `docker` alias for podman, to use it as a drop-in replacement
-    dockerCompat = true;
-
-    # Required for containers under podman-compose to be able to talk to each other.
-    defaultNetwork.settings.dns_enabled = true;
+  users.users.asd = {
+    isNormalUser = true;
+    description = "asd";
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "audio"
+    ];
+    packages = with pkgs; [
+      kdePackages.kate
+      # thunderbird
+    ];
   };
-};
 
-environment.systemPackages = with pkgs; [
-  acpi
-  alacritty
-  alsa-utils
-  appstream
-  aria2
-  atuin
-  bat
-  bottom
-  brave
-  byobu
-  (callPackage /root/debMirror.nix {})
-  cargo
-  catppuccin-kde
-  clinfo
-  cmake
-  curl
-  debootstrap
-  difftastic
-  dive # look into docker image layers
-  dnsmasq
-  docker-compose # start group of containers for dev
-  dust
-  emacs30
-  fd
-  file
-  # fishPlugins.done
-  # fishPlugins.forgit
-  # fishPlugins.fzf-fish
-  # fishPlugins.grc
-  # fishPlugins.hydro
-  foot
-  fuse3
-  fzf
-  gcc
-  gcc14Stdenv
-  gdk-pixbuf
-  gdm
-  git
-  glib
-  gpgme
-  grc
-  grub2
-  grub2_efi
-  gsettings-desktop-schemas
-  helix
-  htop
-  json-glib
-  libarchive
-  libcap
-  libgcc
-  librsvg
-  libseccomp
-  libxml2
-  lsd
-  lxc
-  man-pages
-  man-pages-posix
-  meson
-  miniserve
-  mpv
-  neovim
-  networkmanager-openconnect
-  nh
-  nixfmt
-  nix-index
-  nix-ld
-  nushell
-  openconnect
-  openssl
-  oxygen
-  parted
-  pavucontrol
-  pciutils
-  pkg-config
-  podman
-  podman-compose # start group of containers for dev
-  podman-tui # status of containers in the terminal
-  python3
-  python3Full
-  qbittorrent-enhanced
-  rclone
-  ripgrep
-  ruff
-  rustc
-  skim
-  squashfsTools
-  starship
-  tmux
-  unstable.fish
-  unstable.flatpak
-  unzip
-  uv
-  vim
-  wayland
-  wayland-protocols
-  wezterm
-  wget
-  xorg.libXau
-  yazi
-  zip
-  zoxide
-  zstd
- ];
+  programs.fish.enable = true;
 
-services.openssh.enable = true;
+  users.defaultUserShell = pkgs.fish;
 
-services.flatpak.enable = true;
+  programs.firefox.enable = true;
 
-services.dnsmasq = {
+  nixpkgs.config.allowUnfree = true;
+
+  virtualisation.containers.enable = true;
+  virtualisation = {
+    podman = {
+      enable = true;
+
+      # Create a `docker` alias for podman, to use it as a drop-in replacement
+      dockerCompat = true;
+
+      # Required for containers under podman-compose to be able to talk to each other.
+      defaultNetwork.settings.dns_enabled = true;
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    acpi
+    alacritty
+    alsa-utils
+    appstream
+    aria2
+    atuin
+    bat
+    bottom
+    brave
+    byobu
+    (callPackage /root/debMirror.nix { })
+    cargo
+    catppuccin-kde
+    clinfo
+    cmake
+    curl
+    debootstrap
+    difftastic
+    dive # look into docker image layers
+    dnsmasq
+    docker-compose # start group of containers for dev
+    dust
+    emacs30
+    fd
+    file
+    # fishPlugins.done
+    # fishPlugins.forgit
+    # fishPlugins.fzf-fish
+    # fishPlugins.grc
+    # fishPlugins.hydro
+    foot
+    fuse3
+    fzf
+    gcc
+    gcc14Stdenv
+    gdk-pixbuf
+    gdm
+    git
+    glib
+    gpgme
+    grc
+    grub2
+    grub2_efi
+    gsettings-desktop-schemas
+    helix
+    htop
+    json-glib
+    libarchive
+    libcap
+    libgcc
+    librsvg
+    libseccomp
+    libxml2
+    lsd
+    lxc
+    man-pages
+    man-pages-posix
+    meson
+    miniserve
+    mpv
+    neovim
+    networkmanager-openconnect
+    nh
+    nix-index
+    nix-ld
+    nushell
+    openconnect
+    openssl
+    oxygen
+    parted
+    pavucontrol
+    pciutils
+    pkg-config
+    podman
+    podman-compose # start group of containers for dev
+    podman-tui # status of containers in the terminal
+    python3
+    python3Full
+    qbittorrent-enhanced
+    rclone
+    ripgrep
+    ruff
+    rustc
+    skim
+    squashfsTools
+    starship
+    tmux
+    unstable.fish
+    unstable.flatpak
+    unstable.nixfmt-rfc-style
+    unzip
+    uv
+    vim
+    wayland
+    wayland-protocols
+    wezterm
+    wget
+    xorg.libXau
+    yazi
+    zip
+    zoxide
+    zstd
+  ];
+
+  services.openssh.enable = true;
+
+  services.flatpak.enable = true;
+
+  services.dnsmasq = {
     enable = true;
     alwaysKeepRunning = true;
     resolveLocalQueries = true;
     settings = {
-      server = [ "192.168.1.254" "4.2.2.2" "8.8.8.8" "8.8.8.4" "8.8.4.4" "76.76.2.0" "76.76.10.0" "9.9.9.9" "149.112.112.112" "208.67.222.222" "208.67.220.220" "1.1.1.1" "1.0.0.1" "94.140.14.14" "94.140.15.15" "185.228.168.9" "185.228.169.9" "76.76.19.19" "76.223.122.150" ] ;
+      server = [
+        "192.168.1.254"
+        "4.2.2.2"
+        "8.8.8.8"
+        "8.8.8.4"
+        "8.8.4.4"
+        "76.76.2.0"
+        "76.76.10.0"
+        "9.9.9.9"
+        "149.112.112.112"
+        "208.67.222.222"
+        "208.67.220.220"
+        "1.1.1.1"
+        "1.0.0.1"
+        "94.140.14.14"
+        "94.140.15.15"
+        "185.228.168.9"
+        "185.228.169.9"
+        "76.76.19.19"
+        "76.223.122.150"
+      ];
       local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
       log-queries = true; # Log results of all DNS queries
       bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
@@ -357,8 +406,6 @@ services.dnsmasq = {
     };
   };
 
-system.stateVersion = "24.11";
+  system.stateVersion = "24.11";
 
 }
-
-
