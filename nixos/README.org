@@ -14,14 +14,14 @@
       " "log" "err")
 #+end_src
 
-** Also copy
+** Copy the config file:
+
+*** Call the script
 #+begin_src emacs-lisp :results silent
-  (save-buffer)
-  (org-babel-tangle)
   (async-shell-command "./do_copy.sh" "log" "err")
 #+end_src
 
-** Copy files into /etc
+*** Actual script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
   sudo cp -vf -- './configuration.nix' '/etc/nixos/configuration.nix'
   sudo cp -vf -- './hardware-configuration.nix' '/etc/nixos/hardware-configuration.nix'
