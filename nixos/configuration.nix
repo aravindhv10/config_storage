@@ -66,7 +66,8 @@ boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 
 boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
-fileSystems."/tmp" = {device = "none"; fsType = "tmpfs";};
+boot.tmp.useTmpfs = true ;
+boot.tmp.tmpfsSize = "80%" ;
 
 networking.hostName = "nixos";
 
@@ -94,8 +95,6 @@ services.xserver.videoDrivers = [ "amdgpu" ];
 services.displayManager.sddm.enable = true;
 services.displayManager.sddm.wayland.enable = true;
 services.displayManager.sddm.settings.General.DisplayServer = "wayland";
-
-services.xserver.displayManager.gdm.enable = true;
 
 services.desktopManager.plasma6.enable = true;
 

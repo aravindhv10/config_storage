@@ -2,6 +2,13 @@
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
+  (async-shell-command "./do_copy.sh" "log" "err")
+#+end_src
+
+** Copy files into /etc
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  sudo cp -vf -- './configuration.nix' '/etc/nixos/configuration.nix'
+  sudo cp -vf -- './hardware-configuration.nix' '/etc/nixos/hardware-configuration.nix'
 #+end_src
 
 * hardware-configuration
@@ -192,6 +199,7 @@ in case =canTouchEfiVariables= doesn't work for your system
    };
 #+end_src
 
+
 **** Networking
 
 ***** Enables DHCP on each ethernet and wireless interface
@@ -257,7 +265,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
 #+end_src
 
-***** COMMENT Xanmod
+***** Xanmod
 
 ****** COMMENT Latest
 #+begin_src nix :tangle ./configuration.nix
@@ -269,7 +277,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 #+end_src
 
-***** Custom build
+***** COMMENT Custom build
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
@@ -296,6 +304,14 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 #+end_src
 
 **** Mount tmpfs on /tmp
+
+***** Better way
+#+begin_src nix :tangle ./configuration.nix
+  boot.tmp.useTmpfs = true ;
+  boot.tmp.tmpfsSize = "80%" ;
+#+end_src
+
+***** COMMENT Standard way
 #+begin_src nix :tangle ./configuration.nix
   fileSystems."/tmp" = {device = "none"; fsType = "tmpfs"; };
 #+end_src
