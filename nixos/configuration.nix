@@ -294,6 +294,8 @@ environment.systemPackages = with pkgs; [
   mpv
   neovim
   networkmanager-openconnect
+  nh
+  nixfmt
   nix-index
   nix-ld
   nushell

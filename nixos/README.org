@@ -661,6 +661,8 @@ You can disable this if you're only using the Wayland session.
     mpv
     neovim
     networkmanager-openconnect
+    nh
+    nixfmt
     nix-index
     nix-ld
     nushell
