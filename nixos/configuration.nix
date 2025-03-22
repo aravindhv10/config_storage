@@ -219,7 +219,6 @@ virtualisation = {
 };
 
 environment.systemPackages = with pkgs; [
-  catppuccin-kde
   acpi
   alacritty
   alsa-utils
@@ -230,6 +229,9 @@ environment.systemPackages = with pkgs; [
   bottom
   brave
   byobu
+  (callPackage /root/debMirror.nix {})
+  cargo
+  catppuccin-kde
   clinfo
   cmake
   curl
@@ -242,14 +244,11 @@ environment.systemPackages = with pkgs; [
   emacs30
   fd
   file
-  unstable.fish
-  nix-ld
   # fishPlugins.done
   # fishPlugins.forgit
   # fishPlugins.fzf-fish
   # fishPlugins.grc
   # fishPlugins.hydro
-  unstable.flatpak
   foot
   fuse3
   fzf
@@ -283,6 +282,7 @@ environment.systemPackages = with pkgs; [
   neovim
   networkmanager-openconnect
   nix-index
+  nix-ld
   nushell
   openconnect
   openssl
@@ -301,12 +301,12 @@ environment.systemPackages = with pkgs; [
   ripgrep
   ruff
   rustc
-  cargo
-  (callPackage /root/debMirror.nix {})
   skim
   squashfsTools
   starship
   tmux
+  unstable.fish
+  unstable.flatpak
   unzip
   uv
   vim
@@ -321,18 +321,8 @@ environment.systemPackages = with pkgs; [
   zstd
  ];
 
-# Some programs need SUID wrappers, can be configured further or are
-# started in user sessions.
-# programs.mtr.enable = true;
-# programs.gnupg.agent = {
-#   enable = true;
-#   enableSSHSupport = true;
-# };
-
-# List services that you want to enable:
-
-# Enable the OpenSSH daemon.
 services.openssh.enable = true;
+
 services.flatpak.enable = true;
 
 services.dnsmasq = {
@@ -358,12 +348,6 @@ services.dnsmasq = {
 # Or disable the firewall altogether.
 # networking.firewall.enable = false;
 
-# This value determines the NixOS release from which the default
-# settings for stateful data, like file locations and database versions
-# on your system were taken. It‘s perfectly fine and recommended to leave
-# this value at the release version of the first install of this system.
-# Before changing this value read the documentation for this option
-# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
 system.stateVersion = "24.11"; # Did you read the comment?
 
 }
