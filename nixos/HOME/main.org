@@ -2,7 +2,18 @@
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
-  (async-shell-command "./setup.sh" "log" "err")
+  (async-shell-command "
+          './setup.sh' ;
+          git add './HOME,.bashrc'
+          git add './HOME,.config,fish,config.fish'
+          git add './HOME,.config,foot,foot.ini'
+          git add './HOME,important_functions.sh'
+          git add './HOME,.wezterm.lua'
+          git add './main.org'
+          git add './setup.sh'
+          git add './SUDO_ASKPASS.c'
+          rm -vf -- './main.org~' ;
+      " "log" "err")
 #+end_src
 
 * Main copy script
