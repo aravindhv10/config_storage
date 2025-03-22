@@ -62,7 +62,23 @@ systemd.tmpfiles.rules = [
 hardware.graphics.enable32Bit = true;
 hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
+boot.kernelPackages =
+let
+    linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
+        buildLinux (
+            args // rec {
+                version = "6.13.0";
+                modDirVersion = version;
+                src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
+                kernelPatches = [];
+                extraConfig = ''
+                '';
+                extraMeta.branch = "6.13.0";
+            } // (args.argsOverride or {})
+        );
+    linux_sgx = pkgs.callPackage linux_sgx_pkg{};
+in 
+    pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 
 boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 
@@ -193,8 +209,6 @@ users.users.asd = {
     # thunderbird
   ];
 };
-
-users.users.asd.linger = true;
 
 programs.fish.enable = true;
 

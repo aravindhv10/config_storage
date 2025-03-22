@@ -1,4 +1,13 @@
 * WORK SPACE
+
+** Only tangle
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (shell-command "git add 'configuration.nix' ; git add 'do_copy.sh' ; git add 'hardware-configuration.nix' ; git add 'README.org' ;" "log" "err")
+#+end_src
+
+** Also copy
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
@@ -265,7 +274,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
 #+end_src
 
-***** Xanmod
+***** COMMENT Xanmod
 
 ****** COMMENT Latest
 #+begin_src nix :tangle ./configuration.nix
@@ -277,7 +286,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 #+end_src
 
-***** COMMENT Custom build
+***** Custom build
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
@@ -386,6 +395,8 @@ You can disable this if you're only using the Wayland session.
   services.xserver.displayManager.gdm.enable = true;
 #+end_src
 
+**** Desktop environment
+
 ***** Enable the KDE Plasma Desktop Environment.
 #+begin_src nix :tangle ./configuration.nix
   services.desktopManager.plasma6.enable = true;
@@ -396,7 +407,7 @@ You can disable this if you're only using the Wayland session.
   services.xserver.desktopManager.gnome.enable = true;
 #+end_src
 
-****** Enable the Gnome Desktop Environment.
+****** Exclude packages in gnome
 #+begin_src nix :tangle ./configuration.nix
   environment.gnome.excludePackages = (with pkgs; [
     atomix # puzzle game
@@ -529,7 +540,7 @@ You can disable this if you're only using the Wayland session.
     };
 #+end_src
 
-***** keep user services running
+***** COMMENT keep user services running
 #+begin_src nix :tangle ./configuration.nix
   users.users.asd.linger = true; 
 #+end_src
