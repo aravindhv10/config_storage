@@ -4,7 +4,14 @@
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
-  (shell-command "git add 'configuration.nix' ; git add 'do_copy.sh' ; git add 'hardware-configuration.nix' ; git add 'README.org' ;" "log" "err")
+  (async-shell-command "
+          git add 'configuration.nix' ;
+          git add 'do_copy.sh' ;
+          git add 'hardware-configuration.nix' ;
+          git add 'README.org' ;
+          rm -vf -- '#configuration.nix#' ;
+          rm -vf -- 'README.org~' ;
+      " "log" "err")
 #+end_src
 
 ** Also copy
