@@ -717,24 +717,30 @@ started in user sessions.
     };
 #+end_src
 
-**** firewall
+**** COMMENT firewall
+
+***** Open ports in the firewall.
 #+begin_src nix :tangle ./configuration.nix
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.allowedTCPPorts = [ ... ];
+  networking.firewall.allowedUDPPorts = [ ... ];
 #+end_src
 
-**** NixOS release
+***** Or disable the firewall altogether.
+#+begin_src nix :tangle ./configuration.nix
+  networking.firewall.enable = false;
+#+end_src
+
+**** NixOS release (DONOT CHANGE THIS!!!)
 This value determines the NixOS release from which the default
 settings for stateful data, like file locations and database versions
 on your system were taken. It‘s perfectly fine and recommended to leave
 this value at the release version of the first install of this system.
 Before changing this value read the documentation for this option
 (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+
+***** Did you read the comment?
 #+begin_src nix :tangle ./configuration.nix
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "24.11";
 #+end_src
 
 *** END
@@ -751,4 +757,3 @@ Before changing this value read the documentation for this option
 ** configuration
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
-
