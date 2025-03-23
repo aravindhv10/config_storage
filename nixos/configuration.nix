@@ -89,12 +89,12 @@ in
         buildLinux (
           args
           // rec {
-            version = "6.13.0";
+            version = "6.12.19-xanmod1";
             modDirVersion = version;
-            src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
+            src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
             kernelPatches = [ ];
             extraConfig = '''';
-            extraMeta.branch = "6.13.0";
+            extraMeta.branch = version;
           }
           // (args.argsOverride or { })
         );
@@ -261,6 +261,7 @@ in
   };
 
   environment.systemPackages = with pkgs; [
+
     acpi
     alacritty
     alsa-utils
@@ -280,6 +281,7 @@ in
     debootstrap
     difftastic
     dive # look into docker image layers
+    dmidecode
     dnsmasq
     docker-compose # start group of containers for dev
     dust
@@ -363,6 +365,7 @@ in
     zip
     zoxide
     zstd
+
   ];
 
   services.openssh.enable = true;

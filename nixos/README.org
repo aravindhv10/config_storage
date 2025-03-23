@@ -296,6 +296,29 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 #+end_src
 
 ***** Custom build
+
+***** 2
+#+begin_src nix :tangle ./configuration.nix
+  boot.kernelPackages =
+  let
+      linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
+          buildLinux (
+              args // rec {
+                  version = "6.12.19-xanmod1" ;
+                  modDirVersion = version;
+                  src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
+                  kernelPatches = [];
+                  extraConfig = ''
+                  '';
+                  extraMeta.branch = version ;
+              } // (args.argsOverride or {})
+          );
+      linux_sgx = pkgs.callPackage linux_sgx_pkg{};
+  in 
+      pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
+#+end_src
+
+***** COMMENT 1
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
@@ -599,111 +622,127 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ***** full list
+
+****** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   environment.systemPackages = with pkgs; [
-    acpi
-    alacritty
-    alsa-utils
-    appstream
-    aria2
-    atuin
-    bat
-    bottom
-    brave
-    byobu
-    (callPackage /root/debMirror.nix {})
-    cargo
-    catppuccin-kde
-    clinfo
-    cmake
-    curl
-    debootstrap
-    difftastic
-    dive # look into docker image layers
-    dnsmasq
-    docker-compose # start group of containers for dev
-    dust
-    emacs30
-    fd
-    file
-    # fishPlugins.done
-    # fishPlugins.forgit
-    # fishPlugins.fzf-fish
-    # fishPlugins.grc
-    # fishPlugins.hydro
-    foot
-    fuse3
-    fzf
-    gcc
-    gcc14Stdenv
-    gdk-pixbuf
-    gdm
-    git
-    glib
-    gpgme
-    grc
-    grub2
-    grub2_efi
-    gsettings-desktop-schemas
-    helix
-    htop
-    json-glib
-    libarchive
-    libcap
-    libgcc
-    librsvg
-    libseccomp
-    libxml2
-    lsd
-    lxc
-    man-pages
-    man-pages-posix
-    meson
-    miniserve
-    mpv
-    neovim
-    networkmanager-openconnect
-    nh
-    nix-index
-    nix-ld
-    nushell
-    openconnect
-    openssl
-    oxygen
-    parted
-    pavucontrol
-    pciutils
-    pkg-config
-    podman
-    podman-compose # start group of containers for dev
-    podman-tui # status of containers in the terminal
-    python3
-    python3Full
-    qbittorrent-enhanced
-    rclone
-    ripgrep
-    ruff
-    rustc
-    skim
-    squashfsTools
-    starship
-    tmux
-    unstable.fish
-    unstable.flatpak
-    unstable.nixfmt-rfc-style
-    unzip
-    uv
-    vim
-    wayland
-    wayland-protocols
-    wezterm
-    wget
-    xorg.libXau
-    yazi
-    zip
-    zoxide
-    zstd
-   ];
+#+end_src
+
+****** FULL LIST
+#+begin_src nix :tangle ./configuration.nix
+  acpi
+  alacritty
+  alsa-utils
+  appstream
+  aria2
+  atuin
+  bat
+  bottom
+  brave
+  byobu
+  (callPackage /root/debMirror.nix {})
+  cargo
+  catppuccin-kde
+  clinfo
+  cmake
+  curl
+  debootstrap
+  difftastic
+  dive # look into docker image layers
+  dmidecode
+  dnsmasq
+  docker-compose # start group of containers for dev
+  dust
+  emacs30
+  fd
+  file
+  # fishPlugins.done
+  # fishPlugins.forgit
+  # fishPlugins.fzf-fish
+  # fishPlugins.grc
+  # fishPlugins.hydro
+  foot
+  fuse3
+  fzf
+  gcc
+  gcc14Stdenv
+  gdk-pixbuf
+  gdm
+  git
+  glib
+  gpgme
+  grc
+  grub2
+  grub2_efi
+  gsettings-desktop-schemas
+  helix
+  htop
+  json-glib
+  libarchive
+  libcap
+  libgcc
+  librsvg
+  libseccomp
+  libxml2
+  lsd
+  lxc
+  man-pages
+  man-pages-posix
+  meson
+  miniserve
+  mpv
+  neovim
+  networkmanager-openconnect
+  nh
+  nix-index
+  nix-ld
+  nushell
+  openconnect
+  openssl
+  oxygen
+  parted
+  pavucontrol
+  pciutils
+  pkg-config
+  podman
+  podman-compose # start group of containers for dev
+  podman-tui # status of containers in the terminal
+  python3
+  python3Full
+  qbittorrent-enhanced
+  rclone
+  ripgrep
+  ruff
+  rustc
+  skim
+  squashfsTools
+  starship
+  tmux
+  unstable.fish
+  unstable.flatpak
+  unstable.nixfmt-rfc-style
+  unzip
+  uv
+  vim
+  wayland
+  wayland-protocols
+  wezterm
+  wget
+  xorg.libXau
+  yazi
+  zip
+  zoxide
+  zstd
+#+end_src
+
+****** END
+#+begin_src nix :tangle ./configuration.nix
+  ];
+#+end_src
+
+**** Get details about manufacturer
+#+begin_src sh :shebang #!/bin/sh :results output
+  dmidecode -t system
 #+end_src
 
 **** COMMENT SUID wrappers
