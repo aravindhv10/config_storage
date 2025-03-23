@@ -167,7 +167,7 @@
   # Needed by some GTK applications
   portal = /usr/libexec/xdg-desktop-portal
   bar = waybar
-  footterminal = foot_server
+  footterminal = foot -s
   networkmanager = nm-applet
 #+end_src
 
