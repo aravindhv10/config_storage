@@ -12,8 +12,8 @@ abbr --add --position command -- du dust
 
 abbr --add --position command -- argc aria2c -c -x16 -j16
 
-abbr --add --position command -- qa byobu-tmux
-abbr --add --position command -- aq byobu-tmux
+abbr --add --position command -- qa sudo byobu-tmux
+abbr --add --position command -- aq sudo byobu-tmux
 
 abbr --add --position command -- az exec sudo -A byobu-tmux
 abbr --add --position command -- za exec sudo -A byobu-tmux
