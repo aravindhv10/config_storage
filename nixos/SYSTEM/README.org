@@ -5,14 +5,20 @@
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
+
           nixfmt 'configuration.nix' ;
           nixfmt 'hardware-configuration.nix' ;
+
           git add 'do_copy.sh' ;
           git add 'configuration.nix' ;
           git add 'hardware-configuration.nix' ;
           git add 'README.org' ;
+          git add 'rebuild_boot.sh' ;
+          git add 'rebuild_switch.sh' ;
+
           rm -vf -- '#configuration.nix#' ;
           rm -vf -- 'README.org~' ;
+
       " "log" "err")
 #+end_src
 
@@ -23,7 +29,23 @@
   (async-shell-command "./do_copy.sh" "log" "err")
 #+end_src
 
-*** Actual script
+* Script to rebuild and switch
+
+** with /var/tmp as tmp
+
+*** switch
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./rebuild_switch.sh
+  export TMPDIR='/var/tmp'
+  nixos-rebuild switch
+#+end_src
+
+*** boot
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./rebuild_boot.sh
+  export TMPDIR='/var/tmp'
+  nixos-rebuild switch
+#+end_src
+
+* Script to copy the config files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
   cd "$('dirname' '--' "${0}")"
 
