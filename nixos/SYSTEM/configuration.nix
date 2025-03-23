@@ -108,7 +108,7 @@ in
   ];
 
   boot.tmp.useTmpfs = true;
-  boot.tmp.tmpfsSize = "80%";
+  boot.tmp.tmpfsSize = "60%";
 
   networking.hostName = "nixos";
 
