@@ -232,7 +232,7 @@ in case =canTouchEfiVariables= doesn't work for your system
 ********** Nixos with debian kernel
 #+begin_src nix :tangle ./configuration.nix
   menuentry "nixos_debian_kernel" {
-      linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/rd4d341n7gs3pvagdrc5bghldz9ny4p8-nixos-system-nixos-24.11.715519.ebe2788eafd5/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+      linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/jyx1xdiw44nwkmimnbrp76njniaphya3-nixos-system-nixos-24.11.715908.7105ae395770/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
       initrd /i
   }
 #+end_src
@@ -332,7 +332,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 ***** Custom build
 
-***** 2
+****** 2
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
@@ -353,7 +353,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
       pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 #+end_src
 
-***** COMMENT 1
+****** COMMENT 1
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
@@ -753,6 +753,7 @@ You can disable this if you're only using the Wayland session.
   squashfsTools
   starship
   tmux
+  tree
   unstable.fish
   unstable.flatpak
   unstable.nixfmt-rfc-style
