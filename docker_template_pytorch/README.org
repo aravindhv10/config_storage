@@ -1,30 +1,10 @@
 * Work space
 
 ** elisp stuff
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
-  (async-shell-command "./work.sh" "log" "error")
 #+end_src
-
-#+RESULTS:
-: #<window 2004 on log>
-
-** shell stuff
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./work.sh
-  rm -vf -- 'README.org~' '.#README.org' './work.sh'
-  git status
-#+end_src
-
-
-* MOA prompt
-You have been provided with an image and a set of descriptions of the image from various open-source models. Your task is to synthesize these descriptions into a single, high-quality description of the given image. It is crucial to critically evaluate the information provided in these descriptions, recognizing that some of them may be incomplete, biased or incorrect. Your description should not simply replicate the given descriptions but should offer a refined, accurate, and comprehensive reply. Ensure your response is well-structured, coherent, and adheres to the highest standards of accuracy and reliability.
-
-Responses from models:
-1. The image depicts a whimsical scene set on the moon's surface, characterized by its gray, cratered terrain and a dark, star-studded sky. At the center of the image, a small, white, fuzzy creature, resembling a bunny, is hatching from a brown egg. The creature is adorned in a space suit with a black visor, giving it a unique, otherworldly appearance. The egg is cracked open, with its shell split in half, revealing the creature emerging. The background is blurred, emphasizing the creature and the egg, while the moon's surface is detailed with craters and small rocks. The overall composition creates a surreal and imaginative portrayal of a space bunny hatching on the moon.
-2. The image depicts a small, plush astronaut toy emerging from an eggshell on a rocky, moon-like surface. The background is dark with a few distant lights, giving the impression of a space or lunar environment. The scene is illuminated by a soft light, highlighting the texture of the eggshell and the details of the astronaut toy. The overall atmosphere is whimsical and imaginative, blending elements of space exploration with a playful, fantastical twist.⏎     ubuntu@aravind-ml-a100
-
-Result: The image presents a whimsical and imaginative scene set on a moon-like surface, characterized by its gray, cratered terrain and a dark, star-studded sky. At the center of the image, a small, white, fuzzy creature resembling a bunny is emerging from a brown egg. The creature is dressed in a space suit with a black visor, adding a unique, otherworldly touch to its appearance. The egg is cracked open, with its shell split in half, revealing the creature as it hatches. The background is softly blurred, drawing focus to the creature and the egg, while the moon's surface is detailed with craters and small rocks. The overall composition creates a surreal and playful portrayal of a space bunny hatching on the moon, blending elements of space exploration with a fantastical twist.
 
 * Basic preparation
 
@@ -32,7 +12,7 @@ Result: The image presents a whimsical and imaginative scene set on a moon-like 
 
 *** Docker container names
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  export IMAGE_NAME='jupyter_torch'
+  export IMAGE_NAME='debian-cuda'
   export CONTAINER_NAME="${IMAGE_NAME}_1"
 
   docker_build(){
@@ -49,18 +29,23 @@ Result: The image presents a whimsical and imaginative scene set on a moon-like 
   . './host.image_names.sh'
 #+end_src
 
-*** Main base image
+** Main base image
+
+*** For good rust support
 #+begin_src conf :tangle ./Dockerfile
-  # FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel
-  # FROM pytorch/pytorch:2.3.0-cuda12.1-cudnn8-devel
-  # FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-devel
-  FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS cuda_deb
+  FROM rust:latest
 #+end_src
 
-*** Basic configs
+*** COMMENT Native cuda image
+#+begin_src conf :tangle ./Dockerfile
+  FROM nvidia/cuda:12.6.3-cudnn-devel-ubuntu24.04
+#+end_src
+
+** Basic configs
 #+begin_src conf :tangle ./Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
+  ENV NVIDIA_DRIVER_CAPABILITIES='compute,utility,video'
   WORKDIR '/root'
 #+end_src
 
@@ -69,26 +54,95 @@ Result: The image presents a whimsical and imaginative scene set on a moon-like 
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'Starting apt-get stuff' \
+      echo 'START apt-get stuff' \
       && apt-get -y update \
       && apt-get install -y \
-          aria2 \
-          bash \
-          build-essential \
-          ca-certificates \
-          curl \
-          git \
-          git-lfs \
-          libgl1 \
-          libglib2.0-0 \
-          libsm6 \
-          libsndfile1-dev \
-          libxext6 \
-          libxrender1 \
-          neovim \
-          python3-dev \
-          python3-pip \
-      && echo 'Done apt-get stuff' ;
+          'aria2' \
+          'bash' \
+          'build-essential' \
+          'ca-certificates' \
+          'cmake' \
+          'curl' \
+          'ffmpeg' \
+          'git' \
+          'git-lfs' \
+          'ipython3' \
+          'libavcodec-dev' \
+          'libavdevice-dev' \
+          'libavfilter-dev' \
+          'libavformat-dev' \
+          'libavutil-dev' \
+          'libc6' \
+          'libc6-dev' \
+          'libcairo2-dev' \
+          'libffmpeg-nvenc-dev' \
+          'libgirepository1.0-dev' \
+          'libgl1' \
+          'libglib2.0-0' \
+          'libgstrtspserver-1.0-dev' \
+          'libnuma-dev' \
+          'libnuma1' \
+          'libopencv-dev' \
+          'libpostproc-dev' \
+          'libsdl-kitchensink-dev' \
+          'libsm6' \
+          'libsndfile1-dev' \
+          'libswresample-dev' \
+          'libswscale-dev' \
+          'libtool' \
+          'libxext6' \
+          'libxrender1' \
+          'libxt-dev' \
+          'make' \
+          'nasm' \
+          'neovim' \
+          'ninja-build' \
+          'pybind11-dev' \
+          'python-gi-dev' \
+          'python3-dev' \
+          'python3-gst-1.0' \
+          'python3-opencv' \
+          'python3-pip' \
+          'python3-pybind11' \
+          'python3-setuptools' \
+          'unzip' \
+          'wget' \
+          'yasm' \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+** Installing cuda
+
+*** COMMENT 12.4
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START nvidia cuda download' \
+      && wget 'https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb' \
+      && dpkg -i 'cuda-keyring_1.1-1_all.deb' \
+      && apt-get 'update' \
+      && apt-get '-y' 'install' \
+          'cuda-toolkit-12-4' \
+          'cudnn' \
+          'cudnn-cuda-12' \
+      && echo 'DONE nvidia cuda download' ;
+#+end_src
+
+*** 12.6
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START nvidia cuda download' \
+      && wget 'https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb' \
+      && dpkg -i 'cuda-keyring_1.1-1_all.deb' \
+      && apt-get 'update' \
+      && apt-get '-y' 'install' \
+          'cuda-toolkit-12-6' \
+          'cudnn' \
+          'cudnn-cuda-12' \
+      && echo 'DONE nvidia cuda download' ;
 #+end_src
 
 ** Build the docker image
@@ -120,10 +174,11 @@ Result: The image presents a whimsical and imaginative scene set on a moon-like 
   --tty
   --interactive
   --rm
-  --gpus all
+  --gpus 'all,"capabilities=compute,utility,video"'
   --ipc host
   --ulimit memlock=-1
   --ulimit stack=67108864
+  --shm-size 107374182400
 #+end_src
 
 ** Main script wrapper for all mounts
@@ -140,648 +195,623 @@ Result: The image presents a whimsical and imaginative scene set on a moon-like 
 
 * Installing UV
 
-** Next stage of build
-#+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb AS cuda_deb_uv
-#+end_src
-
 ** Install uv
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'Starting uv download' \
+      echo 'START uv download' \
       && curl -LsSf 'https://astral.sh/uv/install.sh' | sh \
       && cp -vf -- "${HOME}/.local/bin/uv" '/usr/local/bin/' \
-      && echo 'Done uv download' ;
+      && echo 'DONE uv download' ;
 #+end_src
 
 ** start venv
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && uv venv "${HOME}/venv" \
-      && echo 'done' ;
+      echo 'START venv' \
+      && uv venv \
+          "${HOME}/venv" \
+      && echo 'DONE venv' ;
 #+end_src
 
-* Installing essential deep learning libraries
-
-** pip stage of the build
-#+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb_uv AS cuda_deb_uv_pip
-#+end_src
-
-** Install pypi stuff
-
-*** Basic stuff
+* Basic updates
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
+      echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install -U \
-          pip \
-          setuptools \
-          wheel \
-      && echo 'done' ;
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
 #+end_src
 
-*** Torch stuff
+* Installing pytorch
+
+** Main torch
+
+*** For cuda 12.6
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
+      echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          torch \
-          torchao \
-          torchaudio \
-          torchvision \
-      && echo 'done' ;
+          'torch' \
+          'torchvision' \
+          'torchaudio' \
+          '--index-url' 'https://download.pytorch.org/whl/cu126' \
+      && echo 'DONE pytorch' ;
 #+end_src
 
-*** Extra libraries
+*** COMMENT For cuda 12.4
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
+      echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          accelerate \
-          deepspeed \
-          diffusers \
-          einops \
-          huggingface-hub \
-          inotify-simple \
-          ninja \
-          optimum-quanto \
-          packaging \
-          peft \
-          prodigyopt \
-          sentencepiece \
-          transformers \
-      && echo 'done' ;
+          'torch' \
+          'torchaudio' \
+          'torchvision' \
+      && echo 'DONE pytorch' ;
 #+end_src
 
-*** More Extra libraries
+** Extra torch libraries
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && . /root/venv/bin/activate \
-      && uv pip install \
-          accelerate \
-          datasets \
-          decord \
-          deepspeed \
-          diffusers \
-          einops \
-          gekko \
-          huggingface-hub \
-          inotify-simple \
-          ninja \
-          optimum-quanto \
-          packaging \
-          peft \
-          prodigyopt \
-          protobuf \
-          qwen-vl-utils \
-          sentencepiece \
-          transformers \
-      && echo 'done' ;
-#+end_src
-
-*** quantization
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'starting' \
+      echo 'START pytorch quantization and tensorrt' \
       && . "${HOME}/venv/bin/activate" \
-      && uv pip install --no-deps \
-          autoawq-kernels \
-          auto-gptq \
-          autoawq \
-          optimum  \
-      && echo 'done' ;
+      && uv pip install \
+          'torchao' \
+          'torch-tensorrt' \
+      && echo 'DONE pytorch quantization and tensorrt' ;
 #+end_src
 
-** Clone and install from source
-
-*** Transformers
+* Tensor manipulation
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && cd /root \
+      echo 'START Tensor manipulation' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'einops' \
+      && echo 'DONE Tensor manipulation' ;
+#+end_src
+
+* Image libraries
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Extra misc libs' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'opencv_contrib_python' \
+          'opencv_python' \
+          'pillow' \
+      && echo 'DONE Extra misc libs' ;
+#+end_src
+
+* flash attn
+
+** COMMENT using uv
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START flash attn install using uv' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install --no-build-isolation \
+          'flash-attn' \
+      && echo 'DONE flash attn install using uv' ;
+#+end_src
+
+** using pip
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START flash attn install using pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && pip3 install \
+          'flash-attn' \
+      && echo 'DONE flash attn install using pip' ;
+#+end_src
+
+* Install xformers
+
+** For cuda 12.6
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START xformers install' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'xformers' \
+          '--index-url' 'https://download.pytorch.org/whl/cu126' \
+      && echo 'DONE xformers install' ;
+#+end_src
+
+* Quantization, optimization and offloading
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Quantization, optimization and offloading' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'deepspeed' \
+          'accelerate' \
+          'lightning' \
+          'optimum' \
+          'optimum-quanto' \
+          'prodigyopt' \
+      && echo 'DONE Quantization, optimization and offloading' ;
+#+end_src
+
+* Core huggingface libs
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Core huggingface libs' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'diffusers' \
+          'huggingface-hub' \
+          'peft' \
+          'safetensors' \
+          'transformers' \
+      && echo 'DONE Core huggingface libs' ;
+#+end_src
+
+* Extra libraries
+
+** 1
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Extra libraries - 1' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'inotify-simple' \
+          'optimum-quanto' \
+          'packaging' \
+          'sentencepiece' \
+      && echo 'DONE Extra libraries - 1' ;
+#+end_src
+
+** 2
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Extra libraries - 2' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'albumentations' \
+          'datasets' \
+          'evaluate' \
+          'gekko' \
+          'protobuf' \
+          'pycairo' \
+          'scikit-learn' \
+          'ultralytics' \
+      && echo 'DONE Extra libraries - 2' ;
+#+end_src
+
+** 3
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Extra libraries - 3' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'dlib' \
+          'matplotlib' \
+          'tqdm' \
+          'urllib3' \
+      && echo 'DONE Extra libraries - 3' ;
+#+end_src
+
+* For video stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START video stuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'decord' \
+          'qwen-vl-utils[decord]==0.0.8' \
+      && echo 'DONE video stuff' ;
+#+end_src
+
+* quantization
+
+** auto GPTQ
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START GPTQ quantization libs' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install --no-deps  \
+          'auto-gptq' \
+      && echo 'DONE GPTQ quantization libs' ;
+#+end_src
+
+** auto AWQ
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START AWQ quantization libs' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install --no-deps --no-build-isolation \
+          'autoawq-kernels' \
+          'autoawq' \
+      && echo 'DONE AWQ quantization libs' ;
+#+end_src
+
+* Install onnx
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START ONNX related' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'onnx' \
+          'onnxconverter-common' \
+          'onnxruntime' \
+          'onnxruntime-gpu' \
+          'onnxscript' \
+          'openvino' \
+      && echo 'DONE ONNX related' ;
+#+end_src
+
+* jupyter lab
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START jupyter lab install' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'ipywidgets' \
+          'jupyterlab' \
+          'jupyter' \
+          'ipython' \
+      && echo 'DONE jupyter lab install' ;
+#+end_src
+
+* polars
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START polars' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'polars' \
+          'fastexcel' \
+      && echo 'DONE polars' ;
+#+end_src
+
+* Pandas
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Pandas' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'pandas' \
+          'seaborn' \
+      && echo 'DONE Pandas' ;
+#+end_src
+
+* Clone and install from source
+
+** Transformers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START transformers source install' \
+      && cd "${HOME}" \
       && git clone --depth 1 'https://github.com/huggingface/transformers.git' \
       && cd transformers \
-      && . /root/venv/bin/activate \
+      && . "${HOME}/venv/bin/activate" \
       && uv pip install -e . \
-      && echo 'done' ;
+      && echo 'DONE transformers source install' ;
 #+end_src
 
-*** Diffusers
+** pytorch video
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && cd /root \
+      echo 'START pytorch video source install' \
+      && cd "${HOME}" \
+      && git clone --depth 1 'https://github.com/facebookresearch/pytorchvideo.git' \
+      && cd 'pytorchvideo' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -e . \
+      && echo 'DONE pytorch video source install' ;
+#+end_src
+
+** Diffusers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START diffusers install from source' \
+      && cd "${HOME}" \
       && git clone --depth 1 'https://github.com/huggingface/diffusers.git' \
       && cd diffusers \
-      && . /root/venv/bin/activate \
+      && . "${HOME}/venv/bin/activate" \
       && uv pip install -e . \
-      && echo 'done' ;
+      && echo 'DONE diffusers install from source' ;
 #+end_src
 
-* flash attn part
-
-** Inheriting from previous section
-#+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb_uv_pip AS cuda_deb_uv_pip_flash
-#+end_src
-
-** flash attn
-
-*** COMMENT using uv
+** TIMM
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && . /root/venv/bin/activate \
-      && uv pip install --no-build-isolation \
-          flash-attn \
-      && echo 'done' ;
+      echo 'START TIMM install from source' \
+      && cd "${HOME}" \
+      && git clone --depth 1 'https://github.com/huggingface/pytorch-image-models.git' \
+      && cd pytorch-image-models \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -e . \
+      && echo 'DONE TIMM install from source' ;
 #+end_src
 
-*** using pip
+** DOCTR
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && . /root/venv/bin/activate \
-      && pip3 install \
-          flash-attn \
-      && echo 'done' ;
+      echo 'START TIMM install from source' \
+      && cd "${HOME}" \
+      && git clone --depth 1 'https://github.com/mindee/doctr.git' \
+      && cd doctr \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -e . \
+      && echo 'DONE TIMM install from source' ;
 #+end_src
 
-** Install xformers
+** QWEN 2.5 VL
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
-      && . /root/venv/bin/activate \
-      && uv pip install \
-          xformers \
-      && echo 'done' ;
+      echo 'START QWEN 2.5 source' \
+      && cd "${HOME}" \
+      && git clone --depth 1 'https://github.com/QwenLM/Qwen2.5-VL.git' \
+      && cd 'Qwen2.5-VL/qwen-vl-utils' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -e . \
+      && echo 'DONE QWEN 2.5 source' ;
 #+end_src
 
-* Image for jupyter
-
-** Main docker image
-#+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb_uv_pip_flash AS cuda_deb_uv_pip_flash_jupyter
-#+end_src
-
-** jupyter lab
+** RTMLib
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'starting' \
+      echo 'START Installing RTMLib' \
+      && cd "${HOME}" \
+      && git clone --depth 1 'https://github.com/Tau-J/rtmlib.git' \
+      && cd 'rtmlib' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -e . \
+      && echo 'DONE Installing RTMLib' ;
+#+end_src
+
+** SAM2
+
+*** Extra libs
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START SAM extra deps' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          ipywidgets \
-          jupyterlab \
-      && echo 'done' ;
+          'numpy' \
+          'hydra-core' \
+          'iopath' \
+      && echo 'DONE SAM extra deps' ;
 #+end_src
 
-** Expose the jupyterlab port
-
-*** Inside the container
+*** Main sam
 #+begin_src conf :tangle ./Dockerfile
-  EXPOSE 8888/tcp
+  RUN \
+      echo 'START' \
+      && cd "${HOME}" \
+      && git clone --depth 1 'https://github.com/facebookresearch/sam2.git' \
+      && cd 'sam2' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -e . \
+      && echo 'DONE' ;
 #+end_src
 
-*** During docker run
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  -p '0.0.0.0:8888:8888/tcp'
-#+end_src
-
-** Script to start jupyterlab server
-
-*** Copy the script
+* Setup sym links for SHA512SUM
 #+begin_src conf :tangle ./Dockerfile
-  COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
+  RUN \
+      echo 'START Linking SHA512SUM' \
+      && ln -vfs -- \
+          './.cache/SHA512SUM' \
+          '/root/SHA512SUM' \
+      && echo 'DONE Linking SHA512SUM' ;
 #+end_src
 
-*** Main shell script for starting jupyterlab
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.start_jupyter_lab.sh
-  cd '/data/output'
-  . "${HOME}/venv/bin/activate"
-  exec 'jupyter' 'lab' '--allow-root' '--ip=0.0.0.0'
-#+end_src
+* Important functions (script to source)
 
-* Inference image for large models
-
-** The image declaration
+** Copy the script
 #+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb_uv_pip_flash_jupyter AS cuda_deb_uv_pip_flash_jupyter_inference
+  COPY ./important_functions.sh '/root/important_functions.sh'
 #+end_src
 
-** Huggingface accelerate config
+** The actual script
 
-*** Copy the file into the image
+*** To download using aria2c
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  do_download() {
+      test -e "${HOME}/TMP/${2}.aria2" \
+          && aria2c -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
+
+      test -e "${HOME}/TMP/${2}" \
+          || aria2c -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
+  }
+#+end_src
+
+*** Link the shasum to the destination
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  do_link(){
+      mkdir -pv -- "$(dirname -- "${2}")"
+      ln -vfs -- "${HOME}/SHA512SUM/${1}" "${2}"
+  }
+#+end_src
+
+*** The main function to do the downloading
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  adown(){
+      mkdir -pv -- "${HOME}/TMP" "${HOME}/SHA512SUM"
+
+      test "${#}" '-ge' '4' && do_link "${3}" "${4}"
+
+      test "${#}" '-ge' '3' && test -e "${HOME}/SHA512SUM/${3}" && return 0
+
+      cd "${HOME}/TMP"
+
+      do_download "${1}" "${2}"
+
+      HASH="$(sha512sum "${2}" | cut -d ' ' -f1)"
+
+      test "${#}" '-ge' '3' && test "${3}" '=' "${HASH}" && mv -vf -- "${2}" "${HOME}/SHA512SUM/${HASH}"
+
+      test "${#}" '-ge' '4' && do_link "${3}" "${4}"
+  }
+#+end_src
+
+*** Download git repos
+
+**** Download the repo from huggingface
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_repo_hf(){
+      DIR_BASE="${HOME}/HUGGINGFACE"
+      DIR_REPO="$('echo' "${1}" | 'sed' 's@^https://huggingface.co/@@g ; s@/tree/main$@@g')"
+      DIR_FULL="${DIR_BASE}/${DIR_REPO}"
+      URL="$('echo' "${1}" | 'sed' 's@/tree/main$@@g')"
+
+      mkdir '-pv' '--' "$('dirname' '--' "${DIR_FULL}")"
+      cd "$('dirname' '--' "${DIR_FULL}")"
+      git clone "${URL}"
+      cd "${DIR_FULL}"
+      git pull
+      git submodule update --recursive --init
+  }
+#+end_src
+
+**** Download the repo from github
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_repo(){
+      DIR_REPO="${HOME}/GITHUB/$('echo' "${1}" | 'sed' 's/^git@github.com://g ; s@^https://github.com/@@g ; s@.git$@@g' )"
+      DIR_BASE="$('dirname' '--' "${DIR_REPO}")"
+
+      mkdir -pv -- "${DIR_BASE}"
+      cd "${DIR_BASE}"
+      git clone "${1}"
+      cd "${DIR_REPO}"
+
+      if test "${#}" '-ge' '2'
+      then
+          git switch "${2}"
+      else
+          git switch main
+      fi
+
+      git pull
+      git submodule update --recursive --init
+
+      if test "${#}" '-ge' '3'
+      then
+          git checkout "${3}"
+      fi
+  }
+#+end_src
+
+*** Get oh my zsh for convenience
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_ohmyzsh(){
+      get_repo 'https://github.com/ohmyzsh/ohmyzsh.git'
+      test -d "${HOME}/.oh-my-zsh" && rm -rf "${HOME}/.oh-my-zsh"
+      test -L "${HOME}/.oh-my-zsh" || ln -vfs "./GITHUB/ohmyzsh/ohmyzsh" "${HOME}/.oh-my-zsh"
+      cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "${HOME}/.zshrc"
+  }
+#+end_src
+
+* Setup zsh
+
+** Install zsh
 #+begin_src conf :tangle ./Dockerfile
-  COPY './default_config.yaml' '/root/default_config.yaml'
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get zsh stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'zsh' \
+      && echo 'DONE apt-get zsh stuff' ;
 #+end_src
 
-*** Actual file which seems to be working with qwen 2 VL 72B
-#+begin_src conf :tangle ./default_config.yaml
-  compute_environment: LOCAL_MACHINE
-  debug: false
-  deepspeed_config:
-    gradient_accumulation_steps: 1
-    offload_optimizer_device: cpu
-    offload_param_device: cpu
-    zero3_init_flag: true
-    zero3_save_16bit_model: true
-    zero_stage: 3
-  distributed_type: DEEPSPEED
-  downcast_bf16: 'no'
-  dynamo_config:
-    dynamo_backend: INDUCTOR
-  enable_cpu_affinity: false
-  machine_rank: 0
-  main_training_function: main
-  mixed_precision: bf16
-  num_machines: 1
-  num_processes: 1
-  rdzv_backend: static
-  same_network: true
-  tpu_env: []
-  tpu_use_cluster: false
-  tpu_use_sudo: false
-  use_cpu: false
-#+end_src
-
-** Inference scripts
-
-*** QWEN 2 VL
-
-**** python
-#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./docker.infer_qwen.py
-  from qwen_vl_utils import process_vision_info
-  from transformers import AutoProcessor
-  from transformers import AutoTokenizer
-  from transformers import Qwen2VLForConditionalGeneration
-  import os
-  import sys
-  import time
-  import torch
-
-
-  def remove_extension(path_input):
-      loc = path_input.rfind(".")
-      return path_input[0:loc]
-
-
-  def get_all_images(path_dir_input):
-      ret = []
-
-      for dirpath, dirnames, filenames in os.walk(path_dir_input):
-          for filename in filenames:
-              tmp = filename.lower()
-
-              if tmp.endswith(".jpg") or tmp.endswith(".jpeg") or tmp.endswith(".png"):
-                  ret.append(os.path.join(dirpath, filename))
-
-      return ret
-
-
-  def replace_base_dir(list_paths, path_input, path_output):
-      res = list(path_output + i[len(path_input) :] for i in list_paths)
-      return res
-
-
-  class infer_slave:
-      def __init__(self, model_index=0):
-          model_list = (
-              "Qwen/Qwen2-VL-72B-Instruct-GPTQ-Int8",
-              "Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int8",
-              "Qwen/Qwen2-VL-7B-Instruct-AWQ",
-              "Qwen/Qwen2-VL-7B-Instruct",
-          )
-
-          self.model_name = model_list[model_index]
-
-          self.model = Qwen2VLForConditionalGeneration.from_pretrained(
-              self.model_name,
-              torch_dtype=torch.bfloat16,
-              attn_implementation="flash_attention_2",
-              device_map="auto",
-          )
-
-          self.processor = AutoProcessor.from_pretrained(
-              self.model_name,
-          )
-
-      def do_process(self, path_image_input, path_caption_input):
-          messages = [
-              {
-                  "role": "user",
-                  "content": [
-                      {
-                          "type": "image",
-                          "image": path_image_input,
-                      },
-                      {
-                          "type": "text",
-                          "text": open(path_caption_input, "r", encoding="utf-8").read(),
-                      },
-                  ],
-              }
-          ]
-
-          # Preparation for inference
-          text = self.processor.apply_chat_template(
-              messages, tokenize=False, add_generation_prompt=True
-          )
-
-          image_inputs, video_inputs = process_vision_info(messages)
-
-          inputs = self.processor(
-              text=[text],
-              images=image_inputs,
-              videos=video_inputs,
-              padding=True,
-              return_tensors="pt",
-          )
-
-          inputs = inputs.to("cuda")
-          return inputs
-
-      def do_infer(self, path_image_input, path_caption_input):
-          messages = [
-              {
-                  "role": "user",
-                  "content": [
-                      {
-                          "type": "image",
-                          "image": path_image_input,
-                      },
-                      {
-                          "type": "text",
-                          "text": open(path_caption_input, "r", encoding="utf-8").read(),
-                      },
-                  ],
-              }
-          ]
-
-          # Preparation for inference
-          text = self.processor.apply_chat_template(
-              messages, tokenize=False, add_generation_prompt=True
-          )
-
-          image_inputs, video_inputs = process_vision_info(messages)
-
-          inputs = self.processor(
-              text=[text],
-              images=image_inputs,
-              videos=video_inputs,
-              padding=True,
-              return_tensors="pt",
-          )
-
-          inputs = inputs.to("cuda")
-
-          # Inference: Generation of the output
-          generated_ids = self.model.generate(**inputs, max_new_tokens=1024)
-          generated_ids_trimmed = [
-              out_ids[len(in_ids) :]
-              for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-          ]
-          output_text = self.processor.batch_decode(
-              generated_ids_trimmed,
-              skip_special_tokens=True,
-              clean_up_tokenization_spaces=False,
-          )
-
-          os.unlink(path_image_input)
-          os.unlink(path_caption_input)
-
-          return output_text
-
-      def do_docker_infer(self):
-          list_path_images = get_all_images(path_dir_input="/data/input")
-          list_path_images.sort()
-
-          list_path_captions = list(
-              remove_extension(path_input=i) + ".txt" for i in list_path_images
-          )
-
-          list_path_work = list(
-              remove_extension(path_input=i) + ".work" for i in list_path_images
-          )
-
-          list_path_captions_output = replace_base_dir(
-              list_paths=list_path_captions,
-              path_input="/data/input",
-              path_output="/data/output",
-          )
-
-          for i in range(len(list_path_images)):
-              path_done = (
-                  remove_extension(path_input=list_path_captions_output[i]) + ".done"
-              )
-
-              if (
-                  os.path.exists(list_path_captions[i])
-                  and os.path.exists(list_path_work[i])
-                  and (not os.path.exists(path_done))
-              ):
-                  if os.path.exists(list_path_captions_output[i]):
-                      os.unlink(list_path_captions_output[i])
-
-                  res = self.do_infer(
-                      path_image_input=list_path_images[i],
-                      path_caption_input=list_path_captions[i],
-                  )[0]
-
-                  open(list_path_captions_output[i], "w", encoding="utf-8").write(res)
-
-                  os.unlink(list_path_work[i])
-
-                  open(path_done, "w").close()
-
-
-  slave = infer_slave()
-  slave.do_docker_infer()
-
-  while len(sys.argv) > 1:
-      time.sleep(0.2)
-      slave.do_docker_infer()
-#+end_src
-
-**** shell
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.infer_qwen.sh
-  cd "${HOME}"
-
-  . "${HOME}/venv/bin/activate"
-
-  cp -vf -- \
-      "${HOME}/default_config.yaml" \
-      "${HOME}/.cache/huggingface/accelerate/default_config.yaml" ;
-
-  accelerate launch "${HOME}/docker.infer_qwen.py"
-#+end_src
-
-**** Copy the inference script into docker
+** Get oh my zsh
 #+begin_src conf :tangle ./Dockerfile
-  COPY './docker.infer_qwen.py' '/root/docker.infer_qwen.py'
-  COPY './docker.infer_qwen.sh' '/root/docker.infer_qwen.sh'
+  RUN \
+      echo 'START set up oh my zsh' \
+      && . "${HOME}/important_functions.sh" \
+      && get_ohmyzsh \
+      && echo 'DONE set up oh my zsh' ;
 #+end_src
 
-*** FLUX
+* Download SAM checkpoints inside the container
 
-**** python
-#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./docker.infer_flux.py
-  import torch
-  from diffusers import FluxPipeline
-
-  pipe = FluxPipeline.from_pretrained(
-      "black-forest-labs/FLUX.1-dev", device_map="balanced", torch_dtype=torch.bfloat16
-  )
-
-  pipe.transformer = torch.compile(pipe.transformer)
-
-
-  def do_infer(prompt, path_image_output, width=1360, height=768):
-      out = pipe(
-          prompt=prompt,
-          guidance_scale=3.5,
-          height=height,
-          width=width,
-          num_inference_steps=20,
-      ).images[0]
-
-      out.save(path_image_output)
-
-
-  prompt = "a tiny astronaut hatching from an egg on the moon"
-  do_infer(
-      prompt=prompt, path_image_output="/data/output/image.png", width=1360, height=768
-  )
-#+end_src
-
-**** shell
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.infer_flux.sh
-  cd "${HOME}"
-
-  . "${HOME}/venv/bin/activate"
-
-  cp -vf -- \
-      "${HOME}/default_config.yaml" \
-      "${HOME}/.cache/huggingface/accelerate/default_config.yaml" ;
-
-  accelerate launch "${HOME}/docker.infer_flux.py"
-#+end_src
-
-**** Copy the inference script into docker
+** Copy the scriot into the container
 #+begin_src conf :tangle ./Dockerfile
-  COPY './docker.infer_flux.py' '/root/docker.infer_flux.py'
-  COPY './docker.infer_flux.sh' '/root/docker.infer_flux.sh'
+  COPY ./docker.download_sam_checkpoints.sh '/root/docker.download_sam_checkpoints.sh'
 #+end_src
 
-* Molmo inference
+** The actual script
 
-** python part
-#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./docker.infer_molmo.py
-  from PIL import Image
-  from transformers import AutoModelForCausalLM
-  from transformers import AutoProcessor
-  from transformers import GenerationConfig
-  import requests
-  import torch
-
-
-  class image_loader:
-      def __init__(self, path_file_image_input):
-          self.o1_image = Image.open(path_file_image_input)
-
-
-  class molmo_model:
-      def __init__(self):
-          all_models = (
-              "allenai/Molmo-72B-0924",
-              "allenai/Molmo-7B-D-0924",
-              "allenai/Molmo-7B-O-0924",
-          )
-          self.processor = AutoProcessor.from_pretrained(
-              all_models[1],
-              # "allenai/Molmo-72B-0924",
-              trust_remote_code=True,
-              torch_dtype="auto",
-              device_map="auto",
-          )
-
-          self.model = AutoModelForCausalLM.from_pretrained(
-              "allenai/Molmo-7B-D-0924",
-              # "allenai/Molmo-72B-0924",
-              trust_remote_code=True,
-              torch_dtype="auto",
-              device_map="auto",
-          )
-
-      def infer(self, image_PIL):
-          # process the image and text
-          inputs = self.processor.process(
-              images=image_PIL,
-              text="Describe this image in full detail.",
-          )
-
-          # move inputs to the correct device and make a batch of size 1
-          inputs = {k: v.to(self.model.device).unsqueeze(0) for k, v in inputs.items()}
-
-          # generate output; maximum 200 new tokens; stop generation when <|endoftext|> is generated
-          output = self.model.generate_from_batch(
-              inputs,
-              GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
-              tokenizer=self.processor.tokenizer,
-          )
-
-          # only get generated tokens; decode them to text
-          generated_tokens = output[0, inputs["input_ids"].size(1) :]
-          generated_text = self.processor.tokenizer.decode(
-              generated_tokens, skip_special_tokens=True
-          )
-
-          # print the generated text
-          print(generated_text)
-
-          # >>> This image features an adorable black Labrador puppy sitting on a wooden deck.
-          #     The puppy is positioned in the center of the frame, looking up at the camera...
-
-
-  image = image_loader("/data/input/image.png")
-  main_model = molmo_model()
-  main_model.infer(image.o1_image)
+*** Create the directory
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
+  mkdir -pv -- "${HOME}/.cache/SHA512SUM"
 #+end_src
 
-** shell part
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.infer_molmo.sh
-  cd "${HOME}"
-
-  . "${HOME}/venv/bin/activate"
-
-  cp -vf -- \
-      "${HOME}/default_config.yaml" \
-      "${HOME}/.cache/huggingface/accelerate/default_config.yaml" ;
-
-  accelerate launch "${HOME}/docker.infer_molmo.py"
+*** Get the defined functions
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
+  . "${HOME}/important_functions.sh"
 #+end_src
 
-** Copy scripts into the image
-#+begin_src conf :tangle ./Dockerfile
-  COPY './docker.infer_molmo.py' '/root/docker.infer_molmo.py'
-  COPY './docker.infer_molmo.sh' '/root/docker.infer_molmo.sh'
+*** Download the actual checkpoints
+
+**** Tiny
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
+  adown \
+      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt' \
+      'sam2.1_hiera_tiny.pt' \
+      'df6fe66086c6e127f9932be2d0bc0a0c57f087c0e142427bea5ef7b71626e131e2755984df0bcd76b119e9dc0cc9dc33a8842e31ce445b3658ce77abe8789e2b'
+      "${HOME}/sam2/checkpoints/sam2.1_hiera_tiny.pt" \
+  ;
 #+end_src
 
-* Final Image
+**** Small
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
+  adown \
+      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt' \
+      'sam2.1_hiera_small.pt' \
+      'f6a1ab87b096fd6753ed2b7cfbb13695ad3ceb7a3dc3ea433f23571c0db2369ee372d27da3be9bce39c53ffc84a7e9a30c6879e5b1b418898d831442039264c6' \
+      "${HOME}/sam2/checkpoints/sam2.1_hiera_small.pt" \
+  ;
+#+end_src
 
-** The image declaration
-#+begin_src conf :tangle ./Dockerfile
-  FROM cuda_deb_uv_pip_flash_jupyter_inference
+**** Base
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
+  adown \
+      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt' \
+      'sam2.1_hiera_base_plus.pt' \
+      '0c4f89b91f1f951b95246f9544f32d93d370aaf10c30344d47df0cfa3316a819cffd0042ab462244198ae8261d56fa4cc93bf916b4c9f4450d651ac3faa9a7cd' \
+      "${HOME}/sam2/checkpoints/sam2.1_hiera_base_plus.pt" \
+  ;
+#+end_src
+
+**** Large
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
+  adown \
+      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt' \
+      'sam2.1_hiera_large.pt' \
+      '2672dacbbd40f9d8e0fffb80696316054e1a32f32a8241c89492e532f0607f1dc2bf0913f6688cfeb7521b02bb16c90b3ed4e90f53568c1f60f0c610f21ef21f' \
+      "${HOME}/sam2/checkpoints/sam2.1_hiera_large.pt" \
+  ;
 #+end_src
 
 * Main script wrapper for docker image name and command
+
+** Image name
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
   "${IMAGE_NAME}"
+#+end_src
+
+** COMMENT run bash
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
   '/bin/bash' ;
-  # '/root/docker.start_jupyter_lab.sh' ;
+#+end_src
+
+** run bash
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
+  'zsh' ;
+#+end_src
+
+** COMMENT start jupyter lab
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
+  '/root/docker.start_jupyter_lab.sh' ;
 #+end_src

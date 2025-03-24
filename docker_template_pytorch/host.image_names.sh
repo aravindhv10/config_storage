@@ -1,5 +1,5 @@
 #!/bin/sh
-export IMAGE_NAME='jupyter_torch'
+export IMAGE_NAME='debian-cuda'
 export CONTAINER_NAME="${IMAGE_NAME}_1"
 
 docker_build(){

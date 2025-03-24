@@ -13,10 +13,11 @@ sudo docker run
 --tty
 --interactive
 --rm
---gpus all
+--gpus 'all,"capabilities=compute,utility,video"'
 --ipc host
 --ulimit memlock=-1
 --ulimit stack=67108864
+--shm-size 107374182400
 
 --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472'
 -v "${INPUT}:/data/input"
@@ -24,8 +25,6 @@ sudo docker run
 
 -v "CACHE:/root/.cache"
 
--p '0.0.0.0:8888:8888/tcp'
-
 "${IMAGE_NAME}"
-'/bin/bash' ;
-# '/root/docker.start_jupyter_lab.sh' ;
+
+'zsh' ;
