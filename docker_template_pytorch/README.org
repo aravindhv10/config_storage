@@ -4,6 +4,15 @@
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
+  (async-shell-command "
+  git add './Dockerfile' ;
+  git add './README.org' ;
+  git add './docker.download_sam_checkpoints.sh' ;
+  git add './host.docker_build.sh' ;
+  git add './host.docker_run_interactive.sh' ;
+  git add './host.image_names.sh' ;
+  git add './important_functions.sh' ;
+  " "log" "err")
 #+end_src
 
 * Basic preparation
