@@ -372,4 +372,6 @@ RUN \
     && get_ohmyzsh \
     && echo 'DONE set up oh my zsh' ;
 
+COPY './default_config.yaml' '/root/default_config.yaml'
+
 COPY ./docker.download_sam_checkpoints.sh '/root/docker.download_sam_checkpoints.sh'
