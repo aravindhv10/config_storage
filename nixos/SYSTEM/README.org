@@ -783,6 +783,8 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ******* Wrapper scripts
+
+******** M_C_1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_1" ''
   #include <unistd.h>

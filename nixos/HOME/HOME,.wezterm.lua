@@ -20,7 +20,7 @@ config.keys = {
     mods = 'CTRL|ALT',
     action = wezterm.action.SplitPane {
       direction = 'Left',
-      command = { args = { '/usr/local/bin/fish' } },
+      command = { args = { 'fish' } },
       size = { Percent = 50 },
     },
   },
@@ -29,7 +29,7 @@ config.keys = {
     mods = 'CTRL|ALT',
     action = wezterm.action.SplitPane {
       direction = 'Right',
-      command = { args = { '/usr/local/bin/fish' } },
+      command = { args = { 'fish' } },
       size = { Percent = 50 },
     },
   },
@@ -38,7 +38,7 @@ config.keys = {
     mods = 'CTRL|ALT',
     action = wezterm.action.SplitPane {
       direction = 'Down',
-      command = { args = { '/usr/local/bin/fish' } },
+      command = { args = { 'fish' } },
       size = { Percent = 50 },
     },
   },
@@ -47,7 +47,7 @@ config.keys = {
     mods = 'CTRL|ALT',
     action = wezterm.action.SplitPane {
       direction = 'Up',
-      command = { args = { '/usr/local/bin/fish' } },
+      command = { args = { 'fish' } },
       size = { Percent = 50 },
     },
   },
