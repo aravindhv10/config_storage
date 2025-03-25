@@ -4,27 +4,18 @@
   pkgs,
   modulesPath,
   ...
-}:
-
-let
-
-  unstable = import <nixos-unstable> { };
-
-in
-
-{
-
-  imports = [ ./hardware-configuration.nix ];
+}: let
+  unstable = import <nixos-unstable> {};
+in {
+  imports = [./hardware-configuration.nix];
 
   boot.loader = {
-
     efi = {
       canTouchEfiVariables = true;
       efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
     };
 
     grub = {
-
       efiSupport = true;
 
       device = "/dev/nvme0n1";
@@ -42,9 +33,7 @@ in
         }
 
       '';
-
     };
-
   };
 
   networking.useDHCP = lib.mkDefault true;
@@ -52,60 +41,46 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  boot.initrd.availableKernelModules = [
-    "nvme"
-    "xhci_pci"
-    "ahci"
-    "uas"
-    "sd_mod"
-  ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [
-    "kvm-amd"
-    "amdgpu"
-  ];
-  boot.extraModulePackages = [ ];
+  boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
+  boot.initrd.kernelModules = [];
+  boot.kernelModules = ["kvm-amd" "amdgpu"];
+  boot.extraModulePackages = [];
 
-  environment.variables = {
-    ROC_ENABLE_PRE_VEGA = "1";
-  };
+  environment.variables = {ROC_ENABLE_PRE_VEGA = "1";};
 
-  hardware.opengl.extraPackages = [
-    pkgs.amdvlk
-    pkgs.rocmPackages.clr.icd
-  ];
+  hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 
   systemd.tmpfiles.rules = [
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
   ];
 
   hardware.graphics.enable32Bit = true;
-  hardware.opengl.extraPackages32 = [ pkgs.driversi686Linux.amdvlk ];
+  hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-  boot.kernelPackages =
-    let
-      linux_sgx_pkg =
-        { fetchurl, buildLinux, ... }@args:
-        buildLinux (
-          args
-          // rec {
-            version = "6.12.19-xanmod1";
-            modDirVersion = version;
-            src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
-            kernelPatches = [ ];
-            extraConfig = '''';
-            extraMeta.branch = version;
-          }
-          // (args.argsOverride or { })
-        );
-      linux_sgx = pkgs.callPackage linux_sgx_pkg { };
-    in
+  boot.kernelPackages = let
+    linux_sgx_pkg = {
+      fetchurl,
+      buildLinux,
+      ...
+    } @ args:
+      buildLinux (
+        args
+        // rec {
+          version = "6.12.19-xanmod1";
+          modDirVersion = version;
+          src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
+          kernelPatches = [];
+          extraConfig = ''
+          '';
+          extraMeta.branch = version;
+        }
+        // (args.argsOverride or {})
+      );
+    linux_sgx = pkgs.callPackage linux_sgx_pkg {};
+  in
     pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 
-  boot.kernelParams = [
-    "zswap.enabled=1"
-    "zswap.max_pool_percent=80"
-  ];
+  boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
   boot.tmp.useTmpfs = true;
   boot.tmp.tmpfsSize = "60%";
@@ -131,7 +106,7 @@ in
   };
 
   services.xserver.enable = true;
-  services.xserver.videoDrivers = [ "amdgpu" ];
+  services.xserver.videoDrivers = ["amdgpu"];
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
@@ -228,11 +203,7 @@ in
   users.users.asd = {
     isNormalUser = true;
     description = "asd";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "audio"
-    ];
+    extraGroups = ["networkmanager" "wheel" "audio"];
     packages = with pkgs; [
       kdePackages.kate
       # thunderbird
@@ -261,9 +232,9 @@ in
   };
 
   environment.systemPackages = with pkgs; [
-
     acpi
     alacritty
+    alejandra
     alsa-utils
     appstream
     aria2
@@ -272,7 +243,6 @@ in
     bottom
     brave
     byobu
-    (callPackage /root/debMirror.nix { })
     cargo
     catppuccin-kde
     clinfo
@@ -351,9 +321,6 @@ in
     starship
     tmux
     tree
-    unstable.fish
-    unstable.flatpak
-    unstable.nixfmt-rfc-style
     unzip
     uv
     vim
@@ -367,6 +334,21 @@ in
     zoxide
     zstd
 
+    unstable.fish
+    unstable.flatpak
+    unstable.nixfmt-rfc-style
+
+    (callPackage /root/debMirror.nix {})
+
+    (writeCBin "M_C_1" ''
+      #include <unistd.h>
+      char emacs[6] = "emacs" ;
+      int main () {
+          char * const args[2] = {emacs, NULL};
+          int ret = execvp(emacs, args);
+          return ret;
+      }
+    '')
   ];
 
   services.openssh.enable = true;
@@ -378,27 +360,7 @@ in
     alwaysKeepRunning = true;
     resolveLocalQueries = true;
     settings = {
-      server = [
-        "192.168.1.254"
-        "4.2.2.2"
-        "8.8.8.8"
-        "8.8.8.4"
-        "8.8.4.4"
-        "76.76.2.0"
-        "76.76.10.0"
-        "9.9.9.9"
-        "149.112.112.112"
-        "208.67.222.222"
-        "208.67.220.220"
-        "1.1.1.1"
-        "1.0.0.1"
-        "94.140.14.14"
-        "94.140.15.15"
-        "185.228.168.9"
-        "185.228.169.9"
-        "76.76.19.19"
-        "76.223.122.150"
-      ];
+      server = ["192.168.1.254" "4.2.2.2" "8.8.8.8" "8.8.8.4" "8.8.4.4" "76.76.2.0" "76.76.10.0" "9.9.9.9" "149.112.112.112" "208.67.222.222" "208.67.220.220" "1.1.1.1" "1.0.0.1" "94.140.14.14" "94.140.15.15" "185.228.168.9" "185.228.169.9" "76.76.19.19" "76.223.122.150"];
       local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
       log-queries = true; # Log results of all DNS queries
       bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
@@ -411,5 +373,4 @@ in
   };
 
   system.stateVersion = "24.11";
-
 }
