@@ -12,6 +12,7 @@
   git add './host.docker_run_interactive.sh' ;
   git add './host.image_names.sh' ;
   git add './important_functions.sh' ;
+  git add './default_config.yaml' ;
   " "log" "err")
 #+end_src
 
@@ -740,6 +741,42 @@
       && . "${HOME}/important_functions.sh" \
       && get_ohmyzsh \
       && echo 'DONE set up oh my zsh' ;
+#+end_src
+
+* Huggingface accelerate config
+
+** Copy the file into the image
+#+begin_src conf :tangle ./Dockerfile
+  COPY './default_config.yaml' '/root/default_config.yaml'
+#+end_src
+
+** Actual file which seems to be working with qwen 2 VL 72B
+#+begin_src conf :tangle ./default_config.yaml
+  compute_environment: LOCAL_MACHINE
+  debug: false
+  deepspeed_config:
+    gradient_accumulation_steps: 1
+    offload_optimizer_device: cpu
+    offload_param_device: cpu
+    zero3_init_flag: true
+    zero3_save_16bit_model: true
+    zero_stage: 3
+  distributed_type: DEEPSPEED
+  downcast_bf16: 'no'
+  dynamo_config:
+    dynamo_backend: INDUCTOR
+  enable_cpu_affinity: false
+  machine_rank: 0
+  main_training_function: main
+  mixed_precision: bf16
+  num_machines: 1
+  num_processes: 1
+  rdzv_backend: static
+  same_network: true
+  tpu_env: []
+  tpu_use_cluster: false
+  tpu_use_sudo: false
+  use_cpu: false
 #+end_src
 
 * Download SAM checkpoints inside the container
