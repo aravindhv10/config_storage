@@ -342,10 +342,21 @@ in {
 
     (writeCBin "M_C_1" ''
       #include <unistd.h>
-      char emacs[6] = "emacs" ;
+      char arg0[6] = "emacs" ;
       int main () {
-          char * const args[2] = {emacs, NULL};
-          int ret = execvp(emacs, args);
+          char * const args[2] = {arg0, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
+    (writeCBin "M_C_2" ''
+      #include <unistd.h>
+      char arg0[12] = "emacsclient" ;
+      char arg1[3] = "-c" ;
+      int main () {
+          char * const args[3] = {arg0, arg1, NULL};
+          int ret = execvp(arg0, args);
           return ret;
       }
     '')
