@@ -50,7 +50,8 @@
   cd "$('dirname' '--' "${0}")"
 
   C () {
-      sudo cp -vf -- "./${1}" "/etc/nixos/${1}"
+      export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+      sudo -A cp -vf -- "./${1}" "/etc/nixos/${1}"
   }
 #+end_src
 
