@@ -340,6 +340,16 @@ in {
 
     (callPackage /root/debMirror.nix {})
 
+    (writeCBin "M_C_Q" ''
+      #include <unistd.h>
+      char arg0[8] = "wezterm" ;
+      int main () {
+          char * const args[2] = {arg0, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
     (writeCBin "M_C_1" ''
       #include <unistd.h>
       char arg0[6] = "emacs" ;
