@@ -1,6 +1,7 @@
 #!/bin/sh
 C(){
     mkdir -pv -- "$('dirname' -- "${2}")"
+    rm -vf -- "${2}"
     cp -vf -- "${1}" "${2}"
 }
 
@@ -12,7 +13,6 @@ C './HOME,important_functions.sh' "${HOME}/important_functions.sh"
 
 C './HOME,.bashrc' "${HOME}/.bashrc"
 
-mkdir -pv -- "${HOME}/.config/fish"
-cp -vf -- './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
+C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 
 gcc -O2 -mtune=native -march=native ./SUDO_ASKPASS.c -o  "${HOME}/SUDO_ASKPASS"

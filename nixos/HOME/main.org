@@ -4,15 +4,19 @@
   (org-babel-tangle)
   (async-shell-command "
           './setup.sh' ;
+
           git add './HOME,.bashrc'
           git add './HOME,.config,fish,config.fish'
           git add './HOME,.config,foot,foot.ini'
           git add './HOME,important_functions.sh'
           git add './HOME,.wezterm.lua'
+
           git add './main.org'
           git add './setup.sh'
           git add './SUDO_ASKPASS.c'
+
           rm -vf -- './main.org~' ;
+
       " "log" "err")
 #+end_src
 
@@ -21,6 +25,7 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
   C(){
       mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
       cp -vf -- "${1}" "${2}"
   }
 #+end_src
@@ -544,8 +549,7 @@ return config
 
 ** Copy the config file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
-  mkdir -pv -- "${HOME}/.config/fish"
-  cp -vf -- './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
+  C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 #+end_src
 
 ** Main config file
