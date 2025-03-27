@@ -945,6 +945,7 @@ flatpak run --command=bash org.gnu.emacs
       int ret = execvp(arg0, args);
       return ret;
   }
+
   '')
 #+end_src
 
@@ -971,6 +972,7 @@ flatpak run --command=bash org.gnu.emacs
 ********* M_C_1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_1" ''
+
   #include <unistd.h>
 
   static char arg0[] = "emacs" ; 
@@ -981,12 +983,14 @@ flatpak run --command=bash org.gnu.emacs
       int ret = execvp(arg0, args);
       return ret;
   }
+
   '')
 #+end_src
 
 ********* M_C_2
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_2" ''
+
   #include <unistd.h>
 
   static char arg0[] = "emacsclient" ; 
@@ -998,6 +1002,7 @@ flatpak run --command=bash org.gnu.emacs
       int ret = execvp(arg0, args);
       return ret;
   }
+
   '')
 #+end_src
 

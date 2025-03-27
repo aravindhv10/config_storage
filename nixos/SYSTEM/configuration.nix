@@ -472,6 +472,7 @@ in {
           int ret = execvp(arg0, args);
           return ret;
       }
+
     '')
 
     (writeCBin "M_C_S" ''
@@ -490,6 +491,7 @@ in {
     '')
 
     (writeCBin "M_C_1" ''
+
       #include <unistd.h>
 
       static char arg0[] = "emacs" ;
@@ -500,9 +502,11 @@ in {
           int ret = execvp(arg0, args);
           return ret;
       }
+
     '')
 
     (writeCBin "M_C_2" ''
+
       #include <unistd.h>
 
       static char arg0[] = "emacsclient" ;
@@ -514,6 +518,7 @@ in {
           int ret = execvp(arg0, args);
           return ret;
       }
+
     '')
   ];
 
