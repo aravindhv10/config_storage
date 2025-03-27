@@ -846,8 +846,10 @@ flatpak run --command=bash org.gnu.emacs
   (writeCBin "M_C_R" ''
   #include <unistd.h>
   char arg0[] = "alacritty" ; 
+  char arg1[] = "-e" ; 
+  char arg2[] = "byobu-tmux" ; 
   int main () {
-      char * const args[] = {arg0, NULL};
+      char * const args[] = {arg0, arg1, arg2, NULL};
       int ret = execvp(arg0, args);
       return ret;
   }
@@ -872,14 +874,31 @@ flatpak run --command=bash org.gnu.emacs
 ********** M_C_T
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
+
   #include <unistd.h>
-  char arg0[] = "foot" ; 
-  char arg1[] = "-s" ; 
-  int main () {
-      char * const args[] = {arg0, arg1, NULL};
+
+  int foot_server () {
+      static char arg0[] = "foot" ; 
+      static char arg1[] = "-s" ; 
+      static char * const args[] = {arg0, arg1, NULL};
       int ret = execvp(arg0, args);
       return ret;
   }
+
+  int alacritty_server () {
+      static char arg0[] = "alacritty" ; 
+      static char arg1[] = "-e" ; 
+      static char arg2[] = "byobu-tmux" ; 
+      static char * const args[] = {arg0, arg1, arg2, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+
+  int main () {
+      int ret_foot = foot_server ();
+      int ret_alacritty = alacritty_server ();
+  }
+
   '')
 #+end_src
 
