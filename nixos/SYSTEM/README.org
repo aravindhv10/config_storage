@@ -785,7 +785,9 @@ You can disable this if you're only using the Wayland session.
 
 ******* Wrapper scripts
 
-******** M_C_Q
+******** Terminal parts
+
+********* M_C_Q
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_Q" ''
   #include <unistd.h>
@@ -798,7 +800,54 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
-******** M_C_T
+********* Alacritty parts
+
+********** M_C_W
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_W" ''
+  #include <unistd.h>
+
+  char arg0[10] = "alacritty" ; 
+  char arg1[4] = "msg" ; 
+  char arg2[14] = "create-window" ; 
+
+  int main () {
+      char * const args[2] = {arg0, arg1, arg2, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+  '')
+#+end_src
+
+********** M_C_R
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_R" ''
+  #include <unistd.h>
+  char arg0[10] = "alacritty" ; 
+  int main () {
+      char * const args[2] = {arg0, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+  '')
+#+end_src
+
+********* Foot parts
+
+********** M_C_E
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_E" ''
+  #include <unistd.h>
+  char arg0[11] = "footclient" ; 
+  int main () {
+      char * const args[2] = {arg0, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+  '')
+#+end_src
+
+********** M_C_T
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
   #include <unistd.h>
@@ -812,7 +861,9 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
-******** M_C_A
+******** Browser and remote parts
+
+********* M_C_A
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_A" ''
   #include <unistd.h>
@@ -825,7 +876,7 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
-******** M_C_S
+********* M_C_S
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_S" ''
   #include <unistd.h>
@@ -838,7 +889,9 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
-******** M_C_1
+******** Numerical programs parts
+
+********* M_C_1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_1" ''
   #include <unistd.h>
@@ -851,7 +904,7 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
-******** M_C_2
+********* M_C_2
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_2" ''
   #include <unistd.h>

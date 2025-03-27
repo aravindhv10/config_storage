@@ -350,6 +350,40 @@ in {
       }
     '')
 
+    (writeCBin "M_C_W" ''
+      #include <unistd.h>
+
+      char arg0[10] = "alacritty" ;
+      char arg1[4] = "msg" ;
+      char arg2[14] = "create-window" ;
+
+      int main () {
+          char * const args[2] = {arg0, arg1, arg2, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
+    (writeCBin "M_C_R" ''
+      #include <unistd.h>
+      char arg0[10] = "alacritty" ;
+      int main () {
+          char * const args[2] = {arg0, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
+    (writeCBin "M_C_E" ''
+      #include <unistd.h>
+      char arg0[11] = "footclient" ;
+      int main () {
+          char * const args[2] = {arg0, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
     (writeCBin "M_C_T" ''
       #include <unistd.h>
       char arg0[5] = "foot" ;
