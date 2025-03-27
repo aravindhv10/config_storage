@@ -301,7 +301,6 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/chmln/sd.git'
     get_rust_package 'https://github.com/denisidoro/navi.git'
     get_rust_package 'https://github.com/fish-shell/fish-shell.git'
-    get_rust_package 'https://github.com/helix-editor/helix.git'
     get_rust_package 'https://github.com/konradsz/igrep.git'
     get_rust_package 'https://github.com/lsd-rs/lsd.git'
     get_rust_package 'https://github.com/nushell/nushell.git'
@@ -327,7 +326,6 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/RaphGL/Tuckr.git'
     get_rust_package 'https://github.com/sharkdp/hyperfine.git'
     get_rust_package 'https://github.com/latex-lsp/texlab.git'
-    get_rust_package 'https://github.com/usagi-flow/evil-helix.git'
     get_helix_editor
     get_helix_evil_editor
 }
