@@ -77,8 +77,6 @@ get_repo(){
     if test "${#}" '-ge' '2'
     then
         git switch "${2}"
-    else
-        git switch main
     fi
 
     git pull

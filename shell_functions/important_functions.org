@@ -5,6 +5,13 @@
   (save-buffer)
   (save-some-buffers)
   (org-babel-tangle)
+  (async-shell-command "
+
+  git add './important_functions.org'
+  git add './important_functions.py'
+  git add './important_functions.sh'
+
+  " "log" "err")
 #+end_src
 
 * COMMENT Sample
@@ -307,8 +314,6 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
       if test "${#}" '-ge' '2'
       then
           git switch "${2}"
-      else
-          git switch main
       fi
 
       git pull
