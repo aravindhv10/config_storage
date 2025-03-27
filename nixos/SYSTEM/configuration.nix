@@ -245,6 +245,7 @@ in {
     byobu
     cargo
     catppuccin-kde
+    clang-tools_19
     clinfo
     cmake
     curl
@@ -340,11 +341,26 @@ in {
 
     (callPackage /root/debMirror.nix {})
 
+    (writeCBin "enter_emacs_flatpak" ''
+      #include <unistd.h>
+
+      char arg0[] = "flatpak";
+      char arg1[] = "run";
+      char arg2[] = "--command=bash";
+      char arg3[] = "org.gnu.emacs";
+
+      int main () {
+          char * const args[] = {arg0, arg1, arg2, arg3, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
     (writeCBin "M_C_Q" ''
       #include <unistd.h>
-      char arg0[8] = "wezterm" ;
+      char arg0[] = "wezterm" ;
       int main () {
-          char * const args[2] = {arg0, NULL};
+          char * const args[] = {arg0, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -353,12 +369,14 @@ in {
     (writeCBin "M_C_W" ''
       #include <unistd.h>
 
-      char arg0[10] = "alacritty" ;
-      char arg1[4] = "msg" ;
-      char arg2[14] = "create-window" ;
+      char arg0[] = "alacritty" ;
+      char arg1[] = "msg" ;
+      char arg2[] = "create-window" ;
+      char arg3[] = "-e" ;
+      char arg4[] = "enter_emacs_flatpak" ;
 
       int main () {
-          char * const args[2] = {arg0, arg1, arg2, NULL};
+          char * const args[] = {arg0, arg1, arg2, arg3, arg4, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -366,9 +384,9 @@ in {
 
     (writeCBin "M_C_R" ''
       #include <unistd.h>
-      char arg0[10] = "alacritty" ;
+      char arg0[] = "alacritty" ;
       int main () {
-          char * const args[2] = {arg0, NULL};
+          char * const args[] = {arg0, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -376,9 +394,9 @@ in {
 
     (writeCBin "M_C_E" ''
       #include <unistd.h>
-      char arg0[11] = "footclient" ;
+      char arg0[] = "footclient" ;
       int main () {
-          char * const args[2] = {arg0, NULL};
+          char * const args[] = {arg0, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -386,10 +404,10 @@ in {
 
     (writeCBin "M_C_T" ''
       #include <unistd.h>
-      char arg0[5] = "foot" ;
-      char arg1[3] = "-s" ;
+      char arg0[] = "foot" ;
+      char arg1[] = "-s" ;
       int main () {
-          char * const args[2] = {arg0, arg1, NULL};
+          char * const args[] = {arg0, arg1, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -397,9 +415,9 @@ in {
 
     (writeCBin "M_C_A" ''
       #include <unistd.h>
-      char arg0[8] = "firefox" ;
+      char arg0[] = "firefox" ;
       int main () {
-          char * const args[2] = {arg0, NULL};
+          char * const args[] = {arg0, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -407,9 +425,9 @@ in {
 
     (writeCBin "M_C_S" ''
       #include <unistd.h>
-      char arg0[6] = "brave" ;
+      char arg0[] = "brave" ;
       int main () {
-          char * const args[2] = {arg0, NULL};
+          char * const args[] = {arg0, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -417,9 +435,9 @@ in {
 
     (writeCBin "M_C_1" ''
       #include <unistd.h>
-      char arg0[6] = "emacs" ;
+      char arg0[] = "emacs" ;
       int main () {
-          char * const args[2] = {arg0, NULL};
+          char * const args[] = {arg0, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
@@ -427,10 +445,10 @@ in {
 
     (writeCBin "M_C_2" ''
       #include <unistd.h>
-      char arg0[12] = "emacsclient" ;
-      char arg1[3] = "-c" ;
+      char arg0[] = "emacsclient" ;
+      char arg1[] = "-c" ;
       int main () {
-          char * const args[3] = {arg0, arg1, NULL};
+          char * const args[] = {arg0, arg1, NULL};
           int ret = execvp(arg0, args);
           return ret;
       }
