@@ -350,6 +350,37 @@ in {
       }
     '')
 
+    (writeCBin "M_C_T" ''
+      #include <unistd.h>
+      char arg0[5] = "foot" ;
+      char arg1[3] = "-s" ;
+      int main () {
+          char * const args[2] = {arg0, arg1, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
+    (writeCBin "M_C_A" ''
+      #include <unistd.h>
+      char arg0[8] = "firefox" ;
+      int main () {
+          char * const args[2] = {arg0, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
+    (writeCBin "M_C_S" ''
+      #include <unistd.h>
+      char arg0[6] = "brave" ;
+      int main () {
+          char * const args[2] = {arg0, NULL};
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+    '')
+
     (writeCBin "M_C_1" ''
       #include <unistd.h>
       char arg0[6] = "emacs" ;

@@ -798,6 +798,46 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
+******** M_C_T
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_T" ''
+  #include <unistd.h>
+  char arg0[5] = "foot" ; 
+  char arg1[3] = "-s" ; 
+  int main () {
+      char * const args[2] = {arg0, arg1, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+  '')
+#+end_src
+
+******** M_C_A
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_A" ''
+  #include <unistd.h>
+  char arg0[8] = "firefox" ; 
+  int main () {
+      char * const args[2] = {arg0, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+  '')
+#+end_src
+
+******** M_C_S
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_S" ''
+  #include <unistd.h>
+  char arg0[6] = "brave" ; 
+  int main () {
+      char * const args[2] = {arg0, NULL};
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+  '')
+#+end_src
+
 ******** M_C_1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_1" ''
