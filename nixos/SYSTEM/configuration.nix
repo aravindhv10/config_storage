@@ -346,6 +346,7 @@ in {
     wayland
     wayland-protocols
     wget
+    wlogout
     xorg.libXau
     yazi
     zip
