@@ -171,6 +171,16 @@ get_squashfs_tools () {
     make clean
     make -j4
     make -j4 install
+    cd '/var/tmp/squashfs'
+    mkdir -pv -- exe
+    cd exe
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    find ./ -type f -exec mv -vf {} ../lib64/ ';'
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
 }
 
 get_rust_package(){
@@ -462,10 +472,10 @@ get_glibc () {
     rm -rf -- "${BUILD_DIR}"
     mkdir -pv -- "${BUILD_DIR}" "${INSTALL_DIR}"
     cd "${BUILD_DIR}"
-    . '/usr/lib/sdk/llvm19/enable.sh'
     export CC='gcc'
     export CXX='g++'
     export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS=''
     # export CFLAGS=''
     "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
     make -j4
