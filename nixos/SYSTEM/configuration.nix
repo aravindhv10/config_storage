@@ -341,6 +341,54 @@ in {
 
     (callPackage /root/debMirror.nix {})
 
+    (writeCBin "M_F1" ''
+
+      #include <unistd.h>
+
+      static char arg0[] = "footclient" ;
+      static char arg1[] = "-e" ;
+      static char arg2[] = "byobu-tmux" ;
+
+      static char * const args[] = {arg0, arg1, arg2, NULL};
+
+      int main () {
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_F2" ''
+
+      #include <unistd.h>
+
+      static char arg0[] = "footclient" ;
+
+      static char * const args[] = {arg0, NULL};
+
+      int main () {
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_F3" ''
+
+      #include <unistd.h>
+
+      static char arg0[] = "emacsclient" ;
+      static char arg1[] = "-c" ;
+
+      static char * const args[] = {arg0, arg1, NULL};
+
+      int main () {
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+
+    '')
+
     (writeCBin "enter_emacs_flatpak" ''
 
       #include <unistd.h>
@@ -382,7 +430,7 @@ in {
       static char arg1[] = "msg" ;
       static char arg2[] = "create-window" ;
       static char arg3[] = "-e" ;
-      static char arg4[] = "enter_emacs_flatpak" ;
+      static char arg4[] = "byobu-tmux" ;
 
       static char * const args[] = {arg0, arg1, arg2, arg3, arg4, NULL};
 
@@ -397,9 +445,29 @@ in {
 
       #include <unistd.h>
 
+      static char arg0[] = "alacritty" ;
+      static char arg1[] = "msg" ;
+      static char arg2[] = "create-window" ;
+      static char arg3[] = "-e" ;
+      static char arg4[] = "enter_emacs_flatpak" ;
+
+      static char * const args[] = {arg0, arg1, arg2, arg3, arg4, NULL};
+
+      int main () {
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+
+
+    '')
+
+    (writeCBin "M_C_R" ''
+
+      #include <unistd.h>
+
       static char arg0[] = "footclient" ;
       static char arg1[] = "-e" ;
-      static char arg2[] = "byobu-tmux" ;
+      static char arg2[] = "enter_emacs_flatpak" ;
 
       static char * const args[] = {arg0, arg1, arg2, NULL};
 

@@ -786,6 +786,63 @@ You can disable this if you're only using the Wayland session.
 
 ******* Wrapper scripts
 
+******** M_F1
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_F1" ''
+
+  #include <unistd.h>
+
+  static char arg0[] = "footclient" ; 
+  static char arg1[] = "-e" ; 
+  static char arg2[] = "byobu-tmux" ; 
+
+  static char * const args[] = {arg0, arg1, arg2, NULL};
+
+  int main () {
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
+******** M_F2
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_F2" ''
+
+  #include <unistd.h>
+
+  static char arg0[] = "footclient" ; 
+
+  static char * const args[] = {arg0, NULL};
+
+  int main () {
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
+******** M_F3
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_F3" ''
+
+  #include <unistd.h>
+
+  static char arg0[] = "emacsclient" ; 
+  static char arg1[] = "-c" ; 
+
+  static char * const args[] = {arg0, arg1, NULL};
+
+  int main () {
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
 ******** enter emacs flatpak
 flatpak run --command=bash org.gnu.emacs
 #+begin_src nix :tangle ./configuration.nix
@@ -828,11 +885,31 @@ flatpak run --command=bash org.gnu.emacs
   '')
 #+end_src
 
-********* Alacritty parts
-
-********** M_C_W
+********* M_C_W
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_W" ''
+
+  #include <unistd.h>
+
+  static char arg0[] = "alacritty" ; 
+  static char arg1[] = "msg" ; 
+  static char arg2[] = "create-window" ; 
+  static char arg3[] = "-e" ; 
+  static char arg4[] = "byobu-tmux" ; 
+
+  static char * const args[] = {arg0, arg1, arg2, arg3, arg4, NULL};
+
+  int main () {
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
+********* M_C_E
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_E" ''
 
   #include <unistd.h>
 
@@ -849,20 +926,19 @@ flatpak run --command=bash org.gnu.emacs
       return ret;
   }
 
+
   '')
 #+end_src
 
-********* Foot parts
-
-********** M_C_E
+********* M_C_R
 #+begin_src nix :tangle ./configuration.nix
-  (writeCBin "M_C_E" ''
+  (writeCBin "M_C_R" ''
 
   #include <unistd.h>
 
   static char arg0[] = "footclient" ; 
   static char arg1[] = "-e" ; 
-  static char arg2[] = "byobu-tmux" ; 
+  static char arg2[] = "enter_emacs_flatpak" ; 
 
   static char * const args[] = {arg0, arg1, arg2, NULL};
 
@@ -874,9 +950,7 @@ flatpak run --command=bash org.gnu.emacs
   '')
 #+end_src
 
-********* Alacritty and fish server
-
-********** M_C_T
+********* M_C_T
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
 
