@@ -108,9 +108,7 @@ in {
   services.xserver.enable = true;
   services.xserver.videoDrivers = ["amdgpu"];
 
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
-  services.displayManager.sddm.settings.General.DisplayServer = "wayland";
+  services.xserver.displayManager.gdm.enable = true;
 
   services.desktopManager.plasma6.enable = true;
 
@@ -211,6 +209,7 @@ in {
   };
 
   programs.fish.enable = true;
+  programs.fish.package = unstable.fish;
 
   users.defaultUserShell = pkgs.fish;
 
@@ -335,8 +334,6 @@ in {
     zoxide
     zstd
 
-    unstable.fish
-    unstable.flatpak
     unstable.nixfmt-rfc-style
 
     (callPackage /root/debMirror.nix {})
@@ -593,6 +590,7 @@ in {
   services.openssh.enable = true;
 
   services.flatpak.enable = true;
+  services.flatpak.package = unstable.flatpak;
 
   services.dnsmasq = {
     enable = true;

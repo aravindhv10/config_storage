@@ -451,14 +451,14 @@ You can disable this if you're only using the Wayland session.
 
 **** Display manager
 
-***** SDDM
+***** COMMENT SDDM
 #+begin_src nix :tangle ./configuration.nix
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
   services.displayManager.sddm.settings.General.DisplayServer = "wayland";
 #+end_src
 
-***** COMMENT GDM
+***** GDM
 #+begin_src nix :tangle ./configuration.nix
   services.xserver.displayManager.gdm.enable = true;
 #+end_src
@@ -615,7 +615,8 @@ You can disable this if you're only using the Wayland session.
 
 **** Fish
 #+begin_src nix :tangle ./configuration.nix
-    programs.fish.enable = true;
+  programs.fish.enable = true;
+  programs.fish.package = unstable.fish;
 #+end_src
 
 ***** Set default shell to fish
@@ -774,8 +775,6 @@ You can disable this if you're only using the Wayland session.
 
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
-  unstable.fish
-  unstable.flatpak
   unstable.nixfmt-rfc-style
 #+end_src
 
@@ -1116,7 +1115,8 @@ started in user sessions.
 
 ***** Enable flatpak.
 #+begin_src nix :tangle ./configuration.nix
-    services.flatpak.enable = true;
+  services.flatpak.enable = true;
+  services.flatpak.package = unstable.flatpak;
 #+end_src
 
 **** Configure DNSMASQ
