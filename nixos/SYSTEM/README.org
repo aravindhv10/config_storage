@@ -481,7 +481,8 @@ You can disable this if you're only using the Wayland session.
   programs.hyprland = {
       enable = true;
       package = unstable.hyprland;
-      withUWSM = true; # recommended for most users
+      # withUWSM = true; # recommended for most users
+      withUWSM = false; # recommended for most users
       xwayland.enable = true; # Xwayland can be disabled.
   };
 #+end_src
@@ -742,6 +743,7 @@ You can disable this if you're only using the Wayland session.
   helix
   htop
   json-glib
+  kitty
   libarchive
   libcap
   libgcc
@@ -788,7 +790,6 @@ You can disable this if you're only using the Wayland session.
   vim
   wayland
   wayland-protocols
-  unstable.wezterm
   wget
   xorg.libXau
   yazi
@@ -800,6 +801,8 @@ You can disable this if you're only using the Wayland session.
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.nixfmt-rfc-style
+  unstable.wayfire
+  unstable.wezterm
 #+end_src
 
 ******* CUSTOM SOURCES

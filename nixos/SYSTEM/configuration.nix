@@ -119,7 +119,8 @@ in {
   programs.hyprland = {
     enable = true;
     package = unstable.hyprland;
-    withUWSM = true; # recommended for most users
+    # withUWSM = true; # recommended for most users
+    withUWSM = false; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
   };
 
@@ -296,6 +297,7 @@ in {
     helix
     htop
     json-glib
+    kitty
     libarchive
     libcap
     libgcc
@@ -342,7 +344,6 @@ in {
     vim
     wayland
     wayland-protocols
-    unstable.wezterm
     wget
     xorg.libXau
     yazi
@@ -351,6 +352,8 @@ in {
     zstd
 
     unstable.nixfmt-rfc-style
+    unstable.wayfire
+    unstable.wezterm
 
     (callPackage /root/debMirror.nix {})
 
