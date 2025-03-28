@@ -384,8 +384,10 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 ***** Better way
 #+begin_src nix :tangle ./configuration.nix
-  boot.tmp.useTmpfs = true ;
-  boot.tmp.tmpfsSize = "60%" ;
+  boot.tmp = {
+    useTmpfs = true ;
+    tmpfsSize = "60%" ;
+  } ;
 #+end_src
 
 ***** COMMENT Standard way
@@ -445,17 +447,21 @@ Configure network proxy if necessary
 Enable the X11 windowing system.
 You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
-  services.xserver.enable = true;
-  services.xserver.videoDrivers = [ "amdgpu" ];
+  services.xserver = {
+      enable = true;
+      videoDrivers = [ "amdgpu" ];
+  } ;
 #+end_src
 
 **** Display manager
 
 ***** COMMENT SDDM
 #+begin_src nix :tangle ./configuration.nix
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
-  services.displayManager.sddm.settings.General.DisplayServer = "wayland";
+  services.displayManager.sddm = {
+      enable = true;
+      wayland.enable = true;
+      settings.General.DisplayServer = "wayland";
+  } ;
 #+end_src
 
 ***** GDM
@@ -508,9 +514,15 @@ You can disable this if you're only using the Wayland session.
 **** Enable CUPS to print documents.
 #+begin_src nix :tangle ./configuration.nix
   services.printing.enable = true;
-  documentation.enable = true;
-  documentation.man.enable = true;
-  documentation.dev.enable = true;
+#+end_src
+
+**** Enable Man pages
+#+begin_src nix :tangle ./configuration.nix
+  documentation = {
+      enable = true;
+      man.enable = true;
+      dev.enable = true;
+  } ;
 #+end_src
 
 **** Enable sound with pipewire.
@@ -615,38 +627,40 @@ You can disable this if you're only using the Wayland session.
 
 **** Fish
 #+begin_src nix :tangle ./configuration.nix
-  programs.fish.enable = true;
-  programs.fish.package = unstable.fish;
+  programs.fish = {
+      enable = true;
+      package = unstable.fish;
+  } ;
 #+end_src
 
 ***** Set default shell to fish
 #+begin_src nix :tangle ./configuration.nix
-    users.defaultUserShell = pkgs.fish;
+  users.defaultUserShell = unstable.fish;
 #+end_src
 
 **** firefox.
 #+begin_src nix :tangle ./configuration.nix
-    programs.firefox.enable = true;
+  programs.firefox.enable = true;
 #+end_src
 
 **** Allow unfree packages
 #+begin_src nix :tangle ./configuration.nix
-    nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfree = true;
 #+end_src
 
 **** Containers and virtualizating
 #+begin_src nix :tangle ./configuration.nix
-  virtualisation.containers.enable = true;
   virtualisation = {
-    podman = {
-      enable = true;
+      containers.enable = true;
+      podman = {
+          enable = true;
 
-      # Create a `docker` alias for podman, to use it as a drop-in replacement
-      dockerCompat = true;
+          # Create a `docker` alias for podman, to use it as a drop-in replacement
+          dockerCompat = true;
 
-      # Required for containers under podman-compose to be able to talk to each other.
-      defaultNetwork.settings.dns_enabled = true;
-    };
+          # Required for containers under podman-compose to be able to talk to each other.
+          defaultNetwork.settings.dns_enabled = true;
+      };
   };
 #+end_src
 
@@ -1110,13 +1124,15 @@ started in user sessions.
 
 ***** Enable the OpenSSH daemon.
 #+begin_src nix :tangle ./configuration.nix
-    services.openssh.enable = true;
+  services.openssh.enable = true;
 #+end_src
 
 ***** Enable flatpak.
 #+begin_src nix :tangle ./configuration.nix
-  services.flatpak.enable = true;
-  services.flatpak.package = unstable.flatpak;
+  services.flatpak = {
+      enable = true;
+      package = unstable.flatpak;
+  } ;
 #+end_src
 
 **** Configure DNSMASQ

@@ -82,8 +82,10 @@ in {
 
   boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
-  boot.tmp.useTmpfs = true;
-  boot.tmp.tmpfsSize = "60%";
+  boot.tmp = {
+    useTmpfs = true;
+    tmpfsSize = "60%";
+  };
 
   networking.hostName = "nixos";
 
@@ -105,8 +107,10 @@ in {
     LC_TIME = "en_IN";
   };
 
-  services.xserver.enable = true;
-  services.xserver.videoDrivers = ["amdgpu"];
+  services.xserver = {
+    enable = true;
+    videoDrivers = ["amdgpu"];
+  };
 
   services.xserver.displayManager.gdm.enable = true;
 
@@ -118,9 +122,12 @@ in {
   };
 
   services.printing.enable = true;
-  documentation.enable = true;
-  documentation.man.enable = true;
-  documentation.dev.enable = true;
+
+  documentation = {
+    enable = true;
+    man.enable = true;
+    dev.enable = true;
+  };
 
   # hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -208,17 +215,19 @@ in {
     ];
   };
 
-  programs.fish.enable = true;
-  programs.fish.package = unstable.fish;
+  programs.fish = {
+    enable = true;
+    package = unstable.fish;
+  };
 
-  users.defaultUserShell = pkgs.fish;
+  users.defaultUserShell = unstable.fish;
 
   programs.firefox.enable = true;
 
   nixpkgs.config.allowUnfree = true;
 
-  virtualisation.containers.enable = true;
   virtualisation = {
+    containers.enable = true;
     podman = {
       enable = true;
 
@@ -589,8 +598,10 @@ in {
 
   services.openssh.enable = true;
 
-  services.flatpak.enable = true;
-  services.flatpak.package = unstable.flatpak;
+  services.flatpak = {
+    enable = true;
+    package = unstable.flatpak;
+  };
 
   services.dnsmasq = {
     enable = true;
