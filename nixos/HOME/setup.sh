@@ -24,3 +24,5 @@ C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
 
 C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
+
+C 'HOME,.config,wayfire.ini' "${HOME}/.config/wayfire.ini"

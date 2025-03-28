@@ -599,6 +599,3 @@
   # active_color = #0099FF
   # inactive_color = #FF9900
 #+end_src
-
-#+begin_src conf :tangle ./wayfire.ini
-#+end_src
