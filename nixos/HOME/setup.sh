@@ -5,6 +5,12 @@ C(){
     cp -vf -- "${1}" "${2}"
 }
 
+GCC () {
+    mkdir -pv -- "$('dirname' -- "${2}")"
+    rm -vf -- "${2}"
+    gcc -O2 "${1}" -o "${2}"
+}
+
 C './HOME,.wezterm.lua' "${HOME}/.wezterm.lua"
 
 C './HOME,.config,foot,foot.ini' "${HOME}/.config/foot/foot.ini"
@@ -15,4 +21,4 @@ C './HOME,.bashrc' "${HOME}/.bashrc"
 
 C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 
-gcc -O2 -mtune=native -march=native ./SUDO_ASKPASS.c -o  "${HOME}/SUDO_ASKPASS"
+GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"

@@ -342,7 +342,7 @@ in {
     vim
     wayland
     wayland-protocols
-    wezterm
+    unstable.wezterm
     wget
     xorg.libXau
     yazi

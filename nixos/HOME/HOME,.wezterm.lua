@@ -5,9 +5,9 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config.default_prog = { 'fish', '-l' }
-config.use_fancy_tab_bar = false
 
 config.color_scheme = 'Modus-Vivendi'
+config.use_fancy_tab_bar = false
 
 config.keys = {
   {

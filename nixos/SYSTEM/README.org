@@ -788,7 +788,7 @@ You can disable this if you're only using the Wayland session.
   vim
   wayland
   wayland-protocols
-  wezterm
+  unstable.wezterm
   wget
   xorg.libXau
   yazi

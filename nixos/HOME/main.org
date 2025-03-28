@@ -20,13 +20,23 @@
       " "log" "err")
 #+end_src
 
-* Main copy script
+* Main installing functions
 
+** Simple copy
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
   C(){
       mkdir -pv -- "$('dirname' -- "${2}")"
       rm -vf -- "${2}"
       cp -vf -- "${1}" "${2}"
+  }
+#+end_src
+
+** Compile C
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  GCC () {
+      mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
+      gcc -O2 "${1}" -o "${2}"
   }
 #+end_src
 
@@ -46,9 +56,9 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config.default_prog = { 'fish', '-l' }
-config.use_fancy_tab_bar = false
 
 config.color_scheme = 'Modus-Vivendi'
+config.use_fancy_tab_bar = false
 
 config.keys = {
   {
@@ -563,7 +573,7 @@ return config
 
 **** compile and set up the code
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
-  gcc -O2 -mtune=native -march=native ./SUDO_ASKPASS.c -o  "${HOME}/SUDO_ASKPASS"
+  GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
 #+end_src
 
 **** The main code
