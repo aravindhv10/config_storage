@@ -22,3 +22,5 @@ C './HOME,.bashrc' "${HOME}/.bashrc"
 C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 
 GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
+
+C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"

@@ -910,3 +910,20 @@ return config
   # We don't use `random [min] [max]` because it is unavailable in older versions of fish shell
   set -gx STARSHIP_SESSION_KEY (string sub -s1 -l16 (random)(random)(random)(random)(random)0000000000000000)
 #+end_src
+
+
+* Alacritty
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
+#+end_src
+
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  [window]
+  decorations = "None"
+  startup_mode = "Fullscreen"
+
+  [font]
+  size = 16
+#+end_src
