@@ -912,7 +912,6 @@ return config
   set -gx STARSHIP_SESSION_KEY (string sub -s1 -l16 (random)(random)(random)(random)(random)0000000000000000)
 #+end_src
 
-
 * Alacritty
 
 ** Copy the config file
@@ -920,11 +919,82 @@ return config
   C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
 #+end_src
 
+** Main config file
+
+*** Fullscreen
 #+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
   [window]
   decorations = "None"
   startup_mode = "Fullscreen"
+#+end_src
 
+*** Font
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
   [font]
   size = 16
+#+end_src
+
+*** Color theme
+
+**** Modus vivendi 
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  [colors.normal]
+  black = '#1e1e1e'
+  red = '#ff5f59'
+  green = '#44bc44'
+  yellow = '#d0bc00'
+  blue = '#2fafff'
+  magenta = '#feacd0'
+  cyan = '#00d3d0'
+  white = '#ffffff'
+  [colors.bright]
+  black = '#535353'
+  red = '#ff7f9f'
+  green = '#00c06f'
+  yellow = '#dfaf7a'
+  blue = '#00bcff'
+  magenta = '#b6a0ff'
+  cyan = '#6ae4b9'
+  white = '#989898'
+  [colors.cursor]
+  cursor = '#ffffff'
+  text = '#000000'
+  [colors.primary]
+  background = '#000000'
+  foreground = '#ffffff'
+  [colors.selection]
+  background = '#5a5a5a'
+  text = '#ffffff'
+#+end_src
+
+**** COMMENT Modus vivendi tinted
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  # Colors Modus-Vivendi-Tinted
+  [colors.normal]
+  black = '#1d2235'
+  red = '#ff5f59'
+  green = '#44bc44'
+  yellow = '#d0bc00'
+  blue = '#2fafff'
+  magenta = '#feacd0'
+  cyan = '#00d3d0'
+  white = '#ffffff'
+  [colors.bright]
+  black = '#4a4f69'
+  red = '#ff7f9f'
+  green = '#00c06f'
+  yellow = '#dfaf7a'
+  blue = '#00bcff'
+  magenta = '#b6a0ff'
+  cyan = '#6ae4b9'
+  white = '#989898'
+  [colors.cursor]
+  cursor = '#ffffff'
+  text = '#0d0e1c'
+  [colors.primary]
+  background = '#0d0e1c'
+  foreground = '#ffffff'
+  [colors.selection]
+  background = '#555a66'
+  text = '#ffffff'
 #+end_src
