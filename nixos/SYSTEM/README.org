@@ -788,6 +788,7 @@ You can disable this if you're only using the Wayland session.
   unzip
   uv
   vim
+  waybar
   wayland
   wayland-protocols
   wget
@@ -1017,6 +1018,33 @@ flatpak run --command=bash org.gnu.emacs
 #+end_src
 
 ********* M_C_T
+
+********** New
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_T" ''
+
+  #include <unistd.h>
+
+  int alacritty_server () {
+      static char arg0[] = "alacritty" ; 
+      static char arg1[] = "-e" ; 
+      static char arg2[] = "foot" ; 
+      static char arg3[] = "-s" ; 
+
+      static char * const args[] = {arg0, arg1, arg2, arg3, NULL};
+
+      int ret = execvp(arg0, args);
+      return ret;
+  }
+
+  int main () {
+      alacritty_server();
+  }
+
+  '')
+#+end_src
+
+********** COMMENT old
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
 
@@ -1036,15 +1064,16 @@ flatpak run --command=bash org.gnu.emacs
   int alacritty_server () {
       static char arg0[] = "alacritty" ; 
       static char arg1[] = "-e" ; 
-      static char arg2[] = "byobu-tmux" ; 
+      static char arg2[] = "foot" ; 
+      static char arg3[] = "-s" ; 
 
-      static char * const args[] = {arg0, arg1, arg2, NULL};
+      static char * const args[] = {arg0, arg1, arg2, arg3, NULL};
 
       int ret = execvp(arg0, args);
       return ret;
   }
 
-  int main () {
+  int both () {
       pid_t p_foot;
       pid_t p_alacritty;
       int ret_foot;
@@ -1064,6 +1093,10 @@ flatpak run --command=bash org.gnu.emacs
 
       waitpid(p_foot, NULL, 0);
       waitpid(p_alacritty, NULL, 0);
+  }
+
+  int main () {
+      alacritty_server();
   }
 
   '')

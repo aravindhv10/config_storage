@@ -342,6 +342,7 @@ in {
     unzip
     uv
     vim
+    waybar
     wayland
     wayland-protocols
     wget
@@ -527,49 +528,21 @@ in {
     (writeCBin "M_C_T" ''
 
       #include <unistd.h>
-      #include <sys/wait.h>
-
-      int foot_server () {
-          static char arg0[] = "foot" ;
-          static char arg1[] = "-s" ;
-
-          static char * const args[] = {arg0, arg1, NULL};
-
-          int ret = execvp(arg0, args);
-          return ret;
-      }
 
       int alacritty_server () {
           static char arg0[] = "alacritty" ;
           static char arg1[] = "-e" ;
-          static char arg2[] = "byobu-tmux" ;
+          static char arg2[] = "foot" ;
+          static char arg3[] = "-s" ;
 
-          static char * const args[] = {arg0, arg1, arg2, NULL};
+          static char * const args[] = {arg0, arg1, arg2, arg3, NULL};
 
           int ret = execvp(arg0, args);
           return ret;
       }
 
       int main () {
-          pid_t p_foot;
-          pid_t p_alacritty;
-          int ret_foot;
-          int ret_alacritty;
-
-          p_foot = fork();
-          if(p_foot == 0){
-              ret_foot = foot_server ();
-              return ret_foot;
-          }
-
-          p_alacritty = fork();
-          if(p_alacritty == 0){
-              ret_alacritty = alacritty_server ();
-              return ret_alacritty;
-          }
-
-          waitpid(p_foot, NULL, 0);
-          waitpid(p_alacritty, NULL, 0);
+          alacritty_server();
       }
 
     '')
