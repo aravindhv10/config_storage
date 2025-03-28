@@ -476,6 +476,15 @@ You can disable this if you're only using the Wayland session.
   services.desktopManager.plasma6.enable = true;
 #+end_src
 
+***** Hyprland
+#+begin_src nix :tangle ./configuration.nix
+  programs.hyprland = {
+      enable = true;
+      withUWSM = true; # recommended for most users
+      xwayland.enable = true; # Xwayland can be disabled.
+  };
+#+end_src
+
 ***** COMMENT Enable the Gnome Desktop Environment.
 #+begin_src nix :tangle ./configuration.nix
   services.xserver.desktopManager.gnome.enable = true;
