@@ -6,8 +6,8 @@ RightButton;NoModifier=org.kde.contextmenu
 
 [Containments][1]
 ItemGeometries-1536x864=
-ItemGeometries-1920x1080=
-ItemGeometriesHorizontal=
+ItemGeometries-1920x1080=Applet-26:0,0,1920,288,0;Applet-4:0,288,544,256,0;Applet-28:544,288,1376,736,0;
+ItemGeometriesHorizontal=Applet-26:0,0,1920,288,0;Applet-4:0,288,544,256,0;Applet-28:544,288,1376,736,0;
 activityId=8d6b0abd-4653-4242-ab4b-12b5a8b7b555
 formfactor=0
 immutability=1
@@ -16,13 +16,51 @@ location=0
 plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
 
+[Containments][1][Applets][26]
+immutability=1
+plugin=org.kde.plasma.taskmanager
+
+[Containments][1][Applets][26][Configuration][ConfigDialog]
+DialogHeight=540
+DialogWidth=720
+
+[Containments][1][Applets][26][Configuration][General]
+forceStripes=true
+groupingStrategy=0
+launchers=
+maxStripes=4
+showOnlyCurrentActivity=false
+showOnlyCurrentDesktop=false
+taskMaxWidth=Wide
+
+[Containments][1][Applets][28]
+immutability=1
+plugin=org.kde.plasma.kickoff
+
+[Containments][1][Applets][28][Configuration]
+PreloadWeight=100
+
+[Containments][1][Applets][28][Configuration][ConfigDialog]
+DialogHeight=540
+DialogWidth=720
+
+[Containments][1][Applets][28][Configuration][General]
+compactMode=true
+favoritesPortedToKAstats=true
+primaryActions=3
+systemFavorites=lock-screen\\,logout\\,save-session\\,switch-user\\,suspend\\,hibernate\\,reboot\\,shutdown
+
+[Containments][1][Applets][4]
+immutability=1
+plugin=org.kde.plasma.pager
+
 [Containments][1][ConfigDialog]
-DialogHeight=987
-DialogWidth=1918
+DialogHeight=1080
+DialogWidth=1920
 
 [Containments][1][Wallpaper][org.kde.image][General]
-Image=/nix/store/29ln9hcmzqcvdsaz1nabaa8dn9j5n93b-plasma-workspace-wallpapers-6.2.5/share/wallpapers/MilkyWay/
-PreviewImage=/nix/store/29ln9hcmzqcvdsaz1nabaa8dn9j5n93b-plasma-workspace-wallpapers-6.2.5/share/wallpapers/MilkyWay/
+Image=/nix/store/c83h45a43618dlvrddqanjrq1a2dgcga-plasma-workspace-wallpapers-6.2.5/share/wallpapers/Path/
+PreviewImage=/nix/store/c83h45a43618dlvrddqanjrq1a2dgcga-plasma-workspace-wallpapers-6.2.5/share/wallpapers/Path/
 SlidePaths=/nix/store/k9hghs3lq0nxxvrg02805h4pjpqxd996-breeze-6.2.5/share/wallpapers/,/run/current-system/sw/share/wallpapers/
 
 [Containments][2]
@@ -39,11 +77,19 @@ immutability=1
 plugin=org.kde.plasma.digitalclock
 
 [Containments][2][Applets][19][Configuration][Appearance]
+dateFormat=longDate
 fontWeight=400
 
-[Containments][2][Applets][20]
+[Containments][2][Applets][19][Configuration][ConfigDialog]
+DialogHeight=981
+DialogWidth=1918
+
+[Containments][2][Applets][27]
 immutability=1
-plugin=org.kde.plasma.showdesktop
+plugin=org.kde.plasma.kickerdash
+
+[Containments][2][Applets][27][Configuration][General]
+favoritesPortedToKAstats=true
 
 [Containments][2][Applets][3]
 immutability=1
@@ -57,13 +103,12 @@ popupWidth=815
 [Containments][2][Applets][3][Configuration][General]
 favoritesPortedToKAstats=true
 
-[Containments][2][Applets][4]
-immutability=1
-plugin=org.kde.plasma.pager
-
 [Containments][2][Applets][5]
 immutability=1
 plugin=org.kde.plasma.icontasks
+
+[Containments][2][Applets][5][Configuration][General]
+launchers=
 
 [Containments][2][Applets][6]
 immutability=1
@@ -74,11 +119,11 @@ immutability=1
 plugin=org.kde.plasma.systemtray
 
 [Containments][2][Applets][7][Configuration]
-PreloadWeight=60
+PreloadWeight=100
 SystrayContainmentId=8
 
 [Containments][2][General]
-AppletOrder=3;4;5;6;7;19;20
+AppletOrder=3;27;5;6;7;19
 
 [Containments][8]
 activityId=
@@ -95,12 +140,15 @@ wallpaperplugin=org.kde.image
 immutability=1
 plugin=org.kde.plasma.clipboard
 
+[Containments][8][Applets][10][Configuration]
+PreloadWeight=55
+
 [Containments][8][Applets][11]
 immutability=1
 plugin=org.kde.plasma.devicenotifier
 
 [Containments][8][Applets][11][Configuration]
-PreloadWeight=55
+PreloadWeight=100
 
 [Containments][8][Applets][12]
 immutability=1
@@ -131,7 +179,7 @@ immutability=1
 plugin=org.kde.plasma.volume
 
 [Containments][8][Applets][18][Configuration]
-PreloadWeight=55
+PreloadWeight=100
 
 [Containments][8][Applets][18][Configuration][General]
 migrated=true
@@ -141,14 +189,14 @@ immutability=1
 plugin=org.kde.plasma.networkmanagement
 
 [Containments][8][Applets][21][Configuration]
-PreloadWeight=55
+PreloadWeight=0
 
 [Containments][8][Applets][22]
 immutability=1
 plugin=org.kde.plasma.battery
 
 [Containments][8][Applets][22][Configuration]
-PreloadWeight=34
+PreloadWeight=0
 
 [Containments][8][Applets][22][Configuration][General]
 showPercentage=true
@@ -158,23 +206,36 @@ immutability=1
 plugin=org.kde.plasma.brightness
 
 [Containments][8][Applets][23][Configuration]
-PreloadWeight=34
+PreloadWeight=5
 
 [Containments][8][Applets][24]
 immutability=1
 plugin=org.kde.plasma.mediacontroller
 
 [Containments][8][Applets][24][Configuration]
-PreloadWeight=42
+PreloadWeight=0
+
+[Containments][8][Applets][29]
+immutability=1
+plugin=org.kde.plasma.bluetooth
+
+[Containments][8][Applets][29][Configuration]
+PreloadWeight=0
 
 [Containments][8][Applets][9]
 immutability=1
 plugin=org.kde.plasma.cameraindicator
 
+[Containments][8][ConfigDialog]
+DialogHeight=540
+DialogWidth=720
+
 [Containments][8][General]
 extraItems=org.kde.plasma.cameraindicator,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.notifications,org.kde.kscreen,org.kde.plasma.battery,org.kde.plasma.brightness,org.kde.plasma.keyboardindicator,org.kde.plasma.keyboardlayout,org.kde.plasma.networkmanagement,org.kde.plasma.printmanager,org.kde.plasma.volume
+iconSpacing=1
 knownItems=org.kde.plasma.cameraindicator,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.notifications,org.kde.kscreen,org.kde.plasma.battery,org.kde.plasma.brightness,org.kde.plasma.keyboardindicator,org.kde.plasma.keyboardlayout,org.kde.plasma.networkmanagement,org.kde.plasma.printmanager,org.kde.plasma.volume
+scaleIconsToFit=true
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=
+screenMapping=desktop:/bug.patch,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/alsa-info_working.txt,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/alsa-info_not-working.txt,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/LIC_CREDS.org,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/creds.org,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/kernel_bugzilla.org,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/Payment_Receipt.pdf,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/compiled.squashfs-zstd,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555,desktop:/kernel_bugzilla.org~,0,8d6b0abd-4653-4242-ab4b-12b5a8b7b555

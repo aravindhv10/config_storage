@@ -22,6 +22,9 @@ Id_9=ea54d2a6-91c0-49c7-aada-b8dde3aebb5d
 Number=20
 Rows=4
 
+[Effect-overview]
+BorderActivate=9
+
 [Plugins]
 invertEnabled=true
 

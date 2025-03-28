@@ -2,5 +2,6 @@
 OutlineCloseButton=true
 
 [Windeco]
+ButtonSize=ButtonSmall
 DrawBackgroundGradient=true
 DrawBorderOnMaximizedWindows=true

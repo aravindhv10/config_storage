@@ -1,34 +1,34 @@
 updateInfoAdded=true
 
 [gtkconfig.upd]
-ctime=1741148445
+ctime=1741449568
 done=dont_use_gtk_css_for_window_decorations
 mtime=1
 
 [kwin.upd]
-ctime=1741148497
+ctime=1741449768
 mtime=1
 
 [migrate-calendar-to-plugin-id.upd]
-ctime=1741148508
+ctime=1742307591
 done=migrate-calendar-plugins
 mtime=1
 
 [plasma6.0-remove-dpi-settings.upd]
-ctime=1741148508
+ctime=1742307591
 done=migrate-calendar-plugins
 mtime=1
 
 [plasma6.0-remove-old-shortcuts.upd]
-ctime=1741148508
+ctime=1742307591
 mtime=1
 
 [plasmashell-6.0-keep-custom-position-of-panels.upd]
-ctime=1741148508
+ctime=1742307591
 mtime=1
 
 [plasmashell-6.0-keep-default-floating-setting-for-plasma-5-panels.upd]
-ctime=1741148508
+ctime=1742307591
 mtime=1
 
 [spectacle.upd]

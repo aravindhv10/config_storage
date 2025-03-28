@@ -118,6 +118,7 @@ in {
 
   programs.hyprland = {
     enable = true;
+    package = unstable.hyprland;
     withUWSM = true; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
   };
@@ -401,6 +402,37 @@ in {
 
     '')
 
+    (writeCBin "M_C_1" ''
+
+      #include <unistd.h>
+
+      static char arg0[] = "emacs" ;
+
+      static char * const args[] = {arg0, NULL};
+
+      int main () {
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_C_2" ''
+
+      #include <unistd.h>
+
+      static char arg0[] = "emacsclient" ;
+      static char arg1[] = "-c" ;
+
+      static char * const args[] = {arg0, arg1, NULL};
+
+      int main () {
+          int ret = execvp(arg0, args);
+          return ret;
+      }
+
+    '')
+
     (writeCBin "enter_emacs_flatpak" ''
 
       #include <unistd.h>
@@ -469,7 +501,6 @@ in {
           int ret = execvp(arg0, args);
           return ret;
       }
-
 
     '')
 
@@ -570,29 +601,13 @@ in {
 
     '')
 
-    (writeCBin "M_C_1" ''
+    (writeCBin "M_C_D" ''
 
       #include <unistd.h>
 
-      static char arg0[] = "emacs" ;
+      static char arg0[] = "dolphin" ;
 
       static char * const args[] = {arg0, NULL};
-
-      int main () {
-          int ret = execvp(arg0, args);
-          return ret;
-      }
-
-    '')
-
-    (writeCBin "M_C_2" ''
-
-      #include <unistd.h>
-
-      static char arg0[] = "emacsclient" ;
-      static char arg1[] = "-c" ;
-
-      static char * const args[] = {arg0, arg1, NULL};
 
       int main () {
           int ret = execvp(arg0, args);

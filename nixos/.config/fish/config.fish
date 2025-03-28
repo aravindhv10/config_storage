@@ -1,37 +1,26 @@
 export SUDO_ASKPASS={$HOME}/SUDO_ASKPASS
 
-function puthere
-    mysync (cat /tmp/list) ./
-end
-
-function txn
-    tmux new-window $argv
-end
-
-function txp
-    tmux split-pane $argv
-end
-
 function xs
     cd (fd -t d -t l | sk)
-end
-
-function lh
-    rm -vf -- {$HOME}/link
-    ln -vfs -- (realpath .) {$HOME}/link
-end
-
-function mk
-    fd . | sk >./mark.txt
-    cat ./mark.txt
 end
 
 abbr --add --position command -- ls lsd
 abbr --add --position command -- top btm -b --process_command
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
+
+
+abbr --add --position command -- ac aria2c -c -x16 -j16
+abbr --add --position command -- ca aria2c -c -x16 -j16
+
+abbr --add --position command -- qa exec byobu-tmux
+abbr --add --position command -- aq exec byobu-tmux
+
+abbr --add --position command -- az exec sudo -A byobu-tmux
+abbr --add --position command -- za exec sudo -A byobu-tmux
+
 abbr --add --position command -- cd z
-abbr --add --position command -- argc aria2c -c -x16 -j16
+abbr --add --position command -- dc z
 
 fish_vi_key_bindings
 
@@ -186,13 +175,13 @@ function _atuin_search
 
     if test -n "$ATUIN_H"
         if string match --quiet '__atuin_accept__:*' "$ATUIN_H"
-            set -l ATUIN_HIST (string replace "__atuin_accept__:" "" -- "$ATUIN_H" | string collect)
-            commandline -r "$ATUIN_HIST"
-            commandline -f repaint
-            commandline -f execute
-            return
+          set -l ATUIN_HIST (string replace "__atuin_accept__:" "" -- "$ATUIN_H" | string collect)
+          commandline -r "$ATUIN_HIST"
+          commandline -f repaint
+          commandline -f execute
+          return
         else
-            commandline -r "$ATUIN_H"
+          commandline -r "$ATUIN_H"
         end
     end
 
@@ -218,8 +207,8 @@ function _atuin_bind_up
 end
 
 bind \cr _atuin_search
-if bind -M insert >/dev/null 2>&1
-    bind -M insert \cr _atuin_search
+if bind -M insert > /dev/null 2>&1
+bind -M insert \cr _atuin_search
 end
 
 function fish_prompt
@@ -234,7 +223,7 @@ function fish_prompt
     # Account for changes in variable name between v2.7 and v3.0
     set STARSHIP_DURATION "$CMD_DURATION$cmd_duration"
     set STARSHIP_JOBS (count (jobs -p))
-    if test "$TRANSIENT" = 1
+    if test "$TRANSIENT" = "1"
         set -g TRANSIENT 0
         # Clear from cursor to end of screen as `commandline -f repaint` does not do this
         # See https://github.com/fish-shell/fish-shell/issues/8418
@@ -261,7 +250,7 @@ function fish_right_prompt
     # Account for changes in variable name between v2.7 and v3.0
     set STARSHIP_DURATION "$CMD_DURATION$cmd_duration"
     set STARSHIP_JOBS (count (jobs -p))
-    if test "$RIGHT_TRANSIENT" = 1
+    if test "$RIGHT_TRANSIENT" = "1"
         set -g RIGHT_TRANSIENT 0
         if type -q starship_transient_rprompt_func
             starship_transient_rprompt_func
@@ -279,7 +268,7 @@ set -g VIRTUAL_ENV_DISABLE_PROMPT 1
 # Remove default mode prompt
 builtin functions -e fish_mode_prompt
 
-set -gx STARSHIP_SHELL fish
+set -gx STARSHIP_SHELL "fish"
 
 # Transience related functions
 function reset-transient --on-event fish_postexec

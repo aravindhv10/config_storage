@@ -1,11 +1,29 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR __fish_initialized:3400
-SETUVAR _hydro_git_2151:main\u2022\x20
+SETUVAR __fish_initialized:3800
+SETUVAR _hydro_git_12323:\x1d
+SETUVAR _hydro_git_151298:main\u2022\x20
+SETUVAR _hydro_git_20361:master\x20
+SETUVAR _hydro_git_2151:\x1d
 SETUVAR _hydro_git_224138:main\u2022\x20
 SETUVAR _hydro_git_234511:main\u2022\x20
 SETUVAR _hydro_git_236433:\x1d
+SETUVAR _hydro_git_260389:distress\x20
+SETUVAR _hydro_git_2665:\x1d
+SETUVAR _hydro_git_2716:master\x20
+SETUVAR _hydro_git_28032:\x1d
 SETUVAR _hydro_git_3188:\x1d
+SETUVAR _hydro_git_370256:main\u2022\x20
+SETUVAR _hydro_git_4340:master\x20
+SETUVAR _hydro_git_4357:main\u2022\x20
+SETUVAR _hydro_git_47126:master\x20
+SETUVAR _hydro_git_47277:master\x20
+SETUVAR _hydro_git_4789:master\x20
+SETUVAR _hydro_git_525931:master\x20
+SETUVAR _hydro_git_5691:main\u2022\x20
+SETUVAR _hydro_git_57248:main\u2022\x20
+SETUVAR _hydro_git_62427:main\u2022\x20
+SETUVAR _hydro_git_78185:main\u2022\x20
 SETUVAR fish_color_autosuggestion:brblack
 SETUVAR fish_color_cancel:\x2dr
 SETUVAR fish_color_command:blue
@@ -23,7 +41,7 @@ SETUVAR fish_color_operator:brcyan
 SETUVAR fish_color_param:cyan
 SETUVAR fish_color_quote:yellow
 SETUVAR fish_color_redirection:cyan\x1e\x2d\x2dbold
-SETUVAR fish_color_search_match:bryellow\x1e\x2d\x2dbackground\x3dbrblack
+SETUVAR fish_color_search_match:white\x1e\x2d\x2dbackground\x3dbrblack
 SETUVAR fish_color_selection:white\x1e\x2d\x2dbold\x1e\x2d\x2dbackground\x3dbrblack
 SETUVAR fish_color_status:red
 SETUVAR fish_color_user:brgreen

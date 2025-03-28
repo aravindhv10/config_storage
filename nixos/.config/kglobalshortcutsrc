@@ -244,6 +244,7 @@ activate widget 24=none,none,Activate Panel Widget
 activate widget 25=none,none,Activate Application Launcher Widget
 activate widget 3=none,none,Activate Application Launcher Widget
 activate widget 46=none,none,Activate Application Dashboard Widget
+activate widget 8=none,none,Activate System Tray Widget
 clear-history=none,,Clear Clipboard History
 clipboard_action=Meta+Ctrl+X,Meta+Ctrl+X,Automatic Action Popup Menu
 cycle-panels=Meta+Alt+P,Meta+Alt+P,Move keyboard focus between panels
@@ -261,18 +262,6 @@ stop current activity=none,Meta+S,Stop Current Activity
 switch to next activity=none,,Switch to Next Activity
 switch to previous activity=none,,Switch to Previous Activity
 toggle do not disturb=none,,Toggle do not disturb
-
-[services][brave-browser.desktop]
-new-window=Meta+Ctrl+S
-
-[services][emacs.desktop]
-_launch=Meta+Ctrl+1
-
-[services][firefox.desktop]
-new-window=Meta+Ctrl+A
-
-[services][footclient.desktop]
-_launch=Meta+F2
 
 [services][net.local.M_A_0.desktop]
 _launch=Meta+Alt+0
@@ -403,12 +392,6 @@ _launch=Meta+F2
 [services][net.local.M_F3.desktop]
 _launch=Meta+F3
 
-[services][net.local.emacsclient.desktop]
-_launch=Meta+F3
-
-[services][net.local.footclient.desktop]
-_launch=Meta+F1
-
 [services][org.kde.dolphin.desktop]
 _launch=none
 
@@ -423,6 +406,3 @@ RecordRegion=none
 RecordScreen=none
 RecordWindow=none
 _launch=Print
-
-[services][systemsettings.desktop]
-kcm-kscreen=Meta+Ctrl+T
