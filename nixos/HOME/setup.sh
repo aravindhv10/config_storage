@@ -26,3 +26,5 @@ GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
 C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
 
 C 'HOME,.config,wayfire.ini' "${HOME}/.config/wayfire.ini"
+
+C './HOME,.config,waybar,config.jsonc' "${HOME}/.config/waybar/config.jsonc"
