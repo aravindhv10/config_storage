@@ -158,6 +158,8 @@ get_squashfs_tools () {
     git checkout .
     cd "./squashfs-tools"
     sd -F 'GZIP_SUPPORT = 1' '# GZIP_SUPPORT = 1' './Makefile'
+    sd -F 'XZ_SUPPORT = 1' '# XZ_SUPPORT = 1' './Makefile'
+    sd -F 'LZO_SUPPORT = 1' '# LZO_SUPPORT = 1' './Makefile'
     sd -F '#ZSTD_SUPPORT = 1' 'ZSTD_SUPPORT = 1' './Makefile'
     sd -F 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
     sd -F 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
@@ -210,6 +212,44 @@ get_rust_package(){
         find ./ -type f -exec mv -vf {} ../lib64/ ';'
         find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
     fi
+}
+
+get_deb_mirror(){
+    mkdir -pv "${HOME}/GITLAB/aravindhv101"
+    cd "${HOME}/GITLAB/aravindhv101"
+    git clone 'https://gitlab.com/aravindhv101/deb_mirror.git'
+    cd deb_mirror
+
+    PKG_NAME="$('basename' "$(realpath .)")"
+
+    . '/usr/lib/sdk/rust-stable/enable.sh'
+    . '/usr/lib/sdk/llvm19/enable.sh'
+
+    export CC='clang'
+    export CXX='clang++'
+    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+    export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+    mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+    cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+    DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
+    cargo build --release
+
+    cd 'target/release'
+    find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+    mkdir -pv -- "/var/tmp/${PKG_NAME}/exe/"
+    cd "/var/tmp/${PKG_NAME}/exe/"
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    get_all_deps
+    find ./ -type f -exec mv -vf {} ../lib64/ ';'
+    find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
 }
 
 get_helix_evil_editor(){
@@ -328,6 +368,7 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/latex-lsp/texlab.git'
     get_helix_editor
     get_helix_evil_editor
+    get_deb_mirror
 }
 
 get_tree_sitter () {
