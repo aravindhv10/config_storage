@@ -10,6 +10,7 @@
           git add './HOME,.config,foot,foot.ini'
           git add './HOME,important_functions.sh'
           git add './HOME,.wezterm.lua'
+          git add './HOME,.config,alacritty,alacritty.toml'
 
           git add './main.org'
           git add './setup.sh'
