@@ -1005,7 +1005,7 @@ flatpak run --command=bash org.gnu.emacs
 
 ********* M_C_T
 
-********** New
+********** COMMENT New
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
 
@@ -1024,7 +1024,7 @@ flatpak run --command=bash org.gnu.emacs
   '')
 #+end_src
 
-********** COMMENT old
+********** old
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
 
@@ -1033,13 +1033,13 @@ flatpak run --command=bash org.gnu.emacs
 
   int foot_server () {
       static char * const args[] = {"foot" , "-s" , NULL};
-      int ret = execvp(arg0, args);
+      int ret = execvp(args[0], args);
       return ret;
   }
 
   int alacritty_server () {
-      static char * const args[] = {"alacritty" , "-e" , "foot" , "-s" , NULL};
-      int ret = execvp(arg0, args);
+      static char * const args[] = {"alacritty" , "-e" , "byobu-tmux" , NULL};
+      int ret = execvp(args[0], args);
       return ret;
   }
 
@@ -1066,7 +1066,7 @@ flatpak run --command=bash org.gnu.emacs
   }
 
   int main () {
-      alacritty_server();
+      both();
   }
 
   '')

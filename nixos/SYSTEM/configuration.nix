@@ -502,15 +502,44 @@ in {
     (writeCBin "M_C_T" ''
 
       #include <unistd.h>
+      #include <sys/wait.h>
 
-      int alacritty_server () {
-          static char * const args[] = {"alacritty" , "-e" , "foot" , "-s" , NULL};
+      int foot_server () {
+          static char * const args[] = {"foot" , "-s" , NULL};
           int ret = execvp(args[0], args);
           return ret;
       }
 
+      int alacritty_server () {
+          static char * const args[] = {"alacritty" , "-e" , "byobu-tmux" , NULL};
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+      int both () {
+          pid_t p_foot;
+          pid_t p_alacritty;
+          int ret_foot;
+          int ret_alacritty;
+
+          p_foot = fork();
+          if(p_foot == 0){
+              ret_foot = foot_server ();
+              return ret_foot;
+          }
+
+          p_alacritty = fork();
+          if(p_alacritty == 0){
+              ret_alacritty = alacritty_server ();
+              return ret_alacritty;
+          }
+
+          waitpid(p_foot, NULL, 0);
+          waitpid(p_alacritty, NULL, 0);
+      }
+
       int main () {
-          alacritty_server();
+          both();
       }
 
     '')

@@ -1228,9 +1228,6 @@ return config
 
 *** ESC
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  binding_m_esc = <super> KEY_ESC
-  command_m_esc = M_ESC
-
   binding_mc_esc = <super> <ctrl> KEY_ESC
   command_mc_esc = M_C_ESC
 #+end_src
@@ -1456,7 +1453,7 @@ return config
   # Simple active window switcher.
   [fast-switcher]
   activate = <super> KEY_TAB
-  activate_backward = <super> <shift> KEY_TAB
+  activate_backward = <super> <alt> KEY_TAB
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
@@ -1524,7 +1521,7 @@ return config
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   # Show an overview of all workspaces.
   [expo]
-  toggle = <super> KEY_GRAVE
+  toggle = <super> KEY_ESC
   duration = 0
   inactive_brightness = 0.5
   # Select a workspace.
@@ -1583,7 +1580,7 @@ return config
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   [scale]
-  toggle_all = <super> <alt> KEY_SPACE | <super> KEY_SLASH
+  toggle_all = <super> KEY_GRAVE
   allow_zoom = true
   toggle = <super> KEY_SPACE
   duration = 0
