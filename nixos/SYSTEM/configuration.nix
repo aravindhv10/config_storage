@@ -414,9 +414,26 @@ in {
 
       static char * const args[] = {"emacs", NULL};
 
-      int main () {
+      int start () {
           int ret = execvp(args[0], args);
           return ret;
+      }
+
+      int do_start () {
+          pid_t p_start;
+          int ret_start;
+          p_start = fork();
+          if(p_start == 0){
+              ret_start = start ();
+              return ret_start;
+          }
+          waitpid(p_start, NULL, 0);
+          return 0;
+      }
+
+      int main () {
+          while(1){do_start();}
+          return 0;
       }
 
     '')
@@ -536,10 +553,13 @@ in {
 
           waitpid(p_foot, NULL, 0);
           waitpid(p_alacritty, NULL, 0);
+
+          return 0;
       }
 
       int main () {
-          both();
+          while(1) {both();}
+          return 0;
       }
 
     '')
