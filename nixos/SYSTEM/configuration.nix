@@ -275,11 +275,6 @@ in {
     emacs30
     fd
     file
-    # fishPlugins.done
-    # fishPlugins.forgit
-    # fishPlugins.fzf-fish
-    # fishPlugins.grc
-    # fishPlugins.hydro
     foot
     fuse3
     fzf
@@ -352,6 +347,8 @@ in {
     zip
     zoxide
     zstd
+    networkmanagerapplet
+    nm-tray
 
     unstable.nixfmt-rfc-style
     unstable.wayfire

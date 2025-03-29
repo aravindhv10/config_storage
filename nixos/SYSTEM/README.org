@@ -692,6 +692,15 @@ You can disable this if you're only using the Wayland session.
 
 ****** FULL LIST
 
+******* COMMENT DISABLED
+#+begin_src nix :tangle ./configuration.nix
+  fishPlugins.done
+  fishPlugins.forgit
+  fishPlugins.fzf-fish
+  fishPlugins.grc
+  fishPlugins.hydro
+#+end_src
+
 ******* MAIN PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   acpi
@@ -721,11 +730,6 @@ You can disable this if you're only using the Wayland session.
   emacs30
   fd
   file
-  # fishPlugins.done
-  # fishPlugins.forgit
-  # fishPlugins.fzf-fish
-  # fishPlugins.grc
-  # fishPlugins.hydro
   foot
   fuse3
   fzf
@@ -798,6 +802,8 @@ You can disable this if you're only using the Wayland session.
   zip
   zoxide
   zstd
+  networkmanagerapplet
+  nm-tray
 #+end_src
 
 ******* UNSTABLE PACKAGES
