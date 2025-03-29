@@ -411,28 +411,29 @@ in {
     (writeCBin "M_C_1" ''
 
       #include <unistd.h>
+      #include <sys/wait.h>
 
-      static char * const args[] = {"emacs", NULL};
-
-      int start () {
-          int ret = execvp(args[0], args);
+      int start (char * const * argv) {
+          int ret = execvp(argv[0], argv);
           return ret;
       }
 
-      int do_start () {
+      int do_start (char * const * argv) {
           pid_t p_start;
           int ret_start;
           p_start = fork();
           if(p_start == 0){
-              ret_start = start ();
+              ret_start = start (argv);
               return ret_start;
           }
           waitpid(p_start, NULL, 0);
           return 0;
       }
 
+      static char * const args[] = {"emacs", NULL};
+
       int main () {
-          while(1){do_start();}
+          while(1){do_start(args);}
           return 0;
       }
 

@@ -891,28 +891,29 @@ You can disable this if you're only using the Wayland session.
   (writeCBin "M_C_1" ''
 
   #include <unistd.h>
+  #include <sys/wait.h>
 
-  static char * const args[] = {"emacs", NULL};
-
-  int start () {
-      int ret = execvp(args[0], args);
+  int start (char * const * argv) {
+      int ret = execvp(argv[0], argv);
       return ret;
   }
 
-  int do_start () {
+  int do_start (char * const * argv) {
       pid_t p_start;
       int ret_start;
       p_start = fork();
       if(p_start == 0){
-          ret_start = start ();
+          ret_start = start (argv);
           return ret_start;
       }
       waitpid(p_start, NULL, 0);
       return 0;
   }
 
+  static char * const args[] = {"emacs", NULL};
+
   int main () {
-      while(1){do_start();}
+      while(1){do_start(args);}
       return 0;
   }
 
@@ -1027,11 +1028,28 @@ flatpak run --command=bash org.gnu.emacs
   (writeCBin "M_C_T" ''
 
   #include <unistd.h>
+  #include <sys/wait.h>
+
+  int start (char * const * argv) {
+      int ret = execvp(argv[0], argv);
+      return ret;
+  }
+
+  int do_start (char * const * argv) {
+      pid_t p_start;
+      int ret_start;
+      p_start = fork();
+      if(p_start == 0){
+          ret_start = start (argv);
+          return ret_start;
+      }
+      waitpid(p_start, NULL, 0);
+      return 0;
+  }
 
   int alacritty_server () {
-      static char * const args[] = {"alacritty" , "-e" , "foot" , "-s" , NULL};
-      int ret = execvp(args[0], args);
-      return ret;
+      static char * const alacritty[] = {"alacritty" , "-e" , "foot" , "-s" , NULL};
+      do_start(alacritty);
   }
 
   int main () {
