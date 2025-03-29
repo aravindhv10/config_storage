@@ -114,6 +114,21 @@ in {
 
   services.xserver.displayManager.gdm.enable = true;
 
+  programs.wayfire = {
+    enable = true;
+    package = unstable.wayfire;
+    plugins = [
+      pkgs.wayfirePlugins.firedecor
+      pkgs.wayfirePlugins.focus-request
+      pkgs.wayfirePlugins.wayfire-plugins-extra
+      pkgs.wayfirePlugins.wayfire-shadows
+      pkgs.wayfirePlugins.wcm
+      pkgs.wayfirePlugins.wf-shell
+      pkgs.wayfirePlugins.windecor
+      pkgs.wayfirePlugins.wwp-switcher
+    ];
+  };
+
   services.desktopManager.plasma6.enable = true;
 
   programs.hyprland = {
@@ -351,7 +366,6 @@ in {
     nm-tray
 
     unstable.nixfmt-rfc-style
-    unstable.wayfire
     unstable.wezterm
 
     (callPackage /root/debMirror.nix {})

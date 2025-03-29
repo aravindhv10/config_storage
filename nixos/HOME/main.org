@@ -1120,6 +1120,7 @@ return config
     wm-actions \
     scale \
     scale-title-filter \
+    winzoom \
     zoom 
 
 
@@ -1131,6 +1132,7 @@ return config
   # You can find its documentation here:
   # https://github.com/WayfireWM/wayfire/wiki/Configuration#blur
 #+end_src
+
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   # Close focused window.
@@ -1596,6 +1598,18 @@ return config
   # border_size = 4
   # active_color = #0099FF
   # inactive_color = #FF9900
+#+end_src
+
+** winzoom
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+[winzoom]
+dec_x_binding = <super> <alt> KEY_H
+dec_y_binding = <super> <alt> KEY_K
+inc_x_binding = <super> <alt> KEY_L
+inc_y_binding = <super> <alt> KEY_J
+nearest_filtering = false
+preserve_aspect = true
+zoom_step = 0.100000
 #+end_src
 
 * waybar

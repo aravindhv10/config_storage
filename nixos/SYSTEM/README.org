@@ -471,6 +471,24 @@ You can disable this if you're only using the Wayland session.
 
 **** Desktop environment
 
+***** Wayfire
+#+begin_src nix :tangle ./configuration.nix
+  programs.wayfire = {
+      enable = true;
+      package = unstable.wayfire;
+      plugins = [
+          pkgs.wayfirePlugins.firedecor
+          pkgs.wayfirePlugins.focus-request
+          pkgs.wayfirePlugins.wayfire-plugins-extra
+          pkgs.wayfirePlugins.wayfire-shadows
+          pkgs.wayfirePlugins.wcm
+          pkgs.wayfirePlugins.wf-shell
+          pkgs.wayfirePlugins.windecor
+          pkgs.wayfirePlugins.wwp-switcher
+      ];
+  } ;
+#+end_src
+
 ***** Enable the KDE Plasma Desktop Environment.
 #+begin_src nix :tangle ./configuration.nix
   services.desktopManager.plasma6.enable = true;
@@ -809,7 +827,6 @@ You can disable this if you're only using the Wayland session.
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.nixfmt-rfc-style
-  unstable.wayfire
   unstable.wezterm
 #+end_src
 
