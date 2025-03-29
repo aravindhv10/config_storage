@@ -19,6 +19,9 @@ abbr --add --position command -- aq exec byobu-tmux
 abbr --add --position command -- az exec sudo -A byobu-tmux
 abbr --add --position command -- za exec sudo -A byobu-tmux
 
+abbr --add --position command -- ws sudo -A nixos-rebuild switch
+abbr --add --position command -- sw sudo -A nixos-rebuild switch
+
 abbr --add --position command -- cd z
 abbr --add --position command -- dc z
 
