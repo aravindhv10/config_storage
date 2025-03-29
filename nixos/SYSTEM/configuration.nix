@@ -530,10 +530,13 @@ in {
       int alacritty_server () {
           static char arg0[] = "alacritty" ;
           static char arg1[] = "-e" ;
-          static char arg2[] = "foot" ;
-          static char arg3[] = "-s" ;
+          static char arg2[] = "byobu-tmux";
+          static char arg3[] = "new";
+          static char arg4[] = "--";
+          static char arg5[] = "foot" ;
+          static char arg6[] = "-s" ;
 
-          static char * const args[] = {arg0, arg1, arg2, arg3, NULL};
+          static char * const args[] = {arg0, arg1, arg2, arg3, arg4, arg5, arg6, NULL};
 
           int ret = execvp(arg0, args);
           return ret;

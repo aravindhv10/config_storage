@@ -1203,7 +1203,6 @@ return config
   # Needed by some GTK applications
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
   bar = waybar
-  footterminal = foot -s
   networkmanager = nm-applet
 #+end_src
 
