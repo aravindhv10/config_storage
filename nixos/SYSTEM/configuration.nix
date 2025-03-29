@@ -522,7 +522,7 @@ in {
       static char * const args[] = {"firefox" ,  NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -535,7 +535,7 @@ in {
       static char * const args[] = {"brave" , NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -548,7 +548,7 @@ in {
       static char * const args[] = {"dolphin" , NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
