@@ -356,18 +356,27 @@ in {
 
     (callPackage /root/debMirror.nix {})
 
+    (writeCBin "M_C_ESC" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"wlogout", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
     (writeCBin "M_F1" ''
 
       #include <unistd.h>
 
-      static char arg0[] = "footclient" ;
-      static char arg1[] = "-e" ;
-      static char arg2[] = "byobu-tmux" ;
-
-      static char * const args[] = {arg0, arg1, arg2, NULL};
+      static char * const args[] = {"footclient", "-e", "byobu-tmux", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -377,12 +386,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "footclient" ;
-
-      static char * const args[] = {arg0, NULL};
+      static char * const args[] = {"footclient", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -392,13 +399,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "emacsclient" ;
-      static char arg1[] = "-c" ;
-
-      static char * const args[] = {arg0, arg1, NULL};
+      static char * const args[] = {"emacsclient", "-c", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -408,12 +412,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "emacs" ;
-
-      static char * const args[] = {arg0, NULL};
+      static char * const args[] = {"emacs", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -423,13 +425,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "emacsclient" ;
-      static char arg1[] = "-c" ;
-
-      static char * const args[] = {arg0, arg1, NULL};
+      static char * const args[] = {"emacsclient", "-c", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -439,15 +438,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "flatpak";
-      static char arg1[] = "run";
-      static char arg2[] = "--command=bash";
-      static char arg3[] = "org.gnu.emacs";
-
-      static char * const args[] = {arg0, arg1, arg2, arg3, NULL};
+      static char * const args[] = {"flatpak", "run", "--command=bash", "org.gnu.emacs", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -457,12 +451,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "wezterm" ;
-
-      static char * const args[] = {arg0, NULL};
+      static char * const args[] = {"wezterm", NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -472,16 +464,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "alacritty" ;
-      static char arg1[] = "msg" ;
-      static char arg2[] = "create-window" ;
-      static char arg3[] = "-e" ;
-      static char arg4[] = "byobu-tmux" ;
-
-      static char * const args[] = {arg0, arg1, arg2, arg3, arg4, NULL};
+      static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "byobu-tmux" , NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -491,16 +477,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "alacritty" ;
-      static char arg1[] = "msg" ;
-      static char arg2[] = "create-window" ;
-      static char arg3[] = "-e" ;
-      static char arg4[] = "enter_emacs_flatpak" ;
-
-      static char * const args[] = {arg0, arg1, arg2, arg3, arg4, NULL};
+      static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "enter_emacs_flatpak" , NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -510,14 +490,10 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "footclient" ;
-      static char arg1[] = "-e" ;
-      static char arg2[] = "enter_emacs_flatpak" ;
-
-      static char * const args[] = {arg0, arg1, arg2, NULL};
+      static char * const args[] = {"footclient" , "-e" , "enter_emacs_flatpak" , NULL};
 
       int main () {
-          int ret = execvp(arg0, args);
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -528,17 +504,8 @@ in {
       #include <unistd.h>
 
       int alacritty_server () {
-          static char arg0[] = "alacritty" ;
-          static char arg1[] = "-e" ;
-          static char arg2[] = "byobu-tmux";
-          static char arg3[] = "new";
-          static char arg4[] = "--";
-          static char arg5[] = "foot" ;
-          static char arg6[] = "-s" ;
-
-          static char * const args[] = {arg0, arg1, arg2, arg3, arg4, arg5, arg6, NULL};
-
-          int ret = execvp(arg0, args);
+          static char * const args[] = {"alacritty" , "-e" , "foot" , "-s" , NULL};
+          int ret = execvp(args[0], args);
           return ret;
       }
 
@@ -552,9 +519,7 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "firefox" ;
-
-      static char * const args[] = {arg0, NULL};
+      static char * const args[] = {"firefox" ,  NULL};
 
       int main () {
           int ret = execvp(arg0, args);
@@ -567,9 +532,7 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "brave" ;
-
-      static char * const args[] = {arg0, NULL};
+      static char * const args[] = {"brave" , NULL};
 
       int main () {
           int ret = execvp(arg0, args);
@@ -582,9 +545,7 @@ in {
 
       #include <unistd.h>
 
-      static char arg0[] = "dolphin" ;
-
-      static char * const args[] = {arg0, NULL};
+      static char * const args[] = {"dolphin" , NULL};
 
       int main () {
           int ret = execvp(arg0, args);

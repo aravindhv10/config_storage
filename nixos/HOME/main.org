@@ -1224,9 +1224,15 @@ return config
 ** Keyboard shortcuts
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   [command]
+#+end_src
 
-  binding_mc_esc = <super> KEY_ESC
-  command_mc_esc = M_ESC
+*** ESC
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_m_esc = <super> KEY_ESC
+  command_m_esc = M_ESC
+
+  binding_mc_esc = <super> <ctrl> KEY_ESC
+  command_mc_esc = M_C_ESC
 #+end_src
 
 *** F
