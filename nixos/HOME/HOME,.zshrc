@@ -1,4 +1,7 @@
-export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+. "${HOME}/.shrc"
+
+get_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"
 
 all_init_convenience () {
     atuin init zsh --disable-up-arrow 

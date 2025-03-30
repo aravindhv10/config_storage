@@ -366,6 +366,7 @@ in {
     ripgrep
     ruff
     rustc
+    shellcheck
     skim
     squashfsTools
     starship

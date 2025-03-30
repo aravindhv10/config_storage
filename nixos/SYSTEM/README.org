@@ -905,6 +905,7 @@ You can disable this if you're only using the Wayland session.
   ripgrep
   ruff
   rustc
+  shellcheck
   skim
   squashfsTools
   starship

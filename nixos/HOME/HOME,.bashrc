@@ -1,8 +1,16 @@
 #!/bin/sh
-eval -- "$(starship init bash --print-full-init)"
+. "${HOME}/.shrc"
 
-. "${HOME}/important_functions.sh"
+get_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"
 
-alias ls=lsd
-alias top='btm -b --process_command'
-alias cat=bat
+all_init_convenience () {
+    starship init bash --print-full-init
+    atuin init bash --disable-up-arrow 
+    zoxide init bash
+}
+
+all_init_convenience > "/tmp/init_${$}"
+. "/tmp/init_${$}"
+
+rm -f -- "/tmp/init_${$}"

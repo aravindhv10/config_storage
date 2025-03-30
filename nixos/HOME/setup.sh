@@ -17,7 +17,11 @@ C './HOME,.config,foot,foot.ini' "${HOME}/.config/foot/foot.ini"
 
 C './HOME,important_functions.sh' "${HOME}/important_functions.sh"
 
+C './HOME,.shrc' "${HOME}/.shrc"
+
 C './HOME,.bashrc' "${HOME}/.bashrc"
+
+C './HOME,.config,nushell,config.nu' "${HOME}/.config/nushell/config.nu"
 
 C './HOME,.zshrc' "${HOME}/.zshrc"
 
