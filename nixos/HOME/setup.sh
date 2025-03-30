@@ -11,6 +11,9 @@ GCC () {
     gcc -O2 "${1}" -o "${2}"
 }
 
+C './HOME,.config,ironbar,config.toml' "${HOME}/.config/ironbar/config.toml"
+C './HOME,.config,ironbar,style.css' "${HOME}/.config/ironbar/style.css"
+
 C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
 C './HOME,.wezterm.lua' "${HOME}/.wezterm.lua"
