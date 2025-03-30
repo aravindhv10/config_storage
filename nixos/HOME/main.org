@@ -9,10 +9,11 @@
           git add './HOME,.config,alacritty,alacritty.toml'
           git add './HOME,.config,fish,config.fish'
           git add './HOME,.config,foot,foot.ini'
+          git add './HOME,.config,waybar,config.jsonc'
           git add './HOME,.config,wayfire.ini'
           git add './HOME,important_functions.sh'
           git add './HOME,.wezterm.lua'
-          git add './HOME,.config,waybar,config.jsonc'
+          git add './HOME,.zshrc'
 
           git add './main.org'
           git add './setup.sh'
