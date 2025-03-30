@@ -641,6 +641,149 @@ in {
       }
 
     '')
+
+    (writeCBin "M_A_GRAVE" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "0%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_1" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "10%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_2" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "20%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_3" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "30%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_4" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "40%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_5" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "50%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_6" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "60%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_7" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "70%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_8" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "80%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_9" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "90%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_0" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"brightnessctl", "set", "100%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
   ];
 
   services.openssh.enable = true;

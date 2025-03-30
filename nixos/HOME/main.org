@@ -637,7 +637,6 @@ return config
   rm -f -- "/tmp/init_${$}"
 #+end_src
 
-
 * NU
 
 ** Copy the config file
@@ -1563,6 +1562,9 @@ return config
 
   binding_maG = <super> <alt> KEY_G
   command_maG = M_A_G
+
+  binding_ma0 = <super> <alt> KEY_GRAVE
+  command_ma0 = M_A_GRAVE
 
   binding_ma0 = <super> <alt> KEY_0
   command_ma0 = M_A_0
