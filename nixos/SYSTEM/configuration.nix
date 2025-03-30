@@ -46,7 +46,10 @@ in {
   boot.kernelModules = ["kvm-amd" "amdgpu"];
   boot.extraModulePackages = [];
 
-  environment.variables = {ROC_ENABLE_PRE_VEGA = "1";};
+  environment.variables = {
+    ROC_ENABLE_PRE_VEGA = "1";
+    EDITOR = "hx";
+  };
 
   hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 
