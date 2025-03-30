@@ -232,6 +232,7 @@ in {
 
   users.users.asd = {
     isNormalUser = true;
+    shell = unstable.fish;
     description = "asd";
     extraGroups = ["networkmanager" "wheel" "audio"];
     packages = with pkgs; [
@@ -240,12 +241,22 @@ in {
     ];
   };
 
+  users.defaultUserShell = pkgs.zsh;
+
+  programs.zsh = {
+    enable = true;
+
+    oh-my-zsh = {
+      enable = true;
+      plugins = ["git" "thefuck"];
+      theme = "robbyrussell";
+    };
+  };
+
   programs.fish = {
     enable = true;
     package = unstable.fish;
   };
-
-  users.defaultUserShell = unstable.fish;
 
   programs.firefox.enable = true;
 

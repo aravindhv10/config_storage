@@ -643,20 +643,112 @@ You can disable this if you're only using the Wayland session.
 
 **** Define a user account. Don't forget to set a password with ‘passwd’.
 #+begin_src nix :tangle ./configuration.nix
-    users.users.asd = {
-      isNormalUser = true;
-      description = "asd";
-      extraGroups = [ "networkmanager" "wheel" "audio" ];
-      packages = with pkgs; [
-        kdePackages.kate
-        # thunderbird
-      ];
-    };
+  users.users.asd = {
+    isNormalUser = true;
+    shell = unstable.fish;
+    description = "asd";
+    extraGroups = [ "networkmanager" "wheel" "audio" ];
+    packages = with pkgs; [
+      kdePackages.kate
+      # thunderbird
+    ];
+  };
 #+end_src
 
 ***** COMMENT keep user services running
 #+begin_src nix :tangle ./configuration.nix
   users.users.asd.linger = true; 
+#+end_src
+
+**** zsh
+
+***** Set default shell to zsh
+#+begin_src nix :tangle ./configuration.nix
+  users.defaultUserShell = pkgs.zsh;
+#+end_src
+
+***** BEGIN
+#+begin_src nix :tangle ./configuration.nix
+  programs.zsh = {
+#+end_src
+
+***** MAIN
+
+****** ENABLE
+#+begin_src nix :tangle ./configuration.nix
+  enable = true;
+#+end_src
+
+****** COMMENT With Zplug:
+#+begin_src nix :tangle ./configuration.nix
+  zplug = {
+    enable = true;
+    plugins = [
+      {name = "zsh-users/zsh-autosuggestions";} # Simple plugin installation
+      {
+        name = "romkatv/powerlevel10k";
+        tags = [ "as:theme" "depth:1" ];
+      } # Installations with additional options. For the list of options, please refer to Zplug README.
+    ];
+  };
+#+end_src
+
+****** With Oh-My-Zsh:
+#+begin_src nix :tangle ./configuration.nix
+  oh-my-zsh = {
+    enable = true;
+    plugins = ["git" "thefuck"];
+    theme = "robbyrussell";
+  };
+#+end_src
+
+****** COMMENT With Antidote:
+#+begin_src nix :tangle ./configuration.nix
+  antidote = {
+    enable = true;
+    plugins = [''
+      zsh-users/zsh-autosuggestions
+      ohmyzsh/ohmyzsh path:lib/git.zsh
+    '']; # explanation of "path:..." and other options explained in Antidote README.
+#+end_src
+
+****** COMMENT Manual
+#+begin_src nix :tangle ./configuration.nix
+    plugins = [
+      {
+        name = "zsh-autocomplete";
+        src = pkgs.fetchFromGitHub {
+          owner = "marlonrichert";
+          repo = "zsh-autocomplete";
+          rev = "23.07.13";
+          sha256 = "sha256-/6V6IHwB5p0GT1u5SAiUa20LjFDSrMo731jFBq/bnpw=";
+        };
+      }
+      {
+        name = "powerlevel10k";
+        src = pkgs.zsh-powerlevel10k;
+        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+      }
+      {
+        name = "powerlevel10k-config";
+        src = ./p10k-config;
+        file = "p10k.zsh";
+      }
+      {
+        name = "zsh-syntax-highlighting";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-syntax-highlighting";
+          rev = "0.8.0";
+          sha256 = "sha256-iJdWopZwHpSyYl5/FQXEW7gl/SrKaYDEtTH9cGP7iPo=";
+        };
+      }
+    ];
+#+end_src
+
+***** END
+#+begin_src nix :tangle ./configuration.nix
+  };
 #+end_src
 
 **** Fish
@@ -667,7 +759,7 @@ You can disable this if you're only using the Wayland session.
   } ;
 #+end_src
 
-***** Set default shell to fish
+***** COMMENT Set default shell to fish
 #+begin_src nix :tangle ./configuration.nix
   users.defaultUserShell = unstable.fish;
 #+end_src

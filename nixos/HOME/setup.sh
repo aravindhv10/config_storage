@@ -19,6 +19,8 @@ C './HOME,important_functions.sh' "${HOME}/important_functions.sh"
 
 C './HOME,.bashrc' "${HOME}/.bashrc"
 
+C './HOME,.zshrc' "${HOME}/.zshrc"
+
 C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 
 GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
