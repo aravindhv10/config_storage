@@ -673,6 +673,19 @@ in {
 
     '')
 
+    (writeCBin "M_C_F" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"pavucontrol" , NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
     (writeCBin "M_A_GRAVE" ''
 
       #include <unistd.h>

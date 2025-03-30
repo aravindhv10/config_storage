@@ -1317,6 +1317,24 @@ flatpak run --command=bash org.gnu.emacs
   '')
 #+end_src
 
+******** Audio volume
+
+********* M_C_F
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_F" ''
+
+  #include <unistd.h>
+
+  static char * const args[] = {"pavucontrol" , NULL};
+
+  int main () {
+      int ret = execvp(args[0], args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
 ******** Screen brightness
 
 ********* M_A_GRAVE
