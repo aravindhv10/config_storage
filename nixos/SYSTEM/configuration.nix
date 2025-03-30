@@ -129,6 +129,8 @@ in {
     ];
   };
 
+  services.displayManager.sessionPackages = [unstable.wayfire];
+
   services.desktopManager.plasma6.enable = true;
 
   programs.hyprland = {
@@ -273,6 +275,7 @@ in {
     bat
     bottom
     brave
+    brightnessctl
     byobu
     cargo
     catppuccin-kde
@@ -301,11 +304,13 @@ in {
     glib
     gpgme
     grc
+    grim
     grub2
     grub2_efi
     gsettings-desktop-schemas
     helix
     htop
+    ironbar
     json-glib
     kitty
     libarchive
@@ -316,16 +321,19 @@ in {
     libxml2
     lsd
     lxc
+    mako
     man-pages
     man-pages-posix
     meson
     miniserve
     mpv
     neovim
+    networkmanagerapplet
     networkmanager-openconnect
     nh
     nix-index
     nix-ld
+    nm-tray
     nushell
     openconnect
     openssl
@@ -347,6 +355,7 @@ in {
     skim
     squashfsTools
     starship
+    swayosd
     tmux
     tree
     unzip
@@ -355,15 +364,15 @@ in {
     waybar
     wayland
     wayland-protocols
+    wf-recorder
     wget
     wlogout
+    wofi
     xorg.libXau
     yazi
     zip
     zoxide
     zstd
-    networkmanagerapplet
-    nm-tray
 
     unstable.nixfmt-rfc-style
     unstable.wezterm

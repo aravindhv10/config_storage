@@ -1209,7 +1209,6 @@ return config
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
   bar = waybar
   networkmanager = nm-applet
-  networkmanagertray = nm-tray
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
