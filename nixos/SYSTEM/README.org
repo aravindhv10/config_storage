@@ -697,7 +697,7 @@ You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
   oh-my-zsh = {
     enable = true;
-    plugins = ["git" "thefuck"];
+    plugins = ["git" "starship" "zoxide"];
     theme = "robbyrussell";
   };
 #+end_src
@@ -1327,6 +1327,24 @@ flatpak run --command=bash org.gnu.emacs
   #include <unistd.h>
 
   static char * const args[] = {"pavucontrol" , NULL};
+
+  int main () {
+      int ret = execvp(args[0], args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
+******** Network
+
+********* M_C_G
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_G" ''
+
+  #include <unistd.h>
+
+  static char * const args[] = {"footclient", "nmtui" , NULL};
 
   int main () {
       int ret = execvp(args[0], args);

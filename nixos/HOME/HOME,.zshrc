@@ -5,8 +5,8 @@ get_path > "/tmp/init_${$}"
 
 all_init_convenience () {
     atuin init zsh --disable-up-arrow 
-    starship init zsh
-    zoxide init zsh
+    # starship init zsh
+    # zoxide init zsh
 }
 
 do_all_init_convenience () {

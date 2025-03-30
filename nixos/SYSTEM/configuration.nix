@@ -251,7 +251,7 @@ in {
 
     oh-my-zsh = {
       enable = true;
-      plugins = ["git" "thefuck"];
+      plugins = ["git" "starship" "zoxide"];
       theme = "robbyrussell";
     };
   };
@@ -679,6 +679,19 @@ in {
       #include <unistd.h>
 
       static char * const args[] = {"pavucontrol" , NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_C_G" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"footclient", "nmtui" , NULL};
 
       int main () {
           int ret = execvp(args[0], args);

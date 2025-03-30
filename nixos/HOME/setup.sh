@@ -11,6 +11,8 @@ GCC () {
     gcc -O2 "${1}" -o "${2}"
 }
 
+C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
+
 C './HOME,.wezterm.lua' "${HOME}/.wezterm.lua"
 
 C './HOME,.config,foot,foot.ini' "${HOME}/.config/foot/foot.ini"

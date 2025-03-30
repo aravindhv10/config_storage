@@ -9,12 +9,14 @@
           git add './HOME,.config,alacritty,alacritty.toml'
           git add './HOME,.config,fish,config.fish'
           git add './HOME,.config,foot,foot.ini'
+          git add './HOME,.config,mako,config'
+          git add './HOME,.config,nushell,config.nu'
           git add './HOME,.config,waybar,config.jsonc'
           git add './HOME,.config,wayfire.ini'
           git add './HOME,important_functions.sh'
+          git add './HOME,.shrc'
           git add './HOME,.wezterm.lua'
           git add './HOME,.zshrc'
-          git add './HOME,.shrc'
 
           git add './main.org'
           git add './setup.sh'
@@ -43,6 +45,21 @@
       rm -vf -- "${2}"
       gcc -O2 "${1}" -o "${2}"
   }
+#+end_src
+
+* mako
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
+#+end_src
+
+** The actual config
+#+begin_src conf :tangle ./HOME,.config,mako,config
+  background-color=#663300FF
+  text-color=#FFFFFFFF
+  default-timeout=4096
+  max-visible=4
 #+end_src
 
 * WEZTERM
@@ -791,8 +808,8 @@ return config
 #+begin_src conf :tangle ./HOME,.zshrc
   all_init_convenience () {
       atuin init zsh --disable-up-arrow 
-      starship init zsh
-      zoxide init zsh
+      # starship init zsh
+      # zoxide init zsh
   }
 
   do_all_init_convenience () {
