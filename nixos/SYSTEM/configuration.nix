@@ -490,6 +490,37 @@ in {
 
     '')
 
+    (writeCBin "TY" ''
+
+      #include <unistd.h>
+      #include <sys/wait.h>
+
+      int start (char * const * argv) {
+          int ret = execvp(argv[0], argv);
+          return ret;
+      }
+
+      int do_start (char * const * argv) {
+          pid_t p_start;
+          int ret_start;
+          p_start = fork();
+          if(p_start == 0){
+              ret_start = start (argv);
+              return ret_start;
+          }
+          waitpid(p_start, NULL, 0);
+          return 0;
+      }
+
+      static char * const args[] = {"byobu-tmux", NULL};
+
+      int main () {
+          while(1){do_start(args);}
+          return 0;
+      }
+
+    '')
+
     (writeCBin "enter_emacs_flatpak" ''
 
       #include <unistd.h>
@@ -567,7 +598,7 @@ in {
       }
 
       int alacritty_server () {
-          static char * const args[] = {"alacritty" , "-e" , "byobu-tmux" , NULL};
+          static char * const args[] = {"alacritty" , "-e" , "TY" , NULL};
           int ret = execvp(args[0], args);
           return ret;
       }
