@@ -382,6 +382,7 @@ in {
     wf-recorder
     wget
     wlogout
+    wlsunset
     wofi
     xorg.libXau
     yazi

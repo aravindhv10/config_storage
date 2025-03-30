@@ -921,6 +921,7 @@ You can disable this if you're only using the Wayland session.
   wf-recorder
   wget
   wlogout
+  wlsunset
   wofi
   xorg.libXau
   yazi
