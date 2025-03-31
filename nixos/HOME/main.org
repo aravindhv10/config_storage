@@ -1322,8 +1322,8 @@ return config
   abbr --add --position command -- cd z
   abbr --add --position command -- dc z
 
-  abbr --add --position command -- de exec dbus-run-session wayfire
-  abbr --add --position command -- ed exec dbus-run-session wayfire
+  abbr --add --position command -- de exec dbus-run-session -- wayfire
+  abbr --add --position command -- ed exec dbus-run-session -- wayfire
 #+end_src
 
 *** Vi bindings

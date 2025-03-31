@@ -139,10 +139,31 @@ in {
   programs.hyprland = {
     enable = true;
     package = unstable.hyprland;
-    # withUWSM = true; # recommended for most users
-    withUWSM = false; # recommended for most users
+    withUWSM = true; # recommended for most users
+    # withUWSM = false; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
   };
+
+  services.xserver.desktopManager.gnome.enable = true;
+
+  environment.gnome.excludePackages = with pkgs; [
+    atomix # puzzle game
+    cheese # webcam tool
+    epiphany # web browser
+    evince # document viewer
+    geary # email reader
+    gedit # text editor
+    gnome-characters
+    gnome-music
+    gnome-photos
+    gnome-terminal
+    gnome-tour
+    hitori # sudoku game
+    iagno # go game
+    tali # poker game
+    totem # video player
+    seahorse
+  ];
 
   services.xserver.xkb = {
     layout = "us";
