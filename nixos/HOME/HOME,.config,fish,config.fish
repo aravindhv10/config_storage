@@ -9,7 +9,6 @@ abbr --add --position command -- top btm -b --process_command
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
 
-
 abbr --add --position command -- ac aria2c -c -x16 -j16
 abbr --add --position command -- ca aria2c -c -x16 -j16
 
@@ -24,6 +23,9 @@ abbr --add --position command -- sw sudo -A nixos-rebuild switch
 
 abbr --add --position command -- cd z
 abbr --add --position command -- dc z
+
+abbr --add --position command -- de exec dbus-run-session wayfire
+abbr --add --position command -- ed exec dbus-run-session wayfire
 
 fish_vi_key_bindings
 

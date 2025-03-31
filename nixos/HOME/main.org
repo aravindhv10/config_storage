@@ -293,14 +293,26 @@
   }
 #+end_src
 
-*** TOML
+*** Custom toml
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  anchor_to_edges = true
+  icon_theme = "Paper"
+  position = "bottom"
+  height = 32
+  start = []
+  center = []
+  end = []
+#+end_src
 
-**** Orientation
+*** COMMENT TOML
+
+**** COMMENT Orientation
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
   anchor_to_edges = true
   position = "bottom"
   icon_theme = "Paper"
 #+end_src
+
 
 **** COMMENT workspaces
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
@@ -316,7 +328,7 @@
   Code = ""
 #+end_src
 
-**** Launcher
+**** COMMENT Launcher
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
   [[start]]
   type = "launcher"
@@ -383,7 +395,7 @@
   networks = 3
 #+end_src
 
-**** Volume
+**** COMMENT Volume
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
   [[end]]
   type = "volume"
@@ -397,7 +409,7 @@
   muted = "󰝟"
 #+end_src
 
-**** Clipboard
+**** COMMENT Clipboard
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
   [[end]]
   type = "clipboard"
@@ -408,7 +420,7 @@
   length = 50
 #+end_src
 
-**** Power
+**** COMMENT Power
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
   [[end]]
   type = "custom"
@@ -451,7 +463,7 @@
   label = "Uptime: {{30000:uptime -p | cut -d ' ' -f2-}}"
 #+end_src
 
-**** Clock
+**** COMMENT Clock
 #+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
   [[end]]
   type = "clock"
@@ -1295,7 +1307,6 @@ return config
   abbr --add --position command -- cat bat
   abbr --add --position command -- du dust
 
-
   abbr --add --position command -- ac aria2c -c -x16 -j16
   abbr --add --position command -- ca aria2c -c -x16 -j16
 
@@ -1310,6 +1321,9 @@ return config
 
   abbr --add --position command -- cd z
   abbr --add --position command -- dc z
+
+  abbr --add --position command -- de exec dbus-run-session wayfire
+  abbr --add --position command -- ed exec dbus-run-session wayfire
 #+end_src
 
 *** Vi bindings
