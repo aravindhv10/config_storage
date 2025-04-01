@@ -320,6 +320,7 @@ in {
     curl
     debootstrap
     difftastic
+    dig
     dive # look into docker image layers
     dmidecode
     dnsmasq
@@ -343,8 +344,6 @@ in {
     grub2
     grub2_efi
     gsettings-desktop-schemas
-    helix
-    htop
     ironbar
     json-glib
     kitty
@@ -371,8 +370,6 @@ in {
     nm-tray
     nushell
     openconnect
-    openssl
-    oxygen
     parted
     pavucontrol
     pciutils
@@ -405,7 +402,6 @@ in {
     wlogout
     wlsunset
     wofi
-    xorg.libXau
     yazi
     zip
     zoxide
@@ -413,6 +409,7 @@ in {
 
     unstable.nixfmt-rfc-style
     unstable.wezterm
+    unstable.helix
 
     (callPackage /root/debMirror.nix {})
 
@@ -882,7 +879,7 @@ in {
       log-queries = true; # Log results of all DNS queries
       bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
       domain-needed = true; # Don't forward requests without dots or domain parts to upstream nameservers
-
+      all-servers = true;
       dnssec = true; # Enable DNSSEC
       # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
       trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
