@@ -256,18 +256,65 @@ in case =canTouchEfiVariables= doesn't work for your system
 
 **** Networking
 
-***** Enables DHCP on each ethernet and wireless interface
-In case of scripted networking (the default) this is the recommended approach.
+***** BEGIN
 #+begin_src nix :tangle ./configuration.nix
-  networking.useDHCP = lib.mkDefault true;
+  networking = {
 #+end_src
 
-***** COMMENT per-interface declarations
+
+***** MAIN
+
+****** COMMENT wpa_supplicant
+Enables wireless support via wpa_supplicant.
+#+begin_src nix :tangle ./configuration.nix
+  wireless.enable = true;
+#+end_src
+
+****** COMMENT Proxy
+Configure network proxy if necessary
+#+begin_src nix :tangle ./configuration.nix
+  proxy.default = "http://user:password@proxy:port/";
+  proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+#+end_src
+
+****** Enable networking with network manager
+#+begin_src nix :tangle ./configuration.nix
+  networkmanager.enable = true;
+#+end_src
+
+****** COMMENT Open ports in the firewall.
+#+begin_src nix :tangle ./configuration.nix
+  firewall.allowedTCPPorts = [ ... ];
+  firewall.allowedUDPPorts = [ ... ];
+#+end_src
+
+****** Enable nftables
+#+begin_src nix :tangle ./configuration.nix
+  nftables.enable = true;
+#+end_src
+
+****** COMMENT Or disable the firewall altogether.
+#+begin_src nix :tangle ./configuration.nix
+  firewall.enable = false;
+#+end_src
+
+****** Enables DHCP on each ethernet and wireless interface
+In case of scripted networking (the default) this is the recommended approach.
+#+begin_src nix :tangle ./configuration.nix
+  useDHCP = lib.mkDefault true;
+#+end_src
+
+****** COMMENT per-interface declarations
 When using systemd-networkd it's
 still possible to use this option, but it's recommended to use it in conjunction
 with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
 #+begin_src nix :tangle ./configuration.nix
-  networking.interfaces.wlp1s0.useDHCP = lib.mkDefault true;
+  interfaces.wlp1s0.useDHCP = lib.mkDefault true;
+#+end_src
+
+***** END
+#+begin_src nix :tangle ./configuration.nix
+  };
 #+end_src
 
 **** Host platform and firmware
@@ -399,26 +446,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 Define your hostname.
 #+begin_src nix :tangle ./configuration.nix
   networking.hostName = "nixos";
-#+end_src
-
-**** Networking stuff
-
-***** COMMENT wpa_supplicant
-Enables wireless support via wpa_supplicant.
-#+begin_src nix :tangle ./configuration.nix
-  networking.wireless.enable = true;
-#+end_src
-
-***** COMMENT Proxy
-Configure network proxy if necessary
-#+begin_src nix :tangle ./configuration.nix
-  networking.proxy.default = "http://user:password@proxy:port/";
-  networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-#+end_src
-
-***** Enable networking with network manager
-#+begin_src nix :tangle ./configuration.nix
-  networking.networkmanager.enable = true;
 #+end_src
 
 **** Set your time zone.
@@ -670,7 +697,7 @@ You can disable this if you're only using the Wayland session.
     isNormalUser = true;
     shell = unstable.fish;
     description = "asd";
-    extraGroups = [ "networkmanager" "wheel" "audio" ];
+    extraGroups = ["networkmanager" "wheel" "audio" "incus-admin"];
     packages = with pkgs; [
       kdePackages.kate
       # thunderbird
@@ -798,18 +825,39 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 **** Containers and virtualizating
+
+***** BEGIB
 #+begin_src nix :tangle ./configuration.nix
   virtualisation = {
-      containers.enable = true;
-      podman = {
-          enable = true;
+#+end_src
 
-          # Create a `docker` alias for podman, to use it as a drop-in replacement
-          dockerCompat = true;
+***** MAIN
 
-          # Required for containers under podman-compose to be able to talk to each other.
-          defaultNetwork.settings.dns_enabled = true;
-      };
+****** ENABLE CONTAINERS
+#+begin_src nix :tangle ./configuration.nix
+  containers.enable = true;
+#+end_src
+
+****** INCUS
+#+begin_src nix :tangle ./configuration.nix
+  incus.enable = true;
+#+end_src
+
+****** PODMAN
+#+begin_src nix :tangle ./configuration.nix
+  podman = {
+      enable = true;
+
+      # Create a `docker` alias for podman, to use it as a drop-in replacement
+      dockerCompat = true;
+
+      # Required for containers under podman-compose to be able to talk to each other.
+      defaultNetwork.settings.dns_enabled = true;
+  };
+#+end_src
+
+***** ED
+#+begin_src nix :tangle ./configuration.nix
   };
 #+end_src
 
@@ -1615,18 +1663,6 @@ started in user sessions.
     };
 #+end_src
 
-**** COMMENT firewall
-
-***** Open ports in the firewall.
-#+begin_src nix :tangle ./configuration.nix
-  networking.firewall.allowedTCPPorts = [ ... ];
-  networking.firewall.allowedUDPPorts = [ ... ];
-#+end_src
-
-***** Or disable the firewall altogether.
-#+begin_src nix :tangle ./configuration.nix
-  networking.firewall.enable = false;
-#+end_src
 
 **** NixOS release (DONOT CHANGE THIS!!!)
 This value determines the NixOS release from which the default

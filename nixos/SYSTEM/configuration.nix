@@ -36,7 +36,13 @@ in {
     };
   };
 
-  networking.useDHCP = lib.mkDefault true;
+  networking = {
+    networkmanager.enable = true;
+
+    nftables.enable = true;
+
+    useDHCP = lib.mkDefault true;
+  };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -91,8 +97,6 @@ in {
   };
 
   networking.hostName = "nixos";
-
-  networking.networkmanager.enable = true;
 
   time.timeZone = "Asia/Kolkata";
 
@@ -258,7 +262,7 @@ in {
     isNormalUser = true;
     shell = unstable.fish;
     description = "asd";
-    extraGroups = ["networkmanager" "wheel" "audio"];
+    extraGroups = ["networkmanager" "wheel" "audio" "incus-admin"];
     packages = with pkgs; [
       kdePackages.kate
       # thunderbird
@@ -288,6 +292,9 @@ in {
 
   virtualisation = {
     containers.enable = true;
+
+    incus.enable = true;
+
     podman = {
       enable = true;
 
