@@ -1,0 +1,24 @@
+* COMMENT WORK SPACE
+
+** ELISP
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command
+      "git add './install.sh' ;
+          git add './README.org';"
+      "log" "err")
+#+end_src
+
+* Main install script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
+  uv venv "${HOME}/torch"
+  . "${HOME}/torch/bin/activate"
+  uv pip install -U pip
+  pip install \
+      '--index-url' 'https://download.pytorch.org/whl/rocm6.2.4' \
+      'torch' \
+      'torchvision' \
+      'torchaudio' \
+  ;
+#+end_src
