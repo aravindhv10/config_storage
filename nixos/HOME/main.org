@@ -1262,7 +1262,7 @@ return config
 
 **** ATUIN
 #+begin_src conf :tangle ./HOME,.zshrc
-      atuin init zsh --disable-up-arrow 
+  atuin init zsh --disable-up-arrow 
 #+end_src
 
 **** COMMENT STARSHIP
