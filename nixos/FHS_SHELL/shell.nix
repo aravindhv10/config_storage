@@ -4,15 +4,15 @@
 
   targetPkgs = pkgs:
     (with pkgs; [
-      udev
       alsa-lib
-      zsh
-      gnumake
-      flex
-      bison
       bc
+      bison
+      flex
+      gnumake
       libelf
       python312Full
+      udev
+      zsh
     ])
     ++ (with pkgs.xorg; [
       libX11
@@ -21,14 +21,15 @@
     ]);
 
   multiPkgs = pkgs: (with pkgs; [
-    udev
     alsa-lib
-    zsh
-    gnumake
-    flex
-    bison
-    libelf
     bc
+    bison
+    flex
+    gnumake
+    libelf
+    python312Full
+    udev
+    zsh
   ]);
 
   runScript = "zsh";

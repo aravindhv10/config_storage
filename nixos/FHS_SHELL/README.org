@@ -41,15 +41,15 @@
 
 **** LIST
 #+begin_src nix :tangle ./shell.nix
-        udev
-        alsa-lib
-        zsh
-        gnumake
-        flex
-        bison
-        bc
-        libelf
-        python312Full
+  alsa-lib
+  bc
+  bison
+  flex
+  gnumake
+  libelf
+  python312Full
+  udev
+  zsh
 #+end_src
 
 **** END
@@ -75,14 +75,15 @@
 
 **** LIST
 #+begin_src nix :tangle ./shell.nix
-    udev
-    alsa-lib
-    zsh
-    gnumake
-    flex
-    bison
-    libelf
-    bc
+  alsa-lib
+  bc
+  bison
+  flex
+  gnumake
+  libelf
+  python312Full
+  udev
+  zsh
 #+end_src
 
 **** END
