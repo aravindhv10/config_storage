@@ -1,886 +1,891 @@
-{ config, lib, pkgs, modulesPath, ... }:
-
-let
-
-unstable = import <nixos-unstable> {} ;
-
-in
-
 {
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}: let
+  unstable = import <nixos-unstable> {};
+in {
+  imports = [./hardware-configuration.nix];
 
-imports = [./hardware-configuration.nix];
+  boot.loader = {
+    efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
+    };
 
-boot.loader = {
+    grub = {
+      efiSupport = true;
 
-efi = {
-  canTouchEfiVariables = true;
-  efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
-};
+      device = "/dev/nvme0n1";
 
-grub = {
+      extraEntries = ''
 
-efiSupport = true;
+        menuentry "debian" {
+            linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+            initrd /i
+        }
 
-device = "/dev/nvme0n1";
+        menuentry "nixos_debian_kernel" {
+            linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/jyx1xdiw44nwkmimnbrp76njniaphya3-nixos-system-nixos-24.11.715908.7105ae395770/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
+            initrd /i
+        }
 
-extraEntries = ''
+      '';
+    };
+  };
 
-menuentry "debian" {
-    linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-    initrd /i
-}
+  networking = {
+    networkmanager.enable = true;
 
-menuentry "nixos_debian_kernel" {
-    linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/jyx1xdiw44nwkmimnbrp76njniaphya3-nixos-system-nixos-24.11.715908.7105ae395770/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-    initrd /i
-}
+    nftables.enable = true;
 
-'' ;
+    useDHCP = lib.mkDefault true;
+  };
 
-};
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-};
+  boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
+  boot.initrd.kernelModules = [];
+  boot.kernelModules = ["kvm-amd" "amdgpu"];
+  boot.extraModulePackages = [];
 
-networking = {
+  environment.variables = {
+    ROC_ENABLE_PRE_VEGA = "1";
+    EDITOR = "hx";
+  };
 
-networkmanager.enable = true;
+  hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 
-nftables.enable = true;
+  systemd.tmpfiles.rules = [
+    "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
+  ];
 
-useDHCP = lib.mkDefault true;
+  hardware.graphics.enable32Bit = true;
+  hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-};
+  boot.kernelPackages = let
+    linux_sgx_pkg = {
+      fetchurl,
+      buildLinux,
+      ...
+    } @ args:
+      buildLinux (
+        args
+        // rec {
+          version = "6.12.19-xanmod1";
+          modDirVersion = version;
+          src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
+          kernelPatches = [];
+          extraConfig = ''
+          '';
+          extraMeta.branch = version;
+        }
+        // (args.argsOverride or {})
+      );
+    linux_sgx = pkgs.callPackage linux_sgx_pkg {};
+  in
+    pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 
-nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
-boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-boot.initrd.kernelModules = [];
-boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-boot.extraModulePackages = [];
+  boot.tmp = {
+    useTmpfs = true;
+    tmpfsSize = "60%";
+  };
 
-environment.variables = {ROC_ENABLE_PRE_VEGA = "1"; EDITOR = "hx" ;};
+  networking.hostName = "nixos";
 
-hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
+  time.timeZone = "Asia/Kolkata";
 
-systemd.tmpfiles.rules = [
-  "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
-];
+  i18n.defaultLocale = "en_IN";
 
-hardware.graphics.enable32Bit = true;
-hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_IN";
+    LC_IDENTIFICATION = "en_IN";
+    LC_MEASUREMENT = "en_IN";
+    LC_MONETARY = "en_IN";
+    LC_NAME = "en_IN";
+    LC_NUMERIC = "en_IN";
+    LC_PAPER = "en_IN";
+    LC_TELEPHONE = "en_IN";
+    LC_TIME = "en_IN";
+  };
 
-boot.kernelPackages =
-    pkgs.linuxPackages_custom {
-        version = "6.13.9";
-        src = /home/asd/linux_kernel/linux-6.13.9.tar;
-        configfile = /home/asd/linux_kernel/config-6.13.9
-    }
-;
-
-boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
-
-boot.tmp = {
-  useTmpfs = true ;
-  tmpfsSize = "60%" ;
-} ;
-
-networking.hostName = "nixos";
-
-time.timeZone = "Asia/Kolkata";
-
-i18n.defaultLocale = "en_IN";
-
-i18n.extraLocaleSettings = {
-  LC_ADDRESS = "en_IN";
-  LC_IDENTIFICATION = "en_IN";
-  LC_MEASUREMENT = "en_IN";
-  LC_MONETARY = "en_IN";
-  LC_NAME = "en_IN";
-  LC_NUMERIC = "en_IN";
-  LC_PAPER = "en_IN";
-  LC_TELEPHONE = "en_IN";
-  LC_TIME = "en_IN";
-};
-
-services.xserver = {
+  services.xserver = {
     enable = true;
-    videoDrivers = [ "amdgpu" ];
-} ;
+    videoDrivers = ["amdgpu"];
+  };
 
-services.xserver.displayManager.gdm.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
 
-programs.wayfire = {
+  programs.wayfire = {
     enable = true;
     package = unstable.wayfire;
     plugins = [
-        pkgs.wayfirePlugins.firedecor
-        pkgs.wayfirePlugins.focus-request
-        pkgs.wayfirePlugins.wayfire-plugins-extra
-        pkgs.wayfirePlugins.wayfire-shadows
-        pkgs.wayfirePlugins.wcm
-        pkgs.wayfirePlugins.wf-shell
-        pkgs.wayfirePlugins.windecor
-        pkgs.wayfirePlugins.wwp-switcher
+      pkgs.wayfirePlugins.firedecor
+      pkgs.wayfirePlugins.focus-request
+      pkgs.wayfirePlugins.wayfire-plugins-extra
+      pkgs.wayfirePlugins.wayfire-shadows
+      pkgs.wayfirePlugins.wcm
+      pkgs.wayfirePlugins.wf-shell
+      pkgs.wayfirePlugins.windecor
+      pkgs.wayfirePlugins.wwp-switcher
     ];
-} ;
+  };
 
-services.displayManager.sessionPackages = [ unstable.wayfire ];
+  services.displayManager.sessionPackages = [unstable.wayfire];
 
-services.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
-programs.hyprland = {
+  programs.hyprland = {
     enable = true;
     package = unstable.hyprland;
     withUWSM = true; # recommended for most users
     # withUWSM = false; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
-};
+  };
 
-services.xserver.desktopManager.gnome.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 
-environment.gnome.excludePackages = (with pkgs; [
-  atomix # puzzle game
-  cheese # webcam tool
-  epiphany # web browser
-  evince # document viewer
-  geary # email reader
-  gedit # text editor
-  gnome-characters
-  gnome-music
-  gnome-photos
-  gnome-terminal
-  gnome-tour
-  hitori # sudoku game
-  iagno # go game
-  tali # poker game
-  totem # video player
-  seahorse
-]);
+  environment.gnome.excludePackages = with pkgs; [
+    atomix # puzzle game
+    cheese # webcam tool
+    epiphany # web browser
+    evince # document viewer
+    geary # email reader
+    gedit # text editor
+    gnome-characters
+    gnome-music
+    gnome-photos
+    gnome-terminal
+    gnome-tour
+    hitori # sudoku game
+    iagno # go game
+    tali # poker game
+    totem # video player
+    seahorse
+  ];
 
-services.xserver.xkb = {
-  layout = "us";
-  variant = "";
-};
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
 
-services.printing.enable = true;
+  services.printing.enable = true;
 
-documentation = {
+  documentation = {
     enable = true;
     man.enable = true;
     dev.enable = true;
-} ;
+  };
 
-# hardware.pulseaudio.enable = false;
-security.rtkit.enable = true;
-services.pipewire = {
-  enable = true;
-  alsa.enable = true;
-  alsa.support32Bit = true;
-  pulse.enable = true;
-  # If you want to use JACK applications, uncomment this
-  #jack.enable = true;
+  # hardware.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
 
-  # use the example session manager (no others are packaged yet so this is enabled by default,
-  # no need to redefine it in your config for now)
-  #media-session.enable = true;
-};
+    # use the example session manager (no others are packaged yet so this is enabled by default,
+    # no need to redefine it in your config for now)
+    #media-session.enable = true;
+  };
 
-# services.pipewire.extraConfig.pipewire."91-null-sinks" = {
+  # services.pipewire.extraConfig.pipewire."91-null-sinks" = {
   # "context.objects" = [
-    # {
-      # # A default dummy driver. This handles nodes marked with the "node.always-driver"
-      # # properyty when no other driver is currently active. JACK clients need this.
-      # factory = "spa-node-factory";
-      # args = {
-        # "factory.name" = "support.node.driver";
-        # "node.name" = "Dummy-Driver";
-        # "priority.driver" = 8000;
-      # };
-    # }
-    # {
-      # factory = "adapter";
-      # args = {
-        # "factory.name" = "support.null-audio-sink";
-        # "node.name" = "Microphone-Proxy";
-        # "node.description" = "Microphone";
-        # "media.class" = "Audio/Source/Virtual";
-        # "audio.position" = "MONO";
-      # };
-    # }
-    # {
-      # factory = "adapter";
-      # args = {
-        # "factory.name" = "support.null-audio-sink";
-        # "node.name" = "Main-Output-Proxy";
-        # "node.description" = "Main Output";
-        # "media.class" = "Audio/Sink";
-        # "audio.position" = "FL,FR";
-      # };
-    # }
+  # {
+  # # A default dummy driver. This handles nodes marked with the "node.always-driver"
+  # # properyty when no other driver is currently active. JACK clients need this.
+  # factory = "spa-node-factory";
+  # args = {
+  # "factory.name" = "support.node.driver";
+  # "node.name" = "Dummy-Driver";
+  # "priority.driver" = 8000;
+  # };
+  # }
+  # {
+  # factory = "adapter";
+  # args = {
+  # "factory.name" = "support.null-audio-sink";
+  # "node.name" = "Microphone-Proxy";
+  # "node.description" = "Microphone";
+  # "media.class" = "Audio/Source/Virtual";
+  # "audio.position" = "MONO";
+  # };
+  # }
+  # {
+  # factory = "adapter";
+  # args = {
+  # "factory.name" = "support.null-audio-sink";
+  # "node.name" = "Main-Output-Proxy";
+  # "node.description" = "Main Output";
+  # "media.class" = "Audio/Sink";
+  # "audio.position" = "FL,FR";
+  # };
+  # }
   # ];
-# };
+  # };
 
-# services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
+  # services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
   # "context.properties" = [
-    # {
-      # name = "libpipewire-module-protocol-pulse";
-      # args = { };
-    # }
+  # {
+  # name = "libpipewire-module-protocol-pulse";
+  # args = { };
+  # }
   # ];
   # "pulse.properties" = {
-    # "pulse.min.req" = "32/48000";
-    # "pulse.default.req" = "32/48000";
-    # "pulse.max.req" = "32/48000";
-    # "pulse.min.quantum" = "32/48000";
-    # "pulse.max.quantum" = "32/48000";
+  # "pulse.min.req" = "32/48000";
+  # "pulse.default.req" = "32/48000";
+  # "pulse.max.req" = "32/48000";
+  # "pulse.min.quantum" = "32/48000";
+  # "pulse.max.quantum" = "32/48000";
   # };
   # "stream.properties" = {
-    # "node.latency" = "32/48000";
-    # "resample.quality" = 1;
+  # "node.latency" = "32/48000";
+  # "resample.quality" = 1;
   # };
-# };
+  # };
 
-# services.pipewire.socketActivation = false; 
-# Start WirePlumber (with PipeWire) at boot.
-# systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
+  # services.pipewire.socketActivation = false;
+  # Start WirePlumber (with PipeWire) at boot.
+  # systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
 
-services.xserver.libinput.enable = true;
+  services.xserver.libinput.enable = true;
 
-users.users.asd = {
-  isNormalUser = true;
-  shell = unstable.fish;
-  description = "asd";
-  extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
-  packages = with pkgs; [
-    kdePackages.kate
-    # thunderbird
-  ];
-};
+  users.users.asd = {
+    isNormalUser = true;
+    shell = unstable.fish;
+    description = "asd";
+    extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
+    packages = with pkgs; [
+      kdePackages.kate
+      # thunderbird
+    ];
+  };
 
-users.defaultUserShell = pkgs.zsh;
+  users.defaultUserShell = pkgs.zsh;
 
-programs.zsh = {
+  programs.zsh = {
+    enable = true;
 
-enable = true;
+    oh-my-zsh = {
+      enable = true;
+      plugins = ["git" "starship" "zoxide"];
+      theme = "robbyrussell";
+    };
+  };
 
-oh-my-zsh = {
-  enable = true;
-  plugins = ["git" "starship" "zoxide"];
-  theme = "robbyrussell";
-};
-
-};
-
-programs.fish = {
+  programs.fish = {
     enable = true;
     package = unstable.fish;
-} ;
-
-programs.firefox.enable = true;
-
-nixpkgs.config.allowUnfree = true;
-
-programs.virt-manager.enable = true;
-
-virtualisation = {
-
-libvirtd.enable = true;
-
-containers.enable = true;
-
-incus.enable = true;
-
-podman = {
-    enable = true;
-
-    # Create a `docker` alias for podman, to use it as a drop-in replacement
-    dockerCompat = true;
-
-    # Required for containers under podman-compose to be able to talk to each other.
-    defaultNetwork.settings.dns_enabled = true;
-};
-
-};
-
-environment.systemPackages = with pkgs; [
-
-acpi
-alacritty
-alejandra
-alsa-utils
-appstream
-aria2
-atuin
-bat
-bottom
-brave
-brightnessctl
-byobu
-cargo
-catppuccin-kde
-clang-tools_19
-clinfo
-cmake
-curl
-debootstrap
-difftastic
-dig
-dive # look into docker image layers
-dmidecode
-dnsmasq
-docker-compose # start group of containers for dev
-dust
-emacs30
-fd
-file
-foot
-fuse3
-fzf
-gcc
-gcc14Stdenv
-gdk-pixbuf
-gdm
-git
-glib
-gpgme
-grc
-grim
-grub2
-grub2_efi
-gsettings-desktop-schemas
-ironbar
-json-glib
-kitty
-libarchive
-libcap
-libgcc
-librsvg
-libseccomp
-libxml2
-lsd
-lxc
-mako
-man-pages
-man-pages-posix
-meson
-miniserve
-mpv
-neovim
-networkmanagerapplet
-networkmanager-openconnect
-nh
-nix-index
-nix-ld
-nm-tray
-nushell
-openconnect
-parted
-pavucontrol
-pciutils
-pkg-config
-podman
-podman-compose # start group of containers for dev
-podman-tui # status of containers in the terminal
-python3
-python3Full
-qbittorrent-enhanced
-rclone
-ripgrep
-ruff
-rustc
-shellcheck
-skim
-squashfsTools
-starship
-swayosd
-tmux
-tree
-unzip
-uv
-vim
-waybar
-wayland
-wayland-protocols
-wf-recorder
-wget
-wlogout
-wlsunset
-wofi
-yazi
-zip
-zoxide
-zstd
-
-unstable.nixfmt-rfc-style
-unstable.wezterm
-unstable.helix
+  };
+
+  programs.firefox.enable = true;
+
+  nixpkgs.config.allowUnfree = true;
+
+  programs.virt-manager.enable = true;
+
+  virtualisation = {
+    libvirtd.enable = true;
+
+    containers.enable = true;
+
+    incus.enable = true;
+
+    podman = {
+      enable = true;
+
+      # Create a `docker` alias for podman, to use it as a drop-in replacement
+      dockerCompat = true;
+
+      # Required for containers under podman-compose to be able to talk to each other.
+      defaultNetwork.settings.dns_enabled = true;
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    acpi
+    alacritty
+    alejandra
+    alsa-utils
+    appstream
+    aria2
+    atuin
+    bat
+    bottom
+    brave
+    brightnessctl
+    byobu
+    cargo
+    catppuccin-kde
+    clang-tools_19
+    clinfo
+    cmake
+    curl
+    debootstrap
+    difftastic
+    dig
+    dive # look into docker image layers
+    dmidecode
+    dnsmasq
+    docker-compose # start group of containers for dev
+    dust
+    emacs30
+    fd
+    file
+    foot
+    fuse3
+    fzf
+    gcc
+    gcc14Stdenv
+    gdk-pixbuf
+    gdm
+    git
+    glib
+    gpgme
+    grc
+    grim
+    grub2
+    grub2_efi
+    gsettings-desktop-schemas
+    ironbar
+    json-glib
+    kitty
+    libarchive
+    libcap
+    libgcc
+    librsvg
+    libseccomp
+    libxml2
+    lsd
+    lxc
+    mako
+    man-pages
+    man-pages-posix
+    meson
+    miniserve
+    mpv
+    neovim
+    networkmanagerapplet
+    networkmanager-openconnect
+    nh
+    nix-index
+    nix-ld
+    nm-tray
+    nushell
+    openconnect
+    parted
+    pavucontrol
+    pciutils
+    pkg-config
+    podman
+    podman-compose # start group of containers for dev
+    podman-tui # status of containers in the terminal
+    python3
+    python3Full
+    qbittorrent-enhanced
+    rclone
+    ripgrep
+    ruff
+    rustc
+    shellcheck
+    skim
+    squashfsTools
+    starship
+    swayosd
+    tmux
+    tree
+    unzip
+    uv
+    vim
+    waybar
+    wayland
+    wayland-protocols
+    wf-recorder
+    wget
+    wlogout
+    wlsunset
+    wofi
+    yazi
+    zip
+    zoxide
+    zstd
+
+    unstable.nixfmt-rfc-style
+    unstable.wezterm
+    unstable.helix
 
-(callPackage /root/debMirror.nix {})
+    (callPackage /root/debMirror.nix {})
 
-(writeCBin "M_C_ESC" ''
+    (writeCBin "M_C_ESC" ''
 
-#include <unistd.h>
+      #include <unistd.h>
 
-static char * const args[] = {"wlogout", NULL};
+      static char * const args[] = {"wlogout", NULL};
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
-
-'')
-
-(writeCBin "M_F1" ''
-
-#include <unistd.h>
-
-static char * const args[] = {"footclient", "-e", "byobu-tmux", NULL};
-
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
-
-'')
-
-(writeCBin "M_F2" ''
-
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"footclient", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_F1" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"footclient", "-e", "byobu-tmux", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_F2" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_F3" ''
+      static char * const args[] = {"footclient", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"emacsclient", "-c", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_F3" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_1" ''
+      static char * const args[] = {"emacsclient", "-c", NULL};
 
-#include <unistd.h>
-#include <sys/wait.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-int start (char * const * argv) {
-    int ret = execvp(argv[0], argv);
-    return ret;
-}
+    '')
 
-int do_start (char * const * argv) {
-    pid_t p_start;
-    int ret_start;
-    p_start = fork();
-    if(p_start == 0){
-        ret_start = start (argv);
-        return ret_start;
-    }
-    waitpid(p_start, NULL, 0);
-    return 0;
-}
+    (writeCBin "M_C_1" ''
 
-static char * const args[] = {"emacs", NULL};
+      #include <unistd.h>
+      #include <sys/wait.h>
 
-int main () {
-    while(1){do_start(args);}
-    return 0;
-}
+      int start (char * const * argv) {
+          int ret = execvp(argv[0], argv);
+          return ret;
+      }
 
-'')
+      int do_start (char * const * argv) {
+          pid_t p_start;
+          int ret_start;
+          p_start = fork();
+          if(p_start == 0){
+              ret_start = start (argv);
+              return ret_start;
+          }
+          waitpid(p_start, NULL, 0);
+          return 0;
+      }
 
-(writeCBin "M_C_2" ''
+      static char * const args[] = {"emacs", NULL};
 
-#include <unistd.h>
+      int main () {
+          while(1){do_start(args);}
+          return 0;
+      }
 
-static char * const args[] = {"emacsclient", "-c", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_2" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "TY" ''
+      static char * const args[] = {"emacsclient", "-c", NULL};
 
-#include <unistd.h>
-#include <sys/wait.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-int start (char * const * argv) {
-    int ret = execvp(argv[0], argv);
-    return ret;
-}
+    '')
 
-int do_start (char * const * argv) {
-    pid_t p_start;
-    int ret_start;
-    p_start = fork();
-    if(p_start == 0){
-        ret_start = start (argv);
-        return ret_start;
-    }
-    waitpid(p_start, NULL, 0);
-    return 0;
-}
+    (writeCBin "TY" ''
 
-static char * const args[] = {"byobu-tmux", NULL};
+      #include <unistd.h>
+      #include <sys/wait.h>
 
-int main () {
-    while(1){do_start(args);}
-    return 0;
-}
+      int start (char * const * argv) {
+          int ret = execvp(argv[0], argv);
+          return ret;
+      }
 
-'')
+      int do_start (char * const * argv) {
+          pid_t p_start;
+          int ret_start;
+          p_start = fork();
+          if(p_start == 0){
+              ret_start = start (argv);
+              return ret_start;
+          }
+          waitpid(p_start, NULL, 0);
+          return 0;
+      }
 
-(writeCBin "enter_emacs_flatpak" ''
+      static char * const args[] = {"byobu-tmux", NULL};
 
-#include <unistd.h>
+      int main () {
+          while(1){do_start(args);}
+          return 0;
+      }
 
-static char * const args[] = {"flatpak", "run", "--command=bash", "org.gnu.emacs", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "enter_emacs_flatpak" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_Q" ''
+      static char * const args[] = {"flatpak", "run", "--command=bash", "org.gnu.emacs", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"wezterm", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_Q" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_W" ''
+      static char * const args[] = {"wezterm", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "byobu-tmux" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_W" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_E" ''
+      static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "byobu-tmux" , NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "enter_emacs_flatpak" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_E" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_R" ''
+      static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "enter_emacs_flatpak" , NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"footclient" , "-e" , "enter_emacs_flatpak" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_R" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_T" ''
+      static char * const args[] = {"footclient" , "-e" , "enter_emacs_flatpak" , NULL};
 
-#include <unistd.h>
-#include <sys/wait.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-int foot_server () {
-    static char * const args[] = {"foot" , "-s" , NULL};
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    '')
 
-int alacritty_server () {
-    static char * const args[] = {"alacritty" , "-e" , "TY" , NULL};
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_T" ''
 
-int both () {
-    pid_t p_foot;
-    pid_t p_alacritty;
-    int ret_foot;
-    int ret_alacritty;
+      #include <unistd.h>
+      #include <sys/wait.h>
 
-    p_foot = fork();
-    if(p_foot == 0){
-        ret_foot = foot_server ();
-        return ret_foot;
-    }
+      int foot_server () {
+          static char * const args[] = {"foot" , "-s" , NULL};
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-    p_alacritty = fork();
-    if(p_alacritty == 0){
-        ret_alacritty = alacritty_server ();
-        return ret_alacritty;
-    }
+      int alacritty_server () {
+          static char * const args[] = {"alacritty" , "-e" , "TY" , NULL};
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-    waitpid(p_foot, NULL, 0);
-    waitpid(p_alacritty, NULL, 0);
+      int both () {
+          pid_t p_foot;
+          pid_t p_alacritty;
+          int ret_foot;
+          int ret_alacritty;
 
-    return 0;
-}
+          p_foot = fork();
+          if(p_foot == 0){
+              ret_foot = foot_server ();
+              return ret_foot;
+          }
 
-int main () {
-    while(1) {both();}
-    return 0;
-}
+          p_alacritty = fork();
+          if(p_alacritty == 0){
+              ret_alacritty = alacritty_server ();
+              return ret_alacritty;
+          }
 
-'')
+          waitpid(p_foot, NULL, 0);
+          waitpid(p_alacritty, NULL, 0);
 
-(writeCBin "M_C_A" ''
+          return 0;
+      }
 
-#include <unistd.h>
+      int main () {
+          while(1) {both();}
+          return 0;
+      }
 
-static char * const args[] = {"firefox" ,  NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_A" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_S" ''
+      static char * const args[] = {"firefox" ,  NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brave" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_S" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_D" ''
+      static char * const args[] = {"brave" , NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"dolphin" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_D" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_F" ''
+      static char * const args[] = {"dolphin" , NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"pavucontrol" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_F" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_C_G" ''
+      static char * const args[] = {"pavucontrol" , NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"footclient", "nmtui" , NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_C_G" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_GRAVE" ''
+      static char * const args[] = {"footclient", "nmtui" , NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "0%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_GRAVE" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_1" ''
+      static char * const args[] = {"brightnessctl", "set", "0%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "10%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_1" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_2" ''
+      static char * const args[] = {"brightnessctl", "set", "10%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "20%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_2" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_3" ''
+      static char * const args[] = {"brightnessctl", "set", "20%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "30%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_3" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_4" ''
+      static char * const args[] = {"brightnessctl", "set", "30%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "40%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_4" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_5" ''
+      static char * const args[] = {"brightnessctl", "set", "40%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "50%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_5" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_6" ''
+      static char * const args[] = {"brightnessctl", "set", "50%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "60%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_6" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_7" ''
+      static char * const args[] = {"brightnessctl", "set", "60%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "70%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_7" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_8" ''
+      static char * const args[] = {"brightnessctl", "set", "70%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "80%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_8" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_9" ''
+      static char * const args[] = {"brightnessctl", "set", "80%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "90%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_9" ''
 
-'')
+      #include <unistd.h>
 
-(writeCBin "M_A_0" ''
+      static char * const args[] = {"brightnessctl", "set", "90%", NULL};
 
-#include <unistd.h>
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-static char * const args[] = {"brightnessctl", "set", "100%", NULL};
+    '')
 
-int main () {
-    int ret = execvp(args[0], args);
-    return ret;
-}
+    (writeCBin "M_A_0" ''
 
-'')
+      #include <unistd.h>
 
-];
+      static char * const args[] = {"brightnessctl", "set", "100%", NULL};
 
-services.openssh.enable = true;
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
 
-services.flatpak = {
+    '')
+  ];
+
+  services.openssh.enable = true;
+
+  services.flatpak = {
     enable = true;
     package = unstable.flatpak;
-} ;
+  };
 
-services.dnsmasq = {
+  services.dnsmasq = {
     enable = true;
     alwaysKeepRunning = true;
     resolveLocalQueries = true;
     settings = {
-      server = [ "192.168.1.254" "4.2.2.2" "8.8.8.8" "8.8.8.4" "8.8.4.4" "76.76.2.0" "76.76.10.0" "9.9.9.9" "149.112.112.112" "208.67.222.222" "208.67.220.220" "1.1.1.1" "1.0.0.1" "94.140.14.14" "94.140.15.15" "185.228.168.9" "185.228.169.9" "76.76.19.19" "76.223.122.150" ] ;
+      server = ["192.168.1.254" "4.2.2.2" "8.8.8.8" "8.8.8.4" "8.8.4.4" "76.76.2.0" "76.76.10.0" "9.9.9.9" "149.112.112.112" "208.67.222.222" "208.67.220.220" "1.1.1.1" "1.0.0.1" "94.140.14.14" "94.140.15.15" "185.228.168.9" "185.228.169.9" "76.76.19.19" "76.223.122.150"];
       local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
       log-queries = true; # Log results of all DNS queries
       bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
@@ -892,8 +897,5 @@ services.dnsmasq = {
     };
   };
 
-system.stateVersion = "24.11";
-
+  system.stateVersion = "24.11";
 }
-
-

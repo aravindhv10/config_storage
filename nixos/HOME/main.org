@@ -1256,10 +1256,6 @@ return config
   }
 
   do_all_init_convenience "/tmp/zsh_init_${$}"
-
-  alias ls=lsd
-  alias cat=bat
-  alias du=dust
 #+end_src
 
 * FISH
@@ -1880,7 +1876,8 @@ return config
   # XDG desktop portal
   # Needed by some GTK applications
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
-  bar = waybar
+  # bar = waybar
+  shell = plasmashell
   networkmanager = nm-applet
 #+end_src
 

@@ -26,7 +26,7 @@
 
 *** Call the script
 #+begin_src emacs-lisp :results silent
-  (async-shell-command "./do_copy.sh" "log" "err")
+ (async-shell-command "./do_copy.sh" "log" "err")
 #+end_src
 
 * Script to rebuild and switch
@@ -380,18 +380,32 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 ***** Custom build
 
-****** 3
+****** COMMENT 4
+#+begin_src nix :tangle ./configuration.nix
+  boot.kernelPackages =
+      pkgs.linuxManualConfig {
+          version = "6.13.9";
+          modDirVersion = "6.13.9";
+          src = /home/asd/linux_kernel/linux-6.13.9.tar;
+          configfile = /home/asd/linux_kernel/config-6.13.9;
+      }
+  ;
+#+end_src
+
+****** COMMENT 3
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
       pkgs.linuxPackages_custom {
           version = "6.13.9";
           src = /home/asd/linux_kernel/linux-6.13.9.tar;
-          configfile = /home/asd/linux_kernel/config-6.13.9
+          configfile = /home/asd/linux_kernel/config-6.13.9;
       }
   ;
 #+end_src
 
-****** COMMENT 2
+linuxPackages_custom {version = "6.13.9"; src = /home/asd/linux_kernel/linux-6.13.9.tar; configfile = /home/asd/linux_kernel/config-6.13.9;}
+
+****** 2
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let

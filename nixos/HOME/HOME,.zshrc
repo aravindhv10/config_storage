@@ -16,7 +16,3 @@ do_all_init_convenience () {
 }
 
 do_all_init_convenience "/tmp/zsh_init_${$}"
-
-alias ls=lsd
-alias cat=bat
-alias du=dust
