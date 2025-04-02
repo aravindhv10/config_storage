@@ -18,4 +18,4 @@ do_all_init_convenience () {
     rm -f -- "${1}"
 }
 
-do_all_init_convenience "/tmp/zsh_init_${$}"
+do_all_init_convenience "/tmp/init_${$}"
