@@ -1,37 +1,26 @@
-{pkgs ? import <nixpkgs> {}}:
-(pkgs.buildFHSEnv {
-  name = "simple-x11-env";
+{pkgs ? import <nixpkgs> {}}: let
+  mylist = [
+    pkgs.alsa-lib
+    pkgs.bc
+    pkgs.bison
+    pkgs.flex
+    pkgs.gnumake
+    pkgs.libelf
+    pkgs.python312Full
+    pkgs.udev
+    pkgs.zsh
+    pkgs.xorg.libX11
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXrandr
+  ];
+in
+  (pkgs.buildFHSEnv {
+    name = "simple-x11-env";
 
-  targetPkgs = pkgs:
-    (with pkgs; [
-      alsa-lib
-      bc
-      bison
-      flex
-      gnumake
-      libelf
-      python312Full
-      udev
-      zsh
-    ])
-    ++ (with pkgs.xorg; [
-      libX11
-      libXcursor
-      libXrandr
-    ]);
+    targetPkgs = pkgs: mylist;
 
-  multiPkgs = pkgs: (with pkgs; [
-    alsa-lib
-    bc
-    bison
-    flex
-    gnumake
-    libelf
-    python312Full
-    udev
-    zsh
-  ]);
+    multiPkgs = pkgs: mylist;
 
-  runScript = "zsh";
-})
-.env
+    runScript = "zsh";
+  })
+  .env

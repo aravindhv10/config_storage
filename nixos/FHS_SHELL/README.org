@@ -19,6 +19,26 @@
 {pkgs ? import <nixpkgs> {}}:
 #+end_src
 
+** Package lists
+#+begin_src nix :tangle ./shell.nix
+  let
+      mylist = [
+          pkgs.alsa-lib
+          pkgs.bc
+          pkgs.bison
+          pkgs.flex
+          pkgs.gnumake
+          pkgs.libelf
+          pkgs.python312Full
+          pkgs.udev
+          pkgs.zsh
+          pkgs.xorg.libX11
+          pkgs.xorg.libXcursor
+          pkgs.xorg.libXrandr
+      ] ;
+  in
+#+end_src
+
 ** Function outputs
 
 *** Header
@@ -31,7 +51,13 @@
   name = "simple-x11-env";
 #+end_src
 
-*** Defining package list
+
+*** Defining package list common
+#+begin_src nix :tangle ./shell.nix
+  targetPkgs = pkgs: mylist;
+#+end_src
+
+*** COMMENT Defining package list
 
 **** BEGIN
 #+begin_src nix :tangle ./shell.nix
@@ -57,7 +83,7 @@
     ])
 #+end_src
 
-*** EXTRA
+*** COMMENT EXTRA
 #+begin_src nix :tangle ./shell.nix
     ++ (with pkgs.xorg; [
       libX11
@@ -66,7 +92,12 @@
     ]);
 #+end_src
 
-*** AGAIN
+*** Defining package list common
+#+begin_src nix :tangle ./shell.nix
+  multiPkgs = pkgs: mylist;
+#+end_src
+
+*** COMMENT AGAIN
 
 **** BEGIN
 #+begin_src nix :tangle ./shell.nix
