@@ -9,6 +9,8 @@ abbr --add --position command -- top btm -b --process_command
 abbr --add --position command -- cat bat
 abbr --add --position command -- du dust
 
+abbr --add --position command -- zz exec zsh
+
 abbr --add --position command -- ac aria2c -c -x16 -j16
 abbr --add --position command -- ca aria2c -c -x16 -j16
 
