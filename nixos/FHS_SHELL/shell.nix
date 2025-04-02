@@ -8,10 +8,11 @@
     pkgs.libelf
     pkgs.python312Full
     pkgs.udev
-    pkgs.zsh
     pkgs.xorg.libX11
     pkgs.xorg.libXcursor
     pkgs.xorg.libXrandr
+    pkgs.zsh
+    pkgs.zstd
   ];
 in
   (pkgs.buildFHSEnv {
