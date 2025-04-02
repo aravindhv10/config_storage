@@ -1043,6 +1043,12 @@ return config
           && echo "${PATH}" \
           | sed 's@^@export PATH="/var/tmp/all/bin/:@g ; s@$@"@g' ;
   }
+
+  get_nebius_path () {
+      test -e "${HOME}/.nebius/bin"  \
+          && echo "${PATH}" \
+          | sed 's@^@export PATH="${HOME}/.nebius/bin:@g ; s@$@"@g' ;
+  }
 #+end_src
 
 *** Good alternatives
@@ -1071,6 +1077,9 @@ return config
   . "${HOME}/.shrc"
 
   get_path > "/tmp/init_${$}"
+  . "/tmp/init_${$}"
+
+  get_nebius_path > "/tmp/init_${$}"
   . "/tmp/init_${$}"
 #+end_src
 
@@ -1239,16 +1248,40 @@ return config
 
   get_path > "/tmp/init_${$}"
   . "/tmp/init_${$}"
+
+  get_nebius_path > "/tmp/init_${$}"
+  . "/tmp/init_${$}"
 #+end_src
 
 *** Good
+
+**** BEGIN
 #+begin_src conf :tangle ./HOME,.zshrc
   all_init_convenience () {
-      atuin init zsh --disable-up-arrow 
-      # starship init zsh
-      # zoxide init zsh
-  }
+#+end_src
 
+**** ATUIN
+#+begin_src conf :tangle ./HOME,.zshrc
+      atuin init zsh --disable-up-arrow 
+#+end_src
+
+**** COMMENT STARSHIP
+#+begin_src conf :tangle ./HOME,.zshrc
+  starship init zsh
+#+end_src
+
+**** COMMENT ZOXIDE
+#+begin_src conf :tangle ./HOME,.zshrc
+  zoxide init zsh
+#+end_src
+
+**** END
+#+begin_src conf :tangle ./HOME,.zshrc
+  }
+#+end_src
+
+*** Configure good alternatives
+#+begin_src conf :tangle ./HOME,.zshrc
   do_all_init_convenience () {
       all_init_convenience > "${1}"
       . "${1}"

@@ -8,6 +8,12 @@ get_path () {
         | sed 's@^@export PATH="/var/tmp/all/bin/:@g ; s@$@"@g' ;
 }
 
+get_nebius_path () {
+    test -e "${HOME}/.nebius/bin"  \
+        && echo "${PATH}" \
+        | sed 's@^@export PATH="${HOME}/.nebius/bin:@g ; s@$@"@g' ;
+}
+
 alias ls=lsd
 alias cat=bat
 alias du=dust

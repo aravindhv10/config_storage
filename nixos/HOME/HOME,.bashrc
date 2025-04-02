@@ -4,6 +4,9 @@
 get_path > "/tmp/init_${$}"
 . "/tmp/init_${$}"
 
+get_nebius_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"
+
 all_init_convenience () {
     starship init bash --print-full-init
     atuin init bash --disable-up-arrow 
