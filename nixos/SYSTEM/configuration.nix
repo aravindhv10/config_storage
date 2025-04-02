@@ -356,6 +356,7 @@ in {
     grub2_efi
     gsettings-desktop-schemas
     ironbar
+    jq
     json-glib
     kitty
     libarchive

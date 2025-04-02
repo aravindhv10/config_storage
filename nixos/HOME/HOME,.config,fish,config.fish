@@ -26,8 +26,8 @@ abbr --add --position command -- sw sudo -A nixos-rebuild switch
 abbr --add --position command -- cd z
 abbr --add --position command -- dc z
 
-abbr --add --position command -- de exec dbus-run-session -- wayfire
-abbr --add --position command -- ed exec dbus-run-session -- wayfire
+abbr --add --position command -- de exec dbus-run-session -- ssh-agent wayfire
+abbr --add --position command -- ed exec dbus-run-session -- ssh-agent wayfire
 
 fish_vi_key_bindings
 
