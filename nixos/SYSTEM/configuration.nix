@@ -421,7 +421,6 @@ in {
 
     rocmPackages.hipblas
     rocmPackages.hipcc
-    rocmPackages.meta.rocm-all
 
     unstable.nixfmt-rfc-style
     unstable.wezterm
@@ -726,6 +725,136 @@ in {
       #include <unistd.h>
 
       static char * const args[] = {"footclient", "nmtui" , NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_Q" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "0%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_W" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "11%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_E" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "22%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_R" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "33%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_T" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "44%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_Y" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "55%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_U" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "66%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_I" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "77%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_O" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "88%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "M_A_P" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"amixer", "set", "Master,0", "100%", NULL};
 
       int main () {
           int ret = execvp(args[0], args);

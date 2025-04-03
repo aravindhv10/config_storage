@@ -2097,6 +2097,36 @@ return config
 
   binding_ma9 = <super> <alt> KEY_9
   command_ma9 = M_A_9
+
+  binding_maQ = <super> <alt> KEY_Q
+  command_maQ = M_A_Q
+
+  binding_maW = <super> <alt> KEY_W
+  command_maW = M_A_W
+
+  binding_maE = <super> <alt> KEY_E
+  command_maE = M_A_E
+
+  binding_maR = <super> <alt> KEY_R
+  command_maR = M_A_R
+
+  binding_maT = <super> <alt> KEY_T
+  command_maT = M_A_T
+
+  binding_maY = <super> <alt> KEY_Y
+  command_maY = M_A_Y
+
+  binding_maU = <super> <alt> KEY_U
+  command_maU = M_A_U
+
+  binding_maI = <super> <alt> KEY_I
+  command_maI = M_A_I
+
+  binding_maO = <super> <alt> KEY_O
+  command_maO = M_A_O
+
+  binding_maP = <super> <alt> KEY_P
+  command_maP = M_A_P
 #+end_src
 
 ** misc
