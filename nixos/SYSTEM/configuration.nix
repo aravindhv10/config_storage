@@ -419,6 +419,10 @@ in {
     zoxide
     zstd
 
+    rocmPackages.hipblas
+    rocmPackages.hipcc
+    rocmPackages.meta.rocm-all
+
     unstable.nixfmt-rfc-style
     unstable.wezterm
     unstable.helix

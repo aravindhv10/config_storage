@@ -30,6 +30,7 @@
           pkgs.gnumake
           pkgs.libelf
           pkgs.python312Full
+          pkgs.rocmPackages.meta.rocm-all
           pkgs.udev
           pkgs.xorg.libX11
           pkgs.xorg.libXcursor

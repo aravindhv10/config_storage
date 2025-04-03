@@ -1036,6 +1036,25 @@ libvirtd.enable = true;
   zstd
 #+end_src
 
+******* ROCM stuff
+
+******** Enabled
+#+begin_src nix :tangle ./configuration.nix
+  rocmPackages.hipblas
+  rocmPackages.hipcc
+  rocmPackages.meta.rocm-all
+#+end_src
+
+******** COMMENT Disabled
+#+begin_src nix :tangle ./configuration.nix
+  rocmPackages.half
+  rocmPackages.hipblas
+  rocmPackages.hipcc
+  rocmPackages.meta
+  rocmPackages.rocfft
+  rocmPackages.rocrand
+#+end_src
+
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.nixfmt-rfc-style
