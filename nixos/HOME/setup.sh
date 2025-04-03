@@ -11,6 +11,9 @@ GCC () {
     gcc -O2 "${1}" -o "${2}"
 }
 
+alejandra './HOME,.config,nixpkgs,config.nix'
+C './HOME,.config,nixpkgs,config.nix' "${HOME}/.config/nixpkgs/config.nix"
+
 C './HOME,.config,ironbar,config.toml' "${HOME}/.config/ironbar/config.toml"
 C './HOME,.config,ironbar,style.css' "${HOME}/.config/ironbar/style.css"
 
