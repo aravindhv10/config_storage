@@ -6,6 +6,6 @@
 (save-buffer)
 (org-babel-tangle)
 (async-shell-command "
+        $0
     " "log" "err")
-$0
 #+end_src
