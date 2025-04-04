@@ -3,5 +3,9 @@
 # key: <el>
 # --
 #+begin_src emacs-lisp :results silent
+(save-buffer)
+(org-babel-tangle)
+(async-shell-command "
+    " "log" "err")
 $0
 #+end_src

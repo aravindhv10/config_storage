@@ -9,6 +9,7 @@
       git add './copy.sh'
       git add './early-init.el'
       git add './init.el'
+      git add './myelisp'
       './copy.sh'
   " "log" "err")
 #+end_src
