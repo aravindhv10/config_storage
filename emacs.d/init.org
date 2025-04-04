@@ -15,7 +15,21 @@
 
 ** Shell script to copy the config files
 
-*** Main function to copy the configs
+*** CD to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  cd "$('dirname' '--' "${0}")"
+#+end_src
+
+*** Main functions to copy the configs
+
+**** Dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  D(){
+      rsync -avh --progress "${1}" "${2}"
+  }
+#+end_src
+
+**** File
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
   C(){
       mkdir -pv -- "$('dirname' -- "${2}")"
@@ -24,10 +38,17 @@
   }
 #+end_src
 
+*** Copy the elisp snippet
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './myelisp' "./snippets/org-mode/myelisp"
+  D './snippets' "${HOME}/.emacs.d/"
+#+end_src
+
 *** early init file
 
 **** Create the file
 #+begin_src elisp :tangle ./early-init.el
+  ;; Blank starting line
 #+end_src
 
 **** Copy the file
@@ -39,6 +60,7 @@
 
 **** Create the file
 #+begin_src elisp :tangle ./init.el
+  ;; Blank starting line
 #+end_src
 
 **** Copy the file

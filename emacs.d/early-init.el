@@ -1,4 +1,4 @@
-
+;; Blank starting line
 
 (setenv "PATH" (concat (concat (getenv "HOME") "/bin:") (getenv "PATH")))
 

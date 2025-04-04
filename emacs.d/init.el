@@ -1,4 +1,4 @@
-
+;; Blank starting line
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
