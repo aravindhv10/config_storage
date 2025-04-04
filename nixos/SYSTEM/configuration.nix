@@ -119,7 +119,11 @@ in {
     videoDrivers = ["amdgpu"];
   };
 
-  services.xserver.displayManager.gdm.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+    settings.General.DisplayServer = "wayland";
+  };
 
   programs.wayfire = {
     enable = true;
@@ -332,6 +336,7 @@ in {
     debootstrap
     difftastic
     dig
+    distrobox
     dive # look into docker image layers
     dmidecode
     dnsmasq
@@ -406,6 +411,7 @@ in {
     unzip
     uv
     vim
+    vscode-fhs
     waybar
     wayland
     wayland-protocols

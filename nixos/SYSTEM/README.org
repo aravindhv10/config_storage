@@ -507,7 +507,7 @@ You can disable this if you're only using the Wayland session.
 
 **** Display manager
 
-***** COMMENT SDDM
+***** SDDM
 #+begin_src nix :tangle ./configuration.nix
   services.displayManager.sddm = {
       enable = true;
@@ -516,7 +516,7 @@ You can disable this if you're only using the Wayland session.
   } ;
 #+end_src
 
-***** GDM
+***** COMMENT GDM
 #+begin_src nix :tangle ./configuration.nix
   services.xserver.displayManager.gdm.enable = true;
 #+end_src
@@ -948,6 +948,7 @@ libvirtd.enable = true;
   debootstrap
   difftastic
   dig
+  distrobox
   dive # look into docker image layers
   dmidecode
   dnsmasq
@@ -1022,6 +1023,7 @@ libvirtd.enable = true;
   unzip
   uv
   vim
+  vscode-fhs
   waybar
   wayland
   wayland-protocols
