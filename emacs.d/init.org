@@ -1,12 +1,50 @@
 * work space
-#+begin_src elisp
+
+** ELISP
+#+begin_src elisp :results silent
   (save-buffer)
-  (save-some-buffers)
   (org-babel-tangle)
+  (async-shell-command "
+      git add './init.org'
+      git add './copy.sh'
+      git add './early-init.el'
+      git add './init.el'
+      './copy.sh'
+  " "log" "err")
 #+end_src
 
-#+RESULTS:
-| /home/asd/config_storage/emacs.d/init.el | /home/asd/config_storage/emacs.d/early-init.el |
+** Shell script to copy the config files
+
+*** Main function to copy the configs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C(){
+      mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
+      cp -vf -- "${1}" "${2}"
+  }
+#+end_src
+
+*** early init file
+
+**** Create the file
+#+begin_src elisp :tangle ./early-init.el
+#+end_src
+
+**** Copy the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './early-init.el' "${HOME}/emacs.d/early-init.el"
+#+end_src
+
+*** main file
+
+**** Create the file
+#+begin_src elisp :tangle ./init.el
+#+end_src
+
+**** Copy the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './init.el' "${HOME}/emacs.d/init.el"
+#+end_src
 
 * Main emacs config
 
@@ -39,6 +77,50 @@
 #+end_src
 
 *** Download and setup elpaca
+
+**** 0.10
+#+begin_src elisp :tangle ./init.el
+  (defvar elpaca-installer-version 0.10)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1 :inherit ignore
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (<= emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+#+end_src
+
+**** COMMENT 0.7
 #+begin_src elisp :tangle ./init.el
   (defvar elpaca-installer-version 0.7)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -117,6 +199,7 @@
 
 **** Corrected
 #+begin_src elisp :tangle ./init.el
+  (setq display-line-numbers-type "relative")
   (global-display-line-numbers-mode 1)
 #+end_src
 
@@ -143,8 +226,6 @@
 #+begin_src elisp :tangle ./init.el
   (server-start)
 #+end_src
-
-#+RESULTS:
 
 *** Configure eshell
 #+begin_src elisp :tangle ./init.el
@@ -175,8 +256,6 @@
     (beacon-mode 1)
     )
 #+end_src
-
-
 
 ** org stuff
 #+begin_src elisp :tangle ./init.el
@@ -236,9 +315,6 @@
     )
 #+end_src
 
-#+RESULTS:
-: [nil 26354 58243 341096 nil elpaca-process-queues nil nil 887000 nil]
-
 ** ag
 #+begin_src elisp :tangle ./init.el
   (use-package ag
@@ -268,8 +344,6 @@
     :ensure t
     :demand t
     :config
-    ;; Recommended keymap prefix on macOS
-    (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
     ;; Recommended keymap prefix on Windows/Linux
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     :init
@@ -331,6 +405,8 @@
 #+end_src
 
 ** Rainbow color stuff
+
+*** Rainbow mode
 #+begin_src elisp :tangle ./init.el
   (use-package rainbow-mode
     :ensure t
@@ -341,7 +417,10 @@
     (add-hook 'dired-mode-hook 'rainbow-mode)
     (add-hook 'conf-mode-hook 'rainbow-mode)
     )
+#+end_src
 
+*** Rainbow delimiters
+#+begin_src elisp :tangle ./init.el
   (use-package rainbow-delimiters
     :ensure t
     :demand t
@@ -350,7 +429,10 @@
     (add-hook 'dired-mode-hook 'rainbow-delimiters-mode)
     (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
     (add-hook 'text-mode-hook 'rainbow-delimiters-mode))
+#+end_src
 
+*** Rainbow identifiers
+#+begin_src elisp :tangle ./init.el
   (use-package rainbow-identifiers
     :ensure t
     :demand t
@@ -444,9 +526,6 @@
     (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
     )
 #+end_src
-
-#+RESULTS:
-: [nil 26413 50038 615680 nil elpaca-process-queues nil nil 81000 nil]
 
 ** orderless
 #+begin_src elisp :tangle ./init.el
@@ -795,7 +874,7 @@
     )
 #+end_src
 
-** Company
+** COMMENT Company
 #+begin_src elisp :tangle ./init.el
   (use-package company
     :ensure t
@@ -914,7 +993,6 @@
     :demand t
     )
 #+end_src
-
 
 ** dashboard
 #+begin_src elisp :tangle ./init.el

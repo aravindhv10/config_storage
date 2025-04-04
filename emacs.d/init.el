@@ -1,3 +1,5 @@
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -11,12 +13,12 @@
  ;; If there is more than one, they won't work right.
  '(default ((t (:family "Noto Sans Mono" :foundry "GOOG" :slant normal :weight bold :height 160 :width normal)))))
 
-(defvar elpaca-installer-version 0.7)
+(defvar elpaca-installer-version 0.10)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
+                              :ref nil :depth 1 :inherit ignore
                               :files (:defaults "elpaca-test.el" (:exclude "extensions"))
                               :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
@@ -26,20 +28,20 @@
   (add-to-list 'load-path (if (file-exists-p build) build repo))
   (unless (file-exists-p repo)
     (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
+    (when (<= emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
             (progn (message "%s" (buffer-string)) (kill-buffer buffer))
           (error "%s" (with-current-buffer buffer (buffer-string))))
       ((error) (warn "%s" err) (delete-directory repo 'recursive))))
@@ -68,6 +70,7 @@
 
 (electric-pair-mode 1)
 
+(setq display-line-numbers-type "relative")
 (global-display-line-numbers-mode 1)
 
 ; (setq modus-themes-org-blocks 'gray-background)
@@ -151,8 +154,6 @@
   :ensure t
   :demand t
   :config
-  ;; Recommended keymap prefix on macOS
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   ;; Recommended keymap prefix on Windows/Linux
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   :init
@@ -559,19 +560,6 @@
   :demand t
   :config
   :init
-  )
-
-(use-package company
-  :ensure t
-  :demand t
-  :config
-  (setq company-minimum-prefix-length 0)
-  (setq company-idle-delay 0)
-  (add-hook 'prog-mode-hook 'company-mode)
-  (add-hook 'text-mode-hook 'company-mode)
-  ;; (add-hook 'eshell-mode-hook 'company-mode)
-  ;; :init
-  ;; (global-company-mode)
   )
 
 (elpaca corfu)
