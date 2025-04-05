@@ -387,6 +387,7 @@ in {
     nm-tray
     nushell
     openconnect
+    openssl
     parted
     pavucontrol
     pciutils

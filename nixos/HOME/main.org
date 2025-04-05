@@ -1818,28 +1818,36 @@ return config
   # List of plugins to be enabled.
   # See the Configuration document for a complete list.
   plugins = \
-    autostart \
-    command \
-    expo \
-    fast-switcher \
-    foreign-toplevel \
-    grid \
-    gtk-shell \
-    idle \
-    invert \
-    move \
-    place \
-    session-lock \
-    shortcuts-inhibit \
-    switcher \
-    vswitch \
-    wayfire-shell \
-    window-rules \
-    wm-actions \
-    scale \
-    scale-title-filter \
-    winzoom \
-    zoom 
+      autorotate-iio \
+      autostart \
+      blur \
+      command \
+      decoration \
+      expo \
+      fast-switcher \
+      firedecor \
+      foreign-toplevel \
+      grid \
+      gtk-shell \
+      idle \
+      input-method-v1 \
+      invert \
+      ipc \
+      move \
+      place \
+      scale \
+      scale-title-filter \
+      session-lock \
+      shortcuts-inhibit \
+      switcher \
+      vswitch \
+      wayfire-shell \
+      windecor \
+      window-rules \
+      winshadows \
+      wm-actions \
+      xdg-activation \
+      zoom 
 
 
   # firedecor \
@@ -1855,6 +1863,7 @@ return config
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   # Close focused window.
   close_top_view = <super> KEY_F4 | <super> KEY_C
+  xwayland = true
 
   # Workspaces arranged into a grid: 3 × 3.
   vwidth = 5
@@ -1863,6 +1872,119 @@ return config
   # Prefer client-side decoration or server-side decoration
   preferred_decoration_mode = server
   # preferred_decoration_mode = client
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  [alpha]
+  min_value = 0.100000
+  modifier = <alt> <super> 
+
+  [autorotate-iio]
+  lock_rotation = false
+  rotate_down = <ctrl> <super> KEY_DOWN
+  rotate_left = <ctrl> <super> KEY_LEFT
+  rotate_right = <ctrl> <super> KEY_RIGHT
+  rotate_up = <ctrl> <super> KEY_UP
+
+  [animate]
+  close_animation = zoom
+  duration = 400ms circle
+  enabled_for = (type equals "toplevel" | (type equals "x-or" & focusable equals true))
+  fade_duration = 400ms circle
+  fade_enabled_for = type equals "overlay"
+  fire_color = \#B22303FF
+  fire_duration = 300ms linear
+  fire_enabled_for = none
+  fire_particle_size = 16.000000
+  fire_particles = 2000
+  open_animation = zoom
+  random_fire_color = false
+  startup_duration = 600ms linear
+  zoom_duration = 500ms circle
+  zoom_enabled_for = none
+
+  [decoration]
+  active_color = \#222222AA
+  border_size = 4
+  button_order = minimize maximize close
+  font = sans-serif
+  ignore_views = none
+  inactive_color = \#333333DD
+  title_height = 30
+
+  [firedecor]
+  active_accent = \#F5F5F5FF
+  active_border = \#1D1F21E6
+  active_outline = \#000000FF
+  active_title = \#1D1F21FF
+  border_size = 35 10
+  button_size = 18
+  button_style = simple
+  corner_radius = 15
+  debug_mode = false
+  extra_themes = 
+  font = sans-serif
+  font_size = 21
+  hovered_close = \#FF6572FF
+  hovered_max = \#60FC79FF
+  hovered_min = \#FFE450FF
+  icon_size = 20
+  icon_theme = hicolor
+  ignore_views = none
+  inactive_accent = \#E1DFFEFF
+  inactive_border = \#1D1F21E6
+  inactive_buttons = false
+  inactive_outline = \#000000FF
+  inactive_title = \#1D1F21FF
+  layout = a | icon P4 title | minimize p maximize p close p | Atrtl -
+  max_title_size = 750
+  normal_close = \#C24045FF
+  normal_max = \#2EBB3AFF
+  normal_min = \#C89E2BFF
+  outline_size = 0
+  padding_size = 8
+  round_on = all
+
+  [windecor]
+  active_color = \#222222AA
+  attn_color = \#3CB371AA
+  border_color = \#87CEEBFF
+  border_size = 4
+  button_always_colored = false
+  button_order = minimize maximize close
+  close_color = \#CC000077
+  dynamic_border_color = true
+  font = sans-serif
+  font_color = \#FFFFFFFF
+  font_size = 18
+  icon_theme = breeze
+  ignore_views = none
+  inactive_color = \#333333DD
+  maximize_color = \#09FF0077
+  minimize_color = \#EDD40077
+  sticky_color = \#1C71D877
+  title_align = 0
+  title_height = 24
+  title_position = 2
+  work_hard = false
+
+  [winshadows]
+  clip_shadow_inside = true
+  enabled_views = type is "toplevel" & floating is true
+  glow_color = \#1C71D8FF
+  glow_emissivity = 1.000000
+  glow_enabled = false
+  glow_intensity = 0.600000
+  glow_radius_limit = 100
+  glow_spread = 10.000000
+  glow_threshold = 0.030000
+  horizontal_offset = 0
+  include_undecorated_views = false
+  light_type = gaussian
+  overscale = 1.000000
+  shadow_color = \#00000070
+  shadow_radius = 40
+  vertical_offset = 5
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
@@ -1911,7 +2033,7 @@ return config
 
   # Notifications
   # https://wayland.emersion.fr/mako/
-  notifications = mako --background-color '#00FFFF66' --text-color '#000000FF' --max-visible 4 --default-timeout 4096
+  notifications = mako
 
   # Screen color temperature
   # https://sr.ht/~kennylevinsen/wlsunset/
@@ -2182,17 +2304,17 @@ return config
   # ⇱ ↓ ⇲ d │ 1 2 3 0
   # ‾   ‾
 
-  slot_l = <super> KEY_H | <super> <ctrl> KEY_LEFT
-  slot_t = <super> KEY_K | <super> <ctrl> KEY_UP
-  slot_r = <super> KEY_L | <super> <ctrl> KEY_RIGHT
-  slot_b = <super> KEY_J | <super> <ctrl> KEY_DOWN
+  slot_l = <super> KEY_H
+  slot_t = <super> KEY_K
+  slot_r = <super> KEY_L
+  slot_b = <super> KEY_J
 
   slot_c = <super> KEY_X
 
-  slot_tl = <super> KEY_U | <super> <alt> KEY_LEFT
-  slot_tr = <super> KEY_I | <super> <alt> KEY_UP
-  slot_br = <super> KEY_M | <super> <alt> KEY_RIGHT
-  slot_bl = <super> KEY_N | <super> <alt> KEY_DOWN
+  slot_tl = <super> KEY_U
+  slot_tr = <super> KEY_I
+  slot_br = <super> KEY_M
+  slot_bl = <super> KEY_N
 
   # Restore default.
   restore = <super> KEY_KP0
@@ -2342,6 +2464,12 @@ return config
   toggle = <super> KEY_SPACE
   duration = 0
   inactive_alpha = 0.5
+  include_minimized = true
+  outer_margin = 8
+  spacing = 8
+  title_font_size = 24
+  title_overlay = all
+  title_position = center
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
