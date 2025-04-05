@@ -253,6 +253,20 @@ in case =canTouchEfiVariables= doesn't work for your system
    };
 #+end_src
 
+**** Fonts
+
+
+***** COMMENT Global options
+#+begin_src nix :tangle ./configuration.nix
+  fonts.fontconfig.localConf = ''
+  ''
+#+end_src
+
+
+***** COMMENT Nerd Fonts
+#+begin_src nix :tangle ./configuration.nix
+fonts.packages = with pkgs; [ nerdfonts ];
+#+end_src
 
 **** Networking
 
