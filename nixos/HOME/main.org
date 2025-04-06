@@ -2048,8 +2048,8 @@ return config
   # Needed by some GTK applications
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
   # bar = waybar
-  # shell = plasmashell
-  shell = startplasma-wayland
+  shell = plasmashell
+  # shell = startplasma-wayland
   networkmanager = nm-applet
 #+end_src
 

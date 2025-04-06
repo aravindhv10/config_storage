@@ -347,7 +347,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** Env vars
 #+begin_src nix :tangle ./configuration.nix
-  environment.variables = {ROC_ENABLE_PRE_VEGA = "1"; EDITOR = "hx" ;};
+  environment.variables = {ROC_ENABLE_PRE_VEGA = "1"; EDITOR = "hx"; QT_SCALE_FACTOR="1.25";};
 #+end_src
 
 **** GPU drivers related
@@ -1828,6 +1828,22 @@ flatpak run --command=bash org.gnu.emacs
   #include <unistd.h>
 
   static char * const args[] = {"brightnessctl", "set", "100%", NULL};
+
+  int main () {
+      int ret = execvp(args[0], args);
+      return ret;
+  }
+
+  '')
+#+end_src
+
+******** Replace kwin with wayfire
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "kwin_wayland" ''
+
+  #include <unistd.h>
+
+  static char * const args[] = {"wayfire", NULL};
 
   int main () {
       int ret = execvp(args[0], args);

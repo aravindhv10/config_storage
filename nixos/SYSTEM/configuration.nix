@@ -55,6 +55,7 @@ in {
   environment.variables = {
     ROC_ENABLE_PRE_VEGA = "1";
     EDITOR = "hx";
+    QT_SCALE_FACTOR = "1.25";
   };
 
   hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
@@ -1005,6 +1006,19 @@ in {
       #include <unistd.h>
 
       static char * const args[] = {"brightnessctl", "set", "100%", NULL};
+
+      int main () {
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
+    '')
+
+    (writeCBin "kwin_wayland" ''
+
+      #include <unistd.h>
+
+      static char * const args[] = {"wayfire", NULL};
 
       int main () {
           int ret = execvp(args[0], args);
