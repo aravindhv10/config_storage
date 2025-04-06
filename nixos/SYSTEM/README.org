@@ -352,8 +352,37 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 #+end_src
 
 **** Env vars
+
+***** BEGIN
 #+begin_src nix :tangle ./configuration.nix
-  environment.variables = {ROC_ENABLE_PRE_VEGA = "1"; EDITOR = "hx";};
+  environment.variables = {
+#+end_src
+
+***** MAIN
+
+****** ROCM
+#+begin_src nix :tangle ./configuration.nix
+  ROC_ENABLE_PRE_VEGA = "1";
+#+end_src
+
+****** EDITOR
+#+begin_src nix :tangle ./configuration.nix
+  EDITOR = "hx";
+#+end_src
+
+****** EDITOR
+#+begin_src nix :tangle ./configuration.nix
+  EDITOR = "hx";
+#+end_src
+
+****** QT Scaling factor
+#+begin_src nix :tangle ./configuration.nix
+  QT_SCALE_FACTOR = "1.25";
+#+end_src
+
+***** END
+#+begin_src nix :tangle ./configuration.nix
+  };
 #+end_src
 
 **** GPU drivers related
