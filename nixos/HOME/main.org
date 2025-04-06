@@ -2067,9 +2067,9 @@ return config
   # Needed by some GTK applications
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
   # bar = waybar
-  # shell = plasmashell
+  shell = plasmashell
   # shell = startplasma-wayland
-  # networkmanager = nm-applet
+  networkmanager = nm-applet
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
