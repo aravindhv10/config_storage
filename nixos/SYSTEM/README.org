@@ -347,7 +347,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** Env vars
 #+begin_src nix :tangle ./configuration.nix
-  environment.variables = {ROC_ENABLE_PRE_VEGA = "1"; EDITOR = "hx"; QT_SCALE_FACTOR="1.25";};
+  environment.variables = {ROC_ENABLE_PRE_VEGA = "1"; EDITOR = "hx";};
 #+end_src
 
 **** GPU drivers related

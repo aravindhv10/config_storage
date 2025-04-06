@@ -55,7 +55,6 @@ in {
   environment.variables = {
     ROC_ENABLE_PRE_VEGA = "1";
     EDITOR = "hx";
-    QT_SCALE_FACTOR = "1.25";
   };
 
   hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
