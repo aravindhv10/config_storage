@@ -57,8 +57,6 @@ in {
 
     EDITOR = "hx";
 
-    EDITOR = "hx";
-
     QT_SCALE_FACTOR = "1.25";
   };
 
@@ -331,7 +329,6 @@ in {
     bottom
     brave
     brightnessctl
-    byobu
     cargo
     catppuccin-kde
     clang-tools_19
@@ -413,7 +410,6 @@ in {
     starship
     swayosd
     texliveFull
-    tmux
     tree
     unzip
     uv
@@ -438,6 +434,11 @@ in {
     unstable.nixfmt-rfc-style
     unstable.wezterm
     unstable.helix
+    unstable.tmux
+    unstable.byobu
+    unstable.rust-analyzer
+
+    (callPackage /root/debMirror.nix {})
 
     (writeCBin "M_C_ESC" ''
 

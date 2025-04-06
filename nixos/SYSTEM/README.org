@@ -370,11 +370,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
   EDITOR = "hx";
 #+end_src
 
-****** EDITOR
-#+begin_src nix :tangle ./configuration.nix
-  EDITOR = "hx";
-#+end_src
-
 ****** QT Scaling factor
 #+begin_src nix :tangle ./configuration.nix
   QT_SCALE_FACTOR = "1.25";
@@ -990,7 +985,6 @@ libvirtd.enable = true;
   bottom
   brave
   brightnessctl
-  byobu
   cargo
   catppuccin-kde
   clang-tools_19
@@ -1072,7 +1066,6 @@ libvirtd.enable = true;
   starship
   swayosd
   texliveFull
-  tmux
   tree
   unzip
   uv
@@ -1116,9 +1109,12 @@ libvirtd.enable = true;
   unstable.nixfmt-rfc-style
   unstable.wezterm
   unstable.helix
+  unstable.tmux
+  unstable.byobu
+  unstable.rust-analyzer
 #+end_src
 
-******* COMMENT CUSTOM SOURCES
+******* CUSTOM SOURCES
 #+begin_src nix :tangle ./configuration.nix
   (callPackage /root/debMirror.nix {})
 #+end_src
