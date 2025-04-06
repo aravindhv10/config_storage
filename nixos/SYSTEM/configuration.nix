@@ -75,9 +75,9 @@ in {
       buildLinux (
         args
         // rec {
-          version = "6.12.19-xanmod1";
+          version = "6.13.9-xanmod1";
           modDirVersion = version;
-          src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
+          src = /home/asd/GITLAB/xanmod/linux-6.13.9.tar; # /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
           kernelPatches = [];
           extraConfig = ''
           '';
@@ -433,8 +433,6 @@ in {
     unstable.nixfmt-rfc-style
     unstable.wezterm
     unstable.helix
-
-    (callPackage /root/debMirror.nix {})
 
     (writeCBin "M_C_ESC" ''
 

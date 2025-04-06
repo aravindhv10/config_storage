@@ -29,6 +29,16 @@
  (async-shell-command "./do_copy.sh" "log" "err")
 #+end_src
 
+* Script to copy the config files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
+  cd "$('dirname' '--' "${0}")"
+
+  C () {
+      export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+      sudo -A cp -vf -- "./${1}" "/etc/nixos/${1}"
+  }
+#+end_src
+
 * Script to rebuild and switch
 
 ** with /var/tmp as tmp
@@ -42,17 +52,13 @@
 *** boot
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./rebuild_boot.sh
   export TMPDIR='/var/tmp'
-  nixos-rebuild switch
+  nixos-rebuild boot
 #+end_src
 
-* Script to copy the config files
+** Script to copy the files to the destination
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  cd "$('dirname' '--' "${0}")"
-
-  C () {
-      export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
-      sudo -A cp -vf -- "./${1}" "/etc/nixos/${1}"
-  }
+  C './rebuild_boot.sh'
+  C './rebuild_switch.sh'
 #+end_src
 
 * hardware-configuration
@@ -417,8 +423,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
   ;
 #+end_src
 
-linuxPackages_custom {version = "6.13.9"; src = /home/asd/linux_kernel/linux-6.13.9.tar; configfile = /home/asd/linux_kernel/config-6.13.9;}
-
 ****** 2
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
@@ -426,9 +430,9 @@ linuxPackages_custom {version = "6.13.9"; src = /home/asd/linux_kernel/linux-6.1
       linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
           buildLinux (
               args // rec {
-                  version = "6.12.19-xanmod1" ;
+                  version = "6.13.9-xanmod1" ;
                   modDirVersion = version;
-                  src = /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
+                  src = /home/asd/GITLAB/xanmod/linux-6.13.9.tar; # /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
                   kernelPatches = [];
                   extraConfig = ''
                   '';
@@ -1085,7 +1089,7 @@ libvirtd.enable = true;
   unstable.helix
 #+end_src
 
-******* CUSTOM SOURCES
+******* COMMENT CUSTOM SOURCES
 #+begin_src nix :tangle ./configuration.nix
   (callPackage /root/debMirror.nix {})
 #+end_src
