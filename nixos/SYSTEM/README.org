@@ -466,6 +466,11 @@ linuxPackages_custom {version = "6.13.9"; src = /home/asd/linux_kernel/linux-6.1
   boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
 #+end_src
 
+**** COMMENT Replace kwin with wayfire
+#+begin_src nix :tangle ./configuration.nix
+  fileSystems."/run/wrappers/bin/kwin_wayland" = {device = "/run/current-system/sw/bin/wayfire"; fsType = "none"; options = ["bind"];};
+#+end_src
+
 **** Mount tmpfs on /tmp
 
 ***** Better way
@@ -1837,7 +1842,7 @@ flatpak run --command=bash org.gnu.emacs
   '')
 #+end_src
 
-******** Replace kwin with wayfire
+******** COMMENT Replace kwin with wayfire
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "kwin_wayland" ''
 

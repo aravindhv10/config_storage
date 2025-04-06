@@ -1013,19 +1013,6 @@ in {
       }
 
     '')
-
-    (writeCBin "kwin_wayland" ''
-
-      #include <unistd.h>
-
-      static char * const args[] = {"wayfire", NULL};
-
-      int main () {
-          int ret = execvp(args[0], args);
-          return ret;
-      }
-
-    '')
   ];
 
   services.openssh.enable = true;
