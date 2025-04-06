@@ -513,7 +513,7 @@ in {
       static char * const args[] = {"emacs", NULL};
 
       int main () {
-          while(1){do_start(args);}
+          do_start(args);
           return 0;
       }
 
@@ -557,7 +557,7 @@ in {
       static char * const args[] = {"byobu-tmux", NULL};
 
       int main () {
-          while(1){do_start(args);}
+          do_start(args);
           return 0;
       }
 
@@ -670,7 +670,7 @@ in {
       }
 
       int main () {
-          while(1) {both();}
+          both();
           return 0;
       }
 
