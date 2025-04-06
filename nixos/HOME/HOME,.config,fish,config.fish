@@ -29,6 +29,10 @@ abbr --add --position command -- dc z
 abbr --add --position command -- de exec dbus-run-session -- ssh-agent wayfire
 abbr --add --position command -- ed exec dbus-run-session -- ssh-agent wayfire
 
+
+abbr --add --position command -- zc zstd --long=30 -T8 -18
+abbr --add --position command -- cz zstd --long=30 -T8 -18
+
 fish_vi_key_bindings
 
 function y

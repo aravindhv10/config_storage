@@ -1038,6 +1038,7 @@ libvirtd.enable = true;
   squashfsTools
   starship
   swayosd
+  texliveFull
   tmux
   tree
   unzip

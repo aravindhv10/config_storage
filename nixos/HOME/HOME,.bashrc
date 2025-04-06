@@ -1,4 +1,6 @@
 #!/bin/sh
+export SHELL=bash
+
 . "${HOME}/.shrc"
 
 get_path > "/tmp/init_${$}"

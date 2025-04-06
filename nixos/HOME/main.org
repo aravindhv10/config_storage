@@ -1105,6 +1105,11 @@ return config
 
 ** Main bash config
 
+*** SHELL ENV
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
+  export SHELL=bash
+#+end_src
+
 *** Standard
 #+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
   . "${HOME}/.shrc"
@@ -1388,6 +1393,10 @@ return config
 
   abbr --add --position command -- de exec dbus-run-session -- ssh-agent wayfire
   abbr --add --position command -- ed exec dbus-run-session -- ssh-agent wayfire
+
+
+  abbr --add --position command -- zc zstd --long=30 -T8 -18
+  abbr --add --position command -- cz zstd --long=30 -T8 -18
 #+end_src
 
 *** Vi bindings

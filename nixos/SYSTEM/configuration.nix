@@ -407,6 +407,7 @@ in {
     squashfsTools
     starship
     swayosd
+    texliveFull
     tmux
     tree
     unzip
