@@ -431,12 +431,13 @@ in {
     rocmPackages.hipblas
     rocmPackages.hipcc
 
-    unstable.nixfmt-rfc-style
-    unstable.wezterm
-    unstable.helix
-    unstable.tmux
     unstable.byobu
+    unstable.helix
+    unstable.nixfmt-rfc-style
     unstable.rust-analyzer
+    unstable.tmux
+    unstable.wezterm
+    unstable.alacritty
 
     (callPackage /root/debMirror.nix {})
 
@@ -457,7 +458,7 @@ in {
 
       #include <unistd.h>
 
-      static char * const args[] = {"footclient", "-e", "byobu-tmux", NULL};
+      static char * const args[] = {"alacritty", "msg", "create-window", "-e", "byobu-tmux", NULL};
 
       int main () {
           int ret = execvp(args[0], args);
@@ -470,7 +471,7 @@ in {
 
       #include <unistd.h>
 
-      static char * const args[] = {"footclient", NULL};
+      static char * const args[] = {"alacritty", "msg", "create-window", NULL};
 
       int main () {
           int ret = execvp(args[0], args);
