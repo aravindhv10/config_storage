@@ -8,6 +8,8 @@ config.default_prog = { 'fish', '-l' }
 
 config.color_scheme = 'Modus-Vivendi'
 config.use_fancy_tab_bar = false
+config.front_end = "WebGpu"
+
 
 config.keys = {
   {
