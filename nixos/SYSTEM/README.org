@@ -1085,6 +1085,26 @@ libvirtd.enable = true;
   zstd
 #+end_src
 
+******* python stuff
+
+******** begin
+#+begin_src nix :tangle ./configuration.nix
+  (pkgs.python312.withPackages (ps: with ps; [
+#+end_src
+
+******** main
+#+begin_src nix :tangle ./configuration.nix
+  numpy
+  opencv-python
+  ipython
+  yt-dlp
+#+end_src
+
+******** end
+#+begin_src nix :tangle ./configuration.nix
+  ]))
+#+end_src
+
 ******* ROCM stuff
 
 ******** Enabled

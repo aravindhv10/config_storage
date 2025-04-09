@@ -35,6 +35,7 @@
 
 ***** main
 
+rocmPackages.meta.rocm-all
 ****** generic packages
 #+begin_src nix :tangle ./shell.nix
   alsa-lib
@@ -44,7 +45,6 @@
   gnumake
   libelf
   python312Full
-  rocmPackages.meta.rocm-all
   udev
   xorg.libX11
   xorg.libXcursor

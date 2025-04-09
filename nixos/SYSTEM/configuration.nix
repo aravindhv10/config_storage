@@ -428,6 +428,14 @@ in {
     zoxide
     zstd
 
+    (pkgs.python312.withPackages (ps:
+      with ps; [
+        numpy
+        opencv-python
+        ipython
+        yt-dlp
+      ]))
+
     rocmPackages.hipblas
     rocmPackages.hipcc
 

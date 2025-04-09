@@ -7,7 +7,6 @@
     gnumake
     libelf
     python312Full
-    rocmPackages.meta.rocm-all
     udev
     xorg.libX11
     xorg.libXcursor
