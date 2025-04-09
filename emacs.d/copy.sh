@@ -14,6 +14,6 @@ C(){
 C './myelisp' "./snippets/org-mode/myelisp"
 D './snippets' "${HOME}/.emacs.d/"
 
-C './early-init.el' "${HOME}/emacs.d/early-init.el"
+C './early-init.el' "${HOME}/.emacs.d/early-init.el"
 
-C './init.el' "${HOME}/emacs.d/init.el"
+C './init.el' "${HOME}/.emacs.d/init.el"

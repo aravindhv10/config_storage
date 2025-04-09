@@ -54,7 +54,7 @@
 
 **** Copy the file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './early-init.el' "${HOME}/emacs.d/early-init.el"
+  C './early-init.el' "${HOME}/.emacs.d/early-init.el"
 #+end_src
 
 *** main file
@@ -66,7 +66,7 @@
 
 **** Copy the file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './init.el' "${HOME}/emacs.d/init.el"
+  C './init.el' "${HOME}/.emacs.d/init.el"
 #+end_src
 
 * Main emacs config
