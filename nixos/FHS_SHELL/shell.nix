@@ -1,19 +1,27 @@
 {pkgs ? import <nixpkgs> {}}: let
-  mylist = [
-    pkgs.alsa-lib
-    pkgs.bc
-    pkgs.bison
-    pkgs.flex
-    pkgs.gnumake
-    pkgs.libelf
-    pkgs.python312Full
-    pkgs.rocmPackages.meta.rocm-all
-    pkgs.udev
-    pkgs.xorg.libX11
-    pkgs.xorg.libXcursor
-    pkgs.xorg.libXrandr
-    pkgs.zsh
-    pkgs.zstd
+  mylist = with pkgs; [
+    alsa-lib
+    bc
+    bison
+    flex
+    gnumake
+    libelf
+    python312Full
+    rocmPackages.meta.rocm-all
+    udev
+    xorg.libX11
+    xorg.libXcursor
+    xorg.libXrandr
+    zsh
+    zstd
+
+    (pkgs.python312.withPackages (ps:
+      with ps; [
+        numpy
+        opencv-python
+        ipython
+        yt-dlp
+      ]))
   ];
 in
   (pkgs.buildFHSEnv {

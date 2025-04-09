@@ -16,28 +16,70 @@
 
 ** Function inputs
 #+begin_src nix :tangle ./shell.nix
-{pkgs ? import <nixpkgs> {}}:
+  {pkgs ? import <nixpkgs> {}} :
 #+end_src
 
-** Package lists
+** Start convenience definitions
+
+*** begin
 #+begin_src nix :tangle ./shell.nix
   let
-      mylist = [
-          pkgs.alsa-lib
-          pkgs.bc
-          pkgs.bison
-          pkgs.flex
-          pkgs.gnumake
-          pkgs.libelf
-          pkgs.python312Full
-          pkgs.rocmPackages.meta.rocm-all
-          pkgs.udev
-          pkgs.xorg.libX11
-          pkgs.xorg.libXcursor
-          pkgs.xorg.libXrandr
-          pkgs.zsh
-          pkgs.zstd
-      ] ;
+#+end_src
+
+**** Package list
+
+***** begin
+#+begin_src nix :tangle ./shell.nix
+  mylist = with pkgs; [
+#+end_src
+
+***** main
+
+****** generic packages
+#+begin_src nix :tangle ./shell.nix
+  alsa-lib
+  bc
+  bison
+  flex
+  gnumake
+  libelf
+  python312Full
+  rocmPackages.meta.rocm-all
+  udev
+  xorg.libX11
+  xorg.libXcursor
+  xorg.libXrandr
+  zsh
+  zstd
+#+end_src
+
+****** python packages
+
+******* begin
+#+begin_src nix :tangle ./shell.nix
+  (pkgs.python312.withPackages (ps: with ps; [
+#+end_src
+
+******* main
+#+begin_src nix :tangle ./shell.nix
+  numpy
+  opencv-python
+  ipython
+  yt-dlp
+#+end_src
+
+******* end
+#+begin_src nix :tangle ./shell.nix
+  ]))
+#+end_src
+
+***** end
+#+begin_src nix :tangle ./shell.nix
+  ] ;
+#+end_src
+
+*** end
+#+begin_src nix :tangle ./shell.nix
   in
 #+end_src
 
@@ -45,7 +87,7 @@
 
 *** Header
 #+begin_src nix :tangle ./shell.nix
-(pkgs.buildFHSEnv {
+  (pkgs.buildFHSEnv {
 #+end_src
 
 *** name
@@ -53,75 +95,14 @@
   name = "simple-x11-env";
 #+end_src
 
-
 *** Defining package list common
 #+begin_src nix :tangle ./shell.nix
   targetPkgs = pkgs: mylist;
 #+end_src
 
-*** COMMENT Defining package list
-
-**** BEGIN
-#+begin_src nix :tangle ./shell.nix
-  targetPkgs = pkgs:
-    (with pkgs; [
-#+end_src
-
-**** LIST
-#+begin_src nix :tangle ./shell.nix
-  alsa-lib
-  bc
-  bison
-  flex
-  gnumake
-  libelf
-  python312Full
-  udev
-  zsh
-#+end_src
-
-**** END
-#+begin_src nix :tangle ./shell.nix
-    ])
-#+end_src
-
-*** COMMENT EXTRA
-#+begin_src nix :tangle ./shell.nix
-    ++ (with pkgs.xorg; [
-      libX11
-      libXcursor
-      libXrandr
-    ]);
-#+end_src
-
 *** Defining package list common
 #+begin_src nix :tangle ./shell.nix
   multiPkgs = pkgs: mylist;
-#+end_src
-
-*** COMMENT AGAIN
-
-**** BEGIN
-#+begin_src nix :tangle ./shell.nix
-  multiPkgs = pkgs: (with pkgs; [
-#+end_src
-
-**** LIST
-#+begin_src nix :tangle ./shell.nix
-  alsa-lib
-  bc
-  bison
-  flex
-  gnumake
-  libelf
-  python312Full
-  udev
-  zsh
-#+end_src
-
-**** END
-#+begin_src nix :tangle ./shell.nix
-  ]);
 #+end_src
 
 *** Main shell command
@@ -131,10 +112,10 @@
 
 *** Trailer
 #+begin_src nix :tangle ./shell.nix
-})
+  })
 #+end_src
 
 ** Done
 #+begin_src nix :tangle ./shell.nix
-.env
+  .env
 #+end_src
