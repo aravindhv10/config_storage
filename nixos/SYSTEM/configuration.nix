@@ -124,10 +124,12 @@ in {
 
   services.greetd = {
     enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.wayfire}/bin/wayfire";
+    settings = rec {
+      initial_session = {
+        command = "${pkgs.uwsm}/bin/uwsm start select";
+        user = "asd";
       };
+      default_session = initial_session;
     };
   };
 
@@ -355,6 +357,7 @@ in {
     dust
     emacs30
     fd
+    ffmpeg
     file
     foot
     fuse3
@@ -423,6 +426,7 @@ in {
     tree
     unzip
     uv
+    uwsm
     vim
     vscode-fhs
     waybar

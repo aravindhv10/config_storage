@@ -29,6 +29,11 @@
  (async-shell-command "./do_copy.sh" "log" "err")
 #+end_src
 
+*** Switch to the new config
+#+begin_src emacs-lisp :results silent
+  (async-shell-command "sudo -A nixos-rebuild switch" "log" "err")
+#+end_src
+
 * Script to copy the config files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
   cd "$('dirname' '--' "${0}")"
@@ -572,10 +577,12 @@ You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
   services.greetd = {
       enable = true;
-      settings = {
-          default_session = {
-              command = "${pkgs.wayfire}/bin/wayfire";
+      settings = rec {
+          initial_session = {
+              command = "${pkgs.uwsm}/bin/uwsm start select";
+              user = "asd";
           };
+          default_session = initial_session;
       };
   };
 
@@ -992,6 +999,7 @@ libvirtd.enable = true;
 
 ******* MAIN PACKAGES
 #+begin_src nix :tangle ./configuration.nix
+
   acpi
   alacritty
   alejandra
@@ -1020,6 +1028,7 @@ libvirtd.enable = true;
   dust
   emacs30
   fd
+  ffmpeg
   file
   foot
   fuse3
@@ -1088,6 +1097,7 @@ libvirtd.enable = true;
   tree
   unzip
   uv
+  uwsm
   vim
   vscode-fhs
   waybar
