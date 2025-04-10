@@ -122,15 +122,24 @@ in {
     videoDrivers = ["amdgpu"];
   };
 
-  services.displayManager.sddm = {
+  services.greetd = {
     enable = true;
-    wayland.enable = true;
-    settings.General.DisplayServer = "wayland";
+    settings = {
+      default_session = {
+        command = "${pkgs.wayfire}/bin/wayfire";
+      };
+    };
   };
+
+  environment.etc."greetd/environments".text = ''
+    wayfire
+    fish
+    bash
+  '';
 
   programs.wayfire = {
     enable = true;
-    package = unstable.wayfire;
+    # package = unstable.wayfire;
     plugins = [
       pkgs.wayfirePlugins.firedecor
       pkgs.wayfirePlugins.focus-request
@@ -410,6 +419,7 @@ in {
     starship
     swayosd
     texliveFull
+    thunderbird
     tree
     unzip
     uv

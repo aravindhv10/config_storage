@@ -554,7 +554,7 @@ You can disable this if you're only using the Wayland session.
 
 **** Display manager
 
-***** SDDM
+***** COMMENT SDDM
 #+begin_src nix :tangle ./configuration.nix
   services.displayManager.sddm = {
       enable = true;
@@ -568,13 +568,31 @@ You can disable this if you're only using the Wayland session.
   services.xserver.displayManager.gdm.enable = true;
 #+end_src
 
+***** greetd
+#+begin_src nix :tangle ./configuration.nix
+  services.greetd = {
+      enable = true;
+      settings = {
+          default_session = {
+              command = "${pkgs.wayfire}/bin/wayfire";
+          };
+      };
+  };
+
+  environment.etc."greetd/environments".text = ''
+  wayfire
+  fish
+  bash
+  '';
+#+end_src
+
 **** Desktop environment
 
 ***** Wayfire
 #+begin_src nix :tangle ./configuration.nix
   programs.wayfire = {
       enable = true;
-      package = unstable.wayfire;
+      # package = unstable.wayfire;
       plugins = [
           pkgs.wayfirePlugins.firedecor
           pkgs.wayfirePlugins.focus-request
@@ -1066,6 +1084,7 @@ libvirtd.enable = true;
   starship
   swayosd
   texliveFull
+  thunderbird
   tree
   unzip
   uv
