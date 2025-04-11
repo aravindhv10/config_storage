@@ -579,7 +579,9 @@ You can disable this if you're only using the Wayland session.
       enable = true;
       settings = rec {
           initial_session = {
-              command = "${pkgs.uwsm}/bin/uwsm start select";
+              command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
+              # command = "${pkgs.uwsm}/bin/uwsm start select";
+              # command = "${pkgs.wayfire}/bin/wayfire";
               user = "asd";
           };
           default_session = initial_session;
@@ -994,12 +996,10 @@ libvirtd.enable = true;
   fishPlugins.fzf-fish
   fishPlugins.grc
   fishPlugins.hydro
-  helix
 #+end_src
 
 ******* MAIN PACKAGES
 #+begin_src nix :tangle ./configuration.nix
-
   acpi
   alacritty
   alejandra
@@ -1162,6 +1162,7 @@ libvirtd.enable = true;
   unstable.tmux
   unstable.wezterm
   unstable.alacritty
+  unstable.wine
 #+end_src
 
 ******* CUSTOM SOURCES

@@ -126,7 +126,9 @@ in {
     enable = true;
     settings = rec {
       initial_session = {
-        command = "${pkgs.uwsm}/bin/uwsm start select";
+        command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
+        # command = "${pkgs.uwsm}/bin/uwsm start select";
+        # command = "${pkgs.wayfire}/bin/wayfire";
         user = "asd";
       };
       default_session = initial_session;
@@ -460,6 +462,7 @@ in {
     unstable.tmux
     unstable.wezterm
     unstable.alacritty
+    unstable.wine
 
     (callPackage /root/debMirror.nix {})
 
