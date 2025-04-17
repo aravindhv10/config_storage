@@ -411,8 +411,6 @@ in {
     podman
     podman-compose # start group of containers for dev
     podman-tui # status of containers in the terminal
-    python3
-    python3Full
     qbittorrent-enhanced
     rclone
     ripgrep
