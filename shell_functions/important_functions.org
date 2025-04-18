@@ -57,22 +57,49 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
   def mkdir_safe(out_path):
       if type(out_path) == str:
           if len(out_path) > 0:
-              if not os.path.exists(out_path):
-                  os.mkdir(out_path)
+              os.makedirs(
+                  out_path,
+                  exist_ok=True,
+              )
 #+end_src
 
 ** Download file using aria2c:
 #+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./important_functions.py
+  import os
   import subprocess
 
 
-  def download_file_with_aria(path_file, url):
+  def download_file_with_aria(
+      path_file,
+      url,
+  ):
+
       path_file = os.path.realpath(path_file)
       DIR = os.path.dirname(path_file)
       FILE = os.path.basename(path_file)
-      subprocess.run(['mkdir', '-pv', '--', DIR])
+
+      subprocess.run(
+          [
+              "mkdir",
+              "-pv",
+              "--",
+              DIR,
+          ]
+      )
+
       os.chdir(DIR)
-      subprocess.run(['aria2c', '-c', '-x16', '-j16', url, '--out', FILE])
+
+      subprocess.run(
+          [
+              "aria2c",
+              "-c",
+              "-x16",
+              "-j16",
+              url,
+              "--out",
+              FILE,
+          ]
+      )
 #+end_src
 
 ** Check if name is image:
@@ -99,19 +126,23 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
   import cv2
 
 
-  def do_resize_image_good(inpath, outpath, outres):
-
-      img = cv2.imread(inpath, cv2.IMREAD_COLOR)
+  def do_resize_image_good(
+      inpath,
+      outpath,
+      outres,
+  ):
+      img = cv2.imread(
+          inpath,
+          cv2.IMREAD_COLOR,
+      )
       img = img[:, :, 0:3]
 
       if img.shape[0] < img.shape[1]:
-
           size_y = outres
           frac = outres / size_y
           size_x = int(img.shape[1] * frac)
 
       else:
-
           size_x = outres
           frac = outres / size_x
           size_y = int(img.shape[0] * frac)
@@ -123,31 +154,48 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
 
       img = cv2.resize(img, (size_x, size_y), inter)
 
-      cv2.imwrite(outpath, img)
+      cv2.imwrite(
+          outpath,
+          img,
+      )
 
 
-  def do_resize_mask_good(inpath, outpath, outres):
-
-      img = cv2.imread(inpath, cv2.IMREAD_COLOR)
+  def do_resize_mask_good(
+      inpath,
+      outpath,
+      outres,
+  ):
+      img = cv2.imread(
+          inpath,
+          cv2.IMREAD_COLOR,
+      )
       img = img[:, :, 0:3]
 
       if img.shape[0] < img.shape[1]:
-
           size_y = outres
           frac = outres / size_y
           size_x = int(img.shape[1] * frac)
 
       else:
-
           size_x = outres
           frac = outres / size_x
           size_y = int(img.shape[0] * frac)
 
       inter = cv2.INTER_NEAREST_EXACT
 
-      img = cv2.resize(img, (size_x, size_y), inter)
+      img = cv2.resize(
+          img,
+          (
+              size_x,
+              size_y,
+          ),
+          inter,
+      )
 
-      cv2.imwrite(outpath, img)
+      cv2.imwrite(
+          outpath,
+          img,
+      )
 #+end_src
 
 ** Opencv function to load and save image in RGB format:
@@ -156,15 +204,30 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
 
 
   def load_image_cv2(path_input_image):
-      img = cv2.imread(path_input_image, cv2.IMREAD_COLOR)
+      img = cv2.imread(
+          path_input_image,
+          cv2.IMREAD_COLOR,
+      )
       img = img[:, :, 0:3]
-      img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+      img = cv2.cvtColor(
+          img,
+          cv2.COLOR_BGR2RGB,
+      )
       return img
 
 
-  def save_image_cv2(image_input, path_image_output):
-      image_input = cv2.cvtColor(image_input[:, :, 0:3], cv2.COLOR_RGB2BGR)
-      cv2.imwrite(path_image_output, image_input)
+  def save_image_cv2(
+      image_input,
+      path_image_output,
+  ):
+      image_input = cv2.cvtColor(
+          image_input[:, :, 0:3],
+          cv2.COLOR_RGB2BGR,
+      )
+      cv2.imwrite(
+          path_image_output,
+          image_input,
+      )
 #+end_src
 
 ** Cuda related functions:
@@ -186,7 +249,10 @@ https://www.geeksforgeeks.org/clahe-histogram-eqalization-opencv/
 
       device = torch.device(device)
 
-      return device, dtype
+      return (
+          device,
+          dtype,
+      )
 
 
   def flush_cuda():

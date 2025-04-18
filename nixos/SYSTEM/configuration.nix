@@ -344,6 +344,7 @@ in {
     brightnessctl
     cargo
     catppuccin-kde
+    clang_19
     clang-tools_19
     clinfo
     cmake

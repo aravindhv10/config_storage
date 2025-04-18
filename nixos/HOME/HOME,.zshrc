@@ -1,11 +1,5 @@
 . "${HOME}/.shrc"
 
-get_path > "/tmp/init_${$}"
-. "/tmp/init_${$}"
-
-get_nebius_path > "/tmp/init_${$}"
-. "/tmp/init_${$}"
-
 all_init_convenience () {
 
 atuin init zsh --disable-up-arrow

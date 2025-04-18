@@ -18,4 +18,12 @@ alias ls=lsd
 alias cat=bat
 alias du=dust
 
+alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --shm-size 8G -v $HOME/dockerx:/dockerx -w /dockerx'
+
 . "${HOME}/important_functions.sh"
+
+get_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"
+
+get_nebius_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"
