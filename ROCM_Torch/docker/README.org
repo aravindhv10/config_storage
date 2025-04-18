@@ -1,0 +1,106 @@
+* COMMENT WORK SPACE
+
+** elisp stuff
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      git add 'build.sh'
+      git add 'Dockerfile'
+      git add 'drun.sh'
+      git add 'README.org'
+      git add 'run.py'
+  " "log" "err")
+#+end_src
+
+alias drun='sudo -A docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined'
+
+* drun
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./drun.sh
+  sudo -A \
+      docker run \
+          -it \
+          --network=host \
+          --device=/dev/kfd \
+          --device=/dev/dri \
+          --group-add=video \
+          --ipc=host \
+          --cap-add=SYS_PTRACE \
+          --security-opt seccomp=unconfined \
+          "${@}" \
+  ;
+#+end_src
+
+* build
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build.sh
+  cd "$(dirname -- "${0}")"
+
+  sudo -A \
+      docker build \
+          -f ./Dockerfile \
+          -t myrocm \
+  ;
+#+end_src
+
+* main code
+
+** base image
+#+begin_src conf :tangle ./Dockerfile
+  FROM rocm/pytorch
+#+end_src
+
+** install transformers
+#+begin_src conf :tangle ./Dockerfile
+  RUN pip install transformers ipython
+#+end_src
+
+** Main inference code
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./run.py
+  from transformers import pipeline
+  from PIL import Image
+  import requests
+
+  # load pipe
+  pipe = pipeline(task="depth-estimation", model="depth-anything/Depth-Anything-V2-Small-hf")
+
+  # load image
+  url = 'http://images.cocodataset.org/val2017/000000039769.jpg'
+  image = Image.open(requests.get(url, stream=True).raw)
+
+  # inference
+  depth = pipe(image)["depth"]
+#+end_src
+
+** COMMENT clone hybrid depth
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'cloning hybrid depth' \
+      && cd /root \
+      && git clone 'https://github.com/cake-lab/HybridDepth.git' \
+      && echo 'done' ;
+#+end_src
+
+** COMMENT main code for inference
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./run.py
+  model_name = 'HybridDepth_NYU_PretrainedDFV5' #change this
+  model = torch.hub.load('cake-lab/HybridDepth', model_name , pretrained=True)
+  model.eval()
+#+end_src
+
+* COMMENT SAMPLE
+
+** Dockerfile
+#+begin_src conf :tangle ./Dockerfile
+#+end_src
+
+** python
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./run.py
+#+end_src
+
+** drun
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./drun.sh
+#+end_src
+
+** build
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build.sh
+#+end_src
