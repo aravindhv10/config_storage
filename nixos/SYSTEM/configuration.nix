@@ -78,9 +78,9 @@ in {
       buildLinux (
         args
         // rec {
-          version = "6.13.9-xanmod1";
+          version = "6.13.11-xanmod1";
           modDirVersion = version;
-          src = /home/asd/GITLAB/xanmod/linux-6.13.9.tar; # /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
+          src = /home/asd/GITLAB/xanmod/linux-6.13.11.tar; # /home/asd/GITLAB/xanmod/linux-6.12.19.tar;
           kernelPatches = [];
           extraConfig = ''
           '';
