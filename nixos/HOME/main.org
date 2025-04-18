@@ -1423,7 +1423,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
 *** ROCM docker related
 #+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
-  alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --shm-size 8G -v $HOME/dockerx:/dockerx -w /dockerx'
+  alias drun='sudo -A docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --shm-size 8G -v $HOME/dockerx:/dockerx -w /dockerx'
 #+end_src
 
 *** Rest of the functions
