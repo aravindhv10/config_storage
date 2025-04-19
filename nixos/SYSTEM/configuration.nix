@@ -160,14 +160,6 @@ in {
 
   services.desktopManager.plasma6.enable = true;
 
-  programs.hyprland = {
-    enable = true;
-    package = unstable.hyprland;
-    withUWSM = true; # recommended for most users
-    # withUWSM = false; # recommended for most users
-    xwayland.enable = true; # Xwayland can be disabled.
-  };
-
   services.xserver.desktopManager.gnome.enable = true;
 
   environment.gnome.excludePackages = with pkgs; [
@@ -202,8 +194,8 @@ in {
     dev.enable = true;
   };
 
-  # hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -216,65 +208,6 @@ in {
     # no need to redefine it in your config for now)
     #media-session.enable = true;
   };
-
-  # services.pipewire.extraConfig.pipewire."91-null-sinks" = {
-  # "context.objects" = [
-  # {
-  # # A default dummy driver. This handles nodes marked with the "node.always-driver"
-  # # properyty when no other driver is currently active. JACK clients need this.
-  # factory = "spa-node-factory";
-  # args = {
-  # "factory.name" = "support.node.driver";
-  # "node.name" = "Dummy-Driver";
-  # "priority.driver" = 8000;
-  # };
-  # }
-  # {
-  # factory = "adapter";
-  # args = {
-  # "factory.name" = "support.null-audio-sink";
-  # "node.name" = "Microphone-Proxy";
-  # "node.description" = "Microphone";
-  # "media.class" = "Audio/Source/Virtual";
-  # "audio.position" = "MONO";
-  # };
-  # }
-  # {
-  # factory = "adapter";
-  # args = {
-  # "factory.name" = "support.null-audio-sink";
-  # "node.name" = "Main-Output-Proxy";
-  # "node.description" = "Main Output";
-  # "media.class" = "Audio/Sink";
-  # "audio.position" = "FL,FR";
-  # };
-  # }
-  # ];
-  # };
-
-  # services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
-  # "context.properties" = [
-  # {
-  # name = "libpipewire-module-protocol-pulse";
-  # args = { };
-  # }
-  # ];
-  # "pulse.properties" = {
-  # "pulse.min.req" = "32/48000";
-  # "pulse.default.req" = "32/48000";
-  # "pulse.max.req" = "32/48000";
-  # "pulse.min.quantum" = "32/48000";
-  # "pulse.max.quantum" = "32/48000";
-  # };
-  # "stream.properties" = {
-  # "node.latency" = "32/48000";
-  # "resample.quality" = 1;
-  # };
-  # };
-
-  # services.pipewire.socketActivation = false;
-  # Start WirePlumber (with PipeWire) at boot.
-  # systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
 
   services.xserver.libinput.enable = true;
 
@@ -1053,10 +986,32 @@ in {
 
   services.dnsmasq = {
     enable = true;
-    alwaysKeepRunning = true;
+
     resolveLocalQueries = true;
+
     settings = {
-      server = ["192.168.1.254" "4.2.2.2" "8.8.8.8" "8.8.8.4" "8.8.4.4" "76.76.2.0" "76.76.10.0" "9.9.9.9" "149.112.112.112" "208.67.222.222" "208.67.220.220" "1.1.1.1" "1.0.0.1" "94.140.14.14" "94.140.15.15" "185.228.168.9" "185.228.169.9" "76.76.19.19" "76.223.122.150"];
+      server = [
+        "1.0.0.1"
+        "1.1.1.1"
+        "149.112.112.112"
+        "185.228.168.9"
+        "185.228.169.9"
+        "192.168.1.254"
+        "208.67.220.220"
+        "208.67.222.222"
+        "4.2.2.2"
+        "76.223.122.150"
+        "76.76.10.0"
+        "76.76.19.19"
+        "76.76.2.0"
+        "8.8.4.4"
+        "8.8.8.4"
+        "8.8.8.8"
+        "94.140.14.14"
+        "94.140.15.15"
+        "9.9.9.9"
+      ];
+
       local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
       log-queries = true; # Log results of all DNS queries
       bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
@@ -1065,6 +1020,7 @@ in {
       dnssec = true; # Enable DNSSEC
       # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
       trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
+      interface = "lo";
     };
   };
 
