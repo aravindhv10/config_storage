@@ -265,11 +265,8 @@ in {
 
   environment.systemPackages = with pkgs; [
     acpi
-    alacritty
-    alejandra
     alsa-utils
     appstream
-    aria2
     atuin
     bat
     bottom
@@ -283,14 +280,12 @@ in {
     cmake
     curl
     debootstrap
-    difftastic
     dig
     distrobox
     dive # look into docker image layers
     dmidecode
     dnsmasq
     docker-compose # start group of containers for dev
-    dust
     emacs30
     fd
     ffmpeg
@@ -303,6 +298,7 @@ in {
     gdk-pixbuf
     gdm
     git
+    git-lfs
     glib
     gpgme
     grc
@@ -322,12 +318,9 @@ in {
     libxml2
     lsd
     lxc
-    mako
     man-pages
     man-pages-posix
     meson
-    miniserve
-    mpv
     neovim
     networkmanagerapplet
     networkmanager-openconnect
@@ -347,19 +340,13 @@ in {
     podman-tui # status of containers in the terminal
     qbittorrent-enhanced
     rclone
-    ripgrep
-    ruff
     rustc
     shellcheck
-    skim
-    squashfsTools
-    starship
     swayosd
     texliveFull
     thunderbird
     tree
     unzip
-    uv
     uwsm
     vim
     vscode-fhs
@@ -369,11 +356,8 @@ in {
     wf-recorder
     wget
     wlogout
-    wlsunset
     wofi
-    yazi
     zip
-    zoxide
     zstd
 
     (pkgs.python312.withPackages (ps:
@@ -387,14 +371,30 @@ in {
     rocmPackages.hipblas
     rocmPackages.hipcc
 
-    unstable.byobu
-    unstable.helix
-    unstable.nixfmt-rfc-style
-    unstable.rust-analyzer
-    unstable.tmux
-    unstable.wezterm
     unstable.alacritty
+    unstable.aria2
+    unstable.byobu
+    unstable.difftastic
+    unstable.dust
+    unstable.helix
+    unstable.mako
+    unstable.miniserve
+    unstable.mpv
+    unstable.nixfmt-rfc-style
+    unstable.ripgrep
+    unstable.ruff
+    unstable.rust-analyzer
+    unstable.skim
+    unstable.squashfsTools
+    unstable.starship
+    unstable.tmux
+    unstable.uv
+    unstable.wezterm
     unstable.wine
+    unstable.wlsunset
+    unstable.yazi
+    unstable.zoxide
+    unstable.alejandra
 
     (callPackage /root/debMirror.nix {})
 
@@ -1021,6 +1021,9 @@ in {
       # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
       trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
       interface = "lo";
+      listen-address = "127.0.0.1";
+      except-interface = "virbr0";
+      no-dhcp-interface = "virbr0";
     };
   };
 
