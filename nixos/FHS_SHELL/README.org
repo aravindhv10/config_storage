@@ -44,6 +44,8 @@ rocmPackages.meta.rocm-all
   flex
   gnumake
   libelf
+  openssl
+  openssl.dev
   python312Full
   udev
   xorg.libX11

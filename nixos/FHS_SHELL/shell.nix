@@ -6,6 +6,8 @@
     flex
     gnumake
     libelf
+    openssl
+    openssl.dev
     python312Full
     udev
     xorg.libX11
@@ -32,4 +34,5 @@ in
 
     runScript = "zsh";
   })
-  .env
+
+.env

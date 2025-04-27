@@ -955,9 +955,6 @@ You can disable this if you're only using the Wayland session.
   acpi
   alsa-utils
   appstream
-  atuin
-  bat
-  bottom
   brave
   brightnessctl
   cargo
@@ -1029,6 +1026,7 @@ You can disable this if you're only using the Wayland session.
   qbittorrent-enhanced
   rclone
   rustc
+  rustfmt
   shellcheck
   swayosd
   texliveFull
@@ -1043,6 +1041,7 @@ You can disable this if you're only using the Wayland session.
   wayland-protocols
   wf-recorder
   wget
+  wl-clipboard
   wlogout
   wofi
   zip
@@ -1091,7 +1090,11 @@ You can disable this if you're only using the Wayland session.
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.alacritty
+  unstable.alejandra
   unstable.aria2
+  unstable.atuin
+  unstable.bat
+  unstable.bottom
   unstable.byobu
   unstable.difftastic
   unstable.dust
@@ -1113,7 +1116,7 @@ You can disable this if you're only using the Wayland session.
   unstable.wlsunset
   unstable.yazi
   unstable.zoxide
-  unstable.alejandra
+  unstable.azure-cli
 #+end_src
 
 ******* CUSTOM SOURCES

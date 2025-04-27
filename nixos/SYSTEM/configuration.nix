@@ -267,9 +267,6 @@ in {
     acpi
     alsa-utils
     appstream
-    atuin
-    bat
-    bottom
     brave
     brightnessctl
     cargo
@@ -341,6 +338,7 @@ in {
     qbittorrent-enhanced
     rclone
     rustc
+    rustfmt
     shellcheck
     swayosd
     texliveFull
@@ -355,6 +353,7 @@ in {
     wayland-protocols
     wf-recorder
     wget
+    wl-clipboard
     wlogout
     wofi
     zip
@@ -372,7 +371,11 @@ in {
     rocmPackages.hipcc
 
     unstable.alacritty
+    unstable.alejandra
     unstable.aria2
+    unstable.atuin
+    unstable.bat
+    unstable.bottom
     unstable.byobu
     unstable.difftastic
     unstable.dust
@@ -394,7 +397,7 @@ in {
     unstable.wlsunset
     unstable.yazi
     unstable.zoxide
-    unstable.alejandra
+    unstable.azure-cli
 
     (callPackage /root/debMirror.nix {})
 
