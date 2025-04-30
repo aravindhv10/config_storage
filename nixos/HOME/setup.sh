@@ -11,7 +11,7 @@ GCC () {
     gcc -O2 "${1}" -o "${2}"
 }
 
-C './HOME,.config,systemd,user,plasma-kwin_wayland.service' "${HOME}/.config/systemd/user/plasma-kwin_wayland.service"
+rm -vf "${HOME}/.config/systemd/user/plasma-kwin_wayland.service"
 
 alejandra './HOME,.config,nixpkgs,config.nix'
 C './HOME,.config,nixpkgs,config.nix' "${HOME}/.config/nixpkgs/config.nix"

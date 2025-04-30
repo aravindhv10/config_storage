@@ -1,0 +1,88 @@
+* COMMENT work space
+
+** elisp
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      ./setup.sh
+      git add ./README.org
+      git add ./setup.sh
+  " "log" "err")
+#+end_src
+
+* Initial setup stuff
+
+** Function to do the copying
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C () {
+      D="$(dirname -- "${2}")"
+      mkdir -pv -- "${D}"
+      chmod '0700' "${D}"
+      cp -vf -- "${1}" "${2}"
+      chmod '0400' "${2}"
+      chmod '0500' "${D}"
+  }
+
+  R(){
+      chmod '0700' "${1}"
+      rm -vrf -- "${1}"
+  }
+#+end_src
+
+* Remove existing ssh directory
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  R "${HOME}/.ssh"
+#+end_src
+
+* Main secrets
+
+** Personal laptop
+
+*** Private key
+
+**** Copy the key
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.ssh,id_ed25519' "${HOME}/.ssh/id_ed25519"
+#+end_src
+
+**** Actual key
+#+begin_src conf :tangle-mode o400 :tangle ./HOME,.ssh,id_ed25519 
+  -----BEGIN OPENSSH PRIVATE KEY-----
+  Put your secret key here!
+  -----END OPENSSH PRIVATE KEY-----
+#+end_src
+
+*** Public key
+
+**** Copy the key
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.ssh,id_ed25519.pub' "${HOME}/.ssh/id_ed25519.pub"
+#+end_src
+
+**** Actual key
+#+begin_src conf :tangle-mode o400 :tangle ./HOME,.ssh,id_ed25519.pub
+  put ur public key here
+#+end_src
+
+*** Known hosts
+
+**** Copy the list
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.ssh,known_hosts' "${HOME}/.ssh/known_hosts"
+#+end_src
+
+**** Actual list
+#+begin_src conf :tangle-mode o400 :tangle ./HOME,.ssh,known_hosts
+
+#+end_src
+
+* COMMENT Sample
+
+** shell
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+#+end_src
+
+** Secrets
+#+begin_src conf :tangle-mode o400 :tangle ./tmp.txt
+#+end_src
