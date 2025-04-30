@@ -2409,6 +2409,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
   # bar = waybar
   # shell = plasmashell
+  bar = waybar
   # shell = startplasma-wayland
   networkmanager = nm-applet
 #+end_src
