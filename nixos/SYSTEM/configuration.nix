@@ -255,15 +255,12 @@ in {
     clinfo
     cmake
     curl
-    debootstrap
     dig
     distrobox
     dive # look into docker image layers
     dmidecode
     dnsmasq
     docker-compose # start group of containers for dev
-    emacs30
-    fd
     ffmpeg
     file
     foot
@@ -282,7 +279,6 @@ in {
     grub2
     grub2_efi
     gsettings-desktop-schemas
-    ironbar
     jq
     json-glib
     kitty
@@ -292,7 +288,6 @@ in {
     librsvg
     libseccomp
     libxml2
-    lsd
     lxc
     man-pages
     man-pages-posix
@@ -315,7 +310,6 @@ in {
     podman-compose # start group of containers for dev
     podman-tui # status of containers in the terminal
     qbittorrent-enhanced
-    rclone
     rustc
     rustfmt
     shellcheck
@@ -353,16 +347,22 @@ in {
     unstable.alejandra
     unstable.aria2
     unstable.atuin
+    unstable.azure-cli
     unstable.bat
     unstable.bottom
     unstable.byobu
     unstable.difftastic
     unstable.dust
+    unstable.emacs30
+    unstable.fd
     unstable.helix
+    unstable.ironbar
+    unstable.lsd
     unstable.mako
     unstable.miniserve
     unstable.mpv
     unstable.nixfmt-rfc-style
+    unstable.rclone
     unstable.ripgrep
     unstable.ruff
     unstable.rust-analyzer
@@ -376,7 +376,6 @@ in {
     unstable.wlsunset
     unstable.yazi
     unstable.zoxide
-    unstable.azure-cli
 
     (callPackage /root/debMirror.nix {})
 

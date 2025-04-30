@@ -946,15 +946,12 @@ You can disable this if you're only using the Wayland session.
   clinfo
   cmake
   curl
-  debootstrap
   dig
   distrobox
   dive # look into docker image layers
   dmidecode
   dnsmasq
   docker-compose # start group of containers for dev
-  emacs30
-  fd
   ffmpeg
   file
   foot
@@ -973,7 +970,6 @@ You can disable this if you're only using the Wayland session.
   grub2
   grub2_efi
   gsettings-desktop-schemas
-  ironbar
   jq
   json-glib
   kitty
@@ -983,7 +979,6 @@ You can disable this if you're only using the Wayland session.
   librsvg
   libseccomp
   libxml2
-  lsd
   lxc
   man-pages
   man-pages-posix
@@ -1006,7 +1001,6 @@ You can disable this if you're only using the Wayland session.
   podman-compose # start group of containers for dev
   podman-tui # status of containers in the terminal
   qbittorrent-enhanced
-  rclone
   rustc
   rustfmt
   shellcheck
@@ -1075,16 +1069,22 @@ You can disable this if you're only using the Wayland session.
   unstable.alejandra
   unstable.aria2
   unstable.atuin
+  unstable.azure-cli
   unstable.bat
   unstable.bottom
   unstable.byobu
   unstable.difftastic
   unstable.dust
+  unstable.emacs30
+  unstable.fd
   unstable.helix
+  unstable.ironbar
+  unstable.lsd
   unstable.mako
   unstable.miniserve
   unstable.mpv
   unstable.nixfmt-rfc-style
+  unstable.rclone
   unstable.ripgrep
   unstable.ruff
   unstable.rust-analyzer
@@ -1098,7 +1098,6 @@ You can disable this if you're only using the Wayland session.
   unstable.wlsunset
   unstable.yazi
   unstable.zoxide
-  unstable.azure-cli
 #+end_src
 
 ******* CUSTOM SOURCES
