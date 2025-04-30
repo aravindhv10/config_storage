@@ -1,0 +1,27 @@
+#!/bin/sh
+export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+
+get_path () {
+    test -e '/usr/bin/flatpak-spawn' \
+        && test -e '/var/tmp/all/bin/' \
+        && echo "${PATH}" \
+        | sed 's@^@export PATH="/var/tmp/all/bin/:@g ; s@$@"@g' ;
+}
+
+get_nebius_path () {
+    test -e "${HOME}/.nebius/bin"  \
+        && echo "${PATH}" \
+        | sed 's@^@export PATH="${HOME}/.nebius/bin:@g ; s@$@"@g' ;
+}
+
+alias ls=lsd
+alias cat=bat
+alias du=dust
+
+. "${HOME}/important_functions.sh"
+
+get_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"
+
+get_nebius_path > "/tmp/init_${$}"
+. "/tmp/init_${$}"

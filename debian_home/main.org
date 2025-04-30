@@ -1,0 +1,3071 @@
+* work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './setup.sh' ;
+
+          git add './HOME,.bashrc'
+          git add './HOME,.config,alacritty,alacritty.toml'
+          git add './HOME,.config,fish,config.fish'
+          git add './HOME,.config,foot,foot.ini'
+          git add './HOME,.config,ironbar,config.toml'
+          git add './HOME,.config,ironbar,style.css'
+          git add './HOME,.config,mako,config'
+          git add './HOME,.config,nushell,config.nu'
+          git add './HOME,.config,systemd,user,plasma-kwin_wayland.service'
+          git add './HOME,.config,waybar,config.jsonc'
+          git add './HOME,.config,wayfire.ini'
+          git add './HOME,important_functions.sh'
+          git add './HOME,.shrc'
+          git add './HOME,.wezterm.lua'
+          git add './HOME,.zshrc'
+
+          git add './main.org'
+          git add './setup.sh'
+          git add './SUDO_ASKPASS.c'
+
+          rm -vf -- './main.org~' ;
+
+      " "log" "err")
+
+#+end_src
+
+* Main installing functions
+
+** Simple copy
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C(){
+      mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
+      cp -vf -- "${1}" "${2}"
+  }
+#+end_src
+
+** Compile C
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  GCC () {
+      mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
+      gcc -O2 "${1}" -o "${2}"
+  }
+#+end_src
+
+* Replace kwin with wayfire
+
+** COMMENT Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.config,systemd,user,plasma-kwin_wayland.service' "${HOME}/.config/systemd/user/plasma-kwin_wayland.service"
+#+end_src
+
+** Remove the masked file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  rm -vf "${HOME}/.config/systemd/user/plasma-kwin_wayland.service"
+#+end_src
+
+** The actual config file
+#+begin_src nix :tangle ./HOME,.config,systemd,user,plasma-kwin_wayland.service
+  [Unit]
+  Description=KDE Window Manager
+  PartOf=graphical-session.target
+
+  [Service]
+  ExecStart=/run/current-system/sw/bin/wayfire
+  Slice=session.slice
+#+end_src
+
+* ronbar
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.config,ironbar,config.toml' "${HOME}/.config/ironbar/config.toml"
+  C './HOME,.config,ironbar,style.css' "${HOME}/.config/ironbar/style.css"
+#+end_src
+
+** The actual config
+
+*** STYLE
+
+**** Basic
+#+begin_src conf :tangle ./HOME,.config,ironbar,style.css
+  @define-color color_bg #2d2d2d;
+  @define-color color_bg_dark #1c1c1c;
+  @define-color color_border #424242;
+  @define-color color_border_active #6699cc;
+  @define-color color_text #ffffff;
+  @define-color color_urgent #8f0a0a;
+
+  /* -- base styles -- */
+
+  ,* {
+      font-family: Noto Sans Nerd Font, sans-serif;
+      font-size: 16px;
+      border: none;
+      border-radius: 0;
+  }
+
+  box, menubar, button {
+      background-color: @color_bg;
+      background-image: none;
+      box-shadow: none;
+  }
+
+  button, label {
+      color: @color_text;
+  }
+
+  button:hover {
+      background-color: @color_bg_dark;
+  }
+
+  scale trough {
+      min-width: 1px;
+      min-height: 2px;
+  }
+
+  #bar {
+      border-top: 1px solid @color_border;
+  }
+
+  .popup {
+      border: 1px solid @color_border;
+      padding: 1em;
+  }
+
+
+  /* -- clipboard -- */
+
+  .clipboard {
+      margin-left: 5px;
+      font-size: 1.1em;
+  }
+
+  .popup-clipboard .item {
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid @color_border;
+  }
+
+
+  /* -- clock -- */
+
+  .clock {
+      font-weight: bold;
+      margin-left: 5px;
+  }
+
+  .popup-clock .calendar-clock {
+      color: @color_text;
+      font-size: 2.5em;
+      padding-bottom: 0.1em;
+  }
+
+  .popup-clock .calendar {
+      background-color: @color_bg;
+      color: @color_text;
+  }
+
+  .popup-clock .calendar .header {
+      padding-top: 1em;
+      border-top: 1px solid @color_border;
+      font-size: 1.5em;
+  }
+
+  .popup-clock .calendar:selected {
+      background-color: @color_border_active;
+  }
+
+
+  /* -- launcher -- */
+
+  .launcher .item {
+      margin-right: 4px;
+  }
+
+  .launcher .ifix examtem:not(.focused):hover {
+      background-color: @color_bg_dark;
+  }
+
+  .launcher .open {
+      border-bottom: 1px solid @color_text;
+  }
+
+  .launcher .focused {
+      border-bottom: 1px solid @color_border_active;
+  }
+
+  .launcher .urgent {
+      border-bottom-color: @color_urgent;
+  }
+
+  .popup-launcher {
+      padding: 0;
+  }
+
+  .popup-launcher .popup-item:not(:first-child) {
+      border-top: 1px solid @color_border;
+  }
+
+
+  /* -- music -- */
+
+  .music:hover * {
+      background-color: @color_bg_dark;
+  }
+
+  .popup-music .album-art {
+      margin-right: 1em;
+  }
+
+  .popup-music .icon-box {
+      margin-right: 0.4em;
+  }
+
+  .popup-music .title .icon, .popup-music .title .label {
+      font-size: 1.7em;
+  }
+
+  .popup-music .controls *:disabled {
+      color: @color_border;
+  }
+
+  .popup-music .volume .slider slider {
+      border-radius: 100%;
+  }
+
+  .popup-music .volume .icon {
+      margin-left: 4px;
+  }
+
+  .popup-music .progress .slider slider {
+      border-radius: 100%;
+  }
+
+  /* notifications */
+
+  .notifications .count {
+      font-size: 0.6rem;
+      background-color: @color_text;
+      color: @color_bg;
+      border-radius: 100%;
+      margin-right: 3px;
+      margin-top: 3px;
+      padding-left: 4px;
+      padding-right: 4px;
+      opacity: 0.7;
+  }
+
+  /* -- script -- */
+
+  .script {
+      padding-left: 10px;
+  }
+
+  /* -- sys_info -- */
+
+  .sysinfo {
+      margin-left: 10px;
+  }
+
+  .sysinfo .item {
+      margin-left: 5px;
+  }
+
+
+  /* -- tray -- */
+
+  .tray {
+      margin-left: 10px;
+  }
+
+  /* -- volume -- */
+
+  .popup-volume .device-box {
+      border-right: 1px solid @color_border;
+  }
+
+  /* -- workspaces -- */
+
+  .workspaces .item.focused {
+      box-shadow: inset 0 -3px;
+      background-color: @color_bg_dark;
+  }
+
+  .workspaces .item.urgent {
+      background-color: @color_urgent;
+  }
+
+  .workspaces .item:hover {
+      box-shadow: inset 0 -3px;
+  }
+
+  /* -- custom: power menu -- */
+
+  .popup-power-menu #header {
+      font-size: 1.4em;
+      padding-bottom: 0.4em;
+      margin-bottom: 0.6em;
+      border-bottom: 1px solid @color_border;
+  }
+
+  .popup-power-menu .power-btn {
+      border: 1px solid @color_border;
+      padding: 0.6em 1em;
+  }
+
+  .popup-power-menu #buttons > *:nth-child(1) .power-btn {
+      margin-right: 1em;
+  }
+#+end_src
+
+*** Custom toml
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  anchor_to_edges = true
+  icon_theme = "Paper"
+  position = "bottom"
+  height = 32
+  start = []
+  center = []
+  end = []
+#+end_src
+
+*** COMMENT TOML
+
+**** COMMENT Orientation
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  anchor_to_edges = true
+  position = "bottom"
+  icon_theme = "Paper"
+#+end_src
+
+**** COMMENT workspaces
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[start]]
+  type = "workspaces"
+  all_monitors = false
+
+  [start.name_map]
+  1 = "󰙯"
+  2 = "icon:firefox"
+  3 = ""
+  Games = "icon:steam"
+  Code = ""
+#+end_src
+
+**** COMMENT Launcher
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[start]]
+  type = "launcher"
+  favorites = [
+      "firefox",
+      "discord",
+      "steam",
+  ]
+  show_names = false
+  show_icons = true
+
+  [[start]]
+  type = "label"
+  label = "random num: {{500:echo FIXME}}"
+#+end_src
+
+**** COMMENT Music
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "music"
+  player_type = "mpd"
+  music_dir = "/home/jake/Music"
+
+  [end.truncate]
+  mode = "end"
+  max_length = 100
+
+  [[end]]
+  type = "music"
+  player_type = "mpd"
+  host = "chloe:6600"
+  truncate = "end"
+#+end_src
+
+**** COMMENT Script
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "script"
+  cmd = "/home/jake/bin/phone-battery"
+
+  [end.show_if]
+  cmd = "/home/jake/bin/phone-connected"
+  interval = 500
+#+end_src
+
+**** COMMENT Sys
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "sys_info"
+  format = [
+      " {cpu_percent}% | {cpu_frequency} GHz | {temp_c@CPUTIN}°C",
+      " {memory_used} / {memory_total} GB ({memory_available} | {memory_percent2}%) | {swap_used} / {swap_total} GB ({swap_free} | {swap_percent}%)",
+      "󰋊 {disk_used#T@/:.1} / {disk_total#T@/:.1} TB ({disk_percent@/}%) | {disk_read} / {disk_write} MB/s",
+      "󰓢 {net_down@enp39s0} / {net_up@enp39s0} Mbps",
+      "󰖡 {load_average1} | {load_average5} | {load_average15}",
+      "󰥔 {uptime}",
+  ]
+
+  [end.interval]
+  memory = 30
+  cpu = 1
+  temps = 5
+  disks = 300
+  networks = 3
+#+end_src
+
+**** COMMENT Volume
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "volume"
+  format = "{icon} {percentage}%"
+  max_volume = 100
+
+  [end.icons]
+  volume_high = "󰕾"
+  volume_medium = "󰖀"
+  volume_low = "󰕿"
+  muted = "󰝟"
+#+end_src
+
+**** COMMENT Clipboard
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "clipboard"
+  max_items = 3
+
+  [end.truncate]
+  mode = "end"
+  length = 50
+#+end_src
+
+**** COMMENT Power
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "custom"
+  class = "power-menu"
+  tooltip = "Up: {{30000:uptime -p | cut -d ' ' -f2-}}"
+
+  [[end.bar]]
+  type = "button"
+  name = "power-btn"
+  label = ""
+  on_click = "popup:toggle"
+
+  [[end.popup]]
+  type = "box"
+  orientation = "vertical"
+
+  [[end.popup.widgets]]
+  type = "label"
+  name = "header"
+  label = "Power menu"
+
+  [[end.popup.widgets]]
+  type = "box"
+
+  [[end.popup.widgets.widgets]]
+  type = "button"
+  class = "power-btn"
+  label = "<span font-size='40pt'></span>"
+  on_click = "!shutdown now"
+
+  [[end.popup.widgets.widgets]]
+  type = "button"
+  class = "power-btn"
+  label = "<span font-size='40pt'></span>"
+  on_click = "!reboot"
+
+  [[end.popup.widgets]]
+  type = "label"
+  name = "uptime"
+  label = "Uptime: {{30000:uptime -p | cut -d ' ' -f2-}}"
+#+end_src
+
+**** COMMENT Clock
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "clock"
+#+end_src
+
+**** COMMENT Notification
+#+begin_src conf :tangle ./HOME,.config,ironbar,config.toml
+  [[end]]
+  type = "notifications"
+  show_count = true
+
+  [end.icons]
+  closed_none = "󰍥"
+  closed_some = "󱥂"
+  closed_dnd = "󱅯"
+  open_none = "󰍡"
+  open_some = "󱥁"
+  open_dnd = "󱅮"
+#+end_src
+
+* mako
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
+#+end_src
+
+** The actual config
+#+begin_src conf :tangle ./HOME,.config,mako,config
+  background-color=#663300FF
+  text-color=#FFFFFFFF
+  default-timeout=4096
+  max-visible=4
+#+end_src
+
+* WEZTERM
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.wezterm.lua' "${HOME}/.wezterm.lua"
+#+end_src
+
+** The actuaal wezterm config
+#+begin_src conf :tangle ./HOME,.wezterm.lua
+  -- Pull in the wezterm API
+  local wezterm = require 'wezterm'
+
+  -- This will hold the configuration.
+  local config = wezterm.config_builder()
+
+  config.default_prog = { 'fish', '-l' }
+
+  config.color_scheme = 'Modus-Vivendi'
+  config.use_fancy_tab_bar = false
+  config.front_end = "WebGpu"
+
+
+  config.keys = {
+    {
+      key = '/',
+      mods = 'CTRL|ALT',
+      action = wezterm.action.ShowLauncher,
+    },
+    {
+      key = 'LeftArrow',
+      mods = 'CTRL|ALT',
+      action = wezterm.action.SplitPane {
+        direction = 'Left',
+        command = { args = { 'fish' } },
+        size = { Percent = 50 },
+      },
+    },
+    {
+      key = 'RightArrow',
+      mods = 'CTRL|ALT',
+      action = wezterm.action.SplitPane {
+        direction = 'Right',
+        command = { args = { 'fish' } },
+        size = { Percent = 50 },
+      },
+    },
+    {
+      key = 'DownArrow',
+      mods = 'CTRL|ALT',
+      action = wezterm.action.SplitPane {
+        direction = 'Down',
+        command = { args = { 'fish' } },
+        size = { Percent = 50 },
+      },
+    },
+    {
+      key = 'UpArrow',
+      mods = 'CTRL|ALT',
+      action = wezterm.action.SplitPane {
+        direction = 'Up',
+        command = { args = { 'fish' } },
+        size = { Percent = 50 },
+      },
+    },
+  }
+
+  config.launch_menu = {
+    {
+      label = 'fish',
+      args = { 'fish', '-l' },
+    },
+    {
+      label = 'Bash',
+      args = { 'bash', '-l' },
+    },
+    {
+      label = 'tmux',
+      args = { 'byobu-tmux' },
+    },
+    {
+      label = 'top',
+      args = { 'btm', '-b', '--process_command' },
+    },
+    {
+      label = 'alsamixer',
+      args = { 'alsamixer' },
+    },
+  }
+
+  return config
+#+end_src
+
+* FOOT
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.config,foot,foot.ini' "${HOME}/.config/foot/foot.ini"
+#+end_src
+
+** Main config file
+
+*** All config
+#+begin_src conf :tangle ./HOME,.config,foot,foot.ini
+  # -*- conf -*-
+
+  # shell=$SHELL (if set, otherwise user's default shell from /etc/passwd)
+  # term=foot (or xterm-256color if built with -Dterminfo=disabled)
+  # login-shell=no
+
+  # app-id=foot # globally set wayland app-id. Default values are "foot" and "footclient" for desktop and server mode
+  # title=foot
+  # locked-title=no
+
+  font=monospace:size=16
+  # font-bold=<bold variant of regular font>
+  # font-italic=<italic variant of regular font>
+  # font-bold-italic=<bold+italic variant of regular font>
+  # font-size-adjustment=0.5
+  # line-height=<font metrics>
+  # letter-spacing=0
+  # horizontal-letter-offset=0
+  # vertical-letter-offset=0
+  # underline-offset=<font metrics>
+  # underline-thickness=<font underline thickness>
+  # strikeout-thickness=<font strikeout thickness>
+  # box-drawings-uses-font-glyphs=no
+  # dpi-aware=no
+
+  # initial-window-size-pixels=700x500  # Or,
+  # initial-window-size-chars=<COLSxROWS>
+  # initial-window-mode=windowed
+  # pad=0x0                             # optionally append 'center'
+  # resize-by-cells=yes
+  # resize-keep-grid=yes
+  # resize-delay-ms=100
+
+  # bold-text-in-bright=no
+  # word-delimiters=,│`|:"'()[]{}<>
+  # selection-target=primary
+  # workers=<number of logical CPUs>
+  # utmp-helper=/usr/lib/utempter/utempter  # When utmp backend is ‘libutempter’ (Linux)
+  # utmp-helper=/usr/libexec/ulog-helper    # When utmp backend is ‘ulog’ (FreeBSD)
+
+  [environment]
+  # name=value
+
+  [bell]
+  # urgent=no
+  # notify=no
+  # visual=no
+  # command=
+  # command-focused=no
+
+  [desktop-notifications]
+  # command=notify-send --wait --app-name ${app-id} --icon ${app-id} --category ${category} --urgency ${urgency} --expire-time ${expire-time} --hint STRING:image-path:${icon} --hint BOOLEAN:suppress-sound:${muted} --hint STRING:sound-name:${sound-name} --replace-id ${replace-id} ${action-argument} --print-id -- ${title} ${body}
+  # command-action-argument=--action ${action-name}=${action-label}
+  # close=""
+  # inhibit-when-focused=yes
+
+
+  [scrollback]
+  # lines=1000
+  # multiplier=3.0
+  # indicator-position=relative
+  # indicator-format=""
+
+  [url]
+  # launch=xdg-open ${url}
+  # label-letters=sadfjklewcmpgh
+  # osc8-underline=url-mode
+  # protocols=http, https, ftp, ftps, file, gemini, gopher
+  # uri-characters=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+="'()[]
+
+  [cursor]
+  # style=block
+  # color=<inverse foreground/background>
+  # blink=no
+  # blink-rate=500
+  # beam-thickness=1.5
+  # underline-thickness=<font underline thickness>
+
+  [mouse]
+  # hide-when-typing=no
+  # alternate-scroll-mode=yes
+
+  [touch]
+  # long-press-delay=400
+
+  [colors]
+  # alpha=1.0
+  # background=242424
+  # foreground=ffffff
+  # flash=7f7f00
+  # flash-alpha=0.5
+
+  ## Normal/regular colors (color palette 0-7)
+  # regular0=242424  # black
+  # regular1=f62b5a  # red
+  # regular2=47b413  # green
+  # regular3=e3c401  # yellow
+  # regular4=24acd4  # blue
+  # regular5=f2affd  # magenta
+  # regular6=13c299  # cyan
+  # regular7=e6e6e6  # white
+
+  ## Bright colors (color palette 8-15)
+  # bright0=616161   # bright black
+  # bright1=ff4d51   # bright red
+  # bright2=35d450   # bright green
+  # bright3=e9e836   # bright yellow
+  # bright4=5dc5f8   # bright blue
+  # bright5=feabf2   # bright magenta
+  # bright6=24dfc4   # bright cyan
+  # bright7=ffffff   # bright white
+
+  ## dimmed colors (see foot.ini(5) man page)
+  # dim0=<not set>
+  # ...
+  # dim7=<not-set>
+
+  ## The remaining 256-color palette
+  # 16 = <256-color palette #16>
+  # ...
+  # 255 = <256-color palette #255>
+
+  ## Sixel colors
+  # sixel0 =  000000
+  # sixel1 =  3333cc
+  # sixel2 =  cc2121
+  # sixel3 =  33cc33
+  # sixel4 =  cc33cc
+  # sixel5 =  33cccc
+  # sixel6 =  cccc33
+  # sixel7 =  878787
+  # sixel8 =  424242
+  # sixel9 =  545499
+  # sixel10 = 994242
+  # sixel11 = 549954
+  # sixel12 = 995499
+  # sixel13 = 549999
+  # sixel14 = 999954
+  # sixel15 = cccccc
+
+  ## Misc colors
+  # selection-foreground=<inverse foreground/background>
+  # selection-background=<inverse foreground/background>
+  # jump-labels=<regular0> <regular3>          # black-on-yellow
+  # scrollback-indicator=<regular0> <bright4>  # black-on-bright-blue
+  # search-box-no-match=<regular0> <regular1>  # black-on-red
+  # search-box-match=<regular0> <regular3>     # black-on-yellow
+  # urls=<regular3>
+
+  [csd]
+  # preferred=server
+  # size=26
+  # font=<primary font>
+  # color=<foreground color>
+  # hide-when-maximized=no
+  # double-click-to-maximize=yes
+  # border-width=0
+  # border-color=<csd.color>
+  # button-width=26
+  # button-color=<background color>
+  # button-minimize-color=<regular4>
+  # button-maximize-color=<regular2>
+  # button-close-color=<regular1>
+
+  [key-bindings]
+  # scrollback-up-page=Shift+Page_Up
+  # scrollback-up-half-page=none
+  # scrollback-up-line=none
+  # scrollback-down-page=Shift+Page_Down
+  # scrollback-down-half-page=none
+  # scrollback-down-line=none
+  # scrollback-home=none
+  # scrollback-end=none
+  # clipboard-copy=Control+Shift+c XF86Copy
+  # clipboard-paste=Control+Shift+v XF86Paste
+  # primary-paste=Shift+Insert
+  # search-start=Control+Shift+r
+  # font-increase=Control+plus Control+equal Control+KP_Add
+  # font-decrease=Control+minus Control+KP_Subtract
+  # font-reset=Control+0 Control+KP_0
+  # spawn-terminal=Control+Shift+n
+  # minimize=none
+  # maximize=none
+  # fullscreen=none
+  # pipe-visible=[sh -c "xurls | fuzzel | xargs -r firefox"] none
+  # pipe-scrollback=[sh -c "xurls | fuzzel | xargs -r firefox"] none
+  # pipe-selected=[xargs -r firefox] none
+  # pipe-command-output=[wl-copy] none # Copy last command's output to the clipboard
+  # show-urls-launch=Control+Shift+o
+  # show-urls-copy=none
+  # show-urls-persistent=none
+  # prompt-prev=Control+Shift+z
+  # prompt-next=Control+Shift+x
+  # unicode-input=Control+Shift+u
+  # noop=none
+
+  [search-bindings]
+  # cancel=Control+g Control+c Escape
+  # commit=Return
+  # find-prev=Control+r
+  # find-next=Control+s
+  # cursor-left=Left Control+b
+  # cursor-left-word=Control+Left Mod1+b
+  # cursor-right=Right Control+f
+  # cursor-right-word=Control+Right Mod1+f
+  # cursor-home=Home Control+a
+  # cursor-end=End Control+e
+  # delete-prev=BackSpace
+  # delete-prev-word=Mod1+BackSpace Control+BackSpace
+  # delete-next=Delete
+  # delete-next-word=Mod1+d Control+Delete
+  # extend-char=Shift+Right
+  # extend-to-word-boundary=Control+w Control+Shift+Right
+  # extend-to-next-whitespace=Control+Shift+w
+  # extend-line-down=Shift+Down
+  # extend-backward-char=Shift+Left
+  # extend-backward-to-word-boundary=Control+Shift+Left
+  # extend-backward-to-next-whitespace=none
+  # extend-line-up=Shift+Up
+  # clipboard-paste=Control+v Control+Shift+v Control+y XF86Paste
+  # primary-paste=Shift+Insert
+  # unicode-input=none
+  # quit=none
+  # scrollback-up-page=Shift+Page_Up
+  # scrollback-up-half-page=none
+  # scrollback-up-line=none
+  # scrollback-down-page=Shift+Page_Down
+  # scrollback-down-half-page=none
+  # scrollback-down-line=none
+  # scrollback-home=none
+  # scrollback-end=none
+
+  [url-bindings]
+  # cancel=Control+g Control+c Control+d Escape
+  # toggle-url-visible=t
+
+  [text-bindings]
+  # \x03=Mod4+c  # Map Super+c -> Ctrl+c
+
+  [mouse-bindings]
+  # scrollback-up-mouse=BTN_WHEEL_BACK
+  # scrollback-down-mouse=BTN_WHEEL_FORWARD
+  # font-increase=Control+BTN_WHEEL_BACK
+  # font-decrease=Control+BTN_WHEEL_FORWARD
+  # selection-override-modifiers=Shift
+  # primary-paste=BTN_MIDDLE
+  # select-begin=BTN_LEFT
+  # select-begin-block=Control+BTN_LEFT
+  # select-extend=BTN_RIGHT
+  # select-extend-character-wise=Control+BTN_RIGHT
+  # select-word=BTN_LEFT-2
+  # select-word-whitespace=Control+BTN_LEFT-2
+  # select-quote = BTN_LEFT-3
+  # select-row=BTN_LEFT-4
+
+  # vim: ft=dosini
+#+end_src
+
+*** Color config
+
+**** Modus vivendi
+#+begin_src conf :tangle ./HOME,.config,foot,foot.ini
+  # -*- conf -*-
+  #
+  # modus-vivendi
+  # See: https://protesilaos.com/emacs/modus-themes
+  #
+
+  [colors]
+  background=000000
+  foreground=ffffff
+  regular0=000000
+  regular1=ff8059
+  regular2=44bc44
+  regular3=d0bc00
+  regular4=2fafff
+  regular5=feacd0
+  regular6=00d3d0
+  regular7=bfbfbf
+  bright0=595959
+  bright1=ef8b50
+  bright2=70b900
+  bright3=c0c530
+  bright4=79a8ff
+  bright5=b6a0ff
+  bright6=6ae4b9
+  bright7=ffffff
+#+end_src
+
+* Important shell functions
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,important_functions.sh' "${HOME}/important_functions.sh"
+#+end_src
+
+** Main script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./HOME,important_functions.sh
+  do_download() {
+      test -e "${HOME}/TMP/${2}.aria2" \
+          && aria2c -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
+
+      test -e "${HOME}/TMP/${2}" \
+          || aria2c -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
+  }
+
+  do_link(){
+      mkdir -pv -- "$(dirname -- "${2}")"
+      ln -vfs -- "${HOME}/SHA512SUM/${1}" "${2}"
+  }
+
+  adown(){
+      mkdir -pv -- "${HOME}/TMP" "${HOME}/SHA512SUM"
+
+      test "${#}" '-ge' '4' && do_link "${3}" "${4}"
+
+      test "${#}" '-ge' '3' && test -e "${HOME}/SHA512SUM/${3}" && return 0
+
+      cd "${HOME}/TMP"
+
+      do_download "${1}" "${2}"
+
+      HASH="$(sha512sum "${2}" | cut -d ' ' -f1)"
+
+      test "${#}" '-ge' '3' && test "${3}" '=' "${HASH}" && mv -vf -- "${2}" "${HOME}/SHA512SUM/${HASH}"
+
+      test "${#}" '-ge' '4' && do_link "${3}" "${4}"
+  }
+
+  get_repo_hf(){
+      DIR_BASE="${HOME}/HUGGINGFACE"
+      DIR_REPO="$('echo' "${1}" | 'sed' 's@^https://huggingface.co/@@g ; s@/tree/main$@@g')"
+      DIR_FULL="${DIR_BASE}/${DIR_REPO}"
+      URL="$('echo' "${1}" | 'sed' 's@/tree/main$@@g')"
+
+      mkdir '-pv' '--' "$('dirname' '--' "${DIR_FULL}")"
+      cd "$('dirname' '--' "${DIR_FULL}")"
+      git clone "${URL}"
+      cd "${DIR_FULL}"
+      git pull
+      git submodule update --recursive --init
+  }
+
+  get_repo(){
+      DIR_REPO="${HOME}/GITHUB/$('echo' "${1}" | 'sed' 's/^git@github.com://g ; s@^https://github.com/@@g ; s@.git$@@g' )"
+      DIR_BASE="$('dirname' '--' "${DIR_REPO}")"
+
+      mkdir -pv -- "${DIR_BASE}"
+      cd "${DIR_BASE}"
+      git clone "${1}"
+      cd "${DIR_REPO}"
+
+      if test "${#}" '-ge' '2'
+      then
+          git switch "${2}"
+      else
+          git switch main
+      fi
+
+      git pull
+      git submodule update --recursive --init
+
+      if test "${#}" '-ge' '3'
+      then
+          git checkout "${3}"
+      fi
+  }
+
+  get_ohmyzsh(){
+      get_repo 'https://github.com/ohmyzsh/ohmyzsh.git'
+      test -d "${HOME}/.oh-my-zsh" && rm -rf "${HOME}/.oh-my-zsh"
+      test -L "${HOME}/.oh-my-zsh" || ln -vfs "./GITHUB/ohmyzsh/ohmyzsh" "${HOME}/.oh-my-zsh"
+
+      get_repo 'https://github.com/spaceship-prompt/spaceship-prompt.git'
+      ln -vfs "${HOME}/GITHUB/spaceship-prompt/spaceship-prompt" "${HOME}/.oh-my-zsh/custom/themes/"
+      ln -vfs "${HOME}/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
+  }
+
+  install_rust(){
+      . "${HOME}/.cargo/env"
+      which cargo || curl --proto '=https' --tlsv1.2 -sSf 'https://sh.rustup.rs' | sh
+      . "${HOME}/.cargo/env"
+      cargo install zellij --locked
+      cargo install bat --locked
+      cargo install lsd --locked
+      cargo install du-dust --locked
+      cargo install ripgrep --locked
+      # cargo install starship --locked
+      cd "${HOME}/.cargo/bin"
+      sudo cp bat dust exa zellij rg /usr/local/bin
+  }
+
+  setup_zshrc_with_rust(){
+      echo '. "${HOME}/.cargo/env"' >> "${HOME}/.zshrc"
+      # echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc"
+      echo 'alias cat=bat' >> "${HOME}/.zshrc"
+      echo 'alias ls=lsd' >> "${HOME}/.zshrc"
+      echo 'alias du=dust' >> "${HOME}/.zshrc"
+  }
+
+  install_awscli(){
+      mkdir -pv -- "${HOME}/AWS_CLI"
+      cd "${HOME}/AWS_CLI"
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      sudo ./aws/install
+  }
+
+  y() {
+  	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  	yazi "$@" --cwd-file="$tmp"
+  	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+  		builtin cd -- "$cwd"
+  	fi
+  	rm -f -- "$tmp"
+  }
+
+  get_all_deps(){
+      find ./ -type l \
+          | sed 's@^@("ldd" "@g ; s@$@")@g' \
+          | sh \
+          | sed 's@\t@ @g' \
+          | grep '=>' \
+          | grep ' (0x' \
+          | grep ')$' \
+          | tr ' ' '\n' \
+          | grep '/lib' \
+          | sort \
+          | uniq \
+          | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+          | sh ;
+
+      find ./ -type f \
+          | sed 's@^@("ldd" "@g ; s@$@")@g' \
+          | sh \
+          | sed 's@\t@ @g' \
+          | grep '=>' \
+          | grep ' (0x' \
+          | grep ')$' \
+          | tr ' ' '\n' \
+          | grep '/lib' \
+          | sort \
+          | uniq \
+          | sed 's@^@("cp" "-vn" "@g;s@$@" "./")@g' \
+          | sh ;
+  }
+
+  get_squashfs_tools () {
+      mkdir -pv -- '/var/tmp/squashfs/lib64' '/var/tmp/squashfs/bin' '/var/tmp/squashfs/man/man1'
+      cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+      get_repo 'https://github.com/plougher/squashfs-tools.git'
+      cd "${HOME}/GITHUB/plougher/squashfs-tools/"
+      git checkout .
+      cd "./squashfs-tools"
+      sd -F 'GZIP_SUPPORT = 1' '# GZIP_SUPPORT = 1' './Makefile'
+      sd -F 'XZ_SUPPORT = 1' '# XZ_SUPPORT = 1' './Makefile'
+      sd -F 'LZO_SUPPORT = 1' '# LZO_SUPPORT = 1' './Makefile'
+      sd -F '#ZSTD_SUPPORT = 1' 'ZSTD_SUPPORT = 1' './Makefile'
+      sd -F 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
+      sd -F 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
+      sd -F 'CFLAGS ?= -O2' 'CFLAGS ?= -O3 -march=x86-64-v3 -mtune=native' './Makefile'
+      . '/usr/lib/sdk/llvm19/enable.sh'
+      export CC='clang'
+      export CXX='clang++'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/squashfs/lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
+      make clean
+      make -j4
+      make -j4 install
+      cd '/var/tmp/squashfs'
+      mkdir -pv -- exe
+      cd exe
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      find ./ -type f -exec mv -vf {} ../lib64/ ';'
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+  }
+
+  get_byobu () {
+      get_repo 'https://github.com/dustinkirkland/byobu.git' 'master'
+      sh './autogen.sh'
+      mkdir -pv -- "${HOME}/build/byobu"
+      cd "${HOME}/build/byobu"
+      export CC='gcc'
+      export CXX='g++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/byobu/lib -Wl,--dynamic-linker=/var/tmp/byobu/lib/ld-linux-x86-64.so.2'
+      mkdir -pv -- '/var/tmp/byobu/lib'
+      cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/byobu/lib/ld-linux-x86-64.so.2'
+      "${HOME}/GITHUB/dustinkirkland/byobu/configure" '--prefix=/var/tmp/byobu'
+      make -j4
+      make -j4 install
+  }
+
+  get_tmux () {
+      get_repo 'https://github.com/tmux/tmux.git' 'master'
+      sh './autogen.sh'
+      mkdir -pv -- "${HOME}/build/tmux"
+      cd "${HOME}/build/tmux"
+      export CC='gcc'
+      export CXX='g++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/tmux/lib -Wl,--dynamic-linker=/var/tmp/tmux/lib/ld-linux-x86-64.so.2'
+      mkdir -pv -- '/var/tmp/tmux/lib'
+      cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/tmux/lib/ld-linux-x86-64.so.2'
+      "${HOME}/GITHUB/tmux/tmux/configure" '--prefix=/var/tmp/tmux' '--enable-sixel'
+      make -j4
+      make -j4 install
+  }
+
+  get_glibc () {
+      get_repo 'https://github.com/bminor/glibc.git' 'master'
+      git checkout 'tags/glibc-2.41'
+      CONFIGURE="$('realpath' './configure')"
+      BUILD_DIR="${HOME}/build/glibc"
+      INSTALL_DIR='/var/tmp/glibc'
+      rm -rf -- "${BUILD_DIR}"
+      mkdir -pv -- "${BUILD_DIR}" "${INSTALL_DIR}"
+      cd "${BUILD_DIR}"
+      export CC='gcc'
+      export CXX='g++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS=''
+      # export CFLAGS=''
+      "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
+      make -j4
+      make -j4 install
+  }
+
+  get_rust_package(){
+      get_repo "${1}"
+
+      PKG_NAME="$('basename' "$(realpath .)")"
+
+      . '/usr/lib/sdk/rust-stable/enable.sh'
+      . '/usr/lib/sdk/llvm19/enable.sh'
+
+      export CC='clang'
+      export CXX='clang++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+      export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+      cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
+      cargo build --release
+
+      if test "${#}" '-ge' '2'
+      then
+          shift
+          cd 'target/release'
+          cp -vf -- ${@} "${DIR_DEST}"
+      else
+          cd 'target/release'
+          find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+          cd "/var/tmp/${PKG_NAME}/exe/"
+          find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+          get_all_deps
+          get_all_deps
+          get_all_deps
+          get_all_deps
+          find ./ -type f -exec mv -vf {} ../lib64/ ';'
+          find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+      fi
+  }
+
+  get_deb_mirror(){
+      mkdir -pv "${HOME}/GITLAB/aravindhv101"
+      cd "${HOME}/GITLAB/aravindhv101"
+      git clone 'https://gitlab.com/aravindhv101/deb_mirror.git'
+      cd deb_mirror
+
+      PKG_NAME="$('basename' "$(realpath .)")"
+
+      . '/usr/lib/sdk/rust-stable/enable.sh'
+      . '/usr/lib/sdk/llvm19/enable.sh'
+
+      export CC='clang'
+      export CXX='clang++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+      export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+      cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
+      cargo build --release
+
+      cd 'target/release'
+      find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/exe/"
+      cd "/var/tmp/${PKG_NAME}/exe/"
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      find ./ -type f -exec mv -vf {} ../lib64/ ';'
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+  }
+
+  get_helix_evil_editor(){
+      get_repo 'https://github.com/usagi-flow/evil-helix.git'
+
+      PKG_NAME="$('basename' "$(realpath .)")"
+
+      . '/usr/lib/sdk/rust-stable/enable.sh'
+      . '/usr/lib/sdk/llvm19/enable.sh'
+
+      export CC='clang'
+      export CXX='clang++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+      export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+      cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
+      cargo build --release
+
+      cp -apf -- './runtime' "${DIR_DEST}"
+      rm -vrf -- "${DIR_DEST}/runtime/grammars/sources" 
+
+      cd 'target/release'
+      find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/exe/"
+      cd "/var/tmp/${PKG_NAME}/exe/"
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      find ./ -type f -exec mv -vf {} ../lib64/ ';'
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+  }
+
+  get_helix_editor(){
+      get_repo 'https://github.com/helix-editor/helix.git'
+
+      PKG_NAME="$('basename' "$(realpath .)")"
+
+      . '/usr/lib/sdk/rust-stable/enable.sh'
+      . '/usr/lib/sdk/llvm19/enable.sh'
+
+      export CC='clang'
+      export CXX='clang++'
+      export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
+      export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/lib64/" "/var/tmp/${PKG_NAME}/bin/" "/var/tmp/${PKG_NAME}/exe/"
+
+      cp -vn -- '/lib64/ld-linux-x86-64.so.2' "/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+
+      DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
+
+      cargo build --release
+
+      cp -apf -- './runtime' "${DIR_DEST}"
+      rm -vrf -- "${DIR_DEST}/runtime/grammars/sources" 
+
+      cd 'target/release'
+      find ./ -maxdepth 1 -type f -executable -exec cp -vf -- {} "${DIR_DEST}" ';'
+      mkdir -pv -- "/var/tmp/${PKG_NAME}/exe/"
+      cd "/var/tmp/${PKG_NAME}/exe/"
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      get_all_deps
+      find ./ -type f -exec mv -vf {} ../lib64/ ';'
+      find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+  }
+
+  get_rust_packages_standard(){
+      get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
+      get_rust_package 'https://github.com/ClementTsang/bottom.git'
+      get_rust_package 'https://github.com/Wilfred/difftastic.git'
+      get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
+      get_rust_package 'https://github.com/alacritty/alacritty.git'
+      get_rust_package 'https://github.com/astral-sh/ruff.git'
+      get_rust_package 'https://github.com/astral-sh/uv.git'
+      get_rust_package 'https://github.com/atuinsh/atuin.git'
+      get_rust_package 'https://github.com/bootandy/dust.git'
+      get_rust_package 'https://github.com/chmln/sd.git'
+      get_rust_package 'https://github.com/denisidoro/navi.git'
+      get_rust_package 'https://github.com/fish-shell/fish-shell.git'
+      get_rust_package 'https://github.com/konradsz/igrep.git'
+      get_rust_package 'https://github.com/lsd-rs/lsd.git'
+      get_rust_package 'https://github.com/nushell/nushell.git'
+      get_rust_package 'https://github.com/sharkdp/bat.git'
+      get_rust_package 'https://github.com/sharkdp/fd.git'
+      get_rust_package 'https://github.com/skim-rs/skim.git'
+      get_rust_package 'https://github.com/starship/starship.git'
+      get_rust_package 'https://github.com/svenstaro/miniserve.git'
+      get_rust_package 'https://github.com/sxyazi/yazi.git'
+      get_rust_package 'https://github.com/zellij-org/zellij.git'
+      get_rust_package 'https://github.com/BurntSushi/xsv.git'
+      get_rust_package 'https://github.com/dalance/procs.git'
+      get_rust_package 'https://github.com/darakian/ddh.git'
+      get_rust_package 'https://github.com/redox-os/ion.git'
+      get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
+      get_rust_package 'https://github.com/watchexec/watchexec.git'
+      get_rust_package 'https://github.com/gblach/reflicate.git'
+      get_rust_package 'https://github.com/gblach/imge.git'
+      get_rust_package 'https://github.com/your-tools/ruplacer.git'
+      get_rust_package 'https://github.com/whitfin/runiq.git'
+      get_rust_package 'https://github.com/vishaltelangre/ff.git'
+      get_rust_package 'https://github.com/shshemi/tabiew.git'
+      get_rust_package 'https://github.com/RaphGL/Tuckr.git'
+      get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+      get_rust_package 'https://github.com/latex-lsp/texlab.git'
+      get_helix_editor
+      get_helix_evil_editor
+      get_deb_mirror
+  }
+
+  get_tree_sitter () {
+      get_rust_package 'https://github.com/tree-sitter/tree-sitter.git'
+      cd "${HOME}/GITHUB/tree-sitter/tree-sitter"
+      make -j4
+      mv libtree-sitter.* /var/tmp/tree-sitter/
+      cd lib
+      rm -rf build
+      mkdir -pv -- build
+      cd build
+      cmake ../
+      rg '/usr/local' | cut -d ':' -f1 | runiq
+      sd '/usr/local' '/var/tmp/tree-sitter' $(rg '/usr/local' | cut -d ':' -f1 | runiq)
+      make -j4
+      make install
+  }
+#+end_src
+
+* Common shell
+
+** Copy the standard shell init
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.shrc' "${HOME}/.shrc"
+#+end_src
+
+** The actual shell init
+
+*** For autofilling password in sudo
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
+  export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+#+end_src
+
+*** For updating path inside flatpak
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
+  get_path () {
+      test -e '/usr/bin/flatpak-spawn' \
+          && test -e '/var/tmp/all/bin/' \
+          && echo "${PATH}" \
+          | sed 's@^@export PATH="/var/tmp/all/bin/:@g ; s@$@"@g' ;
+  }
+
+  get_nebius_path () {
+      test -e "${HOME}/.nebius/bin"  \
+          && echo "${PATH}" \
+          | sed 's@^@export PATH="${HOME}/.nebius/bin:@g ; s@$@"@g' ;
+  }
+#+end_src
+
+*** Good alternatives
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
+  alias ls=lsd
+  alias cat=bat
+  alias du=dust
+#+end_src
+
+*** COMMENT ROCM docker related
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
+  alias drun='sudo -A docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --shm-size 8G -v $HOME/dockerx:/dockerx -w /dockerx'
+#+end_src
+
+*** Rest of the functions
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+*** Append paths
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
+  get_path > "/tmp/init_${$}"
+  . "/tmp/init_${$}"
+
+  get_nebius_path > "/tmp/init_${$}"
+  . "/tmp/init_${$}"
+#+end_src
+
+* bash
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.bashrc' "${HOME}/.bashrc"
+#+end_src
+
+** Main bash config
+
+*** SHELL ENV
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
+  export SHELL=bash
+#+end_src
+
+*** Standard
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
+  . "${HOME}/.shrc"
+#+end_src
+
+*** Good programs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
+  all_init_convenience () {
+      starship init bash --print-full-init
+      atuin init bash --disable-up-arrow 
+      zoxide init bash
+  }
+
+  all_init_convenience > "/tmp/init_${$}"
+  . "/tmp/init_${$}"
+#+end_src
+
+*** Cleanups
+#+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
+  rm -f -- "/tmp/init_${$}"
+#+end_src
+
+* ZSH
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.zshrc' "${HOME}/.zshrc"
+#+end_src
+
+** Main config file
+
+*** SHELL ENV
+#+begin_src conf :tangle ./HOME,.zshrc
+  export SHELL=zsh
+#+end_src
+
+*** Standard
+#+begin_src conf :tangle ./HOME,.zshrc
+  . "${HOME}/.shrc"
+#+end_src
+
+*** OMZ
+#+begin_src conf :tangle ./HOME,.zshrc
+  export ZSH="$HOME/.oh-my-zsh"
+  ZSH_THEME="spaceship"
+  plugins=(git)
+  source $ZSH/oh-my-zsh.sh
+  bindkey -v
+#+end_src
+
+*** Good
+
+**** BEGIN
+#+begin_src conf :tangle ./HOME,.zshrc
+  all_init_convenience () {
+#+end_src
+
+**** ATUIN
+#+begin_src conf :tangle ./HOME,.zshrc
+  atuin init zsh --disable-up-arrow 
+#+end_src
+
+**** STARSHIP
+#+begin_src conf :tangle ./HOME,.zshrc
+  starship init zsh
+#+end_src
+
+**** ZOXIDE
+#+begin_src conf :tangle ./HOME,.zshrc
+  zoxide init zsh
+#+end_src
+
+**** END
+#+begin_src conf :tangle ./HOME,.zshrc
+  }
+#+end_src
+
+*** Configure good alternatives
+#+begin_src conf :tangle ./HOME,.zshrc
+  do_all_init_convenience () {
+      all_init_convenience > "${1}"
+      . "${1}"
+      rm -f -- "${1}"
+  }
+
+  do_all_init_convenience "/tmp/init_${$}"
+#+end_src
+
+* NU
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.config,nushell,config.nu' "${HOME}/.config/nushell/config.nu"
+#+end_src
+
+** The actual config
+#+begin_src conf :tangle ./HOME,.config,nushell,config.nu
+  # this file is both a valid
+  # - overlay which can be loaded with `overlay use starship.nu`
+  # - module which can be used with `use starship.nu`
+  # - script which can be used with `source starship.nu`
+  export-env { $env.STARSHIP_SHELL = "nu"; load-env {
+      STARSHIP_SESSION_KEY: (random chars -l 16)
+      PROMPT_MULTILINE_INDICATOR: (
+          starship prompt --continuation
+      )
+
+      # Does not play well with default character module.
+      # TODO: Also Use starship vi mode indicators?
+      PROMPT_INDICATOR: ""
+
+      PROMPT_COMMAND: {||
+          # jobs are not supported
+          (
+              starship prompt
+                  --cmd-duration $env.CMD_DURATION_MS
+                  $"--status=($env.LAST_EXIT_CODE)"
+                  --terminal-width (term size).columns
+          )
+      }
+
+      config: ($env.config? | default {} | merge {
+          render_right_prompt_on_last_line: true
+      })
+
+      PROMPT_COMMAND_RIGHT: {||
+          (
+              starship prompt
+                  --right
+                  --cmd-duration $env.CMD_DURATION_MS
+                  $"--status=($env.LAST_EXIT_CODE)"
+                  --terminal-width (term size).columns
+          )
+      }
+  }}
+
+  # Source this in your ~/.config/nushell/config.nu
+  $env.ATUIN_SESSION = (atuin uuid)
+  hide-env -i ATUIN_HISTORY_ID
+
+  # Magic token to make sure we don't record commands run by keybindings
+  let ATUIN_KEYBINDING_TOKEN = $"# (random uuid)"
+
+  let _atuin_pre_execution = {||
+      if ($nu | get -i history-enabled) == false {
+          return
+      }
+      let cmd = (commandline)
+      if ($cmd | is-empty) {
+          return
+      }
+      if not ($cmd | str starts-with $ATUIN_KEYBINDING_TOKEN) {
+          $env.ATUIN_HISTORY_ID = (atuin history start -- $cmd)
+      }
+  }
+
+  let _atuin_pre_prompt = {||
+      let last_exit = $env.LAST_EXIT_CODE
+      if 'ATUIN_HISTORY_ID' not-in $env {
+          return
+      }
+      with-env { ATUIN_LOG: error } {
+          do { atuin history end $'--exit=($last_exit)' -- $env.ATUIN_HISTORY_ID } | complete
+
+      }
+      hide-env ATUIN_HISTORY_ID
+  }
+
+  def _atuin_search_cmd [...flags: string] {
+      let nu_version = do {
+          let version = version
+          let major = $version.major?
+          if $major != null {
+              # These members are only available in versions > 0.92.2
+              [$major $version.minor $version.patch]
+          } else {
+              # So fall back to the slower parsing when they're missing
+              $version.version | split row '.' | into int
+          }
+      }
+      [
+          $ATUIN_KEYBINDING_TOKEN,
+          ([
+              `with-env { ATUIN_LOG: error, ATUIN_QUERY: (commandline) } {`,
+                  (if $nu_version.0 <= 0 and $nu_version.1 <= 90 { 'commandline' } else { 'commandline edit' }),
+                  (if $nu_version.1 >= 92 { '(run-external atuin search' } else { '(run-external --redirect-stderr atuin search' }),
+                      ($flags | append [--interactive] | each {|e| $'"($e)"'}),
+                  (if $nu_version.1 >= 92 { ' e>| str trim)' } else {' | complete | $in.stderr | str substring ..-1)'}),
+              `}`,
+          ] | flatten | str join ' '),
+      ] | str join "\n"
+  }
+
+  $env.config = ($env | default {} config).config
+  $env.config = ($env.config | default {} hooks)
+  $env.config = (
+      $env.config | upsert hooks (
+          $env.config.hooks
+          | upsert pre_execution (
+              $env.config.hooks | get -i pre_execution | default [] | append $_atuin_pre_execution)
+          | upsert pre_prompt (
+              $env.config.hooks | get -i pre_prompt | default [] | append $_atuin_pre_prompt)
+      )
+  )
+
+  $env.config = ($env.config | default [] keybindings)
+
+  $env.config = (
+      $env.config | upsert keybindings (
+          $env.config.keybindings
+          | append {
+              name: atuin
+              modifier: control
+              keycode: char_r
+              mode: [emacs, vi_normal, vi_insert]
+              event: { send: executehostcommand cmd: (_atuin_search_cmd) }
+          }
+      )
+  )
+#+end_src
+
+* FISH
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
+#+end_src
+
+** Main config file
+
+*** sudo without password
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  export SUDO_ASKPASS={$HOME}/SUDO_ASKPASS
+#+end_src
+
+*** Setup the SUDO_ASKPASS command
+
+**** compile and set up the code
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
+#+end_src
+
+**** The main code
+#+begin_src c :tangle ./SUDO_ASKPASS.c
+  #include <stdio.h>
+
+  int main(int argc, char ** argv) {
+    printf("asd\n");
+  }
+#+end_src
+
+*** nice functions
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  function xs
+      cd (fd -t d -t l | sk)
+  end
+#+end_src
+
+*** nice abbreviations
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  abbr --add --position command -- ls lsd
+  abbr --add --position command -- top btm -b
+  abbr --add --position command -- cat bat
+  abbr --add --position command -- du dust
+
+  abbr --add --position command -- zz exec zsh
+
+  abbr --add --position command -- ac aria2c -c -x16 -j16
+  abbr --add --position command -- ca aria2c -c -x16 -j16
+
+  abbr --add --position command -- qa exec byobu-tmux
+  abbr --add --position command -- aq exec byobu-tmux
+
+  abbr --add --position command -- az exec sudo -A byobu-tmux
+  abbr --add --position command -- za exec sudo -A byobu-tmux
+
+  abbr --add --position command -- ws sudo -A nixos-rebuild switch
+  abbr --add --position command -- sw sudo -A nixos-rebuild switch
+
+  abbr --add --position command -- cd z
+  abbr --add --position command -- dc z
+
+  abbr --add --position command -- zc zstd --long=30 -T8 -18
+  abbr --add --position command -- cz zstd --long=30 -T8 -18
+#+end_src
+
+*** Vi bindings
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  fish_vi_key_bindings
+#+end_src
+
+*** yazi
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  function y
+      set tmp (mktemp -t "yazi-cwd.XXXXXX")
+      yazi $argv --cwd-file="$tmp"
+      if set cwd (command cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+          builtin cd -- "$cwd"
+      end
+      rm -f -- "$tmp"
+  end
+#+end_src
+
+*** zoxide cd
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  # =============================================================================
+  #
+  # Utility functions for zoxide.
+  #
+
+  # pwd based on the value of _ZO_RESOLVE_SYMLINKS.
+  function __zoxide_pwd
+      builtin pwd -L
+  end
+
+  # A copy of fish's internal cd function. This makes it possible to use
+  # `alias cd=z` without causing an infinite loop.
+  if ! builtin functions --query __zoxide_cd_internal
+      string replace --regex -- '^function cd\s' 'function __zoxide_cd_internal ' <$__fish_data_dir/functions/cd.fish | source
+  end
+
+  # cd + custom logic based on the value of _ZO_ECHO.
+  function __zoxide_cd
+      if set -q __zoxide_loop
+          builtin echo "zoxide: infinite loop detected"
+          builtin echo "Avoid aliasing `cd` to `z` directly, use `zoxide init --cmd=cd fish` instead"
+          return 1
+      end
+      __zoxide_loop=1 __zoxide_cd_internal $argv
+  end
+
+  # =============================================================================
+  #
+  # Hook configuration for zoxide.
+  #
+
+  # Initialize hook to add new entries to the database.
+  function __zoxide_hook --on-variable PWD
+      test -z "$fish_private_mode"
+      and command zoxide add -- (__zoxide_pwd)
+  end
+
+  # =============================================================================
+  #
+  # When using zoxide with --no-cmd, alias these internal functions as desired.
+  #
+
+  # Jump to a directory using only keywords.
+  function __zoxide_z
+      set -l argc (builtin count $argv)
+      if test $argc -eq 0
+          __zoxide_cd $HOME
+      else if test "$argv" = -
+          __zoxide_cd -
+      else if test $argc -eq 1 -a -d $argv[1]
+          __zoxide_cd $argv[1]
+      else if test $argc -eq 2 -a $argv[1] = --
+          __zoxide_cd -- $argv[2]
+      else
+          set -l result (command zoxide query --exclude (__zoxide_pwd) -- $argv)
+          and __zoxide_cd $result
+      end
+  end
+
+  # Completions.
+  function __zoxide_z_complete
+      set -l tokens (builtin commandline --current-process --tokenize)
+      set -l curr_tokens (builtin commandline --cut-at-cursor --current-process --tokenize)
+
+      if test (builtin count $tokens) -le 2 -a (builtin count $curr_tokens) -eq 1
+          # If there are < 2 arguments, use `cd` completions.
+          complete --do-complete "'' "(builtin commandline --cut-at-cursor --current-token) | string match --regex -- '.*/$'
+      else if test (builtin count $tokens) -eq (builtin count $curr_tokens)
+          # If the last argument is empty, use interactive selection.
+          set -l query $tokens[2..-1]
+          set -l result (command zoxide query --exclude (__zoxide_pwd) --interactive -- $query)
+          and __zoxide_cd $result
+          and builtin commandline --function cancel-commandline repaint
+      end
+  end
+  complete --command __zoxide_z --no-files --arguments '(__zoxide_z_complete)'
+
+  # Jump to a directory using interactive search.
+  function __zoxide_zi
+      set -l result (command zoxide query --interactive -- $argv)
+      and __zoxide_cd $result
+  end
+
+  # =============================================================================
+  #
+  # Commands for zoxide. Disable these using --no-cmd.
+  #
+
+  abbr --erase z &>/dev/null
+  alias z=__zoxide_z
+
+  abbr --erase zi &>/dev/null
+  alias zi=__zoxide_zi
+
+  # =============================================================================
+  #
+  # To initialize zoxide, add this to your configuration (usually
+  # ~/.config/fish/config.fish):
+  #
+  #   zoxide init fish | source
+#+end_src
+
+*** atuin history
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  set -gx ATUIN_SESSION (atuin uuid)
+  set --erase ATUIN_HISTORY_ID
+
+  function _atuin_preexec --on-event fish_preexec
+      if not test -n "$fish_private_mode"
+          set -g ATUIN_HISTORY_ID (atuin history start -- "$argv[1]")
+      end
+  end
+
+  function _atuin_postexec --on-event fish_postexec
+      set -l s $status
+
+      if test -n "$ATUIN_HISTORY_ID"
+          ATUIN_LOG=error atuin history end --exit $s -- $ATUIN_HISTORY_ID &>/dev/null &
+          disown
+      end
+
+      set --erase ATUIN_HISTORY_ID
+  end
+
+  function _atuin_search
+      set -l keymap_mode
+      switch $fish_key_bindings
+          case fish_vi_key_bindings
+              switch $fish_bind_mode
+                  case default
+                      set keymap_mode vim-normal
+                  case insert
+                      set keymap_mode vim-insert
+              end
+          case '*'
+              set keymap_mode emacs
+      end
+
+      # In fish 3.4 and above we can use `"$(some command)"` to keep multiple lines separate;
+      # but to support fish 3.3 we need to use `(some command | string collect)`.
+      # https://fishshell.com/docs/current/relnotes.html#id24 (fish 3.4 "Notable improvements and fixes")
+      set -l ATUIN_H (ATUIN_SHELL_FISH=t ATUIN_LOG=error ATUIN_QUERY=(commandline -b) atuin search --keymap-mode=$keymap_mode $argv -i 3>&1 1>&2 2>&3 | string collect)
+
+      if test -n "$ATUIN_H"
+          if string match --quiet '__atuin_accept__:*' "$ATUIN_H"
+            set -l ATUIN_HIST (string replace "__atuin_accept__:" "" -- "$ATUIN_H" | string collect)
+            commandline -r "$ATUIN_HIST"
+            commandline -f repaint
+            commandline -f execute
+            return
+          else
+            commandline -r "$ATUIN_H"
+          end
+      end
+
+      commandline -f repaint
+  end
+
+  function _atuin_bind_up
+      # Fallback to fish's builtin up-or-search if we're in search or paging mode
+      if commandline --search-mode; or commandline --paging-mode
+          up-or-search
+          return
+      end
+
+      # Only invoke atuin if we're on the top line of the command
+      set -l lineno (commandline --line)
+
+      switch $lineno
+          case 1
+              _atuin_search --shell-up-key-binding
+          case '*'
+              up-or-search
+      end
+  end
+
+  bind \cr _atuin_search
+  if bind -M insert > /dev/null 2>&1
+  bind -M insert \cr _atuin_search
+  end
+#+end_src
+
+*** starship prompt
+#+begin_src conf :tangle ./HOME,.config,fish,config.fish
+  function fish_prompt
+      switch "$fish_key_bindings"
+          case fish_hybrid_key_bindings fish_vi_key_bindings
+              set STARSHIP_KEYMAP "$fish_bind_mode"
+          case '*'
+              set STARSHIP_KEYMAP insert
+      end
+      set STARSHIP_CMD_PIPESTATUS $pipestatus
+      set STARSHIP_CMD_STATUS $status
+      # Account for changes in variable name between v2.7 and v3.0
+      set STARSHIP_DURATION "$CMD_DURATION$cmd_duration"
+      set STARSHIP_JOBS (count (jobs -p))
+      if test "$TRANSIENT" = "1"
+          set -g TRANSIENT 0
+          # Clear from cursor to end of screen as `commandline -f repaint` does not do this
+          # See https://github.com/fish-shell/fish-shell/issues/8418
+          printf \e\[0J
+          if type -q starship_transient_prompt_func
+              starship_transient_prompt_func
+          else
+              printf "\e[1;32m❯\e[0m "
+          end
+      else
+          starship prompt --terminal-width="$COLUMNS" --status=$STARSHIP_CMD_STATUS --pipestatus="$STARSHIP_CMD_PIPESTATUS" --keymap=$STARSHIP_KEYMAP --cmd-duration=$STARSHIP_DURATION --jobs=$STARSHIP_JOBS
+      end
+  end
+
+  function fish_right_prompt
+      switch "$fish_key_bindings"
+          case fish_hybrid_key_bindings fish_vi_key_bindings
+              set STARSHIP_KEYMAP "$fish_bind_mode"
+          case '*'
+              set STARSHIP_KEYMAP insert
+      end
+      set STARSHIP_CMD_PIPESTATUS $pipestatus
+      set STARSHIP_CMD_STATUS $status
+      # Account for changes in variable name between v2.7 and v3.0
+      set STARSHIP_DURATION "$CMD_DURATION$cmd_duration"
+      set STARSHIP_JOBS (count (jobs -p))
+      if test "$RIGHT_TRANSIENT" = "1"
+          set -g RIGHT_TRANSIENT 0
+          if type -q starship_transient_rprompt_func
+              starship_transient_rprompt_func
+          else
+              printf ""
+          end
+      else
+          starship prompt --right --terminal-width="$COLUMNS" --status=$STARSHIP_CMD_STATUS --pipestatus="$STARSHIP_CMD_PIPESTATUS" --keymap=$STARSHIP_KEYMAP --cmd-duration=$STARSHIP_DURATION --jobs=$STARSHIP_JOBS
+      end
+  end
+
+  # Disable virtualenv prompt, it breaks starship
+  set -g VIRTUAL_ENV_DISABLE_PROMPT 1
+
+  # Remove default mode prompt
+  builtin functions -e fish_mode_prompt
+
+  set -gx STARSHIP_SHELL "fish"
+
+  # Transience related functions
+  function reset-transient --on-event fish_postexec
+      set -g TRANSIENT 0
+      set -g RIGHT_TRANSIENT 0
+  end
+
+  function transient_execute
+      if commandline --is-valid || test -z "$(commandline)" && not commandline --paging-mode
+          set -g TRANSIENT 1
+          set -g RIGHT_TRANSIENT 1
+          commandline -f repaint
+      end
+      commandline -f execute
+  end
+
+  # --user is the default, but listed anyway to make it explicit.
+  function enable_transience --description 'enable transient prompt keybindings'
+      bind --user \r transient_execute
+      bind --user -M insert \r transient_execute
+  end
+
+  # Erase the transient prompt related key bindings.
+  # --user is the default, but listed anyway to make it explicit.
+  # Erasing a user binding will revert to the preset.
+  function disable_transience --description 'remove transient prompt keybindings'
+      bind --user -e \r
+      bind --user -M insert -e \r
+  end
+
+
+  # Set up the session key that will be used to store logs
+  # We don't use `random [min] [max]` because it is unavailable in older versions of fish shell
+  set -gx STARSHIP_SESSION_KEY (string sub -s1 -l16 (random)(random)(random)(random)(random)0000000000000000)
+#+end_src
+
+* Alacritty
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
+#+end_src
+
+** Main config file
+
+*** Fullscreen
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  [window]
+  decorations = "None"
+  startup_mode = "Fullscreen"
+#+end_src
+
+*** Font
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  [font]
+  size = 16
+#+end_src
+
+*** Color theme
+
+**** Modus vivendi 
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  [colors.normal]
+  black = '#1e1e1e'
+  red = '#ff5f59'
+  green = '#44bc44'
+  yellow = '#d0bc00'
+  blue = '#2fafff'
+  magenta = '#feacd0'
+  cyan = '#00d3d0'
+  white = '#ffffff'
+  [colors.bright]
+  black = '#535353'
+  red = '#ff7f9f'
+  green = '#00c06f'
+  yellow = '#dfaf7a'
+  blue = '#00bcff'
+  magenta = '#b6a0ff'
+  cyan = '#6ae4b9'
+  white = '#989898'
+  [colors.cursor]
+  cursor = '#ffffff'
+  text = '#000000'
+  [colors.primary]
+  background = '#000000'
+  foreground = '#ffffff'
+  [colors.selection]
+  background = '#5a5a5a'
+  text = '#ffffff'
+#+end_src
+
+**** COMMENT Modus vivendi tinted
+#+begin_src toml :tangle ./HOME,.config,alacritty,alacritty.toml
+  # Colors Modus-Vivendi-Tinted
+  [colors.normal]
+  black = '#1d2235'
+  red = '#ff5f59'
+  green = '#44bc44'
+  yellow = '#d0bc00'
+  blue = '#2fafff'
+  magenta = '#feacd0'
+  cyan = '#00d3d0'
+  white = '#ffffff'
+  [colors.bright]
+  black = '#4a4f69'
+  red = '#ff7f9f'
+  green = '#00c06f'
+  yellow = '#dfaf7a'
+  blue = '#00bcff'
+  magenta = '#b6a0ff'
+  cyan = '#6ae4b9'
+  white = '#989898'
+  [colors.cursor]
+  cursor = '#ffffff'
+  text = '#0d0e1c'
+  [colors.primary]
+  background = '#0d0e1c'
+  foreground = '#ffffff'
+  [colors.selection]
+  background = '#555a66'
+  text = '#ffffff'
+#+end_src
+
+* Wayfire config
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C 'HOME,.config,wayfire.ini' "${HOME}/.config/wayfire.ini"
+#+end_src
+
+** The main config file
+
+*** Starting parts
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Default config for Wayfire
+  #
+  # Copy this to ~/.config/wayfire.ini and edit it to your liking.
+  #
+  # Take the tutorial to get started.
+  # https://github.com/WayfireWM/wayfire/wiki/Tutorial
+  #
+  # Read the Configuration document for a complete reference.
+  # https://github.com/WayfireWM/wayfire/wiki/Configuration
+
+  # Input configuration ──────────────────────────────────────────────────────────
+
+  # Example configuration:
+  #
+  # [input]
+  # xkb_layout = us,fr
+  # xkb_variant = dvorak,bepo
+  # xkb_options = grp:win_space_toggle
+  #
+  # See Input options for a complete reference.
+  # https://github.com/WayfireWM/wayfire/wiki/Configuration#input
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Output configuration ─────────────────────────────────────────────────────────
+
+  # Example configuration:
+  #
+  # [output:eDP-1]
+  # mode = 1920x1080@60000
+  # position = 0,0
+  # transform = normal
+  # scale = 1.000000
+  #
+  # You can get the names of your outputs with wlr-randr.
+  # https://github.com/emersion/wlr-randr
+  #
+  # See also kanshi for configuring your outputs automatically.
+  # https://wayland.emersion.fr/kanshi/
+  #
+  # See Output options for a complete reference.
+  # https://github.com/WayfireWM/wayfire/wiki/Configuration#output
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Core options ─────────────────────────────────────────────────────────────────
+
+  [core]
+
+  # List of plugins to be enabled.
+  # See the Configuration document for a complete list.
+  plugins = \
+      autorotate-iio \
+      autostart \
+      blur \
+      command \
+      decoration \
+      expo \
+      fast-switcher \
+      firedecor \
+      foreign-toplevel \
+      grid \
+      gtk-shell \
+      idle \
+      input-method-v1 \
+      invert \
+      ipc \
+      move \
+      place \
+      scale \
+      scale-title-filter \
+      session-lock \
+      shortcuts-inhibit \
+      switcher \
+      vswitch \
+      wayfire-shell \
+      windecor \
+      window-rules \
+      winshadows \
+      wm-actions \
+      xdg-activation \
+      zoom 
+
+
+  # firedecor \
+  # decoration \
+
+  # Note: [blur] is not enabled by default, because it can be resource-intensive.
+  # Feel free to add it to the list if you want it.
+  # You can find its documentation here:
+  # https://github.com/WayfireWM/wayfire/wiki/Configuration#blur
+#+end_src
+
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Close focused window.
+  close_top_view = <super> KEY_F4 | <super> KEY_C
+  xwayland = true
+
+  # Workspaces arranged into a grid: 3 × 3.
+  vwidth = 5
+  vheight = 4
+
+  # Prefer client-side decoration or server-side decoration
+  preferred_decoration_mode = server
+  # preferred_decoration_mode = client
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  [alpha]
+  min_value = 0.100000
+  modifier = <alt> <super> 
+
+  [autorotate-iio]
+  lock_rotation = false
+  rotate_down = <ctrl> <super> KEY_DOWN
+  rotate_left = <ctrl> <super> KEY_LEFT
+  rotate_right = <ctrl> <super> KEY_RIGHT
+  rotate_up = <ctrl> <super> KEY_UP
+
+  [animate]
+  close_animation = zoom
+  duration = 400ms circle
+  enabled_for = (type equals "toplevel" | (type equals "x-or" & focusable equals true))
+  fade_duration = 400ms circle
+  fade_enabled_for = type equals "overlay"
+  fire_color = \#B22303FF
+  fire_duration = 300ms linear
+  fire_enabled_for = none
+  fire_particle_size = 16.000000
+  fire_particles = 2000
+  open_animation = zoom
+  random_fire_color = false
+  startup_duration = 600ms linear
+  zoom_duration = 500ms circle
+  zoom_enabled_for = none
+
+  [decoration]
+  active_color = \#222222AA
+  border_size = 4
+  button_order = minimize maximize close
+  font = sans-serif
+  ignore_views = none
+  inactive_color = \#333333DD
+  title_height = 30
+
+  [firedecor]
+  active_accent = \#F5F5F5FF
+  active_border = \#1D1F21E6
+  active_outline = \#000000FF
+  active_title = \#1D1F21FF
+  border_size = 35 10
+  button_size = 18
+  button_style = simple
+  corner_radius = 15
+  debug_mode = false
+  extra_themes = 
+  font = sans-serif
+  font_size = 21
+  hovered_close = \#FF6572FF
+  hovered_max = \#60FC79FF
+  hovered_min = \#FFE450FF
+  icon_size = 20
+  icon_theme = hicolor
+  ignore_views = none
+  inactive_accent = \#E1DFFEFF
+  inactive_border = \#1D1F21E6
+  inactive_buttons = false
+  inactive_outline = \#000000FF
+  inactive_title = \#1D1F21FF
+  layout = a | icon P4 title | minimize p maximize p close p | Atrtl -
+  max_title_size = 750
+  normal_close = \#C24045FF
+  normal_max = \#2EBB3AFF
+  normal_min = \#C89E2BFF
+  outline_size = 0
+  padding_size = 8
+  round_on = all
+
+  [windecor]
+  active_color = \#222222AA
+  attn_color = \#3CB371AA
+  border_color = \#87CEEBFF
+  border_size = 4
+  button_always_colored = false
+  button_order = minimize maximize close
+  close_color = \#CC000077
+  dynamic_border_color = true
+  font = sans-serif
+  font_color = \#FFFFFFFF
+  font_size = 18
+  icon_theme = breeze
+  ignore_views = none
+  inactive_color = \#333333DD
+  maximize_color = \#09FF0077
+  minimize_color = \#EDD40077
+  sticky_color = \#1C71D877
+  title_align = 0
+  title_height = 24
+  title_position = 2
+  work_hard = false
+
+  [winshadows]
+  clip_shadow_inside = true
+  enabled_views = type is "toplevel" & floating is true
+  glow_color = \#1C71D8FF
+  glow_emissivity = 1.000000
+  glow_enabled = false
+  glow_intensity = 0.600000
+  glow_radius_limit = 100
+  glow_spread = 10.000000
+  glow_threshold = 0.030000
+  horizontal_offset = 0
+  include_undecorated_views = false
+  light_type = gaussian
+  overscale = 1.000000
+  shadow_color = \#00000070
+  shadow_radius = 40
+  vertical_offset = 5
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Mouse bindings ───────────────────────────────────────────────────────────────
+
+  # Zoom in the desktop by scrolling + Super.
+  [zoom]
+  modifier = <super>
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  [move]
+  activate = <super> BTN_LEFT  
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Startup commands ─────────────────────────────────────────────────────────────
+
+  [autostart]
+  #Gtk+3 applications slow startup or .desktop files not opening
+  #https://github.com/WayfireWM/wayfire/wiki/Tips-&-Tricks#gtk3-applications-slow-startup-or-desktop-files-not-opening
+  0_env = dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XAUTHORITY
+
+  # Automatically start background and panel.
+  # Set to false if you want to override the default clients.
+  autostart_wf_shell = false
+
+  # Set the wallpaper, start a panel and dock if you want one.
+  # https://github.com/WayfireWM/wf-shell
+  #
+  # These are started by the autostart_wf_shell option above.
+  #
+  # background = wf-background
+  # panel = wf-panel
+  #
+  # You may also use wf-dock,
+  # which is included in wf-shell but is not enabled by default.
+  #
+  # dock = wf-dock
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Output configuration
+  # https://wayland.emersion.fr/kanshi/
+  outputs = kanshi
+
+  # Notifications
+  # https://wayland.emersion.fr/mako/
+  notifications = mako
+
+  # Screen color temperature
+  # https://sr.ht/~kennylevinsen/wlsunset/
+  gamma = wlsunset -l 13 -L 77.6
+
+  # Idle configuration
+  # https://github.com/swaywm/swayidle
+  # https://github.com/swaywm/swaylock
+  # idle = swayidle before-sleep swaylock
+
+  # XDG desktop portal
+  # Needed by some GTK applications
+  portal = /usr/libexec/xdg-desktop-portal
+  # bar = waybar
+  # shell = plasmashell
+  bar = waybar
+  # shell = startplasma-wayland
+  networkmanager = nm-applet
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Example configuration:
+  #
+  # [idle]
+  # toggle = <super> KEY_Z
+  # screensaver_timeout = 300
+  # dpms_timeout = 600
+  #
+  # Disables the compositor going idle with Super + z.
+  # This will lock your screen after 300 seconds of inactivity, then turn off
+  # your displays after another 300 seconds.
+
+  # Applications ─────────────────────────────────────────────────────────────────
+#+end_src
+
+** Keyboard shortcuts
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  [command]
+#+end_src
+
+*** ESC
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_mc_esc = <super> <ctrl> KEY_ESC
+  command_mc_esc = M_C_ESC
+#+end_src
+
+*** F
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_f1 = <super> KEY_F1
+  command_f1 = M_F1
+
+  binding_f2 = <super> KEY_F2
+  command_f2 = M_F2
+
+  binding_f3 = <super> KEY_F3
+  command_f3 = M_F3
+#+end_src
+
+*** CTRL
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_mcq = <super> <ctrl> KEY_Q
+  command_mcq = M_C_Q
+
+  binding_mcw = <super> <ctrl> KEY_W
+  command_mcw = M_C_W
+
+  binding_mce = <super> <ctrl> KEY_E
+  command_mce = M_C_E
+
+  binding_mcr = <super> <ctrl> KEY_R
+  command_mcr = M_C_R
+
+  binding_mct = <super> <ctrl> KEY_T
+  command_mct = M_C_T
+
+  binding_mca = <super> <ctrl> KEY_A
+  command_mca = M_C_A
+
+  binding_mcs = <super> <ctrl> KEY_S
+  command_mcs = M_C_S
+
+  binding_mcd = <super> <ctrl> KEY_D
+  command_mcd = M_C_D
+
+  binding_mcf = <super> <ctrl> KEY_F
+  command_mcf = M_C_F
+
+  binding_mcg = <super> <ctrl> KEY_G
+  command_mcg = M_C_G
+
+  binding_mc1 = <super> <ctrl> KEY_1
+  command_mc1 = M_C_1
+
+  binding_mc2 = <super> <ctrl> KEY_2
+  command_mc2 = M_C_2
+
+  binding_mc3 = <super> <ctrl> KEY_3
+  command_mc3 = M_C_3
+
+  binding_mc4 = <super> <ctrl> KEY_4
+  command_mc4 = M_C_4
+
+  binding_mc5 = <super> <ctrl> KEY_5
+  command_mc5 = M_C_5
+
+  binding_mc6 = <super> <ctrl> KEY_6
+  command_mc6 = M_C_6
+
+  binding_mc7 = <super> <ctrl> KEY_7
+  command_mc7 = M_C_7
+
+  binding_mc8 = <super> <ctrl> KEY_8
+  command_mc8 = M_C_8
+
+  binding_mc9 = <super> <ctrl> KEY_9
+  command_mc9 = M_C_9
+
+  binding_mc0 = <super> <ctrl> KEY_0
+  command_mc0 = M_C_0
+#+end_src
+
+** ALT
+
+*** Main
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_maQ = <super> <alt> KEY_Q
+  command_maQ = M_A_Q
+
+  binding_maW = <super> <alt> KEY_W
+  command_maW = M_A_W
+
+  binding_maE = <super> <alt> KEY_E
+  command_maE = M_A_E
+
+  binding_maR = <super> <alt> KEY_R
+  command_maR = M_A_R
+
+  binding_maT = <super> <alt> KEY_T
+  command_maT = M_A_T
+
+  binding_maA = <super> <alt> KEY_A
+  command_maA = M_A_A
+
+  binding_maS = <super> <alt> KEY_S
+  command_maS = M_A_S
+
+  binding_maD = <super> <alt> KEY_D
+  command_maD = M_A_D
+
+  binding_maF = <super> <alt> KEY_F
+  command_maF = M_A_F
+
+  binding_maG = <super> <alt> KEY_G
+  command_maG = M_A_G
+
+  binding_magrave = <super> <alt> KEY_GRAVE
+  command_magrave = M_A_GRAVE
+
+  binding_ma0 = <super> <alt> KEY_0
+  command_ma0 = M_A_0
+
+  binding_ma1 = <super> <alt> KEY_1
+  command_ma1 = M_A_1
+
+  binding_ma2 = <super> <alt> KEY_2
+  command_ma2 = M_A_2
+
+  binding_ma3 = <super> <alt> KEY_3
+  command_ma3 = M_A_3
+
+  binding_ma4 = <super> <alt> KEY_4
+  command_ma4 = M_A_4
+
+  binding_ma5 = <super> <alt> KEY_5
+  command_ma5 = M_A_5
+
+  binding_ma6 = <super> <alt> KEY_6
+  command_ma6 = M_A_6
+
+  binding_ma7 = <super> <alt> KEY_7
+  command_ma7 = M_A_7
+
+  binding_ma8 = <super> <alt> KEY_8
+  command_ma8 = M_A_8
+
+  binding_ma9 = <super> <alt> KEY_9
+  command_ma9 = M_A_9
+
+  binding_maQ = <super> <alt> KEY_Q
+  command_maQ = M_A_Q
+
+  binding_maW = <super> <alt> KEY_W
+  command_maW = M_A_W
+
+  binding_maE = <super> <alt> KEY_E
+  command_maE = M_A_E
+
+  binding_maR = <super> <alt> KEY_R
+  command_maR = M_A_R
+
+  binding_maT = <super> <alt> KEY_T
+  command_maT = M_A_T
+
+  binding_maY = <super> <alt> KEY_Y
+  command_maY = M_A_Y
+
+  binding_maU = <super> <alt> KEY_U
+  command_maU = M_A_U
+
+  binding_maI = <super> <alt> KEY_I
+  command_maI = M_A_I
+
+  binding_maO = <super> <alt> KEY_O
+  command_maO = M_A_O
+
+  binding_maP = <super> <alt> KEY_P
+  command_maP = M_A_P
+#+end_src
+
+** misc
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Screenshots
+  # https://wayland.emersion.fr/grim/
+  # https://wayland.emersion.fr/slurp/
+  binding_screenshot = KEY_PRINT
+  command_screenshot = grim $(date '+%F_%T').webp
+  binding_screenshot_interactive = <shift> KEY_PRINT
+  command_screenshot_interactive = slurp | grim -g - $(date '+%F_%T').webp
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Volume controls
+  # https://alsa-project.org
+  repeatable_binding_volume_up = KEY_VOLUMEUP
+  command_volume_up = amixer set Master 5%+
+  repeatable_binding_volume_down = KEY_VOLUMEDOWN
+  command_volume_down = amixer set Master 5%-
+  binding_mute = KEY_MUTE
+  command_mute = amixer set Master toggle
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Screen brightness
+  # https://haikarainen.github.io/light/
+  repeatable_binding_light_up = KEY_BRIGHTNESSUP
+  command_light_up = light -A 5
+  repeatable_binding_light_down = KEY_BRIGHTNESSDOWN
+  command_light_down = light -U 5
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Windows ──────────────────────────────────────────────────────────────────────
+
+  # Actions related to window management functionalities.
+  #
+  # Example configuration:
+  #
+  [wm-actions]
+  toggle_fullscreen = <super> KEY_Z
+  toggle_always_on_top = <super> KEY_B | <super> <ctrl> KEY_Z
+  toggle_sticky = <super> KEY_Y | <super> <shift> KEY_Z
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Position the windows in certain regions of the output.
+  [grid]
+  #
+  # ⇱ ↑ ⇲   │ 7 8 9
+  # ← f →   │ 4 5 6
+  # ⇱ ↓ ⇲ d │ 1 2 3 0
+  # ‾   ‾
+
+  slot_l = <super> KEY_H
+  slot_t = <super> KEY_K
+  slot_r = <super> KEY_L
+  slot_b = <super> KEY_J
+
+  slot_c = <super> KEY_X
+
+  slot_tl = <super> KEY_U
+  slot_tr = <super> KEY_I
+  slot_br = <super> KEY_M
+  slot_bl = <super> KEY_N
+
+  # Restore default.
+  restore = <super> KEY_KP0
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Change active window with an animation.
+  [switcher]
+  next_view = <super> KEY_DOT
+  prev_view = <super> KEY_COMMA
+  speed = 0
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Simple active window switcher.
+  [fast-switcher]
+  activate = <super> KEY_TAB
+  activate_backward = <super> <alt> KEY_TAB
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Workspaces ───────────────────────────────────────────────────────────────────
+
+  # Switch to workspace.
+  [vswitch]
+
+  duration = 0
+  gap = 0
+  wraparound = true
+  binding_left = <super> KEY_LEFT
+  binding_down = <super> KEY_DOWN
+  binding_up = <super> KEY_UP
+  binding_right = <super> KEY_RIGHT
+  # Move the focused window with the same key-bindings, but add Shift.
+  with_win_left = <super> <shift> KEY_LEFT
+  with_win_down = <super> <shift> KEY_DOWN
+  with_win_up = <super> <shift> KEY_UP
+  with_win_right = <super> <shift> KEY_RIGHT
+
+  binding_1 = <super> KEY_1
+  binding_2 = <super> KEY_2
+  binding_3 = <super> KEY_3
+  binding_4 = <super> KEY_4
+  binding_5 = <super> KEY_5
+  binding_6 = <super> KEY_Q
+  binding_7 = <super> KEY_W
+  binding_8 = <super> KEY_E
+  binding_9 = <super> KEY_R
+  binding_10 = <super> KEY_T
+  binding_11 = <super> KEY_A
+  binding_12 = <super> KEY_S
+  binding_13 = <super> KEY_D
+  binding_14 = <super> KEY_F
+  binding_15 = <super> KEY_G
+  binding_16 = <super> KEY_6
+  binding_17 = <super> KEY_7
+  binding_18 = <super> KEY_8
+  binding_19 = <super> KEY_9
+  binding_20 = <super> KEY_0
+
+  with_win_1 = <super> <shift> KEY_1
+  with_win_2 = <super> <shift> KEY_2
+  with_win_3 = <super> <shift> KEY_3
+  with_win_4 = <super> <shift> KEY_4
+  with_win_5 = <super> <shift> KEY_5
+  with_win_6 = <super> <shift> KEY_Q
+  with_win_7 = <super> <shift> KEY_W
+  with_win_8 = <super> <shift> KEY_E
+  with_win_9 = <super> <shift> KEY_R
+  with_win_10 = <super> <shift> KEY_T
+  with_win_11 = <super> <shift> KEY_A
+  with_win_12 = <super> <shift> KEY_S
+  with_win_13 = <super> <shift> KEY_D
+  with_win_14 = <super> <shift> KEY_F
+  with_win_15 = <super> <shift> KEY_G
+  with_win_16 = <super> <shift> KEY_6
+  with_win_17 = <super> <shift> KEY_7
+  with_win_18 = <super> <shift> KEY_8
+  with_win_19 = <super> <shift> KEY_9
+  with_win_20 = <super> <shift> KEY_0
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Show an overview of all workspaces.
+  [expo]
+  toggle = <super> KEY_ESC
+  duration = 0
+  inactive_brightness = 0.5
+  # Select a workspace.
+  # Workspaces are arranged into a grid of 3 × 3.
+  # The numbering is left to right, line by line.
+  #
+  # ⇱ k ⇲
+  # h ⏎ l
+  # ⇱ j ⇲
+  # ‾   ‾
+  # See core.vwidth and core.vheight for configuring the grid.
+  select_workspace_1 = KEY_1
+  select_workspace_2 = KEY_2
+  select_workspace_3 = KEY_3
+  select_workspace_4 = KEY_4
+  select_workspace_5 = KEY_5
+  select_workspace_6 = KEY_Q
+  select_workspace_7 = KEY_W
+  select_workspace_8 = KEY_E
+  select_workspace_9 = KEY_R
+  select_workspace_10 = KEY_T
+  select_workspace_11 = KEY_A
+  select_workspace_12 = KEY_S
+  select_workspace_13 = KEY_D
+  select_workspace_14 = KEY_F
+  select_workspace_15 = KEY_G
+  select_workspace_16 = KEY_6
+  select_workspace_17 = KEY_7
+  select_workspace_18 = KEY_8
+  select_workspace_19 = KEY_9
+  select_workspace_20 = KEY_0
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Invert the colors of the whole output.
+  [invert]
+  toggle = <super> KEY_V
+  # preserve_hue = true
+  # Send toggle menu event.
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # Rules ────────────────────────────────────────────────────────────────────────
+
+  # Example configuration:
+  #
+  # [window-rules]
+  # maximize_alacritty = on created if app_id is "Alacritty" then maximize
+  #
+  # You can get the properties of your applications with the following command:
+  # $ WAYLAND_DEBUG=1 alacritty 2>&1 | kak
+  #
+  # See Window rules for a complete reference.
+  # https://github.com/WayfireWM/wayfire/wiki/Configuration#window-rules
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  [scale]
+  toggle_all = <super> KEY_GRAVE
+  allow_zoom = true
+  toggle = <super> KEY_SPACE
+  duration = 0
+  inactive_alpha = 0.5
+  include_minimized = true
+  outer_margin = 8
+  spacing = 8
+  title_font_size = 24
+  title_overlay = all
+  title_position = center
+#+end_src
+
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  # [decoration]
+  # border_size = 4
+  # active_color = #0099FF
+  # inactive_color = #FF9900
+#+end_src
+
+** winzoom
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+[winzoom]
+dec_x_binding = <super> <alt> KEY_H
+dec_y_binding = <super> <alt> KEY_K
+inc_x_binding = <super> <alt> KEY_L
+inc_y_binding = <super> <alt> KEY_J
+nearest_filtering = false
+preserve_aspect = true
+zoom_step = 0.100000
+#+end_src
+
+* waybar
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './HOME,.config,waybar,config.jsonc' "${HOME}/.config/waybar/config.jsonc"
+#+end_src
+
+** The waybar config
+#+begin_src conf :tangle ./HOME,.config,waybar,config.jsonc
+  // -*- mode: jsonc -*-
+  {
+      "layer": "top", // Waybar at top layer
+      "position": "bottom", // Waybar position (top|bottom|left|right)
+      "height": 32, // Waybar height (to be removed for auto height)
+  //  "width": 1280, // Waybar width
+      "spacing": 4, // Gaps between modules (4px)
+  //  Choose the order of the modules
+      "modules-left": [
+          "custom/media",
+          "wlr/taskbar",
+          "wlr/workspaces"
+      ],
+      "modules-center": [
+      ],
+      "modules-right": [
+          "mpd",
+          "idle_inhibitor",
+          "pulseaudio",
+          "network",
+          "power-profiles-daemon",
+          "cpu",
+          "memory",
+          "temperature",
+          "backlight",
+          "keyboard-state",
+          "battery",
+          "battery#bat2",
+          "clock",
+  //        "custom/power",
+          "tray"
+      ],
+      // Modules configuration
+      // "sway/workspaces": {
+      //     "disable-scroll": true,
+      //     "all-outputs": true,
+      //     "warp-on-scroll": false,
+      //     "format": "{name}: {icon}",
+      //     "format-icons": {
+      //         "1": "",
+      //         "2": "",
+      //         "3": "",
+      //         "4": "",
+      //         "5": "",
+      //         "urgent": "",
+      //         "focused": "",
+      //         "default": ""
+      //     }
+      // },
+      "keyboard-state": {
+          "numlock": true,
+          "capslock": true,
+          "format": "{name} {icon}",
+          "format-icons": {
+              "locked": "",
+              "unlocked": ""
+          }
+      },
+      "mpd": {
+          "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
+          "format-disconnected": "Disconnected ",
+          "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
+          "unknown-tag": "N/A",
+          "interval": 5,
+          "consume-icons": {
+              "on": " "
+          },
+          "random-icons": {
+              "off": "<span color=\"#f53c3c\"></span> ",
+              "on": " "
+          },
+          "repeat-icons": {
+              "on": " "
+          },
+          "single-icons": {
+              "on": "1 "
+          },
+          "state-icons": {
+              "paused": "",
+              "playing": ""
+          },
+          "tooltip-format": "MPD (connected)",
+          "tooltip-format-disconnected": "MPD (disconnected)"
+      },
+      "idle_inhibitor": {
+          "format": "{icon}",
+          "format-icons": {
+              "activated": "",
+              "deactivated": ""
+          }
+      },
+      "tray": {
+          "icon-size": 24,
+          "spacing": 10
+      },
+      "clock": {
+          // "timezone": "America/New_York",
+          "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+          "format-alt": "{:%Y-%m-%d}"
+      },
+      "cpu": {
+          "format": "{usage}% ",
+          "tooltip": false
+      },
+      "memory": {
+          "format": "{}% "
+      },
+      "temperature": {
+          // "thermal-zone": 2,
+          // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+          "critical-threshold": 80,
+          // "format-critical": "{temperatureC}°C {icon}",
+          "format": "{temperatureC}°C {icon}",
+          "format-icons": ["", "", ""]
+      },
+      "backlight": {
+          // "device": "acpi_video1",
+          "format": "{percent}% {icon}",
+          "format-icons": ["", "", "", "", "", "", "", "", ""]
+      },
+      "battery": {
+          "states": {
+              "good": 95,
+              "warning": 30,
+              "critical": 15
+          },
+          "format": "{capacity}% {icon}",
+          "format-full": "{capacity}% {icon}",
+          "format-charging": "{capacity}% ",
+          "format-plugged": "{capacity}% ",
+          "format-alt": "{time} {icon}",
+          // "format-good": "", // An empty format will hide the module
+          // "format-full": "",
+          "format-icons": ["", "", "", "", ""]
+      },
+      "battery#bat2": {
+          "bat": "BAT2"
+      },
+      "power-profiles-daemon": {
+      "format": "{icon}",
+      "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+      "tooltip": true,
+      "format-icons": {
+          "default": "",
+          "performance": "",
+          "balanced": "",
+          "power-saver": ""
+      }
+      },
+      "network": {
+          // "interface": "wlp2*", // (Optional) To force the use of this interface
+          "format-wifi": "{essid} ({signalStrength}%) ",
+          "format-ethernet": "{ipaddr}/{cidr} ",
+          "tooltip-format": "{ifname} via {gwaddr} ",
+          "format-linked": "{ifname} (No IP) ",
+          "format-disconnected": "Disconnected ⚠",
+          "format-alt": "{ifname}: {ipaddr}/{cidr}"
+      },
+      "pulseaudio": {
+          // "scroll-step": 1, // %, can be a float
+          "format": "{volume}% {icon} {format_source}",
+          "format-bluetooth": "{volume}% {icon} {format_source}",
+          "format-bluetooth-muted": " {icon} {format_source}",
+          "format-muted": " {format_source}",
+          "format-source": "{volume}% ",
+          "format-source-muted": "",
+          "format-icons": {
+              "headphone": "",
+              "hands-free": "",
+              "headset": "",
+              "phone": "",
+              "portable": "",
+              "car": "",
+              "default": ["", "", ""]
+          },
+          "on-click": "pavucontrol"
+      },
+      "custom/media": {
+          "format": "{icon} {}",
+          "return-type": "json",
+          "max-length": 40,
+          "format-icons": {
+              "spotify": "",
+              "default": "🎜"
+          },
+          "escape": true,
+          "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
+          // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+      },
+      "custom/power": {
+          "format" : "⏻ ",
+                  "tooltip": false,
+                  "menu": "on-click",
+                  "menu-file": "$HOME/.config/waybar/power_menu.xml", // Menu file in resources folder
+                  "menu-actions": {
+                          "shutdown": "shutdown",
+                          "reboot": "reboot",
+                          "suspend": "systemctl suspend",
+                          "hibernate": "systemctl hibernate"
+                  }
+      },
+      "wlr/taskbar": {
+              "format": "{icon}",
+              "icon-size": 24,
+              "icon-theme": "Numix-Circle",
+              "tooltip-format": "{title}",
+              "on-click": "activate",
+              "on-click-middle": "close",
+      }
+  }
+#+end_src

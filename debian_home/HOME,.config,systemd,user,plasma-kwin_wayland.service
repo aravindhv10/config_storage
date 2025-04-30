@@ -1,0 +1,7 @@
+[Unit]
+Description=KDE Window Manager
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/run/current-system/sw/bin/wayfire
+Slice=session.slice

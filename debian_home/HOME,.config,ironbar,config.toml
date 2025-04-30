@@ -1,0 +1,7 @@
+anchor_to_edges = true
+icon_theme = "Paper"
+position = "bottom"
+height = 32
+start = []
+center = []
+end = []
