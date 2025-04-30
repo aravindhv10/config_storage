@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/local/bin/wezterm
+exec flatpak run org.wezfurlong.wezterm

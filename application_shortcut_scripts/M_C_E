@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
+exec "alacritty" "msg" "create-window" "-e" "enter_emacs_flatpak"

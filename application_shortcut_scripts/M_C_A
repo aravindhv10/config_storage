@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/local/bin/firefox
+exec flatpak run org.mozilla.firefox

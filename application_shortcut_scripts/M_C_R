@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/local/bin/alacritty_master.sh
+exec "footclient" "-e" "enter_emacs_flatpak"

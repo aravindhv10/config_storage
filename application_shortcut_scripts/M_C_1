@@ -1,2 +1,17 @@
 #!/bin/sh
-exec /usr/local/bin/emacs_server
+export SHELL='bash'
+exec flatpak \
+    'run' \
+    '--talk-name=org.freedesktop.Flatpak' \
+    '--command=/bin/bash' \
+    'org.gnu.emacs' \
+    '-c' \
+    '
+        export PATH="/var/tmp/all/bin:/usr/bin:/bin:/usr/sbin:/sbin:/app/bin";
+        . "/usr/lib/sdk/bazel/enable.sh";
+        . "/usr/lib/sdk/llvm19/enable.sh";
+        . "/usr/lib/sdk/rust-stable/enable.sh";
+        . "/usr/lib/sdk/texlive/enable.sh";
+        exec "/app/bin/emacs-wrapper" "-c";
+    ' \
+;

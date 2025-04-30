@@ -1425,6 +1425,11 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
   get_nebius_path > "/tmp/init_${$}"
   . "/tmp/init_${$}"
+
+  test -e "/usr/lib/sdk/bazel/enable.sh" && . "/usr/lib/sdk/bazel/enable.sh";
+  test -e "/usr/lib/sdk/llvm19/enable.sh" && . "/usr/lib/sdk/llvm19/enable.sh";
+  test -e "/usr/lib/sdk/rust-stable/enable.sh" && . "/usr/lib/sdk/rust-stable/enable.sh";
+  test -e "/usr/lib/sdk/texlive/enable.sh" && . "/usr/lib/sdk/texlive/enable.sh";
 #+end_src
 
 * bash

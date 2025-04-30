@@ -1,0 +1,8 @@
+#!/bin/sh
+export SHELL='bash'
+exec flatpak \
+    'run' \
+    '--talk-name=org.freedesktop.Flatpak' \
+    '--command=bash' \
+    'org.gnu.emacs' \
+;

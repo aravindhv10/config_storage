@@ -4,6 +4,56 @@
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
+  (async-shell-command "
+      git add 'M_A_0'
+      git add 'M_A_1'
+      git add 'M_A_2'
+      git add 'M_A_3'
+      git add 'M_A_4'
+      git add 'M_A_5'
+      git add 'M_A_6'
+      git add 'M_A_7'
+      git add 'M_A_8'
+      git add 'M_A_9'
+      git add 'M_A_A'
+      git add 'M_A_D'
+      git add 'M_A_E'
+      git add 'M_A_F'
+      git add 'M_A_G'
+      git add 'M_A_Q'
+      git add 'M_A_R'
+      git add 'M_A_S'
+      git add 'M_A_T'
+      git add 'M_A_W'
+      git add 'M_C_0'
+      git add 'M_C_1'
+      git add 'M_C_2'
+      git add 'M_C_3'
+      git add 'M_C_4'
+      git add 'M_C_5'
+      git add 'M_C_6'
+      git add 'M_C_7'
+      git add 'M_C_8'
+      git add 'M_C_9'
+      git add 'M_C_A'
+      git add 'M_C_D'
+      git add 'M_C_E'
+      git add 'M_C_ESC'
+      git add 'M_C_F'
+      git add 'M_C_G'
+      git add 'M_C_Q'
+      git add 'M_C_R'
+      git add 'M_C_S'
+      git add 'M_C_T'
+      git add 'M_C_W'
+      git add 'M_ESC'
+      git add 'M_F1'
+      git add 'M_F2'
+      git add 'M_F3'
+      git add 'README.org'
+      git add 'copy.sh'
+      git add 'enter_emacs_flatpak'
+  " "log" "err")
 #+end_src
 
 ** PYTHON
@@ -53,102 +103,141 @@
 
 * Simples
 
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./enter_emacs_flatpak
+  export SHELL='bash'
+  exec flatpak \
+      'run' \
+      '--talk-name=org.freedesktop.Flatpak' \
+      '--command=bash' \
+      'org.gnu.emacs' \
+  ;
+#+end_src
+
+
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_ESC
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_ESC
 exec wlogout
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F1
-exec footclient -F -e /usr/local/bin/tmux_auto.sh # @
+  exec "alacritty" "msg" "create-window" "-e" "byobu-tmux"
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F2
-exec footclient -F -e /usr/local/bin/fish
+  exec "alacritty" "msg" "create-window"
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_F3
-exec /app/bin/emacsclient -c
+  export SHELL='bash'
+  exec flatpak \
+      'run' \
+      '--talk-name=org.freedesktop.Flatpak' \
+      '--command=/bin/bash' \
+      'org.gnu.emacs' \
+      '-c' \
+      '
+          export PATH="/var/tmp/all/bin:/usr/bin:/bin:/usr/sbin:/sbin:/app/bin";
+          . "/usr/lib/sdk/bazel/enable.sh";
+          . "/usr/lib/sdk/llvm19/enable.sh";
+          . "/usr/lib/sdk/rust-stable/enable.sh";
+          . "/usr/lib/sdk/texlive/enable.sh";
+          exec "/app/bin/emacsclient" "-c";
+      ' \
+  ;
 #+end_src
 
 * Controls
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_1
-exec /usr/local/bin/emacs_server
+  export SHELL='bash'
+  exec flatpak \
+      'run' \
+      '--talk-name=org.freedesktop.Flatpak' \
+      '--command=/bin/bash' \
+      'org.gnu.emacs' \
+      '-c' \
+      '
+          export PATH="/var/tmp/all/bin:/usr/bin:/bin:/usr/sbin:/sbin:/app/bin";
+          . "/usr/lib/sdk/bazel/enable.sh";
+          . "/usr/lib/sdk/llvm19/enable.sh";
+          . "/usr/lib/sdk/rust-stable/enable.sh";
+          . "/usr/lib/sdk/texlive/enable.sh";
+          exec "/app/bin/emacs-wrapper" "-c";
+      ' \
+  ;
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_2
-exec /app/bin/emacsclient -c
+  exec M_F3
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_3
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_4
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_5
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_6
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_7
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_8
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_9
-exec /app/bin/emacsclient -c
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_0
-exec /usr/bin/waybar
+  exec waybar
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_Q
-exec /usr/local/bin/wezterm
+  exec flatpak run org.wezfurlong.wezterm
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_W
-exec /usr/bin/footclient -F -e /usr/local/bin/tmux_auto.sh # TEST
+  exec "alacritty" "msg" "create-window" "-e" "byobu-tmux"
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_E
-exec /usr/bin/footclient -F -e /usr/local/bin/enter_emacs_flatpak.sh
+  exec "alacritty" "msg" "create-window" "-e" "enter_emacs_flatpak"
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_R
-exec /usr/local/bin/alacritty_master.sh
+  exec "footclient" "-e" "enter_emacs_flatpak"
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_T
-exec /usr/local/bin/alacritty_daemon.sh -e '/usr/local/bin/fish'
+  "alacritty" "-e" "byobu-tmux" &
+  "foot" "-s" &
+  wait
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_A
-exec /usr/local/bin/firefox
+  exec flatpak run org.mozilla.firefox
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_S
-exec /usr/local/bin/brave
+  exec flatpak run com.brave.Browser
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_D
-exec /usr/local/bin/brave
+  exec dolphin
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_F
-exec /usr/local/bin/brave
+  exec pavucontrol
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_C_G
-exec /usr/local/bin/brave
+  exec footclient nmtui
 #+end_src
 
 * Alts
