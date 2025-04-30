@@ -1,2 +1,2 @@
-#!/usr/local/bin/nu
-
+#!/bin/sh
+exec "amixer" "set" "Master,0" "11%"

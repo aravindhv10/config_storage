@@ -1,2 +1,2 @@
-#!/usr/local/bin/nu
-for i in (ps | where name == emacs_server).pid {kill  $i}
+#!/bin/sh
+light -S '10%'

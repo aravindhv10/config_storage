@@ -1,2 +1,2 @@
-#!/usr/local/bin/nu
-
+#!/bin/sh
+light -S '40%'

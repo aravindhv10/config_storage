@@ -5,100 +5,121 @@
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
-      git add 'M_A_0'
-      git add 'M_A_1'
-      git add 'M_A_2'
-      git add 'M_A_3'
-      git add 'M_A_4'
-      git add 'M_A_5'
-      git add 'M_A_6'
-      git add 'M_A_7'
-      git add 'M_A_8'
-      git add 'M_A_9'
-      git add 'M_A_A'
-      git add 'M_A_D'
-      git add 'M_A_E'
-      git add 'M_A_F'
-      git add 'M_A_G'
-      git add 'M_A_Q'
-      git add 'M_A_R'
-      git add 'M_A_S'
-      git add 'M_A_T'
-      git add 'M_A_W'
-      git add 'M_C_0'
-      git add 'M_C_1'
-      git add 'M_C_2'
-      git add 'M_C_3'
-      git add 'M_C_4'
-      git add 'M_C_5'
-      git add 'M_C_6'
-      git add 'M_C_7'
-      git add 'M_C_8'
-      git add 'M_C_9'
-      git add 'M_C_A'
-      git add 'M_C_D'
-      git add 'M_C_E'
-      git add 'M_C_ESC'
-      git add 'M_C_F'
-      git add 'M_C_G'
-      git add 'M_C_Q'
-      git add 'M_C_R'
-      git add 'M_C_S'
-      git add 'M_C_T'
-      git add 'M_C_W'
-      git add 'M_ESC'
-      git add 'M_F1'
-      git add 'M_F2'
-      git add 'M_F3'
-      git add 'README.org'
-      git add 'copy.sh'
-      git add 'enter_emacs_flatpak'
+      git add './M_A_0' ;
+      git add './M_A_1' ;
+      git add './M_A_2' ;
+      git add './M_A_3' ;
+      git add './M_A_4' ;
+      git add './M_A_5' ;
+      git add './M_A_6' ;
+      git add './M_A_7' ;
+      git add './M_A_8' ;
+      git add './M_A_9' ;
+      git add './M_A_A' ;
+      git add './M_A_D' ;
+      git add './M_A_E' ;
+      git add './M_A_F' ;
+      git add './M_A_G' ;
+      git add './M_A_GRAVE' ;
+      git add './M_A_I' ;
+      git add './M_A_O' ;
+      git add './M_A_P' ;
+      git add './M_A_Q' ;
+      git add './M_A_R' ;
+      git add './M_A_S' ;
+      git add './M_A_T' ;
+      git add './M_A_U' ;
+      git add './M_A_W' ;
+      git add './M_A_Y' ;
+      git add './M_C_0' ;
+      git add './M_C_1' ;
+      git add './M_C_2' ;
+      git add './M_C_3' ;
+      git add './M_C_4' ;
+      git add './M_C_5' ;
+      git add './M_C_6' ;
+      git add './M_C_7' ;
+      git add './M_C_8' ;
+      git add './M_C_9' ;
+      git add './M_C_A' ;
+      git add './M_C_D' ;
+      git add './M_C_E' ;
+      git add './M_C_ESC' ;
+      git add './M_C_F' ;
+      git add './M_C_G' ;
+      git add './M_C_Q' ;
+      git add './M_C_R' ;
+      git add './M_C_S' ;
+      git add './M_C_T' ;
+      git add './M_C_W' ;
+      git add './M_ESC' ;
+      git add './M_F1' ;
+      git add './M_F2' ;
+      git add './M_F3' ;
+      git add './README.org' ;
+      git add './copy.sh' ;
+      git add './enter_emacs_flatpak' ;
   " "log" "err")
-#+end_src
-
-** PYTHON
-#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./work.py
-  def printer(asd):
-      print("#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_" + str(asd))
-      print("kill (echo ...(ps | where name =~ firefox).pid)")
-      print("#+end_src")
-      print("")
-
-  mylist = [
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      '0',
-      'Q',
-      'W',
-      'E',
-      'R',
-      'T',
-      'A',
-      'S',
-      'D',
-      'F',
-      'G',
-  ]
-  for i in mylist:
-      printer(asd=i)
 #+end_src
 
 * Script to copy the other scripts:
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  cd "$('dirname' '--' "${0}")"
-  echo 'START COPYING' \
-      && find './' '-type' 'f' \
-          | grep '^\./M_.*$' \
-          | sed 's@^@("cp" "-vf" "--" "@g ; s@$@" "/usr/local/bin/");@g' \
-          | sh \
-  && echo 'DONE COPYING' ;
+  W () {
+      sudo -A cp -vf "${1}" '/usr/local/bin/'
+  }
+
+  W 'M_A_0' ;
+  W 'M_A_1' ;
+  W 'M_A_2' ;
+  W 'M_A_3' ;
+  W 'M_A_4' ;
+  W 'M_A_5' ;
+  W 'M_A_6' ;
+  W 'M_A_7' ;
+  W 'M_A_8' ;
+  W 'M_A_9' ;
+  W 'M_A_A' ;
+  W 'M_A_D' ;
+  W 'M_A_E' ;
+  W 'M_A_F' ;
+  W 'M_A_G' ;
+  W 'M_A_GRAVE' ;
+  W 'M_A_I' ;
+  W 'M_A_O' ;
+  W 'M_A_P' ;
+  W 'M_A_Q' ;
+  W 'M_A_R' ;
+  W 'M_A_S' ;
+  W 'M_A_T' ;
+  W 'M_A_U' ;
+  W 'M_A_W' ;
+  W 'M_A_Y' ;
+  W 'M_C_0' ;
+  W 'M_C_1' ;
+  W 'M_C_2' ;
+  W 'M_C_3' ;
+  W 'M_C_4' ;
+  W 'M_C_5' ;
+  W 'M_C_6' ;
+  W 'M_C_7' ;
+  W 'M_C_8' ;
+  W 'M_C_9' ;
+  W 'M_C_A' ;
+  W 'M_C_D' ;
+  W 'M_C_E' ;
+  W 'M_C_ESC' ;
+  W 'M_C_F' ;
+  W 'M_C_G' ;
+  W 'M_C_Q' ;
+  W 'M_C_R' ;
+  W 'M_C_S' ;
+  W 'M_C_T' ;
+  W 'M_C_W' ;
+  W 'M_ESC' ;
+  W 'M_F1' ;
+  W 'M_F2' ;
+  W 'M_F3' ;
+  W 'enter_emacs_flatpak' ;
 #+end_src
 
 * Simples
@@ -112,7 +133,6 @@
       'org.gnu.emacs' \
   ;
 #+end_src
-
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./M_ESC
 #+end_src
@@ -242,68 +262,89 @@ exec wlogout
 
 * Alts
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_1
-  for i in (ps | where name == emacs_server).pid {kill  $i}
+** Sound
+
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_Q
+  exec "amixer" "set" "Master,0" "0%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_2
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_W
+  exec "amixer" "set" "Master,0" "11%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_3
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_E
+  exec "amixer" "set" "Master,0" "22%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_4
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_R
+  exec "amixer" "set" "Master,0" "33%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_5
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_T
+  exec "amixer" "set" "Master,0" "44%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_6
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_Y
+  exec "amixer" "set" "Master,0" "55%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_7
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_U
+  exec "amixer" "set" "Master,0" "66%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_8
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_I
+  exec "amixer" "set" "Master,0" "77%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_9
-  for i in (ps | where name == mako).pid {kill  $i}
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_O
+  exec "amixer" "set" "Master,0" "88%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_0
-  for i in (ps | where name == waybar).pid {kill  $i}
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_P
+  exec "amixer" "set" "Master,0" "100%"
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_Q
-  for i in (ps | where name =~ wezterm).pid {kill  $i}
+** Brightness
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_GRAVE
+light -S '0%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_W
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_1
+light -S '10%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_E
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_2
+light -S '20%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_R
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_3
+light -S '30%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_T
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_4
+light -S '40%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_A
-  for i in (ps | where name =~ firefox).pid {kill  $i}
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_5
+light -S '50%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_S
-  for i in (ps | where name == brave).pid {kill  $i}
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_6
+light -S '60%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_D
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_7
+light -S '70%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_F
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_8
+light -S '80%'
 #+end_src
 
-#+begin_src sh :shebang #!/usr/local/bin/nu :tangle ./M_A_G
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_9
+light -S '90%'
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :tangle ./M_A_0
+light -S '100%'
 #+end_src

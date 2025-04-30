@@ -1,8 +1,57 @@
 #!/bin/sh
-cd "$('dirname' '--' "${0}")"
-echo 'START COPYING' \
-    && find './' '-type' 'f' \
-        | grep '^\./M_.*$' \
-        | sed 's@^@("cp" "-vf" "--" "@g ; s@$@" "/usr/local/bin/");@g' \
-        | sh \
-&& echo 'DONE COPYING' ;
+W () {
+    sudo -A cp -vf "${1}" '/usr/local/bin/'
+}
+
+W 'M_A_0' ;
+W 'M_A_1' ;
+W 'M_A_2' ;
+W 'M_A_3' ;
+W 'M_A_4' ;
+W 'M_A_5' ;
+W 'M_A_6' ;
+W 'M_A_7' ;
+W 'M_A_8' ;
+W 'M_A_9' ;
+W 'M_A_A' ;
+W 'M_A_D' ;
+W 'M_A_E' ;
+W 'M_A_F' ;
+W 'M_A_G' ;
+W 'M_A_GRAVE' ;
+W 'M_A_I' ;
+W 'M_A_O' ;
+W 'M_A_P' ;
+W 'M_A_Q' ;
+W 'M_A_R' ;
+W 'M_A_S' ;
+W 'M_A_T' ;
+W 'M_A_U' ;
+W 'M_A_W' ;
+W 'M_A_Y' ;
+W 'M_C_0' ;
+W 'M_C_1' ;
+W 'M_C_2' ;
+W 'M_C_3' ;
+W 'M_C_4' ;
+W 'M_C_5' ;
+W 'M_C_6' ;
+W 'M_C_7' ;
+W 'M_C_8' ;
+W 'M_C_9' ;
+W 'M_C_A' ;
+W 'M_C_D' ;
+W 'M_C_E' ;
+W 'M_C_ESC' ;
+W 'M_C_F' ;
+W 'M_C_G' ;
+W 'M_C_Q' ;
+W 'M_C_R' ;
+W 'M_C_S' ;
+W 'M_C_T' ;
+W 'M_C_W' ;
+W 'M_ESC' ;
+W 'M_F1' ;
+W 'M_F2' ;
+W 'M_F3' ;
+W 'enter_emacs_flatpak' ;
