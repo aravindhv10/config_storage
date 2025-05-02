@@ -13,6 +13,8 @@ GCC () {
 
 rm -vf "${HOME}/.config/systemd/user/plasma-kwin_wayland.service"
 
+GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
+
 C './HOME,.config,ironbar,config.toml' "${HOME}/.config/ironbar/config.toml"
 C './HOME,.config,ironbar,style.css' "${HOME}/.config/ironbar/style.css"
 
@@ -30,11 +32,9 @@ C './HOME,.bashrc' "${HOME}/.bashrc"
 
 C './HOME,.zshrc' "${HOME}/.zshrc"
 
-C './HOME,.config,nushell,config.nu' "${HOME}/.config/nushell/config.nu"
-
 C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
 
-GCC './SUDO_ASKPASS.c' "${HOME}/SUDO_ASKPASS"
+C './HOME,.config,nushell,config.nu' "${HOME}/.config/nushell/config.nu"
 
 C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.toml"
 
