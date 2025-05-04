@@ -334,9 +334,10 @@ in {
 
     (pkgs.python312.withPackages (ps:
       with ps; [
+        ipython
         numpy
         opencv-python
-        ipython
+        requests
         yt-dlp
       ]))
 
