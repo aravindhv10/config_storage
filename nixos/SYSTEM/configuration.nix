@@ -274,6 +274,7 @@ in {
     git-lfs
     glib
     gpgme
+    graphicsmagick-imagemagick-compat
     grc
     grim
     grub2
@@ -357,6 +358,7 @@ in {
     unstable.emacs30
     unstable.fd
     unstable.helix
+    unstable.inkscape
     unstable.ironbar
     unstable.lsd
     unstable.mako

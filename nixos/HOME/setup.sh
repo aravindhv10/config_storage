@@ -43,4 +43,6 @@ C 'HOME,.config,alacritty,alacritty.toml' "${HOME}/.config/alacritty/alacritty.t
 
 C 'HOME,.config,wayfire.ini' "${HOME}/.config/wayfire.ini"
 
+C 'HOME,.config,helix,config.toml' "${HOME}/.config/helix/config.toml"
+
 C './HOME,.config,waybar,config.jsonc' "${HOME}/.config/waybar/config.jsonc"

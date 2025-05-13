@@ -1,0 +1,4 @@
+theme = "modus_vivendi"
+
+[editor]
+true-color = true

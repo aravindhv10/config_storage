@@ -967,6 +967,7 @@ You can disable this if you're only using the Wayland session.
   git-lfs
   glib
   gpgme
+  graphicsmagick-imagemagick-compat
   grc
   grim
   grub2
@@ -1081,6 +1082,7 @@ You can disable this if you're only using the Wayland session.
   unstable.emacs30
   unstable.fd
   unstable.helix
+  unstable.inkscape
   unstable.ironbar
   unstable.lsd
   unstable.mako
