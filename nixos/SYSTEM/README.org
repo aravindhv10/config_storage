@@ -389,7 +389,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** GPU drivers related
 #+begin_src nix :tangle ./configuration.nix
-  hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
+  hardware.graphics.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 #+end_src
 
 ***** Some config for ROCM drivers
@@ -402,7 +402,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 ***** For 32 bit applications 
 #+begin_src nix :tangle ./configuration.nix
   hardware.graphics.enable32Bit = true;
-  hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
+  hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 #+end_src
 
 **** Kernel Package
@@ -723,7 +723,7 @@ You can disable this if you're only using the Wayland session.
 
 **** Enable touchpad support (enabled default in most desktopManager).
 #+begin_src nix :tangle ./configuration.nix
-  services.xserver.libinput.enable = true;
+  services.libinput.enable = true;
 #+end_src
 
 **** Define a user account. Don't forget to set a password with ‘passwd’.
@@ -780,7 +780,7 @@ You can disable this if you're only using the Wayland session.
 
 ****** With Oh-My-Zsh:
 #+begin_src nix :tangle ./configuration.nix
-  oh-my-zsh = {
+  ohMyZsh = {
     enable = true;
     plugins = ["git" "starship" "zoxide"];
     theme = "robbyrussell";
@@ -847,6 +847,30 @@ You can disable this if you're only using the Wayland session.
 ***** COMMENT Set default shell to fish
 #+begin_src nix :tangle ./configuration.nix
   users.defaultUserShell = unstable.fish;
+#+end_src
+
+**** Laptop power management
+
+***** thermald
+#+begin_src nix :tangle ./configuration.nix
+  services.thermald.enable = true;
+#+end_src
+
+***** COMMENT auto cpufreq
+#+begin_src nix :tangle ./configuration.nix
+  services.auto-cpufreq = {
+      enable = true;
+      settings = {
+          battery = {
+              governor = "powersave";
+              turbo = "never";
+          };
+          charger = {
+              governor = "performance";
+              turbo = "auto";
+          };
+      };
+  } ;
 #+end_src
 
 **** firefox.

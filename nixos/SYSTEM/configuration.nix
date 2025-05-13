@@ -60,14 +60,14 @@ in {
     QT_SCALE_FACTOR = "1.25";
   };
 
-  hardware.opengl.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
+  hardware.graphics.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 
   systemd.tmpfiles.rules = [
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
   ];
 
   hardware.graphics.enable32Bit = true;
-  hardware.opengl.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
+  hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
   boot.kernelPackages = pkgs.linuxPackages_6_14;
 
@@ -188,7 +188,7 @@ in {
     #media-session.enable = true;
   };
 
-  services.xserver.libinput.enable = true;
+  services.libinput.enable = true;
 
   users.users.asd = {
     isNormalUser = true;
@@ -206,7 +206,7 @@ in {
   programs.zsh = {
     enable = true;
 
-    oh-my-zsh = {
+    ohMyZsh = {
       enable = true;
       plugins = ["git" "starship" "zoxide"];
       theme = "robbyrussell";
@@ -217,6 +217,8 @@ in {
     enable = true;
     package = unstable.fish;
   };
+
+  services.thermald.enable = true;
 
   programs.firefox.enable = true;
 
