@@ -27,11 +27,6 @@ in {
             initrd /i
         }
 
-        menuentry "nixos_debian_kernel" {
-            linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/jyx1xdiw44nwkmimnbrp76njniaphya3-nixos-system-nixos-24.11.715908.7105ae395770/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-            initrd /i
-        }
-
       '';
     };
   };
@@ -347,6 +342,7 @@ in {
     rocmPackages.hipblas
     rocmPackages.hipcc
 
+    unstable.swww
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
