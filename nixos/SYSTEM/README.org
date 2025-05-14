@@ -1093,7 +1093,6 @@ You can disable this if you're only using the Wayland session.
 
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
-  unstable.swww
   unstable.alacritty
   unstable.alejandra
   unstable.aria2
@@ -1113,6 +1112,7 @@ You can disable this if you're only using the Wayland session.
   unstable.mako
   unstable.miniserve
   unstable.mpv
+  unstable.mpvpaper
   unstable.nixfmt-rfc-style
   unstable.rclone
   unstable.ripgrep
@@ -1121,6 +1121,7 @@ You can disable this if you're only using the Wayland session.
   unstable.skim
   unstable.squashfsTools
   unstable.starship
+  unstable.swww
   unstable.tmux
   unstable.uv
   unstable.wezterm

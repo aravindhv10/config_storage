@@ -342,7 +342,6 @@ in {
     rocmPackages.hipblas
     rocmPackages.hipcc
 
-    unstable.swww
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
@@ -362,6 +361,7 @@ in {
     unstable.mako
     unstable.miniserve
     unstable.mpv
+    unstable.mpvpaper
     unstable.nixfmt-rfc-style
     unstable.rclone
     unstable.ripgrep
@@ -370,6 +370,7 @@ in {
     unstable.skim
     unstable.squashfsTools
     unstable.starship
+    unstable.swww
     unstable.tmux
     unstable.uv
     unstable.wezterm
