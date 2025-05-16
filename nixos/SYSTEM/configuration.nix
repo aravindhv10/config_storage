@@ -363,6 +363,7 @@ in {
     unstable.mpv
     unstable.mpvpaper
     unstable.nixfmt-rfc-style
+    unstable.pdf2svg
     unstable.rclone
     unstable.ripgrep
     unstable.ruff
