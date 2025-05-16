@@ -358,6 +358,7 @@ in {
     unstable.inkscape
     unstable.ironbar
     unstable.lsd
+    unstable.lyx
     unstable.mako
     unstable.miniserve
     unstable.mpv
