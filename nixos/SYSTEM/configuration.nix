@@ -357,6 +357,7 @@ in {
     unstable.helix
     unstable.inkscape
     unstable.ironbar
+    unstable.lapce
     unstable.lsd
     unstable.lyx
     unstable.mako
