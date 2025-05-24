@@ -134,6 +134,14 @@ in {
 
   services.desktopManager.plasma6.enable = true;
 
+  programs.hyprland = {
+    enable = true;
+    package = unstable.hyprland;
+    withUWSM = true; # recommended for most users
+    # withUWSM = false; # recommended for most users
+    xwayland.enable = true; # Xwayland can be disabled.
+  };
+
   services.xserver.desktopManager.gnome.enable = true;
 
   environment.gnome.excludePackages = with pkgs; [
@@ -221,8 +229,12 @@ in {
 
   programs.virt-manager.enable = true;
 
+  users.groups.libvirtd.members = ["asd"];
+
   virtualisation = {
     libvirtd.enable = true;
+
+    spiceUSBRedirection.enable = true;
 
     containers.enable = true;
 
@@ -380,6 +392,7 @@ in {
     unstable.wine
     unstable.wlsunset
     unstable.yazi
+    unstable.zed-editor
     unstable.zoxide
 
     (callPackage /root/debMirror.nix {})
@@ -973,6 +986,8 @@ in {
   services.dnsmasq = {
     enable = true;
 
+    alwaysKeepRunning = true;
+
     resolveLocalQueries = true;
 
     settings = {
@@ -1006,10 +1021,6 @@ in {
       dnssec = true; # Enable DNSSEC
       # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
       trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
-      interface = "lo";
-      listen-address = "127.0.0.1";
-      except-interface = "virbr0";
-      no-dhcp-interface = "virbr0";
     };
   };
 

@@ -489,18 +489,11 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 #+end_src
 
 **** Mount tmpfs on /tmp
-
-***** Better way
 #+begin_src nix :tangle ./configuration.nix
   boot.tmp = {
     useTmpfs = true ;
     tmpfsSize = "60%" ;
   } ;
-#+end_src
-
-***** COMMENT Standard way
-#+begin_src nix :tangle ./configuration.nix
-  fileSystems."/tmp" = {device = "none"; fsType = "tmpfs"; };
 #+end_src
 
 **** Hostname
@@ -609,7 +602,7 @@ You can disable this if you're only using the Wayland session.
   services.desktopManager.plasma6.enable = true;
 #+end_src
 
-***** COMMENT Hyprland
+***** Hyprland
 #+begin_src nix :tangle ./configuration.nix
   programs.hyprland = {
       enable = true;
@@ -889,6 +882,12 @@ You can disable this if you're only using the Wayland session.
   programs.virt-manager.enable = true;
 #+end_src
 
+**** Add asd to libvirtd groups
+#+begin_src nix :tangle ./configuration.nix
+  users.groups.libvirtd.members = ["asd"];
+#+end_src
+
+
 **** Containers and virtualizating
 
 ***** BEGIB
@@ -903,6 +902,10 @@ You can disable this if you're only using the Wayland session.
   libvirtd.enable = true;
 #+end_src
 
+****** spice
+#+begin_src nix :tangle ./configuration.nix
+  spiceUSBRedirection.enable = true;
+#+end_src
 
 ****** ENABLE CONTAINERS
 #+begin_src nix :tangle ./configuration.nix
@@ -1131,6 +1134,7 @@ You can disable this if you're only using the Wayland session.
   unstable.wine
   unstable.wlsunset
   unstable.yazi
+  unstable.zed-editor
   unstable.zoxide
 #+end_src
 
@@ -1962,7 +1966,7 @@ started in user sessions.
   enable = true;
 #+end_src
 
-***** COMMENT alwaysKeepRunning
+***** alwaysKeepRunning
 #+begin_src nix :tangle ./configuration.nix
   alwaysKeepRunning = true;
 #+end_src
@@ -2024,10 +2028,6 @@ started in user sessions.
   dnssec = true; # Enable DNSSEC
   # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
   trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
-  interface="lo";
-  listen-address="127.0.0.1";
-  except-interface="virbr0";
-  no-dhcp-interface="virbr0";
 #+end_src
 
 ****** end
