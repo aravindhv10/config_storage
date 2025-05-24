@@ -1107,6 +1107,7 @@ You can disable this if you're only using the Wayland session.
   unstable.difftastic
   unstable.dust
   unstable.emacs30
+  unstable.eww
   unstable.fd
   unstable.helix
   unstable.inkscape
@@ -1134,6 +1135,7 @@ You can disable this if you're only using the Wayland session.
   unstable.wine
   unstable.wlsunset
   unstable.yazi
+  unstable.ydotool
   unstable.zed-editor
   unstable.zoxide
 #+end_src

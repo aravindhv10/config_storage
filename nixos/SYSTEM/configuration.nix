@@ -365,6 +365,7 @@ in {
     unstable.difftastic
     unstable.dust
     unstable.emacs30
+    unstable.eww
     unstable.fd
     unstable.helix
     unstable.inkscape
@@ -392,6 +393,7 @@ in {
     unstable.wine
     unstable.wlsunset
     unstable.yazi
+    unstable.ydotool
     unstable.zed-editor
     unstable.zoxide
 

@@ -3066,6 +3066,22 @@ preserve_aspect = true
 zoom_step = 0.100000
 #+end_src
 
+* EWW config
+
+** Copy the config file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './4_HOME_,.config,eww,eww.yuck' "${HOME}/.config/eww/eww.yuck"
+  C './4_HOME_,.config,eww,eww.scss' "${HOME}/.config/eww/eww.scss"
+#+end_src
+
+** Main config files
+
+#+begin_src conf :tangle ./4_HOME_,.config,eww,eww.yuck
+#+end_src
+
+#+begin_src conf :tangle ./4_HOME_,.config,eww,eww.scss
+#+end_src
+
 * Helix configs
 
 ** Copy the config file
