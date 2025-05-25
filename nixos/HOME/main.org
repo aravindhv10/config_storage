@@ -2608,6 +2608,8 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   notifications = mako
   wallpaper = swww-daemon
 
+  ydotooldaenon = YDOTOOL_DAEMON
+
   # Screen color temperature
   # https://sr.ht/~kennylevinsen/wlsunset/
   gamma = wlsunset -l 13 -L 77.6
