@@ -29,8 +29,7 @@
 
           rm -vf -- './main.org~' ;
 
-      " "log" "err")
-
+      " "log2" "err2")
 #+end_src
 
 * Main installing functions
@@ -2609,6 +2608,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   wallpaper = swww-daemon
 
   ydotooldaenon = YDOTOOL_DAEMON
+  osdserver = swayosd-server
 
   # Screen color temperature
   # https://sr.ht/~kennylevinsen/wlsunset/
@@ -2662,6 +2662,15 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
   binding_minux = <super> KEY_MINUS
   command_minux = M_MINUS
+#+end_src
+
+*** relative brightness
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_mcequal = <super> <ctrl> KEY_EQUAL
+  command_mcequal = M_C_PLUS
+
+  binding_mcminux = <super> <ctrl> KEY_MINUS
+  command_mcminux = M_C_MINUS
 #+end_src
 
 *** F

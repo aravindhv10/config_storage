@@ -517,6 +517,32 @@ in {
 
     '')
 
+    (writeCBin "M_C_PLUS" ''
+
+      #include <unistd.h>
+
+      static char *const args[] = {"swayosd-client", "--brightness=raise", NULL};
+
+      int main() {
+        int ret = execvp(args[0], args);
+        return ret;
+      }
+
+    '')
+
+    (writeCBin "M_C_MINUS" ''
+
+      #include <unistd.h>
+
+      static char *const args[] = {"swayosd-client", "--brightness=lower", NULL};
+
+      int main() {
+        int ret = execvp(args[0], args);
+        return ret;
+      }
+
+    '')
+
     (writeCBin "M_C_ESC" ''
 
       #include <unistd.h>

@@ -1292,6 +1292,40 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
+
+******** M_C_PLUS
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_PLUS" ''
+
+  #include <unistd.h>
+
+  static char *const args[] = {"swayosd-client", "--brightness=raise", NULL};
+
+  int main() {
+    int ret = execvp(args[0], args);
+    return ret;
+  }
+
+  '')
+#+end_src
+
+******** M_C_MINUS
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_MINUS" ''
+
+  #include <unistd.h>
+
+  static char *const args[] = {"swayosd-client", "--brightness=lower", NULL};
+
+  int main() {
+    int ret = execvp(args[0], args);
+    return ret;
+  }
+
+  '')
+#+end_src
+
+
 ******** M_C_ESC
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_ESC" ''
@@ -1443,8 +1477,6 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ******** enter emacs flatpak
-
-flatpak run --command=bash org.gnu.emacs
 
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "enter_emacs_flatpak" ''
