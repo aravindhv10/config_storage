@@ -460,13 +460,21 @@ in {
                        /*const char *value =*/final_sudo_askpass,
                        /*int overwrite =*/1);
 
-        args[0] = sudo;
-        args[1] = minus_b;
-        args[2] = minus_E;
-        args[3] = minus_A;
-        args[4] = prog;
-        args[5] = get_ydotool_args();
-        args[6] = NULL;
+        unsigned char i = 0;
+        args[i] = sudo;
+        ++i;
+        // args[i] = minus_b;
+        // ++i;
+        args[i] = minus_E;
+        ++i;
+        args[i] = minus_A;
+        ++i;
+        args[i] = prog;
+        ++i;
+        args[i] = get_ydotool_args();
+        ++i;
+        args[i] = NULL;
+        ++i;
 
         /*int*/ execvp(args[0], args);
 
