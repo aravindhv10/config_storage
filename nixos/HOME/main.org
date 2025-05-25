@@ -2655,6 +2655,15 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   command_mc_esc = M_C_ESC
 #+end_src
 
+*** Zooms
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_equal = <super> KEY_EQUAL
+  command_equal = M_PLUS
+
+  binding_minux = <super> KEY_MINUS
+  command_minux = M_MINUS
+#+end_src
+
 *** F
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_f1 = <super> KEY_F1
