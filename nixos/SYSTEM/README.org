@@ -551,20 +551,37 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ***** greetd
+
+
+****** START
 #+begin_src nix :tangle ./configuration.nix
   services.greetd = {
       enable = true;
       settings = rec {
           initial_session = {
-              command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-              # command = "${pkgs.uwsm}/bin/uwsm start select";
-              # command = "${pkgs.wayfire}/bin/wayfire";
+#+end_src
+
+****** COMMENT hyprland
+#+begin_src nix :tangle ./configuration.nix
+  command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.hyprland}/bin/hyprland";
+#+end_src
+
+****** wayfire
+#+begin_src nix :tangle ./configuration.nix
+  command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
+#+end_src
+
+****** END
+#+begin_src nix :tangle ./configuration.nix
               user = "asd";
           };
           default_session = initial_session;
       };
   };
+#+end_src
 
+***** List
+#+begin_src nix :tangle ./configuration.nix
   environment.etc."greetd/environments".text = ''
   wayfire
   fish
@@ -1146,6 +1163,86 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ******* Wrapper scripts
+
+******** YDOTOOL_DAEMON
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "YDOTOOL_DAEMON" ''
+
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string.h>
+  #include <unistd.h>
+
+  #define SIZE_BUFFER (1 << 20)
+
+  static char BUFFER[SIZE_BUFFER];
+  static int BUFFER_CURRENT;
+  static char SUDO_ASKPASS[] = "/SUDO_ASKPASS";
+
+  static char sudo[] = "sudo";
+  static char minus_b[] = "-b";
+  static char minus_E[] = "-E";
+  static char minus_A[] = "-A";
+  static char prog[] = "ydotoold";
+  static char *args[7];
+
+  static inline size_t align(size_t const val) {
+    size_t const newval = val & (~7);
+    return newval == val ? val : newval + 8;
+  }
+
+  static inline char *myalloc(size_t const insize) {
+    BUFFER_CURRENT = align(BUFFER_CURRENT);
+    char *ret = BUFFER + BUFFER_CURRENT;
+    BUFFER_CURRENT += align(insize);
+    return ret;
+  }
+
+  static inline char *get_sudo_askpass() {
+    char *HOME = getenv("HOME");
+    size_t len_HOME = strlen(/*const char *s =*/HOME);
+    char *ret = myalloc(/*size_t const insize =*/len_HOME + sizeof(SUDO_ASKPASS));
+
+    /*void **/ memcpy(/*void dest[restrict .n] =*/ret,
+                      /*const void src[restrict .n] =*/HOME,
+                      /*size_t n =*/len_HOME);
+
+    /*void **/ memcpy(/*void dest[restrict .n] =*/ret + len_HOME,
+                      /*const void src[restrict .n] =*/SUDO_ASKPASS,
+                      /*size_t n =*/sizeof(SUDO_ASKPASS));
+
+    return ret;
+  }
+
+  static inline char *get_ydotool_args() {
+    uid_t const uid = getuid();
+    gid_t const gid = getgid();
+    /*static inline*/ char *buf = myalloc(/*size_t const insize =*/128);
+    sprintf(buf, "--socket-own=%d:%d", uid, gid);
+    return buf;
+  }
+
+  int main() {
+    char *final_sudo_askpass = get_sudo_askpass();
+    /*int*/ setenv(/*const char *name =*/"SUDO_ASKPASS",
+                   /*const char *value =*/final_sudo_askpass,
+                   /*int overwrite =*/1);
+
+    args[0] = sudo;
+    args[1] = minus_b;
+    args[2] = minus_E;
+    args[3] = minus_A;
+    args[4] = prog;
+    args[5] = get_ydotool_args();
+    args[6] = NULL;
+
+    /*int*/ execvp(args[0], args);
+
+    return 0;
+  }
+
+  '')
+#+end_src
 
 ******** M_C_ESC
 #+begin_src nix :tangle ./configuration.nix
