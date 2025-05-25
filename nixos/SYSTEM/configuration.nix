@@ -294,6 +294,7 @@ in {
     libarchive
     libcap
     libgcc
+    libinput
     librsvg
     libseccomp
     libxml2
@@ -479,6 +480,34 @@ in {
         /*int*/ execvp(args[0], args);
 
         return 0;
+      }
+
+    '')
+
+    (writeCBin "M_PLUS" ''
+
+      #include <unistd.h>
+
+      static char *const args[] = {"ydotool", "mousemove", "-w", "--",
+                                   "0",       "5",         NULL};
+
+      int main() {
+        int ret = execvp(args[0], args);
+        return ret;
+      }
+
+    '')
+
+    (writeCBin "M_MINUS" ''
+
+      #include <unistd.h>
+
+      static char *const args[] = {"ydotool", "mousemove", "-w", "--",
+                                   "0",       "-5",         NULL};
+
+      int main() {
+        int ret = execvp(args[0], args);
+        return ret;
       }
 
     '')
