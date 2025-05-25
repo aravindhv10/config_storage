@@ -338,7 +338,6 @@ in {
     wget
     wl-clipboard
     wlogout
-    wofi
     zip
     zstd
 
@@ -354,6 +353,7 @@ in {
     rocmPackages.hipblas
     rocmPackages.hipcc
 
+    unstable.ags
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
@@ -362,14 +362,15 @@ in {
     unstable.bat
     unstable.bottom
     unstable.byobu
+    unstable.clapboard
     unstable.difftastic
     unstable.dust
     unstable.emacs30
-    unstable.eww
     unstable.fd
     unstable.helix
     unstable.inkscape
     unstable.ironbar
+    unstable.kickoff
     unstable.lapce
     unstable.lsd
     unstable.lyx
@@ -388,12 +389,16 @@ in {
     unstable.starship
     unstable.swww
     unstable.tmux
+    unstable.tofi
     unstable.uv
     unstable.wezterm
     unstable.wine
+    unstable.wldash
     unstable.wlsunset
+    unstable.wluma
     unstable.yazi
     unstable.ydotool
+    unstable.yofi
     unstable.zed-editor
     unstable.zoxide
 

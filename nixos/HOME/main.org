@@ -2737,6 +2737,9 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
   binding_mc0 = <super> <ctrl> KEY_0
   command_mc0 = M_C_0
+
+  binding_mcspace = <super> <ctrl> KEY_SPACE
+  command_mcspace = kickoff
 #+end_src
 
 ** ALT
@@ -2835,6 +2838,8 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
   binding_maP = <super> <alt> KEY_P
   command_maP = M_A_P
+
+
 #+end_src
 
 ** misc

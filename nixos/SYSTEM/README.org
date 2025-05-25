@@ -1067,7 +1067,6 @@ You can disable this if you're only using the Wayland session.
   wget
   wl-clipboard
   wlogout
-  wofi
   zip
   zstd
 #+end_src
@@ -1114,6 +1113,7 @@ You can disable this if you're only using the Wayland session.
 
 ******* UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
+  unstable.ags
   unstable.alacritty
   unstable.alejandra
   unstable.aria2
@@ -1122,14 +1122,15 @@ You can disable this if you're only using the Wayland session.
   unstable.bat
   unstable.bottom
   unstable.byobu
+  unstable.clapboard
   unstable.difftastic
   unstable.dust
   unstable.emacs30
-  unstable.eww
   unstable.fd
   unstable.helix
   unstable.inkscape
   unstable.ironbar
+  unstable.kickoff
   unstable.lapce
   unstable.lsd
   unstable.lyx
@@ -1148,12 +1149,16 @@ You can disable this if you're only using the Wayland session.
   unstable.starship
   unstable.swww
   unstable.tmux
+  unstable.tofi
   unstable.uv
   unstable.wezterm
   unstable.wine
+  unstable.wldash
   unstable.wlsunset
+  unstable.wluma
   unstable.yazi
   unstable.ydotool
+  unstable.yofi
   unstable.zed-editor
   unstable.zoxide
 #+end_src
