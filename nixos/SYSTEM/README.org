@@ -1325,6 +1325,37 @@ You can disable this if you're only using the Wayland session.
   '')
 #+end_src
 
+******** M_C_LEFTBRACE
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_LEFTBRACE" ''
+
+  #include <unistd.h>
+
+  static char *const args[] = {"swayosd-client", "--max-volume=255", "--output-volume=-10", NULL};
+
+  int main() {
+    int ret = execvp(args[0], args);
+    return ret;
+  }
+
+  '')
+#+end_src
+
+******** M_C_RIGHTBRACE
+#+begin_src nix :tangle ./configuration.nix
+  (writeCBin "M_C_RIGHTBRACE" ''
+
+  #include <unistd.h>
+
+  static char *const args[] = {"swayosd-client", "--max-volume=255", "--output-volume=+10", NULL};
+
+  int main() {
+    int ret = execvp(args[0], args);
+    return ret;
+  }
+
+  '')
+#+end_src
 
 ******** M_C_ESC
 #+begin_src nix :tangle ./configuration.nix

@@ -2673,6 +2673,15 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   command_mcminux = M_C_MINUS
 #+end_src
 
+*** relative sound
+#+begin_src conf :tangle ./HOME,.config,wayfire.ini
+  binding_mcleftbrace = <super> <ctrl> KEY_LEFTBRACE
+  command_mcleftbrace = M_C_LEFTBRACE
+
+  binding_mcrightbrace = <super> <ctrl> KEY_RIGHTBRACE
+  command_mcrightbrace = M_C_RIGHTBRACE
+#+end_src
+
 *** F
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_f1 = <super> KEY_F1

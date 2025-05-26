@@ -543,6 +543,32 @@ in {
 
     '')
 
+    (writeCBin "M_C_LEFTBRACE" ''
+
+      #include <unistd.h>
+
+      static char *const args[] = {"swayosd-client", "--max-volume=255", "--output-volume=-10", NULL};
+
+      int main() {
+        int ret = execvp(args[0], args);
+        return ret;
+      }
+
+    '')
+
+    (writeCBin "M_C_RIGHTBRACE" ''
+
+      #include <unistd.h>
+
+      static char *const args[] = {"swayosd-client", "--max-volume=255", "--output-volume=+10", NULL};
+
+      int main() {
+        int ret = execvp(args[0], args);
+        return ret;
+      }
+
+    '')
+
     (writeCBin "M_C_ESC" ''
 
       #include <unistd.h>
