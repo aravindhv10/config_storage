@@ -494,7 +494,7 @@ in {
       #include <unistd.h>
 
       static char *const args[] = {"ydotool", "mousemove", "-w", "--",
-                                   "0",       "5",         NULL};
+                                   "0",       "2",         NULL};
 
       int main() {
         int ret = execvp(args[0], args);
@@ -508,7 +508,7 @@ in {
       #include <unistd.h>
 
       static char *const args[] = {"ydotool", "mousemove", "-w", "--",
-                                   "0",       "-5",         NULL};
+                                   "0",       "-2",         NULL};
 
       int main() {
         int ret = execvp(args[0], args);
