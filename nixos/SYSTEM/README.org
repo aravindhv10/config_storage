@@ -1084,6 +1084,8 @@ You can disable this if you're only using the Wayland session.
   numpy
   opencv-python
   requests
+  torch
+  torchvision
   yt-dlp
 #+end_src
 

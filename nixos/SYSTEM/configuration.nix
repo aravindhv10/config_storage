@@ -347,6 +347,8 @@ in {
         numpy
         opencv-python
         requests
+        torch
+        torchvision
         yt-dlp
       ]))
 
