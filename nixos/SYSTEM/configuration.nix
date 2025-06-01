@@ -343,6 +343,7 @@ in {
 
     (pkgs.python312.withPackages (ps:
       with ps; [
+        einops
         ipython
         numpy
         opencv-python

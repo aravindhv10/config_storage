@@ -1080,6 +1080,7 @@ You can disable this if you're only using the Wayland session.
 
 ******** main
 #+begin_src nix :tangle ./configuration.nix
+  einops
   ipython
   numpy
   opencv-python
