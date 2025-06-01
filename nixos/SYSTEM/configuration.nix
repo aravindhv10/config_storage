@@ -302,6 +302,7 @@ in {
     man-pages
     man-pages-posix
     meson
+    mpv
     neovim
     networkmanagerapplet
     networkmanager-openconnect
@@ -379,7 +380,6 @@ in {
     unstable.lyx
     unstable.mako
     unstable.miniserve
-    unstable.mpv
     unstable.mpvpaper
     unstable.nixfmt-rfc-style
     unstable.pdf2svg

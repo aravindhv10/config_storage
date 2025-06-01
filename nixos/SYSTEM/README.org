@@ -1031,6 +1031,7 @@ You can disable this if you're only using the Wayland session.
   man-pages
   man-pages-posix
   meson
+  mpv
   neovim
   networkmanagerapplet
   networkmanager-openconnect
@@ -1139,7 +1140,6 @@ You can disable this if you're only using the Wayland session.
   unstable.lyx
   unstable.mako
   unstable.miniserve
-  unstable.mpv
   unstable.mpvpaper
   unstable.nixfmt-rfc-style
   unstable.pdf2svg
