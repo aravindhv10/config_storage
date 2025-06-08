@@ -1081,6 +1081,7 @@ You can disable this if you're only using the Wayland session.
 
 ******** main
 #+begin_src nix :tangle ./configuration.nix
+  albumentations
   einops
   inotify-simple
   ipython

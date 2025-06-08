@@ -344,6 +344,7 @@ in {
 
     (unstable.python313.withPackages (ps:
       with ps; [
+        albumentations
         einops
         inotify-simple
         ipython
