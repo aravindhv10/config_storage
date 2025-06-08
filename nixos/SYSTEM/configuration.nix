@@ -351,10 +351,12 @@ in {
         multiprocess
         numpy
         opencv-python
+        pillow
         requests
         safetensors
         torch
         torchvision
+        transformers
         yt-dlp
       ]))
 
