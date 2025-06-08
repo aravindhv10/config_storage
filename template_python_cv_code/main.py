@@ -161,6 +161,12 @@ class image_reader:
                     mean=self.imagenet_mean,
                     std=self.imagenet_std,
                 ),
+                A.Resize(
+                    height=224,
+                    width=224,
+                    interpolation="cv2.INTER_AREA",
+                    mask_interpolation="cv2.INTER_NEAREST_EXACT",
+                ),
                 ToTensorV2(),
             ]
         )
