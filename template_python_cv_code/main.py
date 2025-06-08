@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
+import os
 
+try:
+    __file__
+except:
+    basepath = "."
+else:
+    basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+
+import sys
+
+sys.path.append(basepath)
 
 from albumentations.pytorch import ToTensorV2
 import albumentations as A
@@ -7,6 +18,65 @@ import cv2
 import fcntl
 import numpy as np
 import torch
+
+
+def mkdir_safe(out_path):
+    if type(out_path) == str:
+        if len(out_path) > 0:
+            os.makedirs(out_path, exist_ok=True)
+
+
+def is_path_file_video(path_input):
+    if (not os.path.exists(path_input)) or (os.path.isdir(path_input)):
+        return False
+    else:
+        path_input = path_input.lower()
+        return path_input.endswith(".mp4")
+
+
+def is_path_file_image(path_input):
+    if (not os.path.exists(path_input)) or (os.path.isdir(path_input)):
+        return False
+    else:
+        path_input = path_input.lower()
+        return (
+            path_input.endswith(".jpg")
+            or path_input.endswith(".jpeg")
+            or path_input.endswith(".png")
+            or path_input.endswith(".bmp")
+        )
+
+
+def get_list_path_file_video_input(path_dir_input="/data/input"):
+    list_path_file_input = []
+
+    for (
+        root,
+        dirs,
+        files,
+    ) in os.walk(path_dir_input):
+        list_path_file_input += filter(
+            is_path_file_video,
+            [root + "/" + i for i in files],
+        )
+
+    return list_path_file_input
+
+
+def get_list_path_file_image_input(path_dir_input="/data/input"):
+    list_path_file_input = []
+
+    for (
+        root,
+        dirs,
+        files,
+    ) in os.walk(path_dir_input):
+        list_path_file_input += filter(
+            is_path_file_image,
+            [root + "/" + i for i in files],
+        )
+
+    return list_path_file_input
 
 
 def get_good_device_and_dtype():

@@ -7,6 +7,100 @@
 
 * Main python code
 
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import sys
+
+  sys.path.append(basepath)
+#+end_src
+
+** Create directory recursively and safely
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def mkdir_safe(out_path):
+      if type(out_path) == str:
+          if len(out_path) > 0:
+              os.makedirs(out_path, exist_ok=True)
+#+end_src
+
+** Function to check type of file
+
+*** Function to check if the given file is video
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def is_path_file_video(path_input):
+      if (not os.path.exists(path_input)) or (os.path.isdir(path_input)):
+          return False
+      else:
+          path_input = path_input.lower()
+          return path_input.endswith(".mp4")
+#+end_src
+
+*** Function to check if the given file is image
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def is_path_file_image(path_input):
+      if (not os.path.exists(path_input)) or (os.path.isdir(path_input)):
+          return False
+      else:
+          path_input = path_input.lower()
+          return (
+              path_input.endswith(".jpg")
+              or path_input.endswith(".jpeg")
+              or path_input.endswith(".png")
+              or path_input.endswith(".bmp")
+          )
+#+end_src
+
+** Function to find all files under a directory tree
+
+*** Video
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_list_path_file_video_input(path_dir_input="/data/input"):
+      list_path_file_input = []
+
+      for (
+          root,
+          dirs,
+          files,
+      ) in os.walk(path_dir_input):
+          list_path_file_input += filter(
+              is_path_file_video,
+              [root + "/" + i for i in files],
+          )
+
+      return list_path_file_input
+#+end_src
+
+*** Images
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_list_path_file_image_input(path_dir_input="/data/input"):
+      list_path_file_input = []
+
+      for (
+          root,
+          dirs,
+          files,
+      ) in os.walk(path_dir_input):
+          list_path_file_input += filter(
+              is_path_file_image,
+              [root + "/" + i for i in files],
+          )
+
+      return list_path_file_input
+#+end_src
+
 ** Find good device and dtype
 
 *** Importing torch
@@ -153,7 +247,7 @@
           return self.read_image(path_file_image_input)
 #+end_src
 
-** COMMENT Code to read image and transform to good torch format
+*** COMMENT Sample function
 #+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
   def read_and_normalize_image(image_path):
       """
