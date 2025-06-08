@@ -342,9 +342,8 @@ in {
     zip
     zstd
 
-    (pkgs.python312.withPackages (ps:
+    (unstable.python313.withPackages (ps:
       with ps; [
-        bentoml
         einops
         inotify-simple
         ipython
