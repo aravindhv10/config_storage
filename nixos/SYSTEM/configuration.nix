@@ -345,10 +345,13 @@ in {
     (pkgs.python312.withPackages (ps:
       with ps; [
         einops
+        inotify-simple
         ipython
+        multiprocess
         numpy
         opencv-python
         requests
+        safetensors
         torch
         torchvision
         yt-dlp
