@@ -164,8 +164,8 @@ class image_reader:
                 A.Resize(
                     height=224,
                     width=224,
-                    interpolation="cv2.INTER_AREA",
-                    mask_interpolation="cv2.INTER_NEAREST_EXACT",
+                    interpolation=cv2.INTER_AREA,
+                    mask_interpolation=cv2.INTER_NEAREST_EXACT,
                 ),
                 ToTensorV2(),
             ]
