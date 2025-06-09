@@ -13,6 +13,8 @@ import sys
 sys.path.append(basepath)
 
 from albumentations.pytorch import ToTensorV2
+from torch.utils.data import DataLoader
+from torch.utils.data import Dataset
 import albumentations as A
 import cv2
 import fcntl
@@ -141,7 +143,42 @@ def read_image(path_file_image_input):
     return image
 
 
-class image_reader:
+def get_dataset(
+    path_dir_input="/data/input",
+    repeat_factor=1,
+    force_length=None,
+):
+    slave = CustomImageDataset(
+        list_data_input=get_list_path_file_image_input(path_dir_input=path_dir_input),
+        repeat_factor=repeat_factor,
+        force_length=force_length,
+    )
+
+    return slave
+
+
+def get_data_loader(
+    path_dir_input="/data/input",
+    batch_size=16,
+    train_mode=False,
+    repeat_factor=1,
+    force_length=None,
+):
+    dataset = get_dataset(
+        path_dir_input=path_dir_input,
+        repeat_factor=repeat_factor,
+        force_length=force_length,
+    )
+
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=train_mode,
+        num_workers=8,
+    )
+
+
+class class_read_image_processed:
     def __init__(self):
         self.imagenet_mean = [
             0.485,
@@ -170,17 +207,53 @@ class image_reader:
                 ToTensorV2(),
             ]
         )
-
-    def read_image(
-        self,
-        path_file_image_input,
-    ):
-        image = read_image(path_file_image_input=path_file_image_input)
-        transformed_image = self.transform(image=image)["image"]
-        return transformed_image
+        (
+            self.device,
+            self.dtype,
+        ) = get_good_device_and_dtype()
 
     def __call__(
         self,
         path_file_image_input,
     ):
-        return self.read_image(path_file_image_input)
+        image = read_image(path_file_image_input=path_file_image_input)
+        image = self.transform(image=image)["image"].to(
+            device=self.device,
+            dtype=self.dtype,
+        )
+        return image
+
+
+class CustomImageDataset(Dataset):
+    def __init__(
+        self,
+        list_data_input,
+        repeat_factor=1,
+        force_length=None,
+    ):
+        self.repeat_factor = repeat_factor
+        self.list_data_input = list_data_input
+        self.actual_length = len(self.list_data_input)
+        self.force_length = force_length
+        self.main_read_image_processed = class_read_image_processed()
+
+    def __len__(self):
+        if self.force_length is not None:
+            return self.force_length
+        else:
+            return self.actual_length * self.repeat_factor
+
+    def __getitem__(
+        self,
+        i,
+    ):
+        i = i % self.actual_length
+
+        path_file_image = self.list_data_input[i]
+
+        tensor = self.main_read_image_processed(path_file_image)
+
+        return (
+            path_file_image,
+            tensor,
+        )
