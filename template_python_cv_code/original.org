@@ -257,6 +257,96 @@
           return self.read_image(path_file_image_input)
 #+end_src
 
+*** COMMENT Sample function
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def read_and_normalize_image(image_path):
+      """
+      Reads an image from the given path, converts it to a PyTorch tensor,
+      and normalizes it using ImageNet mean and standard deviation.
+
+      Args:
+          image_path (str): The path to the image file.
+
+      Returns:
+          torch.Tensor: The normalized image tensor.
+      """
+      # Define the ImageNet mean and standard deviation
+      imagenet_mean = [0.485, 0.456, 0.406]
+      imagenet_std = [0.229, 0.224, 0.225]
+
+      # Create an albumentations pipeline
+      transform = A.Compose(
+          [
+              A.Normalize(mean=imagenet_mean, std=imagenet_std),
+              ToTensorV2(),
+          ]
+      )
+
+      # Read the image using OpenCV
+      image = cv2.imread(image_path)
+
+      # Convert the image from BGR to RGB format
+      image = cv2.cvtColor(
+          image,
+          cv2.COLOR_BGR2RGB,
+      )
+
+      # Apply the transformations
+      transformed_image = transform(image=image)["image"]
+
+      return transformed_image
+#+end_src
+
+* COMMENT Main code
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import requests
+  from PIL import Image
+  from io import BytesIO
+  from transformers import ViTFeatureExtractor
+  from transformers import ViTForImageClassification
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  # Get example image from official fairface repo + read it in as an image
+  r = requests.get('https://github.com/dchen236/FairFace/blob/master/detected_faces/race_Asian_face0.jpg?raw=true')
+  im = Image.open(BytesIO(r.content))
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  MODEL_NAME = "motheecreator/vit-Facial-Expression-Recognition"
+  model = ViTForImageClassification.from_pretrained(MODEL_NAME)
+  transforms = ViTFeatureExtractor.from_pretrained(MODEL_NAME)
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  # Transform our image and pass it through the model
+  inputs = transforms(im, return_tensors='pt')
+  output = model(**inputs)
+
+  # Predicted Class probabilities
+  proba = output.logits.softmax(1)
+
+  # Predicted Classes
+  preds = proba.argmax(1)
+#+end_src
+
+* COMMENT OLD
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  checkpoint = "google/vit-base-patch16-224-in21k"
+  image_processor = AutoImageProcessor.from_pretrained(checkpoint)
+
+
+  url = 'http://images.cocodataset.org/val2017/000000039769.jpg'
+  image = Image.open(requests.get(url, stream=True).raw)
+
+  # processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224-in21k')
+  processor = ViTForImageClassification.from_pretrained('motheecreator/vit-Facial-Expression-Recognition')
+  model = ViTForImageClassification.from_pretrained('motheecreator/vit-Facial-Expression-Recognition')
+  inputs = processor(images=image, return_tensors="pt")
+  outputs = model(**inputs)
+#+end_src
+
 * Script to unify
 
 ** Important functions

@@ -170,6 +170,10 @@ class image_reader:
                 ToTensorV2(),
             ]
         )
+        (
+            self.device,
+            self.dtype,
+        ) = get_good_device_and_dtype()
 
     def read_image(
         self,
