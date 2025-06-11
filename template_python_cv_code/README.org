@@ -208,7 +208,7 @@
 
 *** Main class to read the image
 #+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
-  class image_reader:
+  class class_read_image_processed:
       def __init__(self):
           self.imagenet_mean = [
               0.485,
@@ -242,19 +242,112 @@
               self.dtype,
           ) = get_good_device_and_dtype()
 
-      def read_image(
-          self,
-          path_file_image_input,
-      ):
-          image = read_image(path_file_image_input=path_file_image_input)
-          transformed_image = self.transform(image=image)["image"]
-          return transformed_image
-
       def __call__(
           self,
           path_file_image_input,
       ):
-          return self.read_image(path_file_image_input)
+          image = read_image(path_file_image_input=path_file_image_input)
+          image = self.transform(image=image)["image"].to(
+              device=self.device,
+              dtype=self.dtype,
+          )
+          return image
+#+end_src
+
+** Main dataset
+
+*** Dataset classes
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import torch
+  from torch.utils.data import Dataset
+#+end_src
+
+*** Import numpy
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import numpy as np
+#+end_src
+
+*** The main class to provide the dataset
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class CustomImageDataset(Dataset):
+      def __init__(
+          self,
+          list_data_input,
+          repeat_factor=1,
+          force_length=None,
+      ):
+          self.repeat_factor = repeat_factor
+          self.list_data_input = list_data_input
+          self.actual_length = len(self.list_data_input)
+          self.force_length = force_length
+          self.main_read_image_processed = class_read_image_processed()
+
+      def __len__(self):
+          if self.force_length is not None:
+              return self.force_length
+          else:
+              return self.actual_length * self.repeat_factor
+
+      def __getitem__(
+          self,
+          i,
+      ):
+          i = i % self.actual_length
+
+          path_file_image = self.list_data_input[i]
+
+          tensor = self.main_read_image_processed(path_file_image)
+
+          return (
+              path_file_image,
+              tensor,
+          )
+#+end_src
+
+*** Get the torch dataset with files under /data/input/
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_dataset(
+      path_dir_input="/data/input",
+      repeat_factor=1,
+      force_length=None,
+  ):
+      slave = CustomImageDataset(
+          list_data_input=get_list_path_file_image_input(path_dir_input=path_dir_input),
+          repeat_factor=repeat_factor,
+          force_length=force_length,
+      )
+
+      return slave
+#+end_src
+
+** Function for getting usable data loader
+
+*** Import dataloader
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from torch.utils.data import DataLoader
+#+end_src
+
+*** The main function
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_data_loader(
+      path_dir_input="/data/input",
+      batch_size=16,
+      train_mode=False,
+      repeat_factor=1,
+      force_length=None,
+  ):
+      dataset = get_dataset(
+          path_dir_input=path_dir_input,
+          repeat_factor=repeat_factor,
+          force_length=force_length,
+      )
+
+      return DataLoader(
+          dataset,
+          batch_size=batch_size,
+          shuffle=train_mode,
+          num_workers=8,
+      )
 #+end_src
 
 * Script to unify
