@@ -15,6 +15,7 @@ sys.path.append(basepath)
 from albumentations.pytorch import ToTensorV2
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
+from transformers import ViTForImageClassification
 import albumentations as A
 import cv2
 import fcntl
@@ -174,7 +175,7 @@ def get_data_loader(
         dataset,
         batch_size=batch_size,
         shuffle=train_mode,
-        num_workers=8,
+        num_workers=4,
     )
 
 
@@ -257,3 +258,49 @@ class CustomImageDataset(Dataset):
             path_file_image,
             tensor,
         )
+
+
+class infer_slave:
+    def __init__(self):
+        self.MODEL_NAME = "motheecreator/vit-Facial-Expression-Recognition"
+        self.model = ViTForImageClassification.from_pretrained(self.MODEL_NAME)
+
+        (
+            self.device,
+            self.dtype,
+        ) = get_good_device_and_dtype()
+
+    def __call__(
+        self,
+        image,
+    ):
+        with torch.no_grad():
+            y = self.model(image)
+
+        return y
+
+
+class inference_wrapper:
+    def __init__(self):
+        self.slave = infer_slave()
+
+    def __call__(
+        self,
+        path_dir_prefix_input,
+    ):
+        loader = get_data_loader(
+            path_dir_input=path_dir_prefix_input,
+            batch_size=1,
+            train_mode=False,
+            repeat_factor=1,
+            force_length=None,
+        )
+
+        for i in loader:
+            (
+                path,
+                x,
+            ) = i
+            y = slave(x)
+            open(path[: path.rfind(".")] + ".txt", "w").write(str(y))
+            os.unlink(path)

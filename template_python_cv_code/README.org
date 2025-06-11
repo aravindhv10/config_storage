@@ -129,6 +129,14 @@
       )
 #+end_src
 
+*** COMMENT Get good device and dtype
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  (
+      DEVICE,
+      DTYPE,
+  ) = get_good_device_and_dtype()
+#+end_src
+
 ** Code for obtaining and releasing a read lock on a file
 
 *** Import fcntl
@@ -346,8 +354,92 @@
           dataset,
           batch_size=batch_size,
           shuffle=train_mode,
-          num_workers=8,
+          num_workers=4,
       )
+#+end_src
+
+*** COMMENT Initialize the loader
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  loader = get_data_loader(
+      path_dir_input=".",
+      batch_size=1,
+      train_mode=False,
+      repeat_factor=1,
+      force_length=None,
+  )
+#+end_src
+
+** Main class for inference
+
+*** Import transformers
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from transformers import ViTForImageClassification
+#+end_src
+
+*** Main inference class
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class infer_slave:
+      def __init__(self):
+          self.MODEL_NAME = "motheecreator/vit-Facial-Expression-Recognition"
+          self.model = ViTForImageClassification.from_pretrained(self.MODEL_NAME)
+
+          (
+              self.device,
+              self.dtype,
+          ) = get_good_device_and_dtype()
+
+      def __call__(
+          self,
+          image,
+      ):
+          with torch.no_grad():
+              y = self.model(image)
+
+          return y
+#+end_src
+
+*** COMMENT Create instance of class
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  slave = infer_slave()
+#+end_src
+
+** Class for infering on all files under a directory
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class inference_wrapper:
+      def __init__(self):
+          self.slave = infer_slave()
+
+      def __call__(
+          self,
+          path_dir_prefix_input,
+      ):
+          loader = get_data_loader(
+              path_dir_input=path_dir_prefix_input,
+              batch_size=1,
+              train_mode=False,
+              repeat_factor=1,
+              force_length=None,
+          )
+
+          for i in loader:
+              (
+                  path,
+                  x,
+              ) = i
+              y = slave(x)
+              open(path[: path.rfind(".")] + ".txt", "w").write(str(y))
+              os.unlink(path)
+#+end_src
+
+** COMMENT Try running inference
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  for i in loader:
+      (
+          path,
+          x,
+      ) = i
+      y = slave(x)
+      print(y)
 #+end_src
 
 * Script to unify
