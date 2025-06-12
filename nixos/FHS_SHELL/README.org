@@ -40,6 +40,8 @@ rocmPackages.meta.rocm-all
 #+begin_src nix :tangle ./shell.nix
   bc
   bison
+  ffmpeg
+  ffmpeg.dev
   flex
   gnumake
   libelf

@@ -2,6 +2,8 @@
   mylist = with pkgs; [
     bc
     bison
+    ffmpeg
+    ffmpeg.dev
     flex
     gnumake
     libelf

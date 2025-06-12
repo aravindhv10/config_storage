@@ -270,6 +270,7 @@ in {
     dnsmasq
     docker-compose # start group of containers for dev
     ffmpeg
+    ffmpeg.dev
     file
     foot
     fuse3
