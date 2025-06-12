@@ -38,7 +38,6 @@
 rocmPackages.meta.rocm-all
 ****** generic packages
 #+begin_src nix :tangle ./shell.nix
-  alsa-lib
   bc
   bison
   flex
@@ -48,9 +47,6 @@ rocmPackages.meta.rocm-all
   openssl.dev
   python312Full
   udev
-  xorg.libX11
-  xorg.libXcursor
-  xorg.libXrandr
   zsh
   zstd
 #+end_src
@@ -64,10 +60,19 @@ rocmPackages.meta.rocm-all
 
 ******* main
 #+begin_src nix :tangle ./shell.nix
+  albumentations
+  einops
+  inotify-simple
+  ipython
+  multiprocess
   numpy
   opencv-python
-  ipython
-  yt-dlp
+  pillow
+  requests
+  safetensors
+  torch
+  torchvision
+  transformers
 #+end_src
 
 ******* end
@@ -109,7 +114,7 @@ rocmPackages.meta.rocm-all
 
 *** Main shell command
 #+begin_src nix :tangle ./shell.nix
-  runScript = "zsh";
+  runScript = "fish";
 #+end_src
 
 *** Trailer

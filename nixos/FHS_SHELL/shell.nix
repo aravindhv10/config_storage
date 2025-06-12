@@ -1,6 +1,5 @@
 {pkgs ? import <nixpkgs> {}}: let
   mylist = with pkgs; [
-    alsa-lib
     bc
     bison
     flex
@@ -10,18 +9,24 @@
     openssl.dev
     python312Full
     udev
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXrandr
     zsh
     zstd
 
     (pkgs.python312.withPackages (ps:
       with ps; [
+        albumentations
+        einops
+        inotify-simple
+        ipython
+        multiprocess
         numpy
         opencv-python
-        ipython
-        yt-dlp
+        pillow
+        requests
+        safetensors
+        torch
+        torchvision
+        transformers
       ]))
   ];
 in
@@ -32,7 +37,7 @@ in
 
     multiPkgs = pkgs: mylist;
 
-    runScript = "zsh";
+    runScript = "fish";
   })
 
 .env
