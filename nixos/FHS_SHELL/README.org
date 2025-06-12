@@ -45,7 +45,7 @@ rocmPackages.meta.rocm-all
   libelf
   openssl
   openssl.dev
-  python312Full
+  python313Full
   udev
   zsh
   zstd
@@ -55,7 +55,7 @@ rocmPackages.meta.rocm-all
 
 ******* begin
 #+begin_src nix :tangle ./shell.nix
-  (pkgs.python312.withPackages (ps: with ps; [
+  (pkgs.python313.withPackages (ps: with ps; [
 #+end_src
 
 ******* main

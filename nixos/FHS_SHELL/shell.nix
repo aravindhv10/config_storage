@@ -7,12 +7,12 @@
     libelf
     openssl
     openssl.dev
-    python312Full
+    python313Full
     udev
     zsh
     zstd
 
-    (pkgs.python312.withPackages (ps:
+    (pkgs.python313.withPackages (ps:
       with ps; [
         albumentations
         einops
