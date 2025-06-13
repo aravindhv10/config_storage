@@ -17,7 +17,6 @@ from common_utils import *
 from get_file_list import *
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
-from transformers import ViTForImageClassification
 import albumentations as A
 import cv2
 import fcntl
@@ -74,9 +73,13 @@ def read_image_and_unlink(path_file_image_input):
     return res
 
 
-def get_dataset(path_dir_input="/data/input"):
+def get_dataset(
+    path_dir_input="/data/input",
+    do_unlink=True,
+):
     slave = CustomImageDataset(
-        list_data_input=get_list_path_file_image_input(path_dir_input=path_dir_input)
+        list_data_input=get_list_path_file_image_input(path_dir_input=path_dir_input),
+        do_unlink=do_unlink,
     )
 
     return slave
@@ -86,8 +89,12 @@ def get_data_loader(
     path_dir_input="/data/input",
     batch_size=16,
     num_workers=4,
+    do_unlink=True,
 ):
-    dataset = get_dataset(path_dir_input=path_dir_input)
+    dataset = get_dataset(
+        path_dir_input=path_dir_input,
+        do_unlink=do_unlink,
+    )
 
     return DataLoader(
         dataset,
@@ -158,10 +165,11 @@ class CustomImageDataset(Dataset):
     def __init__(
         self,
         list_data_input,
+        do_unlink=True,
     ):
         self.list_data_input = list_data_input
         self.actual_length = len(self.list_data_input)
-        self.main_read_image_processed = class_read_image_processed()
+        self.main_read_image_processed = class_read_image_processed(do_unlink=do_unlink)
 
     def __len__(self):
         return self.actual_length
@@ -177,46 +185,3 @@ class CustomImageDataset(Dataset):
             path_file_image,
             tensor,
         )
-
-
-class infer_slave:
-    def __init__(self):
-        self.MODEL_NAME = "motheecreator/vit-Facial-Expression-Recognition"
-        self.model = ViTForImageClassification.from_pretrained(self.MODEL_NAME)
-
-        (
-            self.device,
-            self.dtype,
-        ) = get_good_device_and_dtype()
-
-    def __call__(
-        self,
-        image,
-    ):
-        with torch.no_grad():
-            y = self.model(image)
-
-        return y
-
-
-class inference_wrapper:
-    def __init__(self):
-        self.slave = infer_slave()
-
-    def __call__(
-        self,
-        path_dir_prefix_input,
-    ):
-        loader = get_data_loader(
-            path_dir_input=path_dir_prefix_input,
-            batch_size=1,
-        )
-
-        for i in loader:
-            (
-                path,
-                x,
-            ) = i
-            y = slave(x)
-            open(path[: path.rfind(".")] + ".txt", "w").write(str(y))
-            os.unlink(path)

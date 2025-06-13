@@ -1,0 +1,186 @@
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./main.unify.sh" "log" "err")
+#+end_src
+
+* Main python code
+
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import sys
+
+  sys.path.append(os.path.dirname(basepath))
+#+end_src
+
+*** Import common_utils
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from common_utils import *
+#+end_src
+
+*** Import functions to get file list
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from get_file_list import *
+#+end_src
+
+*** Import functions to get dataset
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from dataset_dataloader import *
+#+end_src
+
+** Main class for inference
+
+*** Import transformers
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from transformers import ViTForImageClassification
+#+end_src
+
+*** Main inference class
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class infer_slave:
+      def __init__(self):
+          self.MODEL_NAME = "motheecreator/vit-Facial-Expression-Recognition"
+          self.model = ViTForImageClassification.from_pretrained(self.MODEL_NAME)
+
+          (
+              self.device,
+              self.dtype,
+          ) = get_good_device_and_dtype()
+
+      def __call__(
+          self,
+          image,
+      ):
+          with torch.no_grad():
+              y = self.model(image)
+
+          return y
+#+end_src
+
+*** COMMENT Create instance of class
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  slave = infer_slave()
+#+end_src
+
+** Class for infering on all files under a directory
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class inference_wrapper:
+      def __init__(self):
+          self.slave = infer_slave()
+
+      def __call__(
+          self,
+          path_dir_prefix_input,
+          do_unlink=True,
+      ):
+          loader = get_data_loader(
+              path_dir_input=path_dir_prefix_input,
+              batch_size=1,
+              do_unlink=do_unlink,
+          )
+
+          for i in loader:
+              (
+                  path,
+                  x,
+              ) = i
+              y = slave(x)
+              open(path[: path.rfind(".")] + ".txt", "w").write(str(y))
+#+end_src
+
+* Script to unify
+
+** Important functions
+
+*** Process the python code stream
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  P () {
+      expand | ruff format -
+  }
+#+end_src
+
+*** Read the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  R () {
+      grep -v '^#!/usr/bin/python3$' "./${1}" | P
+  }
+#+end_src
+
+*** Remove the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  C () {
+      rm -vf -- "./${1}"
+  }
+#+end_src
+
+*** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  A () {
+      git add "./${1}"
+  }
+#+end_src
+
+** Actual working scripts
+
+*** Unifying the python code
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  (
+      echo '#!/usr/bin/env python3'
+      R main.config.py
+      R main.import.py | sort | uniq
+      R main.function.py
+      R main.class.py
+      R main.execute.py
+  ) | P > ./main.py
+#+end_src
+
+*** Cleanup residual files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  C main.class.py
+  C main.config.py
+  C main.execute.py
+  C main.function.py
+  C main.import.py
+  C main.unify.sh
+#+end_src
+
+*** Add stuff to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  A main.py
+  A README.org
+#+end_src
+
+* Sample
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+#+end_src
