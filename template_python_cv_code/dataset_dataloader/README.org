@@ -316,7 +316,7 @@
       R main.function.py
       R main.class.py
       R main.execute.py
-  ) | P > ./main.py
+  ) | P > './__init__.py'
 #+end_src
 
 *** Cleanup residual files
@@ -331,7 +331,7 @@
 
 *** Add stuff to git
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
-  A main.py
+  A __init__.py
   A README.org
 #+end_src
 
