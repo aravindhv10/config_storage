@@ -1,0 +1,181 @@
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./main.unify.sh" "log" "err")
+#+end_src
+
+* Main python code
+
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = os.getcwd()
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__))
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import sys
+
+  sys.path.append(os.path.dirname(basepath))
+#+end_src
+
+*** Import common_utils
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from common_utils import *
+#+end_src
+
+** Function to check type of file
+
+*** Function to check if the given file is video
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def is_path_file_video(path_input):
+      if (not os.path.exists(path_input)) or (os.path.isdir(path_input)):
+          return False
+      else:
+          path_input = path_input.lower()
+          return path_input.endswith(".mp4")
+#+end_src
+
+*** Function to check if the given file is image
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def is_path_file_image(path_input):
+      if (not os.path.exists(path_input)) or (os.path.isdir(path_input)):
+          return False
+      else:
+          path_input = path_input.lower()
+          return (
+              path_input.endswith(".jpg")
+              or path_input.endswith(".jpeg")
+              or path_input.endswith(".png")
+              or path_input.endswith(".bmp")
+          )
+#+end_src
+
+** Function to find all files under a directory tree
+
+*** Video
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_list_path_file_video_input(path_dir_input="/data/input"):
+      list_path_file_input = []
+
+      for (
+          root,
+          dirs,
+          files,
+      ) in os.walk(path_dir_input):
+          list_path_file_input += filter(
+              is_path_file_video,
+              [root + "/" + i for i in files],
+          )
+
+      return list_path_file_input
+#+end_src
+
+*** Images
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_list_path_file_image_input(path_dir_input="/data/input"):
+      list_path_file_input = []
+
+      for (
+          root,
+          dirs,
+          files,
+      ) in os.walk(path_dir_input):
+          list_path_file_input += filter(
+              is_path_file_image,
+              [root + "/" + i for i in files],
+          )
+
+      return list_path_file_input
+#+end_src
+
+* Script to unify
+
+** Important functions
+
+*** Process the python code stream
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  P () {
+      expand | ruff format -
+  }
+#+end_src
+
+*** Read the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  R () {
+      grep -v '^#!/usr/bin/python3$' "./${1}" | P
+  }
+#+end_src
+
+*** Remove the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  C () {
+      rm -vf -- "./${1}"
+  }
+#+end_src
+
+*** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  A () {
+      git add "./${1}"
+  }
+#+end_src
+
+** Actual working scripts
+
+*** Unifying the python code
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  (
+      echo '#!/usr/bin/env python3'
+      R main.config.py
+      R main.import.py | sort | uniq
+      R main.function.py
+      R main.class.py
+      R main.execute.py
+  ) | P > ./__init__.py
+#+end_src
+
+*** Cleanup residual files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  C main.class.py
+  C main.config.py
+  C main.execute.py
+  C main.function.py
+  C main.import.py
+  C main.unify.sh
+#+end_src
+
+*** Add stuff to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  A __init__.py
+  A README.org
+#+end_src
+
+* Sample
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+#+end_src
