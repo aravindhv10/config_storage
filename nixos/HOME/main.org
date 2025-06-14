@@ -16,6 +16,7 @@
           git add './HOME,.config,nixpkgs,config.nix'
           git add './HOME,.config,nushell,config.nu'
           git add './HOME,.config,systemd,user,plasma-kwin_wayland.service'
+          git add './__HOME_,.config,wallpaper.sh'
           git add './HOME,.config,waybar,config.jsonc'
           git add './HOME,.config,wayfire.ini'
           git add './HOME,important_functions.sh'
@@ -96,7 +97,7 @@
 #+end_src
 
 ** Actual script
-#+begin_src conf :tangle ./__HOME_,.config,wallpaper.sh
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./__HOME_,.config,wallpaper.sh
 exec mpvpaper -vs -o "no-audio loop" eDP-1 "${HOME}/Videos/wallpaper.mp4"
 #+end_src
 
