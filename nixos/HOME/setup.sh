@@ -16,6 +16,8 @@ rm -vf "${HOME}/.config/systemd/user/plasma-kwin_wayland.service"
 alejandra './HOME,.config,nixpkgs,config.nix'
 C './HOME,.config,nixpkgs,config.nix' "${HOME}/.config/nixpkgs/config.nix"
 
+C './__HOME_,.config,wallpaper.sh' "${HOME}/.config/wallpaper.sh"
+
 # C './HOME,.config,ironbar,config.toml' "${HOME}/.config/ironbar/config.toml"
 C './HOME,.config,ironbar,config.corn' "${HOME}/.config/ironbar/config.corn"
 C './HOME,.config,ironbar,style.css' "${HOME}/.config/ironbar/style.css"

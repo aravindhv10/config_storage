@@ -88,6 +88,18 @@
   {allowUnfree = true;}
 #+end_src
 
+* Wallpaper
+
+** Copy the script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
+  C './__HOME_,.config,wallpaper.sh' "${HOME}/.config/wallpaper.sh"
+#+end_src
+
+** Actual script
+#+begin_src conf :tangle ./__HOME_,.config,wallpaper.sh
+exec mpvpaper -vs -o "no-audio loop" eDP-1 "${HOME}/Videos/wallpaper.mp4"
+#+end_src
+
 * ronbar
 
 ** Copy the config file
@@ -2606,6 +2618,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   # https://wayland.emersion.fr/mako/
   notifications = mako
   # wallpaper = swww-daemon
+  wallpaper = "${HOME}/.config/wallpaper.sh"
 
   ydotooldaenon = YDOTOOL_DAEMON
   osdserver = swayosd-server
