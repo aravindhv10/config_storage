@@ -1,0 +1,243 @@
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "./main.unify.sh" "log" "err")
+#+end_src
+
+* Main python code
+
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import sys
+
+  sys.path.append(basepath)
+#+end_src
+
+** Import fastapi
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from fastapi import FastAPI
+  from fastapi import File
+  from fastapi import UploadFile
+  from fastapi import HTTPException
+  from fastapi.responses import StreamingResponse
+#+end_src
+
+** Import io
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import io
+#+end_src
+
+** Import PIL
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from PIL import Image
+#+end_src
+
+** Declare the endpoint
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  app = FastAPI(
+      title="Infer face expression",
+      description="Upload an image (JPG or PNG) to infer facian expression.",
+      version="1.0.0",
+  )
+#+end_src
+
+** Main inference like function
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  @app.post("/convert-to-monochrome/", response_class=StreamingResponse)
+  async def create_monochrome_image(file: UploadFile = File(...)):
+      """
+      Accepts an image file, converts it to monochrome, and returns the result.
+
+      ,**Args**:
+      - **file**: The uploaded image file (must be in JPG or PNG format).
+
+      ,**Returns**:
+      - A streaming response containing the monochrome image in PNG format.
+      """
+      # 1. Validate the uploaded file type
+      if file.content_type not in ["image/jpeg", "image/png"]:
+          raise HTTPException(
+              status_code=400,
+              detail="Invalid file type. Please upload a JPG or PNG image.",
+          )
+
+      # 2. Read the image data from the uploaded file
+      # `await file.read()` reads the file content into memory.
+      contents = await file.read()
+
+      # 3. Use Pillow to open the image from the in-memory bytes
+      try:
+          image = Image.open(io.BytesIO(contents))
+      except Exception:
+          raise HTTPException(status_code=500, detail="Could not process the image file.")
+
+      # 4. Convert the image to monochrome (grayscale)
+      # The 'L' mode in Pillow stands for luminance, which is grayscale.
+      monochrome_image = image.convert("L")
+
+      # 5. Save the converted image to an in-memory buffer
+      # We save it in PNG format to preserve quality.
+      img_byte_arr = io.BytesIO()
+      monochrome_image.save(img_byte_arr, format="PNG")
+
+      # The `seek(0)` is crucial. After writing to the buffer, the "cursor" is at the end.
+      # We need to move it back to the beginning before reading the data to send it.
+      img_byte_arr.seek(0)
+
+      # 6. Return the image as a StreamingResponse
+      # This is an efficient way to send binary data like images.
+      return StreamingResponse(img_byte_arr, media_type="image/png")
+#+end_src
+
+** Doc function
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  # Optional: Add a root endpoint for basic API health check
+  @app.get("/")
+  def read_root():
+      return {
+          "message": "Welcome to the Monochrome Image Converter API. Go to /docs for usage."
+      }
+#+end_src
+
+* Script to unify
+
+** Important functions
+
+*** Process the python code stream
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  P () {
+      expand | ruff format -
+  }
+#+end_src
+
+*** Read the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  R () {
+      grep -v '^#!/usr/bin/python3$' "./${1}" | P
+  }
+#+end_src
+
+*** Remove the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  C () {
+      rm -vf -- "./${1}"
+  }
+#+end_src
+
+*** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  A () {
+      git add "./${1}"
+  }
+#+end_src
+
+** Actual working scripts
+
+*** Unifying the python code
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  (
+      echo '#!/usr/bin/env python3'
+      R main.config.py
+      R main.import.py | sort | uniq
+      R main.function.py
+      R main.class.py
+      R main.execute.py
+  ) | P > ./main.py
+#+end_src
+
+*** Cleanup residual files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  C main.class.py
+  C main.config.py
+  C main.execute.py
+  C main.function.py
+  C main.import.py
+  C main.unify.sh
+#+end_src
+
+*** Add stuff to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+  A main.py
+  A README.org
+#+end_src
+
+* Sample
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./main.unify.sh
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+#+end_src
+
+* TOSORT
+
+
+import requests
+
+# Define the local file path and the API endpoint URL
+local_file_path = "file.png"
+api_url = "http://127.0.0.1:8000/convert-to-monochrome/"
+output_file_path = "monochrome_file.png"
+
+print(f"Attempting to upload '{local_file_path}' to '{api_url}'...")
+
+try:
+    # 1. Open the file in binary read mode ('rb')
+    with open(local_file_path, "rb") as image_file:
+        
+        # 2. Prepare the file for the multipart/form-data request
+        # The key 'file' must match the parameter name in your FastAPI endpoint
+        # The tuple contains: filename, file-like object, content type
+        files = {
+            "file": (local_file_path, image_file, "image/png")
+        }
+
+        # 3. Send the POST request with the file
+        # The 'stream=True' parameter is important for handling streaming responses
+        response = requests.post(api_url, files=files, stream=True)
+
+    # 4. Check if the request was successful (status code 200 OK)
+    if response.status_code == 200:
+        # 5. Save the returned image to a new file
+        with open(output_file_path, "wb") as output_file:
+            # Iterate over the response data in chunks and write to the file
+            for chunk in response.iter_content(chunk_size=8192):
+                output_file.write(chunk)
+        print(f"Success! Monochrome image saved to '{output_file_path}'")
+    
+    else:
+        # If the server returned an error, print it
+        print(f"Error: {response.status_code}")
+        print(f"Response: {response.text}")
+
+except FileNotFoundError:
+    print(f"Error: The file '{local_file_path}' was not found.")
+except requests.exceptions.RequestException as e:
+    print(f"An error occurred during the request: {e}")
