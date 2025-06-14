@@ -374,6 +374,7 @@ in {
     unstable.bottom
     unstable.byobu
     unstable.clapboard
+    unstable.conky
     unstable.difftastic
     unstable.dust
     unstable.emacs30
