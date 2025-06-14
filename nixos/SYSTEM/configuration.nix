@@ -347,6 +347,8 @@ in {
       with ps; [
         albumentations
         einops
+        fastapi
+        flask
         inotify-simple
         ipython
         multiprocess
