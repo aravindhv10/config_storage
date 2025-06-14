@@ -2605,7 +2605,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   # Notifications
   # https://wayland.emersion.fr/mako/
   notifications = mako
-  wallpaper = swww-daemon
+  # wallpaper = swww-daemon
 
   ydotooldaenon = YDOTOOL_DAEMON
   osdserver = swayosd-server

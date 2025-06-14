@@ -47,6 +47,7 @@ class inference_wrapper:
         path_dir_prefix_input,
         do_unlink=True,
     ):
+        print("Called inference wrapper with " + path_dir_prefix_input)
         loader = get_data_loader(
             path_dir_input=path_dir_prefix_input,
             batch_size=1,
@@ -58,5 +59,7 @@ class inference_wrapper:
                 path,
                 x,
             ) = i
-            y = slave(x)
+            print("Inferring on ", path)
+            y = self.slave(x)
+            print("Done inferring on " + path)
             open(path[: path.rfind(".")] + ".txt", "w").write(str(y))
