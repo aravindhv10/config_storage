@@ -40,6 +40,7 @@ rocmPackages.meta.rocm-all
 #+begin_src nix :tangle ./shell.nix
   bc
   bison
+  blend2d
   ffmpeg
   ffmpeg.dev
   flex

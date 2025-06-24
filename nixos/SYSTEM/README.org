@@ -984,6 +984,7 @@ You can disable this if you're only using the Wayland session.
   alsa-utils
   appstream
   brave
+  bridge-utils
   brightnessctl
   cargo
   catppuccin-kde
@@ -1050,7 +1051,9 @@ You can disable this if you're only using the Wayland session.
   podman
   podman-compose # start group of containers for dev
   podman-tui # status of containers in the terminal
+  poppler-utils
   qbittorrent-enhanced
+  qpdf
   rustc
   rustfmt
   shellcheck
@@ -1061,6 +1064,7 @@ You can disable this if you're only using the Wayland session.
   unzip
   uwsm
   vim
+  virt-viewer
   vscode-fhs
   waybar
   wayland
@@ -1133,6 +1137,7 @@ You can disable this if you're only using the Wayland session.
   unstable.atuin
   unstable.azure-cli
   unstable.bat
+  unstable.blend2d
   unstable.bottom
   unstable.byobu
   unstable.clapboard
@@ -1158,6 +1163,7 @@ You can disable this if you're only using the Wayland session.
   unstable.ruff
   unstable.rust-analyzer
   unstable.skim
+  unstable.spice-gtk
   unstable.squashfsTools
   unstable.starship
   unstable.swww

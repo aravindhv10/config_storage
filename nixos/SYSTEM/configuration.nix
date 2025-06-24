@@ -255,6 +255,7 @@ in {
     alsa-utils
     appstream
     brave
+    bridge-utils
     brightnessctl
     cargo
     catppuccin-kde
@@ -321,7 +322,9 @@ in {
     podman
     podman-compose # start group of containers for dev
     podman-tui # status of containers in the terminal
+    poppler-utils
     qbittorrent-enhanced
+    qpdf
     rustc
     rustfmt
     shellcheck
@@ -332,6 +335,7 @@ in {
     unzip
     uwsm
     vim
+    virt-viewer
     vscode-fhs
     waybar
     wayland
@@ -373,6 +377,7 @@ in {
     unstable.atuin
     unstable.azure-cli
     unstable.bat
+    unstable.blend2d
     unstable.bottom
     unstable.byobu
     unstable.clapboard
@@ -398,6 +403,7 @@ in {
     unstable.ruff
     unstable.rust-analyzer
     unstable.skim
+    unstable.spice-gtk
     unstable.squashfsTools
     unstable.starship
     unstable.swww
