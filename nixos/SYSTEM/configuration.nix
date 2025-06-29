@@ -32,6 +32,8 @@ in {
   };
 
   networking = {
+    timeServers = ["ntp.example.com" "time.google.com"];
+
     networkmanager.enable = true;
 
     nftables.enable = true;
@@ -371,6 +373,7 @@ in {
     rocmPackages.hipcc
 
     unstable.ags
+    unstable.rustlings
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
@@ -1178,6 +1181,8 @@ in {
 
     '')
   ];
+
+  services.chrony.enable = true;
 
   services.openssh.enable = true;
 
