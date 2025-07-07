@@ -1112,6 +1112,8 @@ You can disable this if you're only using the Wayland session.
   pillow
   requests
   safetensors
+  tensorboard
+  tensorboardx
   torch
   torchvision
   transformers

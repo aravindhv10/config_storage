@@ -363,6 +363,8 @@ in {
         pillow
         requests
         safetensors
+        tensorboard
+        tensorboardx
         torch
         torchvision
         transformers
