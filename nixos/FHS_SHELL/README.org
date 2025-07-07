@@ -43,6 +43,7 @@ rocmPackages.meta.rocm-all
   blend2d
   ffmpeg
   ffmpeg.dev
+  fish
   flex
   gnumake
   libelf
@@ -58,7 +59,7 @@ rocmPackages.meta.rocm-all
 
 ******* begin
 #+begin_src nix :tangle ./shell.nix
-  (pkgs.python313.withPackages (ps: with ps; [
+  (pkgs.python312.withPackages (ps: with ps; [
 #+end_src
 
 ******* main

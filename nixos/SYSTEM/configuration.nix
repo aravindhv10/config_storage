@@ -373,7 +373,6 @@ in {
     rocmPackages.hipcc
 
     unstable.ags
-    unstable.rustlings
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
@@ -400,11 +399,13 @@ in {
     unstable.miniserve
     unstable.mpvpaper
     unstable.nixfmt-rfc-style
+    unstable.opencv4
     unstable.pdf2svg
     unstable.rclone
     unstable.ripgrep
     unstable.ruff
     unstable.rust-analyzer
+    unstable.rustlings
     unstable.skim
     unstable.spice-gtk
     unstable.squashfsTools
