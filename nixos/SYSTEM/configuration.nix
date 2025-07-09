@@ -361,6 +361,7 @@ in {
         numpy
         opencv-python
         pillow
+        python-multipart
         requests
         safetensors
         tensorboard
@@ -368,6 +369,7 @@ in {
         torch
         torchvision
         transformers
+        uvicorn
         yt-dlp
       ]))
 

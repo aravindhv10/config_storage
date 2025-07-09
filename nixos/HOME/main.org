@@ -98,7 +98,7 @@
 
 ** Actual script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./__HOME_,.config,wallpaper.sh
-exec mpvpaper -vs -o "no-audio loop" eDP-1 "${HOME}/Videos/wallpaper.mp4"
+  exec mpvpaper -vs -o "no-audio loop" eDP-1 "${HOME}/Videos/wallpaper.mp4"
 #+end_src
 
 * ronbar
