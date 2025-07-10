@@ -357,8 +357,10 @@ in {
         flask
         inotify-simple
         ipython
+        lightning
         multiprocess
         numpy
+        onnxruntime
         opencv-python
         pillow
         python-multipart
@@ -366,6 +368,7 @@ in {
         safetensors
         tensorboard
         tensorboardx
+        timm
         torch
         torchvision
         transformers

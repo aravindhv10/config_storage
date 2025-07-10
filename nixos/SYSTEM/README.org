@@ -1106,8 +1106,10 @@ You can disable this if you're only using the Wayland session.
   flask
   inotify-simple
   ipython
+  lightning
   multiprocess
   numpy
+  onnxruntime
   opencv-python
   pillow
   python-multipart
@@ -1115,6 +1117,7 @@ You can disable this if you're only using the Wayland session.
   safetensors
   tensorboard
   tensorboardx
+  timm
   torch
   torchvision
   transformers
