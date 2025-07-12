@@ -260,6 +260,7 @@ in {
     bridge-utils
     brightnessctl
     cargo
+    cargo-info
     catppuccin-kde
     clang_19
     clang-tools_19
