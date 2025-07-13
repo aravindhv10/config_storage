@@ -1,77 +1,6 @@
-* work space
-
-** ELISP
-#+begin_src elisp :results silent
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "
-      git add './init.org'
-      git add './copy.sh'
-      git add './early-init.el'
-      git add './init.el'
-      git add './myelisp'
-      './copy.sh'
-  " "log" "err")
-#+end_src
-
-** Shell script to copy the config files
-
-*** CD to the dir
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  cd "$('dirname' '--' "${0}")"
-#+end_src
-
-*** Main functions to copy the configs
-
-**** Dir
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  D(){
-      rsync -avh --progress "${1}" "${2}"
-  }
-#+end_src
-
-**** File
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C(){
-      mkdir -pv -- "$('dirname' -- "${2}")"
-      rm -vf -- "${2}"
-      cp -vf -- "${1}" "${2}"
-  }
-#+end_src
-
-*** Copy the elisp snippet
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './myelisp' "./snippets/org-mode/myelisp"
-  D './snippets' "${HOME}/.emacs.d/"
-#+end_src
-
-*** early init file
-
-**** Create the file
-#+begin_src elisp :tangle ./early-init.el
-  ;; Blank starting line
-#+end_src
-
-**** Copy the file
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './early-init.el' "${HOME}/.emacs.d/early-init.el"
-#+end_src
-
-*** main file
-
-**** Create the file
-#+begin_src elisp :tangle ./init.el
-  ;; Blank starting line
-#+end_src
-
-**** Copy the file
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './init.el' "${HOME}/.emacs.d/init.el"
-#+end_src
-
 * Main emacs config
 
-** Setting path to include ~/bin
+** COMMENT Setting path to include ~/bin
 #+begin_src elisp :tangle ./early-init.el
   (setenv "PATH" (concat (concat (getenv "HOME") "/bin:") (getenv "PATH")))
 #+end_src
@@ -746,8 +675,6 @@
       ("q" hydra-all/body "all" :color blue)
       ("<escape>" nil "cancel" :color blue))
 
-
-
     (defhydra hydra-menu (:color red)
       "menu"
       ("z" text-scale-increase     "in")
@@ -1046,9 +973,6 @@
   (defun quicknav () (interactive) (dired (file-truename "~/link")))
 #+end_src
 
-#+RESULTS:
-: quicknav
-
 *** Functions to format code
 
 **** C and C++
@@ -1111,9 +1035,6 @@
     (goto-line mytmpline))
 #+end_src
 
-#+RESULTS:
-: myfun/save_and_expand
-
 *** Cancel everything
 #+begin_src elisp :tangle ./init.el
   (defun myfun/abort ()
@@ -1122,9 +1043,6 @@
     (company-abort)
     (company-search-abort))
 #+end_src
-
-#+RESULTS:
-: myfun/abort
 
 *** remove menu functions
 #+begin_src elisp :tangle ./init.el
@@ -1139,9 +1057,6 @@
     (tool-bar-mode 1))
 #+end_src
 
-#+RESULTS:
-: myfun/menu_y
-
 *** copy org src block
 #+begin_src elisp :tangle ./init.el
   (defun myfun/copy-org-src-block ()
@@ -1150,9 +1065,6 @@
     (kill-ring-save  (point-min) (point-max))
     (org-edit-src-abort))
 #+end_src
-
-#+RESULTS:
-: myfun/copy-org-src-block
 
 *** Bracketing functions
 #+begin_src elisp :tangle ./init.el
@@ -1232,4 +1144,75 @@
 
   (myfun/menu_n)
   (toggle-frame-fullscreen)
+#+end_src
+
+* work space
+
+** Shell script to copy the config files
+
+*** CD to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  cd "$('dirname' '--' "${0}")"
+#+end_src
+
+*** Main functions to copy the configs
+
+**** Dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  D(){
+      rsync -avh --progress "${1}" "${2}"
+  }
+#+end_src
+
+**** File
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C(){
+      mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
+      cp -vf -- "${1}" "${2}"
+  }
+#+end_src
+
+*** Copy the elisp snippet
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './myelisp' "./snippets/org-mode/myelisp"
+  D './snippets' "${HOME}/.emacs.d/"
+#+end_src
+
+*** early init file
+
+**** Create the file
+#+begin_src elisp :tangle ./early-init.el
+  ;; Blank starting line
+#+end_src
+
+**** Copy the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './early-init.el' "${HOME}/.emacs.d/early-init.el"
+#+end_src
+
+*** main file
+
+**** Create the file
+#+begin_src elisp :tangle ./init.el
+  ;; Blank starting line
+#+end_src
+
+**** Copy the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './init.el' "${HOME}/.emacs.d/init.el"
+#+end_src
+
+** COMMENT ELISP
+#+begin_src elisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      git add './init.org'
+      git add './copy.sh'
+      git add './early-init.el'
+      git add './init.el'
+      git add './myelisp'
+      './copy.sh'
+  " "log" "err")
 #+end_src

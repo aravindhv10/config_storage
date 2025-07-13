@@ -1,5 +1,3 @@
-;; Blank starting line
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -421,8 +419,6 @@
     ("q" hydra-all/body "all" :color blue)
     ("<escape>" nil "cancel" :color blue))
 
-
-
   (defhydra hydra-menu (:color red)
     "menu"
     ("z" text-scale-increase     "in")
@@ -798,3 +794,5 @@
 
 (myfun/menu_n)
 (toggle-frame-fullscreen)
+
+;; Blank starting line
