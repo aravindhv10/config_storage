@@ -1,37 +1,15 @@
-* WORK SPACE
+* COMMENT Sample
 
-** Only tangle
-#+begin_src emacs-lisp :results silent
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "
-
-          alejandra 'configuration.nix' ;
-          alejandra 'hardware-configuration.nix' ;
-
-          git add 'do_copy.sh' ;
-          git add 'configuration.nix' ;
-          git add 'hardware-configuration.nix' ;
-          git add 'README.org' ;
-          git add 'rebuild_boot.sh' ;
-          git add 'rebuild_switch.sh' ;
-
-          rm -vf -- '#configuration.nix#' ;
-          rm -vf -- 'README.org~' ;
-
-      " "log" "err")
+** hardware-configuration
+#+begin_src nix :tangle ./hardware-configuration.nix
 #+end_src
 
-** Copy the config file:
-
-*** Call the script
-#+begin_src emacs-lisp :results silent
-  (async-shell-command "./do_copy.sh" "log" "err")
+** configuration
+#+begin_src nix :tangle ./configuration.nix
 #+end_src
 
-*** Switch to the new config
-#+begin_src emacs-lisp :results silent
-  (async-shell-command "sudo -A nixos-rebuild switch" "log" "err")
+** script to copy
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
 #+end_src
 
 * Script to copy the config files
@@ -423,7 +401,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 ***** 6.14
 #+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxPackages_6_14; 
+    boot.kernelPackages = pkgs.linuxPackages_6_15; 
 #+end_src
 
 ***** COMMENT 6.12
@@ -1108,6 +1086,7 @@ You can disable this if you're only using the Wayland session.
   inotify-simple
   ipython
   lightning
+  matplotlib
   multiprocess
   numpy
   onnxruntime
@@ -1120,6 +1099,7 @@ You can disable this if you're only using the Wayland session.
   tensorboardx
   timm
   torch
+  torchmetrics
   torchvision
   transformers
   uvicorn
@@ -2329,12 +2309,38 @@ Before changing this value read the documentation for this option
   }
 #+end_src
 
-* Sample
+* WORK SPACE
 
-** hardware-configuration
-#+begin_src nix :tangle ./hardware-configuration.nix
+** Only tangle
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+
+          alejandra 'configuration.nix' ;
+          alejandra 'hardware-configuration.nix' ;
+
+          git add 'do_copy.sh' ;
+          git add 'configuration.nix' ;
+          git add 'hardware-configuration.nix' ;
+          git add 'README.org' ;
+          git add 'rebuild_boot.sh' ;
+          git add 'rebuild_switch.sh' ;
+
+          rm -vf -- '#configuration.nix#' ;
+          rm -vf -- 'README.org~' ;
+
+      " "log" "err")
 #+end_src
 
-** configuration
-#+begin_src nix :tangle ./configuration.nix
+** Copy the config file:
+
+*** Call the script
+#+begin_src emacs-lisp :results silent
+  (async-shell-command "./do_copy.sh" "log" "err")
+#+end_src
+
+*** Switch to the new config
+#+begin_src emacs-lisp :results silent
+  (async-shell-command "sudo -A nixos-rebuild switch" "log" "err")
 #+end_src

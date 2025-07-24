@@ -66,7 +66,7 @@ in {
   hardware.graphics.enable32Bit = true;
   hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-  boot.kernelPackages = pkgs.linuxPackages_6_14;
+  boot.kernelPackages = pkgs.linuxPackages_6_15;
 
   boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
@@ -359,6 +359,7 @@ in {
         inotify-simple
         ipython
         lightning
+        matplotlib
         multiprocess
         numpy
         onnxruntime
@@ -371,6 +372,7 @@ in {
         tensorboardx
         timm
         torch
+        torchmetrics
         torchvision
         transformers
         uvicorn
