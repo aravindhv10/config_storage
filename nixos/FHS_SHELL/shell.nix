@@ -20,17 +20,30 @@
       with ps; [
         albumentations
         einops
+        fastapi
+        flask
         inotify-simple
         ipython
+        jax
+        lightning
+        matplotlib
         multiprocess
         numpy
+        onnxruntime
         opencv-python
         pillow
+        python-multipart
         requests
         safetensors
+        tensorboard
+        tensorboardx
+        timm
         torch
+        torchmetrics
         torchvision
         transformers
+        uvicorn
+        yt-dlp
       ]))
   ];
 in

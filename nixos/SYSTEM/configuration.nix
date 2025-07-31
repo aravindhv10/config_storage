@@ -358,6 +358,7 @@ in {
         flask
         inotify-simple
         ipython
+        jax
         lightning
         matplotlib
         multiprocess
