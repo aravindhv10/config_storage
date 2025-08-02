@@ -410,6 +410,8 @@ in {
     unstable.miniserve
     unstable.mpvpaper
     unstable.nixfmt-rfc-style
+    unstable.openblas
+    unstable.openblas.dev
     unstable.opencv4
     unstable.pdf2svg
     unstable.rclone

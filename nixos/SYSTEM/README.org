@@ -1160,6 +1160,8 @@ You can disable this if you're only using the Wayland session.
   unstable.miniserve
   unstable.mpvpaper
   unstable.nixfmt-rfc-style
+  unstable.openblas
+  unstable.openblas.dev
   unstable.opencv4
   unstable.pdf2svg
   unstable.rclone
