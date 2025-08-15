@@ -979,7 +979,6 @@ You can disable this if you're only using the Wayland session.
   blend2d
   brave
   bridge-utils
-  brightnessctl
   cargo
   cargo-info
   catppuccin-kde
@@ -1137,13 +1136,14 @@ You can disable this if you're only using the Wayland session.
 
 ******* MIX STABLE-UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
-  ags
+  unstable.ags
   unstable.alacritty
   unstable.alejandra
   unstable.aria2
   unstable.atuin
   unstable.bat
   unstable.bottom
+  unstable.brightnessctl
   unstable.byobu
   unstable.clapboard
   unstable.difftastic
