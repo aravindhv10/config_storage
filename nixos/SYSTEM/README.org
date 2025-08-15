@@ -1131,7 +1131,65 @@ You can disable this if you're only using the Wayland session.
   rocmPackages.rocrand
 #+end_src
 
-******* UNSTABLE PACKAGES
+******* MORE STABLE PACKAGES
+#+begin_src nix :tangle ./configuration.nix
+  ags
+  alacritty
+  alejandra
+  aria2
+  atuin
+  azure-cli
+  bat
+  blend2d
+  bottom
+  byobu
+  clapboard
+  conky
+  difftastic
+  dust
+  emacs30
+  fd
+  helix
+  inkscape
+  ironbar
+  kickoff
+  lapce
+  lsd
+  lyx
+  mako
+  miniserve
+  mpvpaper
+  nixfmt-rfc-style
+  openblas
+  openblas.dev
+  opencv4
+  pdf2svg
+  rclone
+  ripgrep
+  ruff
+  rust-analyzer
+  rustlings
+  skim
+  spice-gtk
+  squashfsTools
+  starship
+  swww
+  tmux
+  tofi
+  uv
+  wezterm
+  wine
+  wldash
+  wlsunset
+  wluma
+  yazi
+  ydotool
+  yofi
+  zed-editor
+  zoxide
+#+end_src
+
+******* COMMENT UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.ags
   unstable.alacritty
@@ -1189,7 +1247,7 @@ You can disable this if you're only using the Wayland session.
   unstable.zoxide
 #+end_src
 
-******* CUSTOM SOURCES
+******* COMMENT CUSTOM SOURCES
 #+begin_src nix :tangle ./configuration.nix
   (callPackage /root/debMirror.nix {})
 #+end_src
