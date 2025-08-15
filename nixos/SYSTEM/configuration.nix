@@ -256,6 +256,8 @@ in {
     acpi
     alsa-utils
     appstream
+    azure-cli
+    blend2d
     brave
     bridge-utils
     brightnessctl
@@ -266,6 +268,7 @@ in {
     clang-tools_19
     clinfo
     cmake
+    conky
     curl
     dig
     distrobox
@@ -378,6 +381,7 @@ in {
         transformers
         uvicorn
         yt-dlp
+        rust-analyzer
       ]))
 
     rocmPackages.hipblas
@@ -388,13 +392,10 @@ in {
     unstable.alejandra
     unstable.aria2
     unstable.atuin
-    azure-cli
     unstable.bat
-    blend2d
     unstable.bottom
     unstable.byobu
     unstable.clapboard
-    conky
     unstable.difftastic
     unstable.dust
     unstable.emacs30
@@ -417,15 +418,14 @@ in {
     unstable.rclone
     unstable.ripgrep
     unstable.ruff
-    rust-analyzer
-    rustlings
-    skim
+    unstable.rustlings
+    unstable.skim
     unstable.spice-gtk
     unstable.squashfsTools
-    starship
-    swww
-    tmux
-    tofi
+    unstable.starship
+    unstable.swww
+    unstable.tmux
+    unstable.tofi
     unstable.uv
     unstable.wezterm
     unstable.wine
