@@ -384,59 +384,59 @@ in {
     rocmPackages.hipcc
 
     ags
-    alacritty
-    alejandra
-    aria2
-    atuin
+    unstable.alacritty
+    unstable.alejandra
+    unstable.aria2
+    unstable.atuin
     azure-cli
-    bat
+    unstable.bat
     blend2d
-    bottom
-    byobu
-    clapboard
+    unstable.bottom
+    unstable.byobu
+    unstable.clapboard
     conky
-    difftastic
-    dust
-    emacs30
-    fd
-    helix
-    inkscape
-    ironbar
-    kickoff
-    lapce
-    lsd
-    lyx
-    mako
-    miniserve
-    mpvpaper
-    nixfmt-rfc-style
-    openblas
-    openblas.dev
-    opencv4
-    pdf2svg
-    rclone
-    ripgrep
-    ruff
+    unstable.difftastic
+    unstable.dust
+    unstable.emacs30
+    unstable.fd
+    unstable.helix
+    unstable.inkscape
+    unstable.ironbar
+    unstable.kickoff
+    unstable.lapce
+    unstable.lsd
+    unstable.lyx
+    unstable.mako
+    unstable.miniserve
+    unstable.mpvpaper
+    unstable.nixfmt-rfc-style
+    unstable.openblas
+    unstable.openblas.dev
+    unstable.opencv4
+    unstable.pdf2svg
+    unstable.rclone
+    unstable.ripgrep
+    unstable.ruff
     rust-analyzer
     rustlings
     skim
-    spice-gtk
-    squashfsTools
+    unstable.spice-gtk
+    unstable.squashfsTools
     starship
     swww
     tmux
     tofi
-    uv
-    wezterm
-    wine
-    wldash
-    wlsunset
-    wluma
-    yazi
-    ydotool
-    yofi
-    zed-editor
-    zoxide
+    unstable.uv
+    unstable.wezterm
+    unstable.wine
+    unstable.wldash
+    unstable.wlsunset
+    unstable.wluma
+    unstable.yazi
+    unstable.ydotool
+    unstable.yofi
+    unstable.zed-editor
+    unstable.zoxide
 
     (writeCBin "YDOTOOL_DAEMON" ''
 
