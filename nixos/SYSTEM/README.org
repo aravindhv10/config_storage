@@ -1029,14 +1029,12 @@ You can disable this if you're only using the Wayland session.
   man-pages-posix
   meson
   mpv
-  neovim
   networkmanagerapplet
   networkmanager-openconnect
   nh
   nix-index
   nix-ld
   nm-tray
-  nushell
   openconnect
   openssl
   parted
@@ -1049,6 +1047,7 @@ You can disable this if you're only using the Wayland session.
   poppler-utils
   qbittorrent-enhanced
   qpdf
+  rust-analyzer
   rustc
   rustfmt
   shellcheck
@@ -1107,7 +1106,6 @@ You can disable this if you're only using the Wayland session.
   transformers
   uvicorn
   yt-dlp
-  rust-analyzer
 #+end_src
 
 ******** end
@@ -1160,7 +1158,9 @@ You can disable this if you're only using the Wayland session.
   unstable.mako
   unstable.miniserve
   unstable.mpvpaper
+  unstable.neovim
   unstable.nixfmt-rfc-style
+  unstable.nushell
   unstable.openblas
   unstable.openblas.dev
   unstable.opencv4

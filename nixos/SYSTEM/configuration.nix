@@ -260,7 +260,6 @@ in {
     blend2d
     brave
     bridge-utils
-    brightnessctl
     cargo
     cargo-info
     catppuccin-kde
@@ -311,14 +310,12 @@ in {
     man-pages-posix
     meson
     mpv
-    neovim
     networkmanagerapplet
     networkmanager-openconnect
     nh
     nix-index
     nix-ld
     nm-tray
-    nushell
     openconnect
     openssl
     parted
@@ -331,6 +328,7 @@ in {
     poppler-utils
     qbittorrent-enhanced
     qpdf
+    rust-analyzer
     rustc
     rustfmt
     shellcheck
@@ -381,19 +379,19 @@ in {
         transformers
         uvicorn
         yt-dlp
-        rust-analyzer
       ]))
 
     rocmPackages.hipblas
     rocmPackages.hipcc
 
-    ags
+    unstable.ags
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
     unstable.atuin
     unstable.bat
     unstable.bottom
+    unstable.brightnessctl
     unstable.byobu
     unstable.clapboard
     unstable.difftastic
@@ -410,7 +408,9 @@ in {
     unstable.mako
     unstable.miniserve
     unstable.mpvpaper
+    unstable.neovim
     unstable.nixfmt-rfc-style
+    unstable.nushell
     unstable.openblas
     unstable.openblas.dev
     unstable.opencv4
