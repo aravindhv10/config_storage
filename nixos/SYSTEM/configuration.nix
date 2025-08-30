@@ -384,6 +384,9 @@ in {
     rocmPackages.hipblas
     rocmPackages.hipcc
 
+    unstable.obs-cli
+    unstable.obs-studio
+
     unstable.ags
     unstable.alacritty
     unstable.alejandra
