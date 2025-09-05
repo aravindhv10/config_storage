@@ -66,7 +66,7 @@ in {
   hardware.graphics.enable32Bit = true;
   hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-  boot.kernelPackages = pkgs.linuxPackages_6_15;
+  boot.kernelPackages = pkgs.linuxPackages_6_16;
 
   boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
@@ -305,6 +305,7 @@ in {
     librsvg
     libseccomp
     libxml2
+    lldb
     lxc
     man-pages
     man-pages-posix

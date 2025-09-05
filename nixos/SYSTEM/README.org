@@ -399,9 +399,19 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 **** Kernel Package
 
-***** 6.14
+***** COMMENT 6.14
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxPackages_6_14; 
+#+end_src
+
+***** COMMENT 6.15
 #+begin_src nix :tangle ./configuration.nix
     boot.kernelPackages = pkgs.linuxPackages_6_15; 
+#+end_src
+
+***** 6.16
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxPackages_6_16; 
 #+end_src
 
 ***** COMMENT 6.12
@@ -421,14 +431,14 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 #+end_src
 
-****** Stable
+****** COMMENT Stable
 #+begin_src nix :tangle ./configuration.nix
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
 #+end_src
 
 ***** COMMENT Custom build
 
-****** 2
+****** COMMENT 2
 #+begin_src nix :tangle ./configuration.nix
   boot.kernelPackages =
   let
@@ -885,7 +895,6 @@ You can disable this if you're only using the Wayland session.
   nixpkgs.config.allowUnfree = true;
 #+end_src
 
-
 **** ENABLE virt-manager
 #+begin_src nix :tangle ./configuration.nix
   programs.virt-manager.enable = true;
@@ -1024,6 +1033,7 @@ You can disable this if you're only using the Wayland session.
   librsvg
   libseccomp
   libxml2
+  lldb
   lxc
   man-pages
   man-pages-posix
