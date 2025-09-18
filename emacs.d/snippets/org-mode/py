@@ -2,6 +2,6 @@
 # name: src_py
 # key: <py>
 # --
-#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./${0:tmp}.py
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :tangle ./${0:tmp}.py
   $1
 #+end_src

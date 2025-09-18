@@ -988,6 +988,7 @@ You can disable this if you're only using the Wayland session.
   blend2d
   brave
   bridge-utils
+  buildah
   cargo
   cargo-info
   catppuccin-kde
@@ -1104,6 +1105,7 @@ You can disable this if you're only using the Wayland session.
   onnxruntime
   opencv-python
   pillow
+  protobuf
   python-multipart
   requests
   safetensors
@@ -1216,7 +1218,7 @@ You can disable this if you're only using the Wayland session.
   unstable.zoxide
 #+end_src
 
-******* COMMENT CUSTOM SOURCES
+******* CUSTOM SOURCES
 #+begin_src nix :tangle ./configuration.nix
   (callPackage /root/debMirror.nix {})
 #+end_src

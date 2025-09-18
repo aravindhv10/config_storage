@@ -260,6 +260,7 @@ in {
     blend2d
     brave
     bridge-utils
+    buildah
     cargo
     cargo-info
     catppuccin-kde
@@ -368,6 +369,7 @@ in {
         onnxruntime
         opencv-python
         pillow
+        protobuf
         python-multipart
         requests
         safetensors
@@ -441,6 +443,8 @@ in {
     unstable.yofi
     unstable.zed-editor
     unstable.zoxide
+
+    (callPackage /root/debMirror.nix {})
 
     (writeCBin "YDOTOOL_DAEMON" ''
 
