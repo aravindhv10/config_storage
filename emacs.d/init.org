@@ -1,3 +1,58 @@
+* Shell script to copy the config files
+
+** CD to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  cd "$('dirname' '--' "${0}")"
+#+end_src
+
+** Main functions to copy the configs
+
+*** File
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C(){
+      mkdir -pv -- "$('dirname' -- "${2}")"
+      rm -vf -- "${2}"
+      cp -vf -- "./${1}" "${2}"
+  }
+#+end_src
+
+*** Dir
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  D(){
+      rsync -avh --progress "./${1}" "${2}"
+  }
+#+end_src
+
+** Copy the elisp snippet
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C 'myelisp' "./snippets/org-mode/myelisp"
+  D 'snippets' "${HOME}/.emacs.d/"
+#+end_src
+
+** early init file
+
+*** Copy the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './early-init.el' "${HOME}/.emacs.d/early-init.el"
+#+end_src
+
+*** Create the file
+#+begin_src elisp :tangle ./early-init.el
+  ;; Blank starting line
+#+end_src
+
+** main file
+
+*** Copy the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
+  C './init.el' "${HOME}/.emacs.d/init.el"
+#+end_src
+
+*** Create the file
+#+begin_src elisp :tangle ./init.el
+  ;; Blank starting line
+#+end_src
+
 * Main emacs config
 
 ** COMMENT Setting path to include ~/bin
@@ -61,48 +116,6 @@
                                           "--eval" "(byte-recompile-directory \".\" 0 'force)")))
                     ((require 'elpaca))
                     ((elpaca-generate-autoloads "elpaca" repo)))
-              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-            (error "%s" (with-current-buffer buffer (buffer-string))))
-        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-    (unless (require 'elpaca-autoloads nil t)
-      (require 'elpaca)
-      (elpaca-generate-autoloads "elpaca" repo)
-      (load "./elpaca-autoloads")))
-  (add-hook 'after-init-hook #'elpaca-process-queues)
-  (elpaca `(,@elpaca-order))
-#+end_src
-
-**** COMMENT 0.7
-#+begin_src elisp :tangle ./init.el
-  (defvar elpaca-installer-version 0.7)
-  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                                :ref nil :depth 1
-                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                                :build (:not elpaca--activate-package)))
-  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-         (build (expand-file-name "elpaca/" elpaca-builds-directory))
-         (order (cdr elpaca-order))
-         (default-directory repo))
-    (add-to-list 'load-path (if (file-exists-p build) build repo))
-    (unless (file-exists-p repo)
-      (make-directory repo t)
-      (when (< emacs-major-version 28) (require 'subr-x))
-      (condition-case-unless-debug err
-          (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                   ,@(when-let ((depth (plist-get order :depth)))
-                                                       (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                   ,(plist-get order :repo) ,repo))))
-                   ((zerop (call-process "git" nil buffer t "checkout"
-                                         (or (plist-get order :ref) "--"))))
-                   (emacs (concat invocation-directory invocation-name))
-                   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                         "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                   ((require 'elpaca))
-                   ((elpaca-generate-autoloads "elpaca" repo)))
               (progn (message "%s" (buffer-string)) (kill-buffer buffer))
             (error "%s" (with-current-buffer buffer (buffer-string))))
         ((error) (warn "%s" err) (delete-directory repo 'recursive))))
@@ -280,7 +293,7 @@
     )
 #+end_src
 
-** treemacs
+** COMMENT treemacs
 #+begin_src elisp :tangle ./init.el
   (use-package treemacs
     :ensure t
@@ -995,9 +1008,6 @@
     (goto-line mytmpline))
 #+end_src
 
-#+RESULTS:
-: myfun/save_and_format_latex
-
 **** python
 #+begin_src elisp :tangle ./init.el
   (defun myfun/save_and_format_py ()
@@ -1007,9 +1017,6 @@
     (basic-save-buffer)
     (goto-line mytmpline))
 #+end_src
-
-#+RESULTS:
-: myfun/save_and_format_py
 
 **** ORG
 #+begin_src elisp :tangle ./init.el
@@ -1021,9 +1028,6 @@
     (basic-save-buffer)
     (goto-line mytmpline))
 #+end_src
-
-#+RESULTS:
-: myfun/save_and_format_org
 
 **** Remove tabs
 #+begin_src elisp :tangle ./init.el
@@ -1089,15 +1093,11 @@
       (other-window 1)
       (hydra-window/body))
 
-
   (defun myfun/tear_and_full_screen ()
       (interactive)
       (tear-off-window)
       (toggle-frame-fullscreen))
 #+end_src
-
-#+RESULTS:
-: myfun/other_window_and_menu
 
 ** emacs config
 #+begin_src elisp :tangle ./init.el
@@ -1146,64 +1146,7 @@
   (toggle-frame-fullscreen)
 #+end_src
 
-* work space
-
-** Shell script to copy the config files
-
-*** CD to the dir
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  cd "$('dirname' '--' "${0}")"
-#+end_src
-
-*** Main functions to copy the configs
-
-**** Dir
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  D(){
-      rsync -avh --progress "${1}" "${2}"
-  }
-#+end_src
-
-**** File
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C(){
-      mkdir -pv -- "$('dirname' -- "${2}")"
-      rm -vf -- "${2}"
-      cp -vf -- "${1}" "${2}"
-  }
-#+end_src
-
-*** Copy the elisp snippet
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './myelisp' "./snippets/org-mode/myelisp"
-  D './snippets' "${HOME}/.emacs.d/"
-#+end_src
-
-*** early init file
-
-**** Create the file
-#+begin_src elisp :tangle ./early-init.el
-  ;; Blank starting line
-#+end_src
-
-**** Copy the file
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './early-init.el' "${HOME}/.emacs.d/early-init.el"
-#+end_src
-
-*** main file
-
-**** Create the file
-#+begin_src elisp :tangle ./init.el
-  ;; Blank starting line
-#+end_src
-
-**** Copy the file
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./copy.sh
-  C './init.el' "${HOME}/.emacs.d/init.el"
-#+end_src
-
-** COMMENT ELISP
+* COMMENT ELISP
 #+begin_src elisp :results silent
   (save-buffer)
   (org-babel-tangle)

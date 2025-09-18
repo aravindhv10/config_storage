@@ -1,3 +1,5 @@
+;; Blank starting line
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -138,13 +140,6 @@
   (setq ag-context-lines 4)
   (setq ag-highlight-search 4)
   (global-set-key (kbd "C-c g") 'ag)
-  :init
-  )
-
-(use-package treemacs
-  :ensure t
-  :demand t
-  :config
   :init
   )
 
@@ -745,7 +740,6 @@
     (other-window 1)
     (hydra-window/body))
 
-
 (defun myfun/tear_and_full_screen ()
     (interactive)
     (tear-off-window)
@@ -794,5 +788,3 @@
 
 (myfun/menu_n)
 (toggle-frame-fullscreen)
-
-;; Blank starting line
