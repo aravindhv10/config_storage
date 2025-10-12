@@ -38,7 +38,7 @@ get_repo_hf(){
 
     mkdir '-pv' '--' "$('dirname' '--' "${DIR_FULL}")"
     cd "$('dirname' '--' "${DIR_FULL}")"
-    git clone "${URL}"
+    git clone --depth 1 "${URL}"
     cd "${DIR_FULL}"
     git pull
     git submodule update --recursive --init
@@ -67,6 +67,12 @@ get_repo(){
     then
         git checkout "${3}"
     fi
+}
+
+install_python_source(){
+    . "${HOME}/venv/bin/activate"
+    get_repo "${1}"
+    uv pip install -e .
 }
 
 get_ohmyzsh(){

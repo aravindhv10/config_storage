@@ -1,4 +1,4 @@
-FROM rust:latest
+FROM nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04
 
 ENV HOME='/root'
 ENV DEBIAN_FRONTEND='noninteractive'
@@ -12,70 +12,68 @@ RUN \
     && apt-get -y update \
     && apt-get install -y \
         'aria2' \
-        'bash' \
+        'git' \
+        'wget' \
+        'zsh' \
+    && echo 'DONE apt-get stuff' ;
+
+RUN \
+    echo 'START ohmyzsh' \
+    && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
+    && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
+    && cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "${HOME}/.zshrc" \
+    && echo 'DONE ohmyzsh' ;
+
+RUN \
+    echo 'START ohmyzsh' \
+    && aria2c -c 'https://starship.rs/install.sh' \
+    && chmod +x './install.sh' \
+    && './install.sh' '-y' \
+    && echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc" \
+    && echo 'DONE ohmyzsh' ;
+
+RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    echo 'START apt-get stuff' \
+    && apt-get -y update \
+    && apt-get install -y \
+        'bat' \
+        'fzf' \
+        'lsd' \
+    && echo 'alias ls=lsd' >> "${HOME}/.zshrc" \
+    && echo 'alias cat=batcat' >> "${HOME}/.zshrc" \
+    && echo 'DONE apt-get stuff' ;
+
+RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    echo 'START apt-get stuff' \
+    && apt-get -y update \
+    && apt-get install -y \
+        'aria2' \
         'build-essential' \
-        'ca-certificates' \
         'cmake' \
         'curl' \
         'ffmpeg' \
         'git' \
         'git-lfs' \
         'ipython3' \
-        'libavcodec-dev' \
-        'libavdevice-dev' \
-        'libavfilter-dev' \
-        'libavformat-dev' \
-        'libavutil-dev' \
-        'libc6' \
-        'libc6-dev' \
         'libcairo2-dev' \
-        'libffmpeg-nvenc-dev' \
-        'libgirepository1.0-dev' \
-        'libgl1' \
-        'libglib2.0-0' \
-        'libgstrtspserver-1.0-dev' \
-        'libnuma-dev' \
-        'libnuma1' \
-        'libopencv-dev' \
-        'libpostproc-dev' \
-        'libsdl-kitchensink-dev' \
-        'libsm6' \
-        'libsndfile1-dev' \
-        'libswresample-dev' \
-        'libswscale-dev' \
-        'libtool' \
-        'libxext6' \
-        'libxrender1' \
-        'libxt-dev' \
+        'lsd' \
         'make' \
-        'nasm' \
         'neovim' \
         'ninja-build' \
-        'pybind11-dev' \
-        'python-gi-dev' \
+        'pkg-config' \
+        'python3-cairo-dev' \
         'python3-dev' \
-        'python3-gst-1.0' \
         'python3-opencv' \
         'python3-pip' \
-        'python3-pybind11' \
         'python3-setuptools' \
         'unzip' \
         'wget' \
-        'yasm' \
+        'zsh' \
     && echo 'DONE apt-get stuff' ;
-
-RUN \
-    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-    --mount=target=/var/cache/apt,type=cache,sharing=locked \
-    echo 'START nvidia cuda download' \
-    && wget 'https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb' \
-    && dpkg -i 'cuda-keyring_1.1-1_all.deb' \
-    && apt-get 'update' \
-    && apt-get '-y' 'install' \
-        'cuda-toolkit-12-6' \
-        'cudnn' \
-        'cudnn-cuda-12' \
-    && echo 'DONE nvidia cuda download' ;
 
 RUN \
     echo 'START uv download' \
@@ -85,14 +83,14 @@ RUN \
 
 RUN \
     echo 'START venv' \
-    && uv venv \
-        "${HOME}/venv" \
+    && uv venv "${HOME}/venv" \
     && echo 'DONE venv' ;
 
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install -U \
+        'ipython' \
         'ninja' \
         'packaging' \
         'pip' \
@@ -104,274 +102,130 @@ RUN \
     echo 'START pytorch' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'torch' \
-        'torchvision' \
-        'torchaudio' \
-        '--index-url' 'https://download.pytorch.org/whl/cu126' \
+        '--index-url' 'https://download.pytorch.org/whl/cu129' \
+            'torch' \
+            'torchvision' \
     && echo 'DONE pytorch' ;
 
 RUN \
     echo 'START pytorch quantization and tensorrt' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'torchao' \
-        'torch-tensorrt' \
-    && echo 'DONE pytorch quantization and tensorrt' ;
-
-RUN \
-    echo 'START Tensor manipulation' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
         'einops' \
-    && echo 'DONE Tensor manipulation' ;
-
-RUN \
-    echo 'START Extra misc libs' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
         'opencv_contrib_python' \
         'opencv_python' \
         'pillow' \
-    && echo 'DONE Extra misc libs' ;
-
-RUN \
-    echo 'START flash attn install using pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && pip3 install \
-        'flash-attn' \
-    && echo 'DONE flash attn install using pip' ;
+        'torchao' \
+    && echo 'DONE pytorch quantization and tensorrt' ;
 
 RUN \
     echo 'START xformers install' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'xformers' \
-        '--index-url' 'https://download.pytorch.org/whl/cu126' \
+        '--index-url' 'https://download.pytorch.org/whl/cu129' \
+            'xformers' \
     && echo 'DONE xformers install' ;
 
 RUN \
     echo 'START Quantization, optimization and offloading' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'deepspeed' \
         'accelerate' \
-        'lightning' \
-        'optimum' \
-        'optimum-quanto' \
-        'prodigyopt' \
-    && echo 'DONE Quantization, optimization and offloading' ;
-
-RUN \
-    echo 'START Core huggingface libs' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'diffusers' \
-        'huggingface-hub' \
-        'peft' \
-        'safetensors' \
-        'transformers' \
-    && echo 'DONE Core huggingface libs' ;
-
-RUN \
-    echo 'START Extra libraries - 1' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'inotify-simple' \
-        'optimum-quanto' \
-        'packaging' \
-        'sentencepiece' \
-    && echo 'DONE Extra libraries - 1' ;
-
-RUN \
-    echo 'START Extra libraries - 2' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
         'albumentations' \
         'datasets' \
+        'deepspeed' \
+        'diffusers' \
         'evaluate' \
-        'gekko' \
-        'protobuf' \
-        'pycairo' \
-        'scikit-learn' \
-        'ultralytics' \
-    && echo 'DONE Extra libraries - 2' ;
-
-RUN \
-    echo 'START Extra libraries - 3' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'dlib' \
-        'matplotlib' \
-        'tqdm' \
-        'urllib3' \
-    && echo 'DONE Extra libraries - 3' ;
-
-RUN \
-    echo 'START video stuff' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'decord' \
-        'qwen-vl-utils[decord]==0.0.8' \
-    && echo 'DONE video stuff' ;
-
-RUN \
-    echo 'START GPTQ quantization libs' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install --no-deps  \
-        'auto-gptq' \
-    && echo 'DONE GPTQ quantization libs' ;
-
-RUN \
-    echo 'START AWQ quantization libs' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install --no-deps --no-build-isolation \
-        'autoawq-kernels' \
-        'autoawq' \
-    && echo 'DONE AWQ quantization libs' ;
-
-RUN \
-    echo 'START ONNX related' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'onnx' \
-        'onnxconverter-common' \
-        'onnxruntime' \
-        'onnxruntime-gpu' \
-        'onnxscript' \
-        'openvino' \
-    && echo 'DONE ONNX related' ;
-
-RUN \
-    echo 'START jupyter lab install' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'ipywidgets' \
-        'jupyterlab' \
-        'jupyter' \
-        'ipython' \
-    && echo 'DONE jupyter lab install' ;
-
-RUN \
-    echo 'START polars' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'polars' \
+        'fastapi[standard]' \
         'fastexcel' \
-    && echo 'DONE polars' ;
-
-RUN \
-    echo 'START Pandas' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'pandas' \
-        'seaborn' \
-    && echo 'DONE Pandas' ;
-
-RUN \
-    echo 'START transformers source install' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/huggingface/transformers.git' \
-    && cd transformers \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE transformers source install' ;
-
-RUN \
-    echo 'START pytorch video source install' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/facebookresearch/pytorchvideo.git' \
-    && cd 'pytorchvideo' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE pytorch video source install' ;
-
-RUN \
-    echo 'START diffusers install from source' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/huggingface/diffusers.git' \
-    && cd diffusers \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE diffusers install from source' ;
-
-RUN \
-    echo 'START TIMM install from source' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/huggingface/pytorch-image-models.git' \
-    && cd pytorch-image-models \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE TIMM install from source' ;
-
-RUN \
-    echo 'START TIMM install from source' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/mindee/doctr.git' \
-    && cd doctr \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE TIMM install from source' ;
-
-RUN \
-    echo 'START QWEN 2.5 source' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/QwenLM/Qwen2.5-VL.git' \
-    && cd 'Qwen2.5-VL/qwen-vl-utils' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE QWEN 2.5 source' ;
-
-RUN \
-    echo 'START Installing RTMLib' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/Tau-J/rtmlib.git' \
-    && cd 'rtmlib' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE Installing RTMLib' ;
-
-RUN \
-    echo 'START SAM extra deps' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'numpy' \
-        'hydra-core' \
-        'iopath' \
-    && echo 'DONE SAM extra deps' ;
-
-RUN \
-    echo 'START' \
-    && cd "${HOME}" \
-    && git clone --depth 1 'https://github.com/facebookresearch/sam2.git' \
-    && cd 'sam2' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -e . \
-    && echo 'DONE' ;
-
-RUN \
-    echo 'START Linking SHA512SUM' \
-    && ln -vfs -- \
-        './.cache/SHA512SUM' \
-        '/root/SHA512SUM' \
-    && echo 'DONE Linking SHA512SUM' ;
+        'huggingface-hub' \
+        'inotify-simple' \
+        'ipython' \
+        'ipywidgets' \
+        'jupyter' \
+        'jupyterlab' \
+        'lightning[extra]' \
+        'matplotlib' \
+        'openvino' \
+        'optimum' \
+        'optimum-quanto' \
+        'packaging' \
+        'prodigyopt' \
+        'protobuf' \
+        'requests' \
+        'safetensors' \
+        'scikit-learn' \
+        'sentencepiece' \
+        'torch_dct' \
+        'torchmetrics' \
+        'tqdm' \
+        'transformers' \
+        'ultralytics' \
+        'urllib3' \
+        'wandb' \
+    && echo 'DONE Quantization, optimization and offloading' ;
 
 COPY ./important_functions.sh '/root/important_functions.sh'
 
 RUN \
-    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-    --mount=target=/var/cache/apt,type=cache,sharing=locked \
-    echo 'START apt-get zsh stuff' \
-    && apt-get -y update \
-    && apt-get install -y \
-        'zsh' \
-    && echo 'DONE apt-get zsh stuff' ;
+    echo 'START transformers source install' \
+    && . "${HOME}/important_functions.sh" \
+    && install_python_source 'https://github.com/huggingface/transformers.git' \
+    && echo 'DONE transformers source install' ;
 
 RUN \
-    echo 'START set up oh my zsh' \
+    echo 'START pytorch video source install' \
     && . "${HOME}/important_functions.sh" \
-    && get_ohmyzsh \
-    && echo 'DONE set up oh my zsh' ;
+    && install_python_source 'https://github.com/facebookresearch/pytorchvideo.git' \
+    && echo 'DONE pytorch video source install' ;
+
+RUN \
+    echo 'START diffusers install from source' \
+    && . "${HOME}/important_functions.sh" \
+    && install_python_source 'https://github.com/huggingface/diffusers.git' \
+    && echo 'DONE diffusers install from source' ;
+
+RUN \
+    echo 'START TIMM install from source' \
+    && . "${HOME}/important_functions.sh" \
+    && install_python_source 'https://github.com/huggingface/pytorch-image-models.git' \
+    && echo 'DONE TIMM install from source' ;
+
+RUN \
+    echo 'START doctr install from source' \
+    && . "${HOME}/important_functions.sh" \
+    && install_python_source 'https://github.com/mindee/doctr.git' \
+    && echo 'DONE doctr install from source' ;
 
 COPY './default_config.yaml' '/root/default_config.yaml'
 
-COPY ./docker.download_sam_checkpoints.sh '/root/docker.download_sam_checkpoints.sh'
+EXPOSE 8888/tcp
+
+COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
+
+RUN \
+    echo 'START onnxstuff' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            'onnxruntime-gpu' \
+            'onnxscript' \
+    && echo 'DONE onnxstuff' ;
+
+RUN \
+    echo 'START flash attn' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            '--no-build-isolation' \
+                'flash-attn' \
+    && echo 'DONE flash attn' ;
+
+RUN \
+    echo 'START Hub' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            'huggingface-hub==1.0.0.rc5' \
+    && echo 'DONE Hub' ;
+
+ENV PATH='/root/venv/bin:/root/.local/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+ENV VIRTUAL_ENV='/root/venv'
+ENV VIRTUAL_ENV_PROMPT='venv'

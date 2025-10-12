@@ -1,54 +1,166 @@
-* Work space
+* Scripts to manage
 
-** elisp stuff
-#+begin_src emacs-lisp :results silent
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "
-  git add './Dockerfile' ;
-  git add './README.org' ;
-  git add './docker.download_sam_checkpoints.sh' ;
-  git add './host.docker_build.sh' ;
-  git add './host.docker_run_interactive.sh' ;
-  git add './host.image_names.sh' ;
-  git add './important_functions.sh' ;
-  git add './default_config.yaml' ;
-  " "log" "err")
+** Important functions
+
+*** GIT
+
+**** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD () {
+      touch "./${1}"
+      git add "./${1}"
+  }
 #+end_src
 
-* Basic preparation
+**** delete files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  CLEAN () {
+      rm -vf -- "./${1}"
+  }
+#+end_src
 
-** Basic configs
+*** PYTHON
 
-*** Docker container names
+**** Process the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  PROCESS () {
+      expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
+  }
+#+end_src
+
+**** Read and process the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  READ () {
+      touch "./${1}"
+      cat "./${1}" | PROCESS
+  }
+#+end_src
+
+**** Process all python files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  UNIFY () {
+      (
+          echo '#!/usr/bin/env python3' ;
+          READ "${1}.config.py" ;
+          READ "${1}.import.py" | sort | uniq ;
+          READ "${1}.function.py" ;
+          READ "${1}.class.py" ;
+          READ "${1}.execute.py" ;
+      ) | PROCESS > "./${1}.py"
+
+      GITADD "./${1}.py"
+
+      CLEAN "${1}.config.py"
+      CLEAN "${1}.import.py"
+      CLEAN "${1}.function.py"
+      CLEAN "${1}.class.py"
+      CLEAN "${1}.execute.py"
+  }
+#+end_src
+
+** Main functions
+
+*** python stuff
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  UNIFY_MAIN () {
+      UNIFY 'main'
+  }
+#+end_src
+
+*** For git add
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD_MAIN () {
+      GITADD './Dockerfile'
+      GITADD './README.org'
+      GITADD './default_config.yaml'
+      GITADD './docker.download_sam_checkpoints.sh'
+      GITADD './docker.start_jupyter_lab.sh'
+      GITADD './host.docker_build.sh'
+      GITADD './host.docker_run_interactive.sh'
+      GITADD './host.image_names.sh'
+      GITADD './important_functions.sh'
+  }
+#+end_src
+
+*** For clean
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  CLEAN_MAIN () {
+      CLEAN '.git.sh'
+      CLEAN 'README.org~'
+  }
+#+end_src
+
+*** Call both
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  MAIN () {
+      GITADD_MAIN
+      CLEAN_MAIN
+      UNIFY_MAIN
+  }
+#+end_src
+
+** Call the main function
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  MAIN
+#+end_src
+
+* Host scripts
+
+** image env
+
+*** Important envs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  export IMAGE_NAME='debian-cuda'
-  export CONTAINER_NAME="${IMAGE_NAME}_1"
+  IMAGE_NAME='pytorch_big'
+  CONTAINER_NAME="${IMAGE_NAME}_1"
+#+end_src
 
+*** Function to build
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   docker_build(){
-      sudo docker image build \
+      sudo -A docker image build \
           -t "${IMAGE_NAME}"  \
           .                   \
       ;
   }
 #+end_src
 
-*** Script to build the docker image
+*** Function to run
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  docker_run () {
+      mkdir -pv -- './input' './output'
+      INPUT="$(realpath ./input)"
+      OUTPUT="$(realpath ./output)"
+      sudo -A docker run \
+          --tty \
+          --interactive \
+          --rm \
+          --gpus 'all,"capabilities=compute,utility,video"' \
+          --ipc host \
+          --ulimit memlock=-1 \
+          --ulimit stack=67108864 \
+          --shm-size 107374182400 \
+          --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+          -v "${INPUT}:/data/input" \
+          -v "${OUTPUT}:/data/output" \
+          -v "CACHE:/root/.cache" \
+          -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
+          "${IMAGE_NAME}" "${IMAGE_CMD}" \
+      ;
+  }
+#+end_src
+
+** Script to build the docker image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_build.sh
   cd "$('dirname' '--' "${0}")"
   . './host.image_names.sh'
+  docker_build
 #+end_src
+
+* Basic image config
 
 ** Main base image
-
-*** For good rust support
 #+begin_src conf :tangle ./Dockerfile
-  FROM rust:latest
-#+end_src
-
-*** COMMENT Native cuda image
-#+begin_src conf :tangle ./Dockerfile
-  FROM nvidia/cuda:12.6.3-cudnn-devel-ubuntu24.04
+  FROM nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04
 #+end_src
 
 ** Basic configs
@@ -59,6 +171,8 @@
   WORKDIR '/root'
 #+end_src
 
+* zsh setup
+
 ** Important apt install stuff
 #+begin_src conf :tangle ./Dockerfile
   RUN \
@@ -68,139 +182,92 @@
       && apt-get -y update \
       && apt-get install -y \
           'aria2' \
-          'bash' \
+          'git' \
+          'wget' \
+          'zsh' \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+** Get ohmyzsh
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START ohmyzsh' \
+      && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
+      && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
+      && cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "${HOME}/.zshrc" \
+      && echo 'DONE ohmyzsh' ;
+#+end_src
+
+** Get starship
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START ohmyzsh' \
+      && aria2c -c 'https://starship.rs/install.sh' \
+      && chmod +x './install.sh' \
+      && './install.sh' '-y' \
+      && echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc" \
+      && echo 'DONE ohmyzsh' ;
+#+end_src
+
+** More convenient tools
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'bat' \
+          'fzf' \
+          'lsd' \
+      && echo 'alias ls=lsd' >> "${HOME}/.zshrc" \
+      && echo 'alias cat=batcat' >> "${HOME}/.zshrc" \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+* Main command to run in the container
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  IMAGE_CMD='zsh'
+#+end_src
+
+* Important apt install stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'aria2' \
           'build-essential' \
-          'ca-certificates' \
           'cmake' \
           'curl' \
           'ffmpeg' \
           'git' \
           'git-lfs' \
           'ipython3' \
-          'libavcodec-dev' \
-          'libavdevice-dev' \
-          'libavfilter-dev' \
-          'libavformat-dev' \
-          'libavutil-dev' \
-          'libc6' \
-          'libc6-dev' \
           'libcairo2-dev' \
-          'libffmpeg-nvenc-dev' \
-          'libgirepository1.0-dev' \
-          'libgl1' \
-          'libglib2.0-0' \
-          'libgstrtspserver-1.0-dev' \
-          'libnuma-dev' \
-          'libnuma1' \
-          'libopencv-dev' \
-          'libpostproc-dev' \
-          'libsdl-kitchensink-dev' \
-          'libsm6' \
-          'libsndfile1-dev' \
-          'libswresample-dev' \
-          'libswscale-dev' \
-          'libtool' \
-          'libxext6' \
-          'libxrender1' \
-          'libxt-dev' \
+          'lsd' \
           'make' \
-          'nasm' \
           'neovim' \
           'ninja-build' \
-          'pybind11-dev' \
-          'python-gi-dev' \
+          'pkg-config' \
+          'python3-cairo-dev' \
           'python3-dev' \
-          'python3-gst-1.0' \
           'python3-opencv' \
           'python3-pip' \
-          'python3-pybind11' \
           'python3-setuptools' \
           'unzip' \
           'wget' \
-          'yasm' \
+          'zsh' \
       && echo 'DONE apt-get stuff' ;
 #+end_src
 
-** Installing cuda
-
-*** COMMENT 12.4
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START nvidia cuda download' \
-      && wget 'https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb' \
-      && dpkg -i 'cuda-keyring_1.1-1_all.deb' \
-      && apt-get 'update' \
-      && apt-get '-y' 'install' \
-          'cuda-toolkit-12-4' \
-          'cudnn' \
-          'cudnn-cuda-12' \
-      && echo 'DONE nvidia cuda download' ;
-#+end_src
-
-*** 12.6
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START nvidia cuda download' \
-      && wget 'https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb' \
-      && dpkg -i 'cuda-keyring_1.1-1_all.deb' \
-      && apt-get 'update' \
-      && apt-get '-y' 'install' \
-          'cuda-toolkit-12-6' \
-          'cudnn' \
-          'cudnn-cuda-12' \
-      && echo 'DONE nvidia cuda download' ;
-#+end_src
-
-** Build the docker image
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_build.sh
-  docker_build
-#+end_src
-
 * Script to run the docker iamge
-
-** Main script header
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  tail -n +5 "${0}" | tr '\n' ' ' > "${0}.slave.sh"
-  exec sh "${0}.slave.sh" "${1}" "${2}"
-  exit
-#+end_src
-
-** Main script wrapper for preparing
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  mkdir -pv -- "${2}" ;
-  export INPUT="$(realpath -- "${1}")" ;
-  export OUTPUT="$(realpath -- "${2}")" ;
-  cd "$('dirname' '--' "${0}")" ;
-  . './host.image_names.sh' ;
-#+end_src
-
-** Main script wrapper for docker run
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  sudo docker run
-  --tty
-  --interactive
-  --rm
-  --gpus 'all,"capabilities=compute,utility,video"'
-  --ipc host
-  --ulimit memlock=-1
-  --ulimit stack=67108864
-  --shm-size 107374182400
-#+end_src
-
-** Main script wrapper for all mounts
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472'
-  -v "${INPUT}:/data/input"
-  -v "${OUTPUT}:/data/output"
-#+end_src
-
-** Main script for mounting the cache
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  -v "CACHE:/root/.cache"
+  cd "$('dirname' -- "${0}")"
+  . './host.image_names.sh'
+  docker_run
 #+end_src
 
 * Installing UV
@@ -218,8 +285,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START venv' \
-      && uv venv \
-          "${HOME}/venv" \
+      && uv venv "${HOME}/venv" \
       && echo 'DONE venv' ;
 #+end_src
 
@@ -229,6 +295,7 @@
       echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install -U \
+          'ipython' \
           'ninja' \
           'packaging' \
           'pip' \
@@ -240,97 +307,39 @@
 * Installing pytorch
 
 ** Main torch
-
-*** For cuda 12.6
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          'torch' \
-          'torchvision' \
-          'torchaudio' \
-          '--index-url' 'https://download.pytorch.org/whl/cu126' \
+          '--index-url' 'https://download.pytorch.org/whl/cu129' \
+              'torch' \
+              'torchvision' \
       && echo 'DONE pytorch' ;
 #+end_src
 
-*** COMMENT For cuda 12.4
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START pytorch' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'torch' \
-          'torchaudio' \
-          'torchvision' \
-      && echo 'DONE pytorch' ;
-#+end_src
-
-** Extra torch libraries
+** Extra torch libraries, Tensor manipulation & Image libraries
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pytorch quantization and tensorrt' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          'torchao' \
-          'torch-tensorrt' \
-      && echo 'DONE pytorch quantization and tensorrt' ;
-#+end_src
-
-* Tensor manipulation
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Tensor manipulation' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
           'einops' \
-      && echo 'DONE Tensor manipulation' ;
-#+end_src
-
-* Image libraries
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Extra misc libs' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
           'opencv_contrib_python' \
           'opencv_python' \
           'pillow' \
-      && echo 'DONE Extra misc libs' ;
-#+end_src
-
-* flash attn
-
-** COMMENT using uv
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START flash attn install using uv' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install --no-build-isolation \
-          'flash-attn' \
-      && echo 'DONE flash attn install using uv' ;
-#+end_src
-
-** using pip
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START flash attn install using pip' \
-      && . "${HOME}/venv/bin/activate" \
-      && pip3 install \
-          'flash-attn' \
-      && echo 'DONE flash attn install using pip' ;
+          'torchao' \
+      && echo 'DONE pytorch quantization and tensorrt' ;
 #+end_src
 
 * Install xformers
-
-** For cuda 12.6
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START xformers install' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          'xformers' \
-          '--index-url' 'https://download.pytorch.org/whl/cu126' \
+          '--index-url' 'https://download.pytorch.org/whl/cu129' \
+              'xformers' \
       && echo 'DONE xformers install' ;
 #+end_src
 
@@ -340,278 +349,40 @@
       echo 'START Quantization, optimization and offloading' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          'deepspeed' \
           'accelerate' \
-          'lightning' \
-          'optimum' \
-          'optimum-quanto' \
-          'prodigyopt' \
-      && echo 'DONE Quantization, optimization and offloading' ;
-#+end_src
-
-* Core huggingface libs
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Core huggingface libs' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'diffusers' \
-          'huggingface-hub' \
-          'peft' \
-          'safetensors' \
-          'transformers' \
-      && echo 'DONE Core huggingface libs' ;
-#+end_src
-
-* Extra libraries
-
-** 1
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Extra libraries - 1' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'inotify-simple' \
-          'optimum-quanto' \
-          'packaging' \
-          'sentencepiece' \
-      && echo 'DONE Extra libraries - 1' ;
-#+end_src
-
-** 2
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Extra libraries - 2' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
           'albumentations' \
           'datasets' \
+          'deepspeed' \
+          'diffusers' \
           'evaluate' \
-          'gekko' \
-          'protobuf' \
-          'pycairo' \
-          'scikit-learn' \
-          'ultralytics' \
-      && echo 'DONE Extra libraries - 2' ;
-#+end_src
-
-** 3
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Extra libraries - 3' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'dlib' \
-          'matplotlib' \
-          'tqdm' \
-          'urllib3' \
-      && echo 'DONE Extra libraries - 3' ;
-#+end_src
-
-* For video stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START video stuff' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'decord' \
-          'qwen-vl-utils[decord]==0.0.8' \
-      && echo 'DONE video stuff' ;
-#+end_src
-
-* quantization
-
-** auto GPTQ
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START GPTQ quantization libs' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install --no-deps  \
-          'auto-gptq' \
-      && echo 'DONE GPTQ quantization libs' ;
-#+end_src
-
-** auto AWQ
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START AWQ quantization libs' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install --no-deps --no-build-isolation \
-          'autoawq-kernels' \
-          'autoawq' \
-      && echo 'DONE AWQ quantization libs' ;
-#+end_src
-
-* Install onnx
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START ONNX related' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'onnx' \
-          'onnxconverter-common' \
-          'onnxruntime' \
-          'onnxruntime-gpu' \
-          'onnxscript' \
-          'openvino' \
-      && echo 'DONE ONNX related' ;
-#+end_src
-
-* jupyter lab
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START jupyter lab install' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'ipywidgets' \
-          'jupyterlab' \
-          'jupyter' \
-          'ipython' \
-      && echo 'DONE jupyter lab install' ;
-#+end_src
-
-* polars
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START polars' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'polars' \
+          'fastapi[standard]' \
           'fastexcel' \
-      && echo 'DONE polars' ;
-#+end_src
-
-* Pandas
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Pandas' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'pandas' \
-          'seaborn' \
-      && echo 'DONE Pandas' ;
-#+end_src
-
-* Clone and install from source
-
-** Transformers
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START transformers source install' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/huggingface/transformers.git' \
-      && cd transformers \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE transformers source install' ;
-#+end_src
-
-** pytorch video
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START pytorch video source install' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/facebookresearch/pytorchvideo.git' \
-      && cd 'pytorchvideo' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE pytorch video source install' ;
-#+end_src
-
-** Diffusers
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START diffusers install from source' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/huggingface/diffusers.git' \
-      && cd diffusers \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE diffusers install from source' ;
-#+end_src
-
-** TIMM
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START TIMM install from source' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/huggingface/pytorch-image-models.git' \
-      && cd pytorch-image-models \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE TIMM install from source' ;
-#+end_src
-
-** DOCTR
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START TIMM install from source' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/mindee/doctr.git' \
-      && cd doctr \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE TIMM install from source' ;
-#+end_src
-
-** QWEN 2.5 VL
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START QWEN 2.5 source' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/QwenLM/Qwen2.5-VL.git' \
-      && cd 'Qwen2.5-VL/qwen-vl-utils' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE QWEN 2.5 source' ;
-#+end_src
-
-** RTMLib
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Installing RTMLib' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/Tau-J/rtmlib.git' \
-      && cd 'rtmlib' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE Installing RTMLib' ;
-#+end_src
-
-** SAM2
-
-*** Extra libs
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START SAM extra deps' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'numpy' \
-          'hydra-core' \
-          'iopath' \
-      && echo 'DONE SAM extra deps' ;
-#+end_src
-
-*** Main sam
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START' \
-      && cd "${HOME}" \
-      && git clone --depth 1 'https://github.com/facebookresearch/sam2.git' \
-      && cd 'sam2' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -e . \
-      && echo 'DONE' ;
-#+end_src
-
-* Setup sym links for SHA512SUM
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Linking SHA512SUM' \
-      && ln -vfs -- \
-          './.cache/SHA512SUM' \
-          '/root/SHA512SUM' \
-      && echo 'DONE Linking SHA512SUM' ;
+          'huggingface-hub' \
+          'inotify-simple' \
+          'ipython' \
+          'ipywidgets' \
+          'jupyter' \
+          'jupyterlab' \
+          'lightning[extra]' \
+          'matplotlib' \
+          'openvino' \
+          'optimum' \
+          'optimum-quanto' \
+          'packaging' \
+          'prodigyopt' \
+          'protobuf' \
+          'requests' \
+          'safetensors' \
+          'scikit-learn' \
+          'sentencepiece' \
+          'torch_dct' \
+          'torchmetrics' \
+          'tqdm' \
+          'transformers' \
+          'ultralytics' \
+          'urllib3' \
+          'wandb' \
+      && echo 'DONE Quantization, optimization and offloading' ;
 #+end_src
 
 * Important functions (script to source)
@@ -675,7 +446,7 @@
 
       mkdir '-pv' '--' "$('dirname' '--' "${DIR_FULL}")"
       cd "$('dirname' '--' "${DIR_FULL}")"
-      git clone "${URL}"
+      git clone --depth 1 "${URL}"
       cd "${DIR_FULL}"
       git pull
       git submodule update --recursive --init
@@ -710,6 +481,15 @@
   }
 #+end_src
 
+**** install python code
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  install_python_source(){
+      . "${HOME}/venv/bin/activate"
+      get_repo "${1}"
+      uv pip install -e .
+  }
+#+end_src
+
 *** Get oh my zsh for convenience
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_ohmyzsh(){
@@ -720,27 +500,51 @@
   }
 #+end_src
 
-* Setup zsh
+* Clone and install from source
 
-** Install zsh
+** Transformers
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get zsh stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'zsh' \
-      && echo 'DONE apt-get zsh stuff' ;
+      echo 'START transformers source install' \
+      && . "${HOME}/important_functions.sh" \
+      && install_python_source 'https://github.com/huggingface/transformers.git' \
+      && echo 'DONE transformers source install' ;
 #+end_src
 
-** Get oh my zsh
+** pytorch video
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      echo 'START set up oh my zsh' \
+      echo 'START pytorch video source install' \
       && . "${HOME}/important_functions.sh" \
-      && get_ohmyzsh \
-      && echo 'DONE set up oh my zsh' ;
+      && install_python_source 'https://github.com/facebookresearch/pytorchvideo.git' \
+      && echo 'DONE pytorch video source install' ;
+#+end_src
+
+** Diffusers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START diffusers install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && install_python_source 'https://github.com/huggingface/diffusers.git' \
+      && echo 'DONE diffusers install from source' ;
+#+end_src
+
+** TIMM
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START TIMM install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && install_python_source 'https://github.com/huggingface/pytorch-image-models.git' \
+      && echo 'DONE TIMM install from source' ;
+#+end_src
+
+** DOCTR
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START doctr install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && install_python_source 'https://github.com/mindee/doctr.git' \
+      && echo 'DONE doctr install from source' ;
 #+end_src
 
 * Huggingface accelerate config
@@ -779,85 +583,80 @@
   use_cpu: false
 #+end_src
 
-* Download SAM checkpoints inside the container
+* Image for jupyter
 
-** Copy the scriot into the container
+** Expose the jupyterlab port
+
+*** Inside the container
 #+begin_src conf :tangle ./Dockerfile
-  COPY ./docker.download_sam_checkpoints.sh '/root/docker.download_sam_checkpoints.sh'
+  EXPOSE 8888/tcp
 #+end_src
 
-** The actual script
-
-*** Create the directory
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
-  mkdir -pv -- "${HOME}/.cache/SHA512SUM"
+*** Network port for running the image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  LISTEN_PORT='8888'
 #+end_src
 
-*** Get the defined functions
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
-  . "${HOME}/important_functions.sh"
+** Script to start jupyterlab server
+
+*** Copy the script
+#+begin_src conf :tangle ./Dockerfile
+  COPY './docker.start_jupyter_lab.sh' '/root/docker.start_jupyter_lab.sh'
 #+end_src
 
-*** Download the actual checkpoints
-
-**** Tiny
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
-  adown \
-      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt' \
-      'sam2.1_hiera_tiny.pt' \
-      'df6fe66086c6e127f9932be2d0bc0a0c57f087c0e142427bea5ef7b71626e131e2755984df0bcd76b119e9dc0cc9dc33a8842e31ce445b3658ce77abe8789e2b'
-      "${HOME}/sam2/checkpoints/sam2.1_hiera_tiny.pt" \
-  ;
+*** Main shell script for starting jupyterlab
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.start_jupyter_lab.sh
+  cd '/data/output'
+  . "${HOME}/venv/bin/activate"
+  'jupyter' 'notebook' 'password'
+  exec 'jupyter' 'lab' '--allow-root' '--ip=*'
 #+end_src
 
-**** Small
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
-  adown \
-      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt' \
-      'sam2.1_hiera_small.pt' \
-      'f6a1ab87b096fd6753ed2b7cfbb13695ad3ceb7a3dc3ea433f23571c0db2369ee372d27da3be9bce39c53ffc84a7e9a30c6879e5b1b418898d831442039264c6' \
-      "${HOME}/sam2/checkpoints/sam2.1_hiera_small.pt" \
-  ;
+* onnxscript and runtime
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START onnxstuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+              'onnxruntime-gpu' \
+              'onnxscript' \
+      && echo 'DONE onnxstuff' ;
 #+end_src
 
-**** Base
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
-  adown \
-      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt' \
-      'sam2.1_hiera_base_plus.pt' \
-      '0c4f89b91f1f951b95246f9544f32d93d370aaf10c30344d47df0cfa3316a819cffd0042ab462244198ae8261d56fa4cc93bf916b4c9f4450d651ac3faa9a7cd' \
-      "${HOME}/sam2/checkpoints/sam2.1_hiera_base_plus.pt" \
-  ;
+* Flash attn
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START flash attn' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+              '--no-build-isolation' \
+                  'flash-attn' \
+      && echo 'DONE flash attn' ;
 #+end_src
 
-**** Large
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./docker.download_sam_checkpoints.sh
-  adown \
-      'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt' \
-      'sam2.1_hiera_large.pt' \
-      '2672dacbbd40f9d8e0fffb80696316054e1a32f32a8241c89492e532f0607f1dc2bf0913f6688cfeb7521b02bb16c90b3ed4e90f53568c1f60f0c610f21ef21f' \
-      "${HOME}/sam2/checkpoints/sam2.1_hiera_large.pt" \
-  ;
+* Huggingface hub
+Some package is buggy and needs this for now
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Hub' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+              'huggingface-hub==1.0.0.rc5' \
+      && echo 'DONE Hub' ;
 #+end_src
 
-* Main script wrapper for docker image name and command
-
-** Image name
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  "${IMAGE_NAME}"
+* Prepare venv in dockerfile
+#+begin_src conf :tangle ./Dockerfile
+  ENV PATH='/root/venv/bin:/root/.local/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  ENV VIRTUAL_ENV='/root/venv'
+  ENV VIRTUAL_ENV_PROMPT='venv'
 #+end_src
 
-** COMMENT run bash
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  '/bin/bash' ;
-#+end_src
-
-** run bash
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  'zsh' ;
-#+end_src
-
-** COMMENT start jupyter lab
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
-  '/root/docker.start_jupyter_lab.sh' ;
+* Work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
 #+end_src
