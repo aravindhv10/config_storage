@@ -204,7 +204,7 @@ in case =canTouchEfiVariables= doesn't work for your system
   efiInstallAsRemovable = true; 
 #+end_src
 
-******** Extra entries
+******** COMMENT Extra entries
 
 ********* BEGIN
 #+begin_src nix :tangle ./configuration.nix
@@ -246,20 +246,16 @@ in case =canTouchEfiVariables= doesn't work for your system
 
 **** Fonts
 
-
 ***** COMMENT Global options
 #+begin_src nix :tangle ./configuration.nix
   fonts.fontconfig.localConf = ''
   ''
 #+end_src
 
-
 ***** COMMENT Nerd Fonts
 #+begin_src nix :tangle ./configuration.nix
 fonts.packages = with pkgs; [ nerdfonts ];
 #+end_src
-
-
 
 **** Networking
 
@@ -267,7 +263,6 @@ fonts.packages = with pkgs; [ nerdfonts ];
 #+begin_src nix :tangle ./configuration.nix
   networking = {
 #+end_src
-
 
 ***** MAIN
 
@@ -312,7 +307,7 @@ Configure network proxy if necessary
   nftables.enable = true;
 #+end_src
 
-****** COMMENT Or disable the firewall altogether.
+****** Or disable the firewall altogether.
 #+begin_src nix :tangle ./configuration.nix
   firewall.enable = false;
 #+end_src
@@ -414,16 +409,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxPackages_6_16; 
 #+end_src
 
-***** COMMENT 6.12
-#+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxPackages_6_12; 
-#+end_src
-
-***** COMMENT 6.6
-#+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_6;
-#+end_src
-
 ***** COMMENT Xanmod
 
 ****** COMMENT Latest
@@ -452,27 +437,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
                   extraConfig = ''
                   '';
                   extraMeta.branch = version ;
-              } // (args.argsOverride or {})
-          );
-      linux_sgx = pkgs.callPackage linux_sgx_pkg{};
-  in 
-      pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-#+end_src
-
-****** COMMENT 1
-#+begin_src nix :tangle ./configuration.nix
-  boot.kernelPackages =
-  let
-      linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
-          buildLinux (
-              args // rec {
-                  version = "6.13.0";
-                  modDirVersion = version;
-                  src = /home/asd/GITHUB/torvalds/linux-6.13.tar;
-                  kernelPatches = [];
-                  extraConfig = ''
-                  '';
-                  extraMeta.branch = "6.13.0";
               } // (args.argsOverride or {})
           );
       linux_sgx = pkgs.callPackage linux_sgx_pkg{};
@@ -553,7 +517,6 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ***** greetd
-
 
 ****** START
 #+begin_src nix :tangle ./configuration.nix
@@ -703,7 +666,6 @@ You can disable this if you're only using the Wayland session.
       dev.enable = true;
   } ;
 #+end_src
-
 
 **** rtkit
 #+begin_src nix :tangle ./configuration.nix
@@ -905,7 +867,6 @@ You can disable this if you're only using the Wayland session.
   users.groups.libvirtd.members = ["asd"];
 #+end_src
 
-
 **** Containers and virtualizating
 
 ***** BEGIB
@@ -1009,7 +970,6 @@ You can disable this if you're only using the Wayland session.
   file
   foot
   fuse3
-  fzf
   gcc
   gcc14Stdenv
   gdk-pixbuf
@@ -1129,12 +1089,12 @@ You can disable this if you're only using the Wayland session.
 
 ******** Enabled
 #+begin_src nix :tangle ./configuration.nix
-  rocmPackages.hipblas
-  rocmPackages.hipcc
 #+end_src
 
 ******** COMMENT Disabled
 #+begin_src nix :tangle ./configuration.nix
+  rocmPackages.hipblas
+  rocmPackages.hipcc
   rocmPackages.meta.rocm-all
   rocmPackages.half
   rocmPackages.hipblas
@@ -1155,12 +1115,6 @@ You can disable this if you're only using the Wayland session.
   unstable.obs-studio-plugins
 #+end_src
 
-******** Installing
-#+begin_src nix :tangle ./configuration.nix
-  unstable.obs-cli
-  unstable.obs-studio
-#+end_src
-
 ******* MIX STABLE-UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.ags
@@ -1177,6 +1131,7 @@ You can disable this if you're only using the Wayland session.
   unstable.dust
   unstable.emacs30
   unstable.fd
+  unstable.fzf
   unstable.helix
   unstable.inkscape
   unstable.ironbar
@@ -1563,7 +1518,6 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ******** enter emacs flatpak
-
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "enter_emacs_flatpak" ''
 
@@ -1769,6 +1723,7 @@ You can disable this if you're only using the Wayland session.
 #+end_src
 
 ******** File browser
+
 ********* M_C_D
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_D" ''

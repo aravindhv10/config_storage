@@ -19,15 +19,6 @@ in {
       efiSupport = true;
 
       device = "/dev/nvme0n1";
-
-      extraEntries = ''
-
-        menuentry "debian" {
-            linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-            initrd /i
-        }
-
-      '';
     };
   };
 
@@ -37,6 +28,8 @@ in {
     networkmanager.enable = true;
 
     nftables.enable = true;
+
+    firewall.enable = false;
 
     useDHCP = lib.mkDefault true;
   };
@@ -281,7 +274,6 @@ in {
     file
     foot
     fuse3
-    fzf
     gcc
     gcc14Stdenv
     gdk-pixbuf
@@ -384,12 +376,6 @@ in {
         yt-dlp
       ]))
 
-    rocmPackages.hipblas
-    rocmPackages.hipcc
-
-    unstable.obs-cli
-    unstable.obs-studio
-
     unstable.ags
     unstable.alacritty
     unstable.alejandra
@@ -404,6 +390,7 @@ in {
     unstable.dust
     unstable.emacs30
     unstable.fd
+    unstable.fzf
     unstable.helix
     unstable.inkscape
     unstable.ironbar
