@@ -1,0 +1,315 @@
+* Scripts to manage
+
+** Important functions
+
+*** Primitive functions
+
+**** touch files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_TOUCH () {
+      test -e "./${1}" || touch "./${1}"
+  }
+#+end_src
+
+**** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_GITADD () {
+      git add "./${1}"
+  }
+#+end_src
+
+**** delete files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_CLEAN () {
+      rm -vf -- "./${1}"
+  }
+#+end_src
+
+**** Read the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_READ () {
+      cat "./${1}"
+  }
+#+end_src
+
+*** Compound functions
+
+**** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD () {
+      P_TOUCH "${1}"
+      P_GITADD "${1}"
+  }
+#+end_src
+
+*** PYTHON
+
+**** PRIMITIVE
+
+***** Process the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_PROCESS () {
+      expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
+  }
+#+end_src
+
+**** COMPOUND
+
+***** Read and process the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  READ_AND_PROCESS_FILE () {
+      P_TOUCH "${1}"
+      P_READ "${1}" | P_PROCESS
+  }
+#+end_src
+
+***** Process all python files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  READ_ALL_PYTHON(){
+      echo '#!/usr/bin/env python3'
+      READ_AND_PROCESS_FILE "${1}.config.py"
+      READ_AND_PROCESS_FILE "${1}.import.py" | sort | uniq
+      READ_AND_PROCESS_FILE "${1}.function.py"
+      READ_AND_PROCESS_FILE "${1}.class.py"
+      READ_AND_PROCESS_FILE "${1}.execute.py"
+  }
+
+  CLEAN_ALL_PYTHON(){
+      P_CLEAN "${1}.config.py"
+      P_CLEAN "${1}.import.py"
+      P_CLEAN "${1}.function.py"
+      P_CLEAN "${1}.class.py"
+      P_CLEAN "${1}.execute.py"
+  }
+
+  PREPARE_PYTHON_FILE() {
+      READ_ALL_PYTHON "${1}" | P_PROCESS > "./${1}.py"
+      CLEAN_ALL_PYTHON "${1}"
+      chmod +x "./${1}.py"
+      GITADD "${1}.py"
+  }
+#+end_src
+
+*** Final wrappers
+
+**** For git add
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD_MAIN () {
+      GITADD 'README.org'
+      GITADD 'Dockerfile'
+      GITADD 'host.docker_build.sh'
+      GITADD 'host.docker_run_interactive.sh'
+      GITADD 'host.image_names.sh'
+  }
+#+end_src
+
+**** For clean
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  CLEAN_MAIN () {
+      P_CLEAN '.git.sh'
+      P_CLEAN 'README.org~'
+  }
+#+end_src
+
+**** python stuff
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  UNIFY_MAIN () {
+      PREPARE_PYTHON_FILE 'main'
+  }
+#+end_src
+
+**** Call both
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  MAIN () {
+      GITADD_MAIN
+      CLEAN_MAIN
+  }
+#+end_src
+
+** Call the main function
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  MAIN
+#+end_src
+
+* Host scripts
+
+** image env
+
+*** Important envs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  IMAGE_NAME='rust_builder'
+  CONTAINER_NAME="${IMAGE_NAME}_1"
+#+end_src
+
+*** Function to build
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  docker_build(){
+      cp '../shell_functions/important_functions.sh' ./
+
+      sudo -A docker image build \
+          -t "${IMAGE_NAME}"  \
+          .                   \
+      ;
+  }
+#+end_src
+
+*** Function to run
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  docker_run () {
+      mkdir -pv -- './input' './output'
+      INPUT="$(realpath ./input)"
+      OUTPUT="$(realpath ./output)"
+      sudo -A docker run \
+          --tty \
+          --interactive \
+          --rm \
+          --gpus 'all,"capabilities=compute,utility,video"' \
+          --ipc host \
+          --ulimit memlock=-1 \
+          --ulimit stack=67108864 \
+          --shm-size 107374182400 \
+          --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+          -v "${INPUT}:/data/input" \
+          -v "${OUTPUT}:/data/output" \
+          -v "CACHE:/root/.cache" \
+          -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
+          "${IMAGE_NAME}" "${IMAGE_CMD}" \
+      ;
+  }
+#+end_src
+
+** Script to build the docker image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_build.sh
+  cd "$('dirname' '--' "${0}")"
+  . './host.image_names.sh'
+  docker_build
+#+end_src
+
+* Basic image config
+
+** Main base image
+#+begin_src conf :tangle ./Dockerfile
+  FROM rust:trixie
+#+end_src
+
+** Basic configs
+#+begin_src conf :tangle ./Dockerfile
+  ENV HOME='/root'
+  ENV DEBIAN_FRONTEND='noninteractive'
+  WORKDIR '/root'
+#+end_src
+
+
+* zsh setup
+
+** Important apt install stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'aria2' \
+          'git' \
+          'wget' \
+          'zsh' \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+** Get ohmyzsh
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START ohmyzsh' \
+      && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
+      && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
+      && cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "${HOME}/.zshrc" \
+      && echo 'DONE ohmyzsh' ;
+#+end_src
+
+** Get starship
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START ohmyzsh' \
+      && aria2c -c 'https://starship.rs/install.sh' \
+      && chmod +x './install.sh' \
+      && './install.sh' '-y' \
+      && echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc" \
+      && echo 'DONE ohmyzsh' ;
+#+end_src
+
+** More convenient tools
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'bat' \
+          'fzf' \
+          'lsd' \
+      && echo 'alias ls=lsd' >> "${HOME}/.zshrc" \
+      && echo 'alias cat=batcat' >> "${HOME}/.zshrc" \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+** Copy the Important functions (script to source) and source it
+
+*** Copy it
+#+begin_src conf :tangle ./Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
+*** Source it
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START sourcing important functions' \
+      && echo '. "/root/important_functions.sh"' >> "${HOME}/.zshrc" \
+      && echo 'DONE sourcing important functions' ;
+#+end_src
+
+* Main command to run in the container
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  IMAGE_CMD='zsh'
+#+end_src
+
+* Important apt install stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'aria2' \
+          'build-essential' \
+          'cmake' \
+          'curl' \
+          'git' \
+          'git-lfs' \
+          'make' \
+          'neovim' \
+          'ninja-build' \
+          'pkg-config' \
+          'unzip' \
+          'wget' \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+* Script to run the docker iamge
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
+  cd "$('dirname' -- "${0}")"
+  . './host.image_names.sh'
+  docker_run
+#+end_src
+
+* Work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src
+
