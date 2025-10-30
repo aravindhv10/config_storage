@@ -723,7 +723,7 @@ You can disable this if you're only using the Wayland session.
 
 ***** Set default shell to zsh
 #+begin_src nix :tangle ./configuration.nix
-  users.defaultUserShell = pkgs.zsh;
+  users.defaultUserShell = unstable.zsh;
 #+end_src
 
 ***** BEGIN
@@ -1062,6 +1062,7 @@ You can disable this if you're only using the Wayland session.
   matplotlib
   multiprocess
   numpy
+  onnx
   onnxruntime
   opencv-python
   pillow

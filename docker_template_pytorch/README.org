@@ -2,95 +2,127 @@
 
 ** Important functions
 
-*** GIT
+*** Primitive functions
+
+**** touch files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_TOUCH () {
+      test -e "./${1}" || touch "./${1}"
+  }
+#+end_src
 
 **** add files to GIT
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD () {
-      touch "./${1}"
+  P_GITADD () {
       git add "./${1}"
   }
 #+end_src
 
 **** delete files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  CLEAN () {
+  P_CLEAN () {
       rm -vf -- "./${1}"
+  }
+#+end_src
+
+**** Read the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_READ () {
+      cat "./${1}"
+  }
+#+end_src
+
+*** Compound functions
+
+**** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD () {
+      P_TOUCH "${1}"
+      P_GITADD "${1}"
   }
 #+end_src
 
 *** PYTHON
 
-**** Process the python file
+**** PRIMITIVE
+
+***** Process the python file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  PROCESS () {
+  P_PROCESS () {
       expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
   }
 #+end_src
 
-**** Read and process the file
+**** COMPOUND
+
+***** Read and process the file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  READ () {
-      touch "./${1}"
-      cat "./${1}" | PROCESS
+  READ_AND_PROCESS_FILE () {
+      P_TOUCH "${1}"
+      P_READ "${1}" | P_PROCESS
   }
 #+end_src
 
-**** Process all python files
+***** Process all python files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  UNIFY () {
-      (
-          echo '#!/usr/bin/env python3' ;
-          READ "${1}.config.py" ;
-          READ "${1}.import.py" | sort | uniq ;
-          READ "${1}.function.py" ;
-          READ "${1}.class.py" ;
-          READ "${1}.execute.py" ;
-      ) | PROCESS > "./${1}.py"
+  READ_ALL_PYTHON(){
+      echo '#!/usr/bin/env python3'
+      READ_AND_PROCESS_FILE "${1}.config.py"
+      READ_AND_PROCESS_FILE "${1}.import.py" | sort | uniq
+      READ_AND_PROCESS_FILE "${1}.function.py"
+      READ_AND_PROCESS_FILE "${1}.class.py"
+      READ_AND_PROCESS_FILE "${1}.execute.py"
+  }
 
-      GITADD "./${1}.py"
+  CLEAN_ALL_PYTHON(){
+      P_CLEAN "${1}.config.py"
+      P_CLEAN "${1}.import.py"
+      P_CLEAN "${1}.function.py"
+      P_CLEAN "${1}.class.py"
+      P_CLEAN "${1}.execute.py"
+  }
 
-      CLEAN "${1}.config.py"
-      CLEAN "${1}.import.py"
-      CLEAN "${1}.function.py"
-      CLEAN "${1}.class.py"
-      CLEAN "${1}.execute.py"
+  PREPARE_PYTHON_FILE() {
+      READ_ALL_PYTHON "${1}" | P_PROCESS > "./${1}.py"
+      CLEAN_ALL_PYTHON "${1}"
+      chmod +x "./${1}.py"
+      GITADD "${1}.py"
   }
 #+end_src
 
-** Main functions
+*** Final wrappers
 
-*** python stuff
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  UNIFY_MAIN () {
-      UNIFY 'main'
-  }
-#+end_src
-
-*** For git add
+**** For git add
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   GITADD_MAIN () {
-      GITADD './Dockerfile'
-      GITADD './README.org'
-      GITADD './default_config.yaml'
-      GITADD './docker.download_sam_checkpoints.sh'
-      GITADD './docker.start_jupyter_lab.sh'
-      GITADD './host.docker_build.sh'
-      GITADD './host.docker_run_interactive.sh'
-      GITADD './host.image_names.sh'
-      GITADD './important_functions.sh'
+      GITADD 'Dockerfile'
+      GITADD 'README.org'
+      GITADD 'default_config.yaml'
+      GITADD 'docker.download_sam_checkpoints.sh'
+      GITADD 'docker.start_jupyter_lab.sh'
+      GITADD 'host.docker_build.sh'
+      GITADD 'host.docker_run_interactive.sh'
+      GITADD 'host.image_names.sh'
+      GITADD 'important_functions.sh'
   }
 #+end_src
 
-*** For clean
+**** For clean
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   CLEAN_MAIN () {
-      CLEAN '.git.sh'
-      CLEAN 'README.org~'
+      P_CLEAN '.git.sh'
+      P_CLEAN 'README.org~'
   }
 #+end_src
 
-*** Call both
+**** python stuff
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  UNIFY_MAIN () {
+      PREPARE_PYTHON_FILE 'main'
+  }
+#+end_src
+
+**** Call both
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   MAIN () {
       GITADD_MAIN

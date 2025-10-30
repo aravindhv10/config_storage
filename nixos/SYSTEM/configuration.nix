@@ -198,7 +198,7 @@ in {
     ];
   };
 
-  users.defaultUserShell = pkgs.zsh;
+  users.defaultUserShell = unstable.zsh;
 
   programs.zsh = {
     enable = true;
@@ -358,6 +358,7 @@ in {
         matplotlib
         multiprocess
         numpy
+        onnx
         onnxruntime
         opencv-python
         pillow
