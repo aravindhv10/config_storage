@@ -1131,6 +1131,7 @@ You can disable this if you're only using the Wayland session.
   unstable.difftastic
   unstable.dust
   unstable.emacs30
+  unstable.evil-helix
   unstable.fd
   unstable.fzf
   unstable.helix
