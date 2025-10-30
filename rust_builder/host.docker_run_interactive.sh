@@ -1,4 +1,4 @@
 #!/bin/sh
 cd "$('dirname' -- "${0}")"
 . './host.image_names.sh'
-docker_run
+docker_run "$@"

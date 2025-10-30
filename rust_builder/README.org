@@ -143,40 +143,52 @@
 
 *** Function to build
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  BUILDAH(){
+      buildah "$@"
+  }
+
+  DOCKER_BUILD(){
+      sudo -A docker image "$@"
+  }
+
   docker_build(){
       cp '../shell_functions/important_functions.sh' ./
 
-      sudo -A docker image build \
-          -t "${IMAGE_NAME}"  \
-          .                   \
+      BUILDAH build \
+          -t "${IMAGE_NAME}" \
+          . \
       ;
   }
 #+end_src
 
 *** Function to run
+          -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  DOCKER(){
+      sudo -A docker "$@"
+  }
+
+  PODMAN(){
+      podman "$@"
+  }
+
   docker_run () {
-      mkdir -pv -- './input' './output'
-      INPUT="$(realpath ./input)"
-      OUTPUT="$(realpath ./output)"
-      sudo -A docker run \
+      mkdir -pv -- "${1}" "${2}"
+      INPUT="$(realpath ${1})"
+      OUTPUT="$(realpath ${2})"
+      PODMAN run \
           --tty \
           --interactive \
           --rm \
-          --gpus 'all,"capabilities=compute,utility,video"' \
-          --ipc host \
-          --ulimit memlock=-1 \
-          --ulimit stack=67108864 \
-          --shm-size 107374182400 \
           --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
           -v "${INPUT}:/data/input" \
           -v "${OUTPUT}:/data/output" \
           -v "CACHE:/root/.cache" \
-          -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
           "${IMAGE_NAME}" "${IMAGE_CMD}" \
       ;
   }
 #+end_src
+
 
 ** Script to build the docker image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_build.sh
@@ -197,8 +209,8 @@
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
   WORKDIR '/root'
+  USER root
 #+end_src
-
 
 * zsh setup
 
@@ -301,7 +313,7 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
   cd "$('dirname' -- "${0}")"
   . './host.image_names.sh'
-  docker_run
+  docker_run "$@"
 #+end_src
 
 * Work space
@@ -312,4 +324,3 @@
       './.git.sh'
   " "log" "err")
 #+end_src
-

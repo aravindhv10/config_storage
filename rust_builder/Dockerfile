@@ -3,6 +3,7 @@ FROM rust:trixie
 ENV HOME='/root'
 ENV DEBIAN_FRONTEND='noninteractive'
 WORKDIR '/root'
+USER root
 
 RUN \
     --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
