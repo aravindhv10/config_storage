@@ -60,6 +60,7 @@ RUN \
     && apt-get install -y \
         'aria2' \
         'build-essential' \
+        'clang' \
         'cmake' \
         'curl' \
         'git' \
