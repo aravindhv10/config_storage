@@ -63,6 +63,7 @@ RUN \
         'clang' \
         'cmake' \
         'curl' \
+        'gettext' \
         'git' \
         'git-lfs' \
         'liblz4-dev' \
@@ -73,7 +74,7 @@ RUN \
         'python3-sphinx' \
         'unzip' \
         'wget' \
-        'gettext' \
+        'yacc' \
     && echo 'DONE apt-get stuff' ;
 
 COPY './install.sh' '/root/install.sh'
