@@ -100,6 +100,7 @@
       GITADD 'host.docker_build.sh'
       GITADD 'host.docker_run_interactive.sh'
       GITADD 'host.image_names.sh'
+      GITADD 'install.sh'
   }
 #+end_src
 
@@ -319,6 +320,17 @@
           'wget' \
       && echo 'DONE apt-get stuff' ;
 #+end_src
+
+* Script to install packages to /usr/local
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
+  cd "$(dirname -- "${0}")"
+  rm -rf -- /usr/local/install
+  cp -aspf -- "$(realpath .)" /usr/local/install
+  cd /usr/local/install
+  cp -alpf . ../
+  exec rm -rf -- /usr/local/install
+#+end_src
+
 
 * Script to run the docker iamge
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh
