@@ -70,6 +70,7 @@ RUN \
         'neovim' \
         'ninja-build' \
         'pkg-config' \
+        'python3-sphinx' \
         'unzip' \
         'wget' \
     && echo 'DONE apt-get stuff' ;
