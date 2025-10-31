@@ -205,7 +205,7 @@ in {
 
     ohMyZsh = {
       enable = true;
-      plugins = ["git" "starship" "zoxide"];
+      plugins = ["git" "starship" "zoxide" "procs" "systemd" "fzf" "eza"];
       theme = "robbyrussell";
     };
   };
@@ -398,6 +398,7 @@ in {
     unstable.kickoff
     unstable.lapce
     unstable.lsd
+    unstable.eza
     unstable.lyx
     unstable.mako
     unstable.miniserve
@@ -409,6 +410,7 @@ in {
     unstable.openblas.dev
     unstable.opencv4
     unstable.pdf2svg
+    unstable.procs
     unstable.rclone
     unstable.ripgrep
     unstable.ruff

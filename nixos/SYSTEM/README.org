@@ -756,7 +756,7 @@ You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
   ohMyZsh = {
     enable = true;
-    plugins = ["git" "starship" "zoxide"];
+    plugins = ["git" "starship" "zoxide" "procs" "systemd" "fzf" "eza"];
     theme = "robbyrussell";
   };
 #+end_src
@@ -1140,6 +1140,7 @@ You can disable this if you're only using the Wayland session.
   unstable.kickoff
   unstable.lapce
   unstable.lsd
+  unstable.eza
   unstable.lyx
   unstable.mako
   unstable.miniserve
@@ -1151,6 +1152,7 @@ You can disable this if you're only using the Wayland session.
   unstable.openblas.dev
   unstable.opencv4
   unstable.pdf2svg
+  unstable.procs
   unstable.rclone
   unstable.ripgrep
   unstable.ruff
