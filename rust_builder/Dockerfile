@@ -65,6 +65,7 @@ RUN \
         'curl' \
         'git' \
         'git-lfs' \
+        'liblz4-dev' \
         'make' \
         'neovim' \
         'ninja-build' \
