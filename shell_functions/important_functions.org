@@ -487,7 +487,7 @@ index 704e22a4..a61f7081 100755
       get_rust_package 'https://github.com/astral-sh/uv.git'
       get_rust_package 'https://github.com/atuinsh/atuin.git'
       get_rust_package 'https://github.com/bootandy/dust.git'
-      get_rust_package 'https://github.com/chmln/sd.git'
+      get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
       get_rust_package 'https://github.com/denisidoro/navi.git'
       get_rust_package 'https://github.com/fish-shell/fish-shell.git'
       get_rust_package 'https://github.com/konradsz/igrep.git'
