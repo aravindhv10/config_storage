@@ -322,6 +322,13 @@
 #+end_src
 
 * Script to install packages to /usr/local
+
+** Copy the script into the image
+#+begin_src conf :tangle ./Dockerfile
+  COPY './install.sh' '/root/install.sh'
+#+end_src
+
+** Actual script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
   cd "$(dirname -- "${0}")"
   rm -rf -- /usr/local/install
@@ -330,7 +337,6 @@
   cp -alpf . ../
   exec rm -rf -- /usr/local/install
 #+end_src
-
 
 * Script to run the docker iamge
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_run_interactive.sh

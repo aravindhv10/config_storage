@@ -72,3 +72,5 @@ RUN \
         'unzip' \
         'wget' \
     && echo 'DONE apt-get stuff' ;
+
+COPY './install.sh' '/root/install.sh'
