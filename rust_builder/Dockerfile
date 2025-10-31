@@ -59,10 +59,12 @@ RUN \
     && apt-get -y update \
     && apt-get install -y \
         'aria2' \
+        'bison' \
         'build-essential' \
         'clang' \
         'cmake' \
         'curl' \
+        'gawk' \
         'gettext' \
         'git' \
         'git-lfs' \
