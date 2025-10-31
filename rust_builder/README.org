@@ -320,6 +320,7 @@
           'python3-sphinx' \
           'unzip' \
           'wget' \
+          'gettext' \
       && echo 'DONE apt-get stuff' ;
 #+end_src
 

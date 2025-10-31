@@ -73,6 +73,7 @@ RUN \
         'python3-sphinx' \
         'unzip' \
         'wget' \
+        'gettext' \
     && echo 'DONE apt-get stuff' ;
 
 COPY './install.sh' '/root/install.sh'
