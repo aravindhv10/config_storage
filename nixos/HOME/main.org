@@ -1719,6 +1719,15 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   . "${HOME}/.shrc"
 #+end_src
 
+*** Setup ohmyzsh plugins
+#+begin_src conf :tangle ./HOME,.zshrc
+  export ZSH="$HOME/.oh-my-zsh"
+  ZSH_THEME="spaceship"
+  plugins=(git starship uv fzf battery)
+  source $ZSH/oh-my-zsh.sh
+  bindkey -v
+#+end_src
+
 *** Good
 
 **** BEGIN
@@ -1736,7 +1745,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   starship init zsh
 #+end_src
 
-**** COMMENT ZOXIDE
+**** ZOXIDE
 #+begin_src conf :tangle ./HOME,.zshrc
   zoxide init zsh
 #+end_src
@@ -1755,6 +1764,13 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   }
 
   do_all_init_convenience "/tmp/init_${$}"
+#+end_src
+
+*** Setup up aliases
+#+begin_src conf :tangle ./HOME,.zshrc
+  alias ls=lsd
+  alias cat=bat
+  alias du=dust
 #+end_src
 
 * NU

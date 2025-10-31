@@ -1503,7 +1503,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 #+begin_src conf :tangle ./HOME,.zshrc
   export ZSH="$HOME/.oh-my-zsh"
   ZSH_THEME="spaceship"
-  plugins=(git)
+  plugins=(git starship uv fzf battery)
   source $ZSH/oh-my-zsh.sh
   bindkey -v
 #+end_src
@@ -1520,7 +1520,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   atuin init zsh --disable-up-arrow 
 #+end_src
 
-**** STARSHIP
+**** COMMENT STARSHIP
 #+begin_src conf :tangle ./HOME,.zshrc
   starship init zsh
 #+end_src
