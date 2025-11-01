@@ -190,9 +190,7 @@
           --interactive \
           --rm \
           --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
-          -v "${INPUT}:/data/input" \
           -v "${INPUT}:/root/GITHUB" \
-          -v "${OUTPUT}:/data/output" \
           -v "${OUTPUT}:/var/tmp" \
           -v "CACHE:/root/.cache" \
           "${IMAGE_NAME}" "${IMAGE_CMD}" \

@@ -1,5 +1,6 @@
 #!/bin/sh
 C(){
+    git add "${1}"
     mkdir -pv -- "$('dirname' -- "${2}")"
     rm -vf -- "${2}"
     cp -vf -- "${1}" "${2}"

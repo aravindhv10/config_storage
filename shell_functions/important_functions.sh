@@ -102,35 +102,14 @@ get_ohmyzsh(){
     get_repo 'https://github.com/ohmyzsh/ohmyzsh.git'
     test -d "${HOME}/.oh-my-zsh" && rm -rf "${HOME}/.oh-my-zsh"
     test -L "${HOME}/.oh-my-zsh" || ln -vfs "./GITHUB/ohmyzsh/ohmyzsh" "${HOME}/.oh-my-zsh"
-    cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "${HOME}/.zshrc"
-
     get_repo 'https://github.com/spaceship-prompt/spaceship-prompt.git'
     ln -vfs "${HOME}/GITHUB/spaceship-prompt/spaceship-prompt" "${HOME}/.oh-my-zsh/custom/themes/"
     ln -vfs "${HOME}/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
-    echo 'ZSH_THEME="spaceship"'  >> "${HOME}/.zshrc"
-    echo 'bindkey -v' >> "${HOME}/.zshrc"
 }
 
 install_rust(){
     . "${HOME}/.cargo/env"
     which cargo || curl --proto '=https' --tlsv1.2 -sSf 'https://sh.rustup.rs' | sh
-    . "${HOME}/.cargo/env"
-    cargo install zellij --locked
-    cargo install bat --locked
-    cargo install lsd --locked
-    cargo install du-dust --locked
-    cargo install ripgrep --locked
-    # cargo install starship --locked
-    cd "${HOME}/.cargo/bin"
-    sudo cp bat dust exa zellij rg /usr/local/bin
-}
-
-setup_zshrc_with_rust(){
-    echo '. "${HOME}/.cargo/env"' >> "${HOME}/.zshrc"
-    # echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc"
-    echo 'alias cat=bat' >> "${HOME}/.zshrc"
-    echo 'alias ls=lsd' >> "${HOME}/.zshrc"
-    echo 'alias du=dust' >> "${HOME}/.zshrc"
 }
 
 install_awscli(){
@@ -157,9 +136,6 @@ get_squashfs_tools () {
     cd "${HOME}/GITHUB/plougher/squashfs-tools/"
     git checkout .
     cd "./squashfs-tools"
-    sd -F 'GZIP_SUPPORT = 1' '# GZIP_SUPPORT = 1' './Makefile'
-    sd -F 'XZ_SUPPORT = 1' '# XZ_SUPPORT = 1' './Makefile'
-    sd -F 'LZO_SUPPORT = 1' '# LZO_SUPPORT = 1' './Makefile'
     sd -F '#ZSTD_SUPPORT = 1' 'ZSTD_SUPPORT = 1' './Makefile'
     sd -F 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
     sd -F 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
@@ -169,8 +145,8 @@ get_squashfs_tools () {
     export CXX='clang++'
     export LDFLAGS='-Wl,-rpath=/var/tmp/squashfs/lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
     make clean
-    make -j4
-    make -j4 install
+    make -j
+    make -j install
     cd '/var/tmp/squashfs'
     mkdir -pv -- exe
     cd exe
@@ -339,47 +315,47 @@ get_helix_editor(){
 }
 
 get_rust_packages_standard(){
-    get_rust_package 'https://github.com/eza-community/eza.git'
-    get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
-    get_rust_package 'https://github.com/ClementTsang/bottom.git'
-    get_rust_package 'https://github.com/Wilfred/difftastic.git'
+    get_deb_mirror
+    get_helix_editor
+    get_helix_evil_editor
+    get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
     get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
     get_rust_package 'https://github.com/alacritty/alacritty.git'
     get_rust_package 'https://github.com/astral-sh/ruff.git'
     get_rust_package 'https://github.com/astral-sh/uv.git'
     get_rust_package 'https://github.com/atuinsh/atuin.git'
     get_rust_package 'https://github.com/bootandy/dust.git'
-    get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
-    get_rust_package 'https://github.com/denisidoro/navi.git'
-    get_rust_package 'https://github.com/fish-shell/fish-shell.git'
-    get_rust_package 'https://github.com/konradsz/igrep.git'
-    get_rust_package 'https://github.com/lsd-rs/lsd.git'
-    get_rust_package 'https://github.com/nushell/nushell.git'
-    get_rust_package 'https://github.com/sharkdp/bat.git'
-    get_rust_package 'https://github.com/sharkdp/fd.git'
-    get_rust_package 'https://github.com/skim-rs/skim.git'
-    get_rust_package 'https://github.com/starship/starship.git'
-    get_rust_package 'https://github.com/svenstaro/miniserve.git'
-    get_rust_package 'https://github.com/sxyazi/yazi.git'
-    get_rust_package 'https://github.com/zellij-org/zellij.git'
+    get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
     get_rust_package 'https://github.com/BurntSushi/xsv.git'
+    get_rust_package 'https://github.com/ClementTsang/bottom.git'
     get_rust_package 'https://github.com/dalance/procs.git'
     get_rust_package 'https://github.com/darakian/ddh.git'
-    get_rust_package 'https://github.com/redox-os/ion.git'
-    get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
-    get_rust_package 'https://github.com/watchexec/watchexec.git'
-    get_rust_package 'https://github.com/gblach/reflicate.git'
+    get_rust_package 'https://github.com/denisidoro/navi.git'
+    get_rust_package 'https://github.com/eza-community/eza.git'
+    get_rust_package 'https://github.com/fish-shell/fish-shell.git'
     get_rust_package 'https://github.com/gblach/imge.git'
-    get_rust_package 'https://github.com/your-tools/ruplacer.git'
-    get_rust_package 'https://github.com/whitfin/runiq.git'
-    get_rust_package 'https://github.com/vishaltelangre/ff.git'
-    get_rust_package 'https://github.com/shshemi/tabiew.git'
-    get_rust_package 'https://github.com/RaphGL/Tuckr.git'
-    get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+    get_rust_package 'https://github.com/gblach/reflicate.git'
+    get_rust_package 'https://github.com/konradsz/igrep.git'
     get_rust_package 'https://github.com/latex-lsp/texlab.git'
-    get_helix_editor
-    get_helix_evil_editor
-    get_deb_mirror
+    get_rust_package 'https://github.com/lsd-rs/lsd.git'
+    get_rust_package 'https://github.com/nushell/nushell.git'
+    get_rust_package 'https://github.com/RaphGL/Tuckr.git'
+    get_rust_package 'https://github.com/redox-os/ion.git'
+    get_rust_package 'https://github.com/sharkdp/bat.git'
+    get_rust_package 'https://github.com/sharkdp/fd.git'
+    get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+    get_rust_package 'https://github.com/shshemi/tabiew.git'
+    get_rust_package 'https://github.com/skim-rs/skim.git'
+    get_rust_package 'https://github.com/starship/starship.git'
+    get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
+    get_rust_package 'https://github.com/svenstaro/miniserve.git'
+    get_rust_package 'https://github.com/sxyazi/yazi.git'
+    get_rust_package 'https://github.com/vishaltelangre/ff.git'
+    get_rust_package 'https://github.com/watchexec/watchexec.git'
+    get_rust_package 'https://github.com/whitfin/runiq.git'
+    get_rust_package 'https://github.com/Wilfred/difftastic.git'
+    get_rust_package 'https://github.com/your-tools/ruplacer.git'
+    get_rust_package 'https://github.com/zellij-org/zellij.git'
 }
 
 get_tree_sitter () {
@@ -444,8 +420,8 @@ get_byobu () {
     mkdir -pv -- '/var/tmp/byobu/lib'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/byobu/lib/ld-linux-x86-64.so.2'
     "${HOME}/GITHUB/dustinkirkland/byobu/configure" '--prefix=/var/tmp/byobu'
-    make -j4
-    make -j4 install
+    make -j
+    make -j install
 }
 
 get_tmux () {
@@ -461,8 +437,8 @@ get_tmux () {
     mkdir -pv -- '/var/tmp/tmux/lib'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/tmux/lib/ld-linux-x86-64.so.2'
     "${HOME}/GITHUB/tmux/tmux/configure" '--prefix=/var/tmp/tmux' '--enable-sixel'
-    make -j4
-    make -j4 install
+    make -j
+    make -j install
 }
 
 get_glibc () {
@@ -480,6 +456,6 @@ get_glibc () {
     export LDFLAGS=''
     # export CFLAGS=''
     "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
-    make -j4
-    make -j4 install
+    make -j
+    make -j install
 }
