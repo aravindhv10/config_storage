@@ -1114,7 +1114,7 @@ You can disable this if you're only using the Wayland session.
   unstable.obs-do
   unstable.obs-studio
   unstable.obs-studio-plugins
-  unstable.helix
+  unstable.evil-helix
 #+end_src
 
 ******* MIX STABLE-UNSTABLE PACKAGES
@@ -1132,7 +1132,7 @@ You can disable this if you're only using the Wayland session.
   unstable.difftastic
   unstable.dust
   unstable.emacs30
-  unstable.evil-helix
+  unstable.helix
   unstable.fd
   unstable.fzf
   unstable.inkscape

@@ -1707,7 +1707,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
 * ZSH
 
-** Copy the config file
+** COMMENT Copy the config file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
   C './HOME,.zshrc' "${HOME}/.zshrc"
 #+end_src
@@ -1723,7 +1723,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 #+begin_src conf :tangle ./HOME,.zshrc
   export ZSH="$HOME/.oh-my-zsh"
   ZSH_THEME="spaceship"
-  plugins=(git starship uv fzf battery)
+  plugins=(battery eza fzf git procs starship systemd uv vi-mode zoxide zsh-interactive-cd)
   source $ZSH/oh-my-zsh.sh
   bindkey -v
 #+end_src
@@ -1766,7 +1766,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   do_all_init_convenience "/tmp/init_${$}"
 #+end_src
 
-*** Setup up aliases
+*** COMMENT Setup up aliases
 #+begin_src conf :tangle ./HOME,.zshrc
   alias ls=lsd
   alias cat=bat

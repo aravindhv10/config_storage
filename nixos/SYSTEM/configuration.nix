@@ -390,7 +390,7 @@ in {
     unstable.difftastic
     unstable.dust
     unstable.emacs30
-    unstable.evil-helix
+    unstable.helix
     unstable.fd
     unstable.fzf
     unstable.inkscape

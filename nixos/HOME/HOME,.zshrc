@@ -2,7 +2,7 @@
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="spaceship"
-plugins=(git starship uv fzf battery)
+plugins=(battery eza fzf git procs starship systemd uv vi-mode zoxide zsh-interactive-cd)
 source $ZSH/oh-my-zsh.sh
 bindkey -v
 
@@ -21,7 +21,3 @@ do_all_init_convenience () {
 }
 
 do_all_init_convenience "/tmp/init_${$}"
-
-alias ls=lsd
-alias cat=bat
-alias du=dust

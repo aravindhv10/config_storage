@@ -34,8 +34,6 @@ C './HOME,.shrc' "${HOME}/.shrc"
 
 C './HOME,.bashrc' "${HOME}/.bashrc"
 
-C './HOME,.zshrc' "${HOME}/.zshrc"
-
 C './HOME,.config,nushell,config.nu' "${HOME}/.config/nushell/config.nu"
 
 C './HOME,.config,fish,config.fish' "${HOME}/.config/fish/config.fish"
