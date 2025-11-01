@@ -46,4 +46,4 @@ atuin init fish --disable-up-arrow > /tmp/$fish_pid.sh
 . /tmp/$fish_pid.sh
 rm -f -- /tmp/$fish_pid.sh
 
-starship init fish | eval
+source (starship init fish --print-full-init | psub)
