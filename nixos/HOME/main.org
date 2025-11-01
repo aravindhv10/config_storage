@@ -1705,12 +1705,17 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
 
 * ZSH
 
-** COMMENT Copy the config file
+** Copy the config file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./setup.sh
   C './HOME,.zshrc' "${HOME}/.zshrc"
 #+end_src
 
 ** Main config file
+
+*** SHELL ENV
+#+begin_src conf :tangle ./HOME,.zshrc
+  export SHELL=zsh
+#+end_src
 
 *** Standard
 #+begin_src conf :tangle ./HOME,.zshrc
@@ -1723,7 +1728,6 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   ZSH_THEME="spaceship"
   plugins=(battery eza fzf git procs starship systemd uv vi-mode zoxide zsh-interactive-cd)
   source $ZSH/oh-my-zsh.sh
-  bindkey -v
 #+end_src
 
 *** Good
@@ -1743,7 +1747,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   starship init zsh
 #+end_src
 
-**** ZOXIDE
+**** COMMENT ZOXIDE
 #+begin_src conf :tangle ./HOME,.zshrc
   zoxide init zsh
 #+end_src
@@ -1762,13 +1766,6 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   }
 
   do_all_init_convenience "/tmp/init_${$}"
-#+end_src
-
-*** COMMENT Setup up aliases
-#+begin_src conf :tangle ./HOME,.zshrc
-  alias ls=lsd
-  alias cat=bat
-  alias du=dust
 #+end_src
 
 * NU
