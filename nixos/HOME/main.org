@@ -3,8 +3,6 @@
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
-          './setup.sh' ;
-
           git add './HOME,.bashrc'
           git add './HOME,.config,alacritty,alacritty.toml'
           git add './HOME,.config,fish,config.fish'
@@ -1688,7 +1686,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   . "${HOME}/.shrc"
 #+end_src
 
-*** Good programs
+*** COMMENT Good programs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.bashrc
   all_init_convenience () {
       starship init bash --print-full-init
