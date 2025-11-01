@@ -339,6 +339,7 @@ get_helix_editor(){
 }
 
 get_rust_packages_standard(){
+    get_rust_package 'https://github.com/eza-community/eza.git'
     get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
     get_rust_package 'https://github.com/ClementTsang/bottom.git'
     get_rust_package 'https://github.com/Wilfred/difftastic.git'

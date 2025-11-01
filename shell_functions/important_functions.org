@@ -478,6 +478,7 @@ index 704e22a4..a61f7081 100755
 *** Important packages
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_rust_packages_standard(){
+      get_rust_package 'https://github.com/eza-community/eza.git'
       get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
       get_rust_package 'https://github.com/ClementTsang/bottom.git'
       get_rust_package 'https://github.com/Wilfred/difftastic.git'
