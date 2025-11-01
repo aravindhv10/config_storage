@@ -1596,7 +1596,7 @@
 
 *** starship prompt
 #+begin_src conf :tangle ./HOME,.config,fish,config.fish
-  starship init fish | eval
+  source (starship init fish --print-full-init | psub)
 #+end_src
 
 * NU
