@@ -1,29 +1,8 @@
 #!/bin/sh
 export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 
-get_path () {
-    test -e '/usr/bin/flatpak-spawn' \
-        && test -e '/var/tmp/all/bin/' \
-        && echo "${PATH}" \
-        | sed 's@^@export PATH="/var/tmp/all/bin/:@g ; s@$@"@g' ;
-}
-
-get_nebius_path () {
-    test -e "${HOME}/.nebius/bin"  \
-        && echo "${PATH}" \
-        | sed 's@^@export PATH="${HOME}/.nebius/bin:@g ; s@$@"@g' ;
-}
-
 alias ls=lsd
 alias cat=bat
 alias du=dust
 
-alias drun='sudo -A docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --shm-size 8G -v $HOME/dockerx:/dockerx -w /dockerx'
-
 . "${HOME}/important_functions.sh"
-
-get_path > "/tmp/init_${$}"
-. "/tmp/init_${$}"
-
-get_nebius_path > "/tmp/init_${$}"
-. "/tmp/init_${$}"

@@ -1625,7 +1625,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 #+end_src
 
-*** For updating path inside flatpak
+*** COMMENT For updating path inside flatpak
 #+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
   get_path () {
       test -e '/usr/bin/flatpak-spawn' \
@@ -1648,7 +1648,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   alias du=dust
 #+end_src
 
-*** ROCM docker related
+*** COMMENT ROCM docker related
 #+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
   alias drun='sudo -A docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --shm-size 8G -v $HOME/dockerx:/dockerx -w /dockerx'
 #+end_src
@@ -1658,7 +1658,7 @@ C './HOME,.config,mako,config' "${HOME}/.config/mako/config"
   . "${HOME}/important_functions.sh"
 #+end_src
 
-*** Append paths
+*** COMMENT Append paths
 #+begin_src sh :shebang #!/bin/sh :results output :tangle  ./HOME,.shrc
   get_path > "/tmp/init_${$}"
   . "/tmp/init_${$}"
