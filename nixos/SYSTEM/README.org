@@ -409,6 +409,11 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxPackages_6_16; 
 #+end_src
 
+***** COMMENT 6.17
+#+begin_src nix :tangle ./configuration.nix
+    boot.kernelPackages = pkgs.linuxPackages_6_17; 
+#+end_src
+
 ***** COMMENT Xanmod
 
 ****** COMMENT Latest
