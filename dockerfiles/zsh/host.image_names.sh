@@ -1,5 +1,5 @@
 #!/bin/sh
-IMAGE_NAME='debtestrust'
+IMAGE_NAME='debtestrustzsh'
 
 BUILD_CONTAINER () {
     CMD='sudo -A docker'
@@ -10,5 +10,5 @@ BUILD_CONTAINER () {
 RUN_CONTAINER () {
     CMD='sudo -A docker'
     which podman && CMD='podman'
-    ${CMD} run -it --rm -v "$(realpath .):/data" "${IMAGE_NAME}" bash
+    ${CMD} run -it --rm -v "$(realpath .):/data" "${IMAGE_NAME}" zsh
 }
