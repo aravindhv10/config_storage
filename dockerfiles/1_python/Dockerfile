@@ -18,8 +18,7 @@ RUN \
 RUN \
     echo 'START uv download' \
     && curl -LsSf 'https://astral.sh/uv/install.sh' | sh \
-    && cp -vf -- "${HOME}/.local/bin/uv" '/usr/local/bin/' \
-    && cp -vf -- "${HOME}/.local/bin/uvx" '/usr/local/bin/' \
+    && cp -vf -- "${HOME}/.local/bin/uv" "${HOME}/.local/bin/uvx" '/usr/local/bin/' \
     && echo 'DONE uv download' ;
 
 RUN uv tool install ruff@latest
