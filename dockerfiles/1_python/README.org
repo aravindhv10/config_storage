@@ -1,0 +1,185 @@
+* Scripts to manage
+
+** Important functions
+
+*** Primitive functions
+
+**** touch files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_TOUCH () {
+      test -e "./${1}" || touch "./${1}"
+  }
+#+end_src
+
+**** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_GITADD () {
+      git add "./${1}"
+  }
+#+end_src
+
+**** delete files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_CLEAN () {
+      rm -vf -- "./${1}"
+  }
+#+end_src
+
+**** Read the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_READ () {
+      cat "./${1}"
+  }
+#+end_src
+
+*** Compound functions
+
+**** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD () {
+      P_TOUCH "${1}"
+      P_GITADD "${1}"
+  }
+#+end_src
+
+** PYTHON
+
+*** PRIMITIVE
+
+**** Process the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  P_PROCESS () {
+      expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
+  }
+#+end_src
+
+*** COMPOUND
+
+**** Read and process the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  READ_AND_PROCESS_FILE () {
+      P_TOUCH "${1}"
+      P_READ "${1}" | P_PROCESS
+  }
+#+end_src
+
+**** Process all python files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  READ_ALL_PYTHON(){
+      echo '#!/usr/bin/env python3'
+      READ_AND_PROCESS_FILE "${1}.config.py"
+      READ_AND_PROCESS_FILE "${1}.import.py" | sort | uniq
+      READ_AND_PROCESS_FILE "${1}.function.py"
+      READ_AND_PROCESS_FILE "${1}.class.py"
+      READ_AND_PROCESS_FILE "${1}.execute.py"
+  }
+
+  CLEAN_ALL_PYTHON(){
+      P_CLEAN "${1}.config.py"
+      P_CLEAN "${1}.import.py"
+      P_CLEAN "${1}.function.py"
+      P_CLEAN "${1}.class.py"
+      P_CLEAN "${1}.execute.py"
+  }
+
+  PREPARE_PYTHON_FILE() {
+      READ_ALL_PYTHON "${1}" | P_PROCESS > "./${1}.py"
+      CLEAN_ALL_PYTHON "${1}"
+      chmod +x "./${1}.py"
+      GITADD "${1}.py"
+  }
+#+end_src
+
+** Do the basic stuff
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'README.org'
+  P_CLEAN '.git.sh'
+  P_CLEAN '#README.org#'
+  P_CLEAN 'README.org~'
+#+end_src
+
+* Prepare and add the docker functions file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'host.image_names.sh'
+#+end_src
+
+* Host scripts
+
+** Important envs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  # IMAGE_NAME='debtestrustzshhelix'
+  IMAGE_NAME='debtestrustzshhelixpy'
+#+end_src
+
+** Important functions
+
+*** Build image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  BUILD_CONTAINER () {
+      CMD='sudo -A docker'
+      which buildah && CMD='buildah'
+      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile"
+  }
+#+end_src
+
+*** Run image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  RUN_CONTAINER () {
+      CMD='sudo -A docker'
+      which podman && CMD='podman'
+      ${CMD} run -it --rm -v "$(realpath .):/data" "${IMAGE_NAME}" zsh
+  }
+#+end_src
+
+* Prepare and add the dockerfile to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'Dockerfile'
+#+end_src
+
+* Basic image config
+
+** Main base image
+#+begin_src conf :tangle ./Dockerfile
+  FROM debtestrustzshhelix
+#+end_src
+
+** Important apt install stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'libopencv-dev' \
+          'python3-dev' \
+          'python3-opencv' \
+          'python3-pip' \
+          'python3-setuptools' \
+          'python3-venv' \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
+** Install uv
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START uv download' \
+      && curl -LsSf 'https://astral.sh/uv/install.sh' | sh \
+      && cp -vf -- "${HOME}/.local/bin/uv" '/usr/local/bin/' \
+      && echo 'DONE uv download' ;
+#+end_src
+
+** Install ruff
+#+begin_src conf :tangle ./Dockerfile
+  RUN uv tool install ruff@latest
+  RUN cp "${HOME}/.local/bin/ruff" '/usr/local/bin'
+#+end_src
+
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src
