@@ -226,6 +226,7 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN rustup component add rust-src
   RUN rustup component add rust-analyzer
+  RUN rustup component add rustfmt
 #+end_src
 
 * COMMENT work space

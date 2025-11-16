@@ -69,3 +69,4 @@ RUN set -eux; \
 
 RUN rustup component add rust-src
 RUN rustup component add rust-analyzer
+RUN rustup component add rustfmt

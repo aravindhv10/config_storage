@@ -145,12 +145,13 @@
 
 ** Add the standard library source
 #+begin_src conf :tangle ./Dockerfile
-  RUN rustup component add rust-src
   RUN rustup component add rust-analyzer
+  RUN rustup component add rustfmt
+  RUN rustup component add rust-src
 #+end_src
 
 ** Install aria2
-#+begin_src conf :tangle ./Dockerfile_rust_libtorch
+#+begin_src conf :tangle ./Dockerfile
   RUN \
         --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
         --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -158,7 +159,6 @@
         && apt-get -y update \
         && apt-get install -y \
             'aria2' \
-            'zip' \
         && echo 'DONE apt-get stuff' ;
 #+end_src
 
@@ -179,6 +179,27 @@
           && cd .. \
           && rm -rf -- './helix-25.07.1-x86_64-linux/' \
       && echo 'Done installing helix' ;
+#+end_src
+
+** Configuring helix
+
+*** Add the file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'config.toml'
+#+end_src
+
+*** The actual config file
+#+begin_src conf :tangle ./config.toml
+  theme = "modus_vivendi"
+
+  [editor]
+  true-color = true
+#+end_src
+
+*** Copy the file
+#+begin_src conf :tangle ./Dockerfile
+  RUN mkdir -pv -- "${HOME}/.config/helix"
+  ADD ./config.toml '/root/.config/helix/config.toml'
 #+end_src
 
 * COMMENT work space
