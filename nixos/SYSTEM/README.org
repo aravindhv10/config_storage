@@ -709,7 +709,7 @@ You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
   users.users.asd = {
     isNormalUser = true;
-    shell = unstable.fish;
+    shell = pkgs.fish;
     description = "asd";
     extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
     packages = with pkgs; [
@@ -819,13 +819,13 @@ You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
   programs.fish = {
       enable = true;
-      package = unstable.fish;
+      package = pkgs.fish;
   } ;
 #+end_src
 
 ***** COMMENT Set default shell to fish
 #+begin_src nix :tangle ./configuration.nix
-  users.defaultUserShell = unstable.fish;
+  users.defaultUserShell = pkgs.fish;
 #+end_src
 
 **** Laptop power management

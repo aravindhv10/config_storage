@@ -189,7 +189,7 @@ in {
 
   users.users.asd = {
     isNormalUser = true;
-    shell = unstable.fish;
+    shell = pkgs.fish;
     description = "asd";
     extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
     packages = with pkgs; [
@@ -212,7 +212,7 @@ in {
 
   programs.fish = {
     enable = true;
-    package = unstable.fish;
+    package = pkgs.fish;
   };
 
   services.thermald.enable = true;
