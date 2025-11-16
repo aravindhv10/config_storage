@@ -10,3 +10,10 @@ eval -- "$(starship init bash --print-full-init)"
 alias ls=lsd
 alias top=htop
 alias cat=bat
+
+# fnm
+FNM_PATH="/root/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env`"
+fi
