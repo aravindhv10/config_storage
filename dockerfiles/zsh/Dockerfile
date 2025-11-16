@@ -13,6 +13,11 @@ RUN \
         'zsh' \
     && echo 'DONE apt-get stuff' ;
 
+RUN cargo install bat
+RUN cargo install du-dust
+RUN cargo install eza
+RUN cargo install starship
+
 RUN \
     echo 'START ohmyzsh' \
     && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
@@ -20,8 +25,3 @@ RUN \
     && echo 'DONE ohmyzsh' ;
 
 ADD ./zshrc /root/.zshrc
-
-RUN cargo install bat
-RUN cargo install du-dust
-RUN cargo install eza
-RUN cargo install starship
