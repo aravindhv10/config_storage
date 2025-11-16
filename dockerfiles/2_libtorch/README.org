@@ -107,7 +107,8 @@
 
 ** Important envs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  IMAGE_NAME='debtestrustzsh'
+  # IMAGE_NAME='debtestrustzshhelix'
+  IMAGE_NAME='debtestrustzshhelixpytorch'
 #+end_src
 
 ** Important functions
@@ -139,63 +140,53 @@
 
 ** Main base image
 #+begin_src conf :tangle ./Dockerfile
-  FROM debtestrust
+  FROM debtestrustzshhelixpy
 #+end_src
 
-* Install zsh
+** Prepare venv
+#+begin_src conf :tangle ./Dockerfile
+  RUN uv pip install torch torchvision --index-url 'https://download.pytorch.org/whl/cpu'
+  RUN uv pip install einops timm
+#+end_src
 
-** Install tools to download and install rust
+** Install apt stuff
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'build-essential' \
-          'fish' \
-          'fzf' \
-          'git' \
-          'zsh' \
-      && echo 'DONE apt-get stuff' ;
+        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+        --mount=target=/var/cache/apt,type=cache,sharing=locked \
+        echo 'START apt-get stuff' \
+        && apt-get -y update \
+        && apt-get install -y \
+            'aria2' \
+            'zip' \
+        && echo 'DONE apt-get stuff' ;
 #+end_src
 
-** Install rust stuff
+** Download and install libtorch
 #+begin_src conf :tangle ./Dockerfile
-  RUN cargo install bat
-  RUN cargo install du-dust
-  RUN cargo install eza
-  RUN cargo install fd
-  RUN cargo install starship
-#+end_src
-
-** Get ohmyzsh
-
-*** Download code
-#+begin_src conf :tangle ./Dockerfile
+  RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.0%2Bcpu.zip'
+  RUN unzip './libtorch-shared-with-deps-2.9.0+cpu.zip'
+  RUN rm -vf -- './libtorch-shared-with-deps-2.9.0+cpu.zip'
+  ENV LIBTORCH="/usr/"
   RUN \
-      echo 'START ohmyzsh' \
-      && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
-      && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
-      && echo 'DONE ohmyzsh' ;
+      echo 'Install libtorch' \
+      && cd libtorch \
+      && cd lib \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
+      && cd .. \
+      && cd include \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
+      && cd .. \
+      && cd share/cmake \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
+      && cd ../.. \
+      && cd .. \
+      && echo 'Done Install libtorch' ;
 #+end_src
 
-*** Add files to git
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD 'zshrc'
-#+end_src
-
-*** Actual script
-#+begin_src conf :tangle ./zshrc
-  export SHELL=zsh
-  export ZSH="$HOME/.oh-my-zsh"
-  plugins=(eza fzf git starship vi-mode zsh-interactive-cd)
-  source "${ZSH}/oh-my-zsh.sh"
-#+end_src
-
-*** Copy the file
+** Install apt stuff
 #+begin_src conf :tangle ./Dockerfile
-  ADD ./zshrc /root/.zshrc
+  RUN cargo install bindgen-cli
 #+end_src
 
 * COMMENT work space
