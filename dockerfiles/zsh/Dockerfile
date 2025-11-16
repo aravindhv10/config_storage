@@ -17,6 +17,7 @@ RUN cargo install bat
 RUN cargo install du-dust
 RUN cargo install eza
 RUN cargo install fd-find
+RUN cargo install find-files
 RUN cargo install starship
 
 RUN \
