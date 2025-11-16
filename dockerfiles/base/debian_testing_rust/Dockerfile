@@ -66,3 +66,6 @@ RUN set -eux; \
     rustup --version; \
     cargo --version; \
     rustc --version;
+
+RUN rustup component add rust-src
+RUN rustup component add rust-analyzer
