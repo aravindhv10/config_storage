@@ -404,7 +404,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxPackages_6_15; 
 #+end_src
 
-***** 6.16
+***** COMMENT 6.16
 #+begin_src nix :tangle ./configuration.nix
     boot.kernelPackages = pkgs.linuxPackages_6_16; 
 #+end_src
@@ -414,9 +414,9 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
     boot.kernelPackages = pkgs.linuxPackages_6_17; 
 #+end_src
 
-***** COMMENT Xanmod
+***** Xanmod
 
-****** COMMENT Latest
+****** Latest
 #+begin_src nix :tangle ./configuration.nix
     boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 #+end_src

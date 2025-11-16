@@ -59,7 +59,7 @@ in {
   hardware.graphics.enable32Bit = true;
   hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 
-  boot.kernelPackages = pkgs.linuxPackages_6_16;
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 
   boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
