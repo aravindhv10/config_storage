@@ -6,6 +6,7 @@ RUN \
     echo 'START apt-get stuff' \
     && apt-get -y update \
     && apt-get install -y \
+        'ipython3' \
         'libopencv-dev' \
         'python3-dev' \
         'python3-opencv' \
@@ -22,3 +23,8 @@ RUN \
 
 RUN uv tool install ruff@latest
 RUN cp "${HOME}/.local/bin/ruff" '/usr/local/bin'
+
+RUN uv venv "${HOME}/venv"
+ENV PATH='/root/venv/bin:/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+ENV VIRTUAL_ENV="${HOME}/venv"
+ENV VIRTUAL_ENV_PROMPT='venv'
