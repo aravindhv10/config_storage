@@ -11,6 +11,10 @@ RUN \
       && apt-get -y update \
       && apt-get install -y \
           'aria2' \
+          'clangd' \
+          'clang-format' \
+          'clang-tidy' \
+          'clang-tools' \
       && echo 'DONE apt-get stuff' ;
 
 RUN aria2c -c -x16 -j16 'https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-linux.tar.xz'

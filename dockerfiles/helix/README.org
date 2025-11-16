@@ -159,6 +159,10 @@
         && apt-get -y update \
         && apt-get install -y \
             'aria2' \
+            'clangd' \
+            'clang-format' \
+            'clang-tidy' \
+            'clang-tools' \
         && echo 'DONE apt-get stuff' ;
 #+end_src
 
