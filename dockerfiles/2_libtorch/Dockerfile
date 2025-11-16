@@ -13,9 +13,9 @@ RUN \
           'zip' \
       && echo 'DONE apt-get stuff' ;
 
-RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.0%2Bcpu.zip'
-RUN unzip './libtorch-shared-with-deps-2.9.0+cpu.zip'
-RUN rm -vf -- './libtorch-shared-with-deps-2.9.0+cpu.zip'
+RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip'
+RUN unzip './libtorch-shared-with-deps-2.9.1+cpu.zip'
+RUN rm -vf -- './libtorch-shared-with-deps-2.9.1+cpu.zip'
 ENV LIBTORCH="/usr/"
 RUN \
     echo 'Install libtorch' \
