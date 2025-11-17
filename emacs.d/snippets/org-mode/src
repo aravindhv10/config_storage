@@ -2,6 +2,6 @@
 # name: src
 # key: <src
 # --
-#+begin_src $1
+#+begin_src $1 :mkdirp yes :tangle ./tmp.txt
   $0
 #+end_src
