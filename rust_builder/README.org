@@ -139,7 +139,6 @@
 *** Important envs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   IMAGE_NAME='rust_builder'
-  CONTAINER_NAME="${IMAGE_NAME}_1"
 #+end_src
 
 *** Function to build
@@ -198,7 +197,6 @@
   }
 #+end_src
 
-
 ** Script to build the docker image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.docker_build.sh
   cd "$('dirname' '--' "${0}")"
@@ -210,119 +208,17 @@
 
 ** Main base image
 #+begin_src conf :tangle ./Dockerfile
-  FROM rust:trixie
-#+end_src
-
-** Basic configs
-#+begin_src conf :tangle ./Dockerfile
-  ENV HOME='/root'
-  ENV DEBIAN_FRONTEND='noninteractive'
-  WORKDIR '/root'
-  USER root
-#+end_src
-
-* zsh setup
-
-** Important apt install stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'aria2' \
-          'git' \
-          'wget' \
-          'zsh' \
-      && echo 'DONE apt-get stuff' ;
-#+end_src
-
-** Get ohmyzsh
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START ohmyzsh' \
-      && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
-      && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
-      && cp "${HOME}/.oh-my-zsh/templates/zshrc.zsh-template" "${HOME}/.zshrc" \
-      && echo 'DONE ohmyzsh' ;
-#+end_src
-
-** Get starship
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START ohmyzsh' \
-      && aria2c -c 'https://starship.rs/install.sh' \
-      && chmod +x './install.sh' \
-      && './install.sh' '-y' \
-      && echo 'eval "$(starship init zsh)"' >> "${HOME}/.zshrc" \
-      && echo 'DONE ohmyzsh' ;
-#+end_src
-
-** More convenient tools
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'bat' \
-          'fzf' \
-          'lsd' \
-      && echo 'alias ls=lsd' >> "${HOME}/.zshrc" \
-      && echo 'alias cat=batcat' >> "${HOME}/.zshrc" \
-      && echo 'DONE apt-get stuff' ;
+  FROM debtestrust
 #+end_src
 
 ** Copy the Important functions (script to source) and source it
-
-*** Copy it
 #+begin_src conf :tangle ./Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-*** Source it
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START sourcing important functions' \
-      && echo '. "/root/important_functions.sh"' >> "${HOME}/.zshrc" \
-      && echo 'DONE sourcing important functions' ;
-#+end_src
-
 * Main command to run in the container
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  IMAGE_CMD='zsh'
-#+end_src
-
-* Important apt install stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'aria2' \
-          'bison' \
-          'build-essential' \
-          'clang' \
-          'cmake' \
-          'curl' \
-          'gawk' \
-          'gettext' \
-          'git' \
-          'git-lfs' \
-          'liblz4-dev' \
-          'make' \
-          'neovim' \
-          'ninja-build' \
-          'pkg-config' \
-          'python3-sphinx' \
-          'unzip' \
-          'wget' \
-          'yacc' \
-      && echo 'DONE apt-get stuff' ;
+  IMAGE_CMD='bash'
 #+end_src
 
 * Script to install packages to /usr/local
@@ -335,11 +231,7 @@
 ** Actual script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
   cd "$(dirname -- "${0}")"
-  rm -rf -- /usr/local/install
-  cp -aspf -- "$(realpath .)" /usr/local/install
-  cd /usr/local/install
-  cp -alpf . ../
-  exec rm -rf -- /usr/local/install
+  exec cp -aspf -- "$(realpath ./bin)" '/usr/local/'
 #+end_src
 
 * Script to run the docker iamge
@@ -349,7 +241,7 @@
   docker_run "$@"
 #+end_src
 
-* Work space
+* COMMENT Work space
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)

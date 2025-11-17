@@ -1,6 +1,5 @@
 #!/bin/sh
 IMAGE_NAME='rust_builder'
-CONTAINER_NAME="${IMAGE_NAME}_1"
 
 BUILDAH(){
     buildah "$@"
@@ -51,4 +50,4 @@ docker_run () {
     ;
 }
 
-IMAGE_CMD='zsh'
+IMAGE_CMD='bash'
