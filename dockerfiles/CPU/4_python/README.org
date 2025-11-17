@@ -191,21 +191,6 @@
       && echo 'DONE apt-get stuff' ;
 #+end_src
 
-** Install uv
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START uv download' \
-      && curl -LsSf 'https://astral.sh/uv/install.sh' | sh \
-      && cp -vf -- "${HOME}/.local/bin/uv" "${HOME}/.local/bin/uvx" '/usr/local/bin/' \
-      && echo 'DONE uv download' ;
-#+end_src
-
-** Install ruff
-#+begin_src conf :tangle ./Dockerfile
-  RUN uv tool install ruff@latest
-  RUN cp "${HOME}/.local/bin/ruff" '/usr/local/bin'
-#+end_src
-
 ** Prepare venv
 #+begin_src conf :tangle ./Dockerfile
   RUN uv venv "${HOME}/venv"

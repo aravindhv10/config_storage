@@ -23,3 +23,5 @@ ADD ./zshrc /root/.zshrc
 
 COPY out/ /var/tmp/
 RUN ls /var/tmp/*/install.sh | sh
+
+RUN atuin init zsh >> /root/.zshrc
