@@ -16,6 +16,7 @@ RUN_CONTAINER () {
     ${CMD} run -it --rm \
         -v "$(realpath .):/data" \
         -v "$(realpath .)/in:/root/GITHUB" \
+        -v "$(realpath .)/in:/root/GITLAB" \
         -v "$(realpath .)/out:/var/tmp/" \
         "${IMAGE_NAME}" bash ;
 }
