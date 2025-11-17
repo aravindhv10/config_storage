@@ -130,6 +130,36 @@
   }
 #+end_src
 
+* Scripts to build and run
+
+** Build image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_build.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_build.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  BUILD_CONTAINER
+#+end_src
+
+** Run image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_run.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_run.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  RUN_CONTAINER
+#+end_src
+
 * Prepare and add the dockerfile to git
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   GITADD 'Dockerfile'
