@@ -2,8 +2,6 @@
 IMAGE_NAME='debtestrustzsh'
 
 BUILD_CONTAINER () {
-    rm -rf -- './out'
-    cp -alpf -- '../1_rust_builder/out' './'
     CMD='sudo -A docker'
     which buildah && CMD='buildah'
     ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile"

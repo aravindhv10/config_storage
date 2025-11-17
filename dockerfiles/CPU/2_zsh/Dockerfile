@@ -10,6 +10,7 @@ RUN \
         'fish' \
         'fzf' \
         'git' \
+        'zstd' \
         'zsh' \
     && echo 'DONE apt-get stuff' ;
 
@@ -21,7 +22,15 @@ RUN \
 
 ADD ./zshrc /root/.zshrc
 
-COPY out/ /var/tmp/
-RUN ls /var/tmp/*/install.sh | sh
+RUN \
+    echo 'START Downloading rust programs' \
+    && cd '/var/tmp/' \
+    && aria2c -c -x16 -j16 'https://github.com/aravindhv10/config_storage/releases/download/v1.0/out.tar.zst' \
+    && zstd -d --long=30 './out.tar.zst' \
+    && tar -xf './out.tar' \
+    && mv out/* ./ \
+    && rmdir -pv -- out \
+    && rm -vf -- './out.tar' './out.tar.zst' \
+    && echo 'DONE Downloading rust programs' ;
 
 RUN atuin init zsh >> /root/.zshrc
