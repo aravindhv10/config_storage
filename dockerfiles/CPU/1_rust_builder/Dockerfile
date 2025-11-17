@@ -11,6 +11,7 @@ RUN \
     && apt-get -y update \
     && apt-get install -y \
         'aria2' \
+        'automake' \
         'bison' \
         'build-essential' \
         'clang' \
@@ -22,6 +23,7 @@ RUN \
         'git-lfs' \
         'libevent-dev' \
         'liblz4-dev' \
+        'liblzo2-dev' \
         'libpcre2-16-0' \
         'libpcre2-32-0' \
         'libpcre2-8-0' \
