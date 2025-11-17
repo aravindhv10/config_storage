@@ -194,11 +194,13 @@
 ** Add the install script to git
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   GITADD './install.sh'
+  GITADD './install_all.sh'
 #+end_src
 
 ** Copy the script into the image
 #+begin_src conf :tangle ./Dockerfile
   COPY './install.sh' '/root/install.sh'
+  COPY './install_all.sh' '/root/install_all.sh'
 #+end_src
 
 ** Actual script
@@ -206,6 +208,13 @@
   cd "$(dirname -- "${0}")"
   exec cp -aspf -- "$(realpath ./bin)" '/usr/local/'
 #+end_src
+
+** Copy the scripts to the final dirs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install_all.sh
+  cd "$(dirname -- "${0}")"
+  ls /var/tmp/* -d | sed 's@^@("cp" "-vf" "./install.sh" "@g;s@$@");@g' | sh
+#+end_src
+
 
 * Important apt install stuff
 #+begin_src conf :tangle ./Dockerfile

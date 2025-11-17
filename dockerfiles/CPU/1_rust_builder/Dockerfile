@@ -3,6 +3,7 @@ FROM debtestrust
 COPY './important_functions.sh' '/root/important_functions.sh'
 
 COPY './install.sh' '/root/install.sh'
+COPY './install_all.sh' '/root/install_all.sh'
 
 RUN \
     --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
