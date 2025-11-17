@@ -10,6 +10,7 @@ RUN \
       && apt-get -y update \
       && apt-get install -y \
           'aria2' \
+          'bear' \
           'zip' \
       && echo 'DONE apt-get stuff' ;
 
@@ -31,5 +32,3 @@ RUN \
     && cd ../.. \
     && cd .. \
     && echo 'Done Install libtorch' ;
-
-RUN cargo install bindgen-cli
