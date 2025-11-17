@@ -20,6 +20,7 @@ RUN \
         'gettext' \
         'git' \
         'git-lfs' \
+        'libevent-dev' \
         'liblz4-dev' \
         'libpcre2-16-0' \
         'libpcre2-32-0' \
@@ -27,6 +28,7 @@ RUN \
         'libpcre2-dev' \
         'libpcre2-posix3' \
         'libssl-dev' \
+        'libzstd-dev' \
         'make' \
         'neovim' \
         'ninja-build' \
