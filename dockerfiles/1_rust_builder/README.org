@@ -226,6 +226,11 @@
           'git' \
           'git-lfs' \
           'liblz4-dev' \
+          'libpcre2-16-0' \
+          'libpcre2-32-0' \
+          'libpcre2-8-0' \
+          'libpcre2-dev' \
+          'libpcre2-posix3' \
           'libssl-dev' \
           'make' \
           'neovim' \
