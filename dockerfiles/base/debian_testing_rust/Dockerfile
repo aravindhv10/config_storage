@@ -94,6 +94,7 @@ RUN \
         'ninja-build' \
         'pkg-config' \
         'python3-sphinx' \
+        'squashfs-tools' \
         'unzip' \
         'wget' \
         'yacc' \
