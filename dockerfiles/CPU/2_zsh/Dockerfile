@@ -21,6 +21,5 @@ RUN \
 
 ADD ./zshrc /root/.zshrc
 
-COPY out /root/
-RUN ln -vfs /root/out/* /var/tmp/
+COPY out/ /var/tmp/
 RUN ls /var/tmp/*/install.sh | sh
