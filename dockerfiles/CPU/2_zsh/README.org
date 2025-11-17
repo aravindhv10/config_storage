@@ -115,6 +115,8 @@
 *** Build image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   BUILD_CONTAINER () {
+      rm -rf -- './out'
+      cp -alpf -- '../1_rust_builder/out' './'
       CMD='sudo -A docker'
       which buildah && CMD='buildah'
       ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile"
@@ -217,6 +219,13 @@
 *** Copy the file
 #+begin_src conf :tangle ./Dockerfile
   ADD ./zshrc /root/.zshrc
+#+end_src
+
+* Add rust programs
+#+begin_src conf :tangle ./Dockerfile
+  COPY out /root/
+  RUN ln -vfs /root/out/* /var/tmp/
+  RUN ls /var/tmp/*/install.sh | sh
 #+end_src
 
 * COMMENT work space
