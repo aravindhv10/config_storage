@@ -11,7 +11,13 @@ BUILD_CONTAINER () {
 RUN_CONTAINER () {
     CMD='sudo -A docker'
     which podman && CMD='podman'
-    ${CMD} run -it --rm -v "$(realpath .):/data" "${IMAGE_NAME}" bash
+    mkdir -pv -- in out
+
+    ${CMD} run -it --rm \
+        -v "$(realpath .):/data" \
+        -v "$(realpath .)/in:/root/GITHUB" \
+        -v "$(realpath .)/out:/var/tmp/" \
+        "${IMAGE_NAME}" bash ;
 }
 
 IMAGE_CMD='bash'
