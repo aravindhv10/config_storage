@@ -33,4 +33,6 @@ RUN \
     && rm -vf -- './out.tar' './out.tar.zst' \
     && echo 'DONE Downloading rust programs' ;
 
+RUN ls /var/tmp/*/install.sh | sh
+
 RUN atuin init zsh >> /root/.zshrc
