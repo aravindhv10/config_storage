@@ -88,6 +88,7 @@ RUN \
         'git' \
         'git-lfs' \
         'liblz4-dev' \
+        'libssl-dev' \
         'make' \
         'neovim' \
         'ninja-build' \
