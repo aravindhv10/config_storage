@@ -1,4 +1,4 @@
-FROM debtestrust
+FROM debtestrustbuild
 
 RUN \
     --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \

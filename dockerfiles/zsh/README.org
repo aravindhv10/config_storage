@@ -139,7 +139,7 @@
 
 ** Main base image
 #+begin_src conf :tangle ./Dockerfile
-  FROM debtestrust
+  FROM debtestrustbuild
 #+end_src
 
 * Install zsh
