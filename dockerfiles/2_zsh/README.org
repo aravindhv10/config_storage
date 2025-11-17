@@ -190,16 +190,6 @@
       && echo 'DONE apt-get stuff' ;
 #+end_src
 
-** Install rust stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN cargo install bat
-  RUN cargo install du-dust
-  RUN cargo install eza
-  RUN cargo install fd-find
-  RUN cargo install find-files
-  RUN cargo install starship
-#+end_src
-
 ** Get ohmyzsh
 
 *** Download code

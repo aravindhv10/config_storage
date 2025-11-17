@@ -13,13 +13,6 @@ RUN \
         'zsh' \
     && echo 'DONE apt-get stuff' ;
 
-RUN cargo install bat
-RUN cargo install du-dust
-RUN cargo install eza
-RUN cargo install fd-find
-RUN cargo install find-files
-RUN cargo install starship
-
 RUN \
     echo 'START ohmyzsh' \
     && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
