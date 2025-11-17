@@ -157,15 +157,14 @@ get_squashfs_tools () {
     get_all_deps
     find ./ -type f -exec mv -vf {} ../lib64/ ';'
     find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    cd ../lib64/
+    mv -vf -- ../bin/lib*.so* ./
 }
 
 get_rust_package(){
     get_repo "${1}"
 
     PKG_NAME="$('basename' "$(realpath .)")"
-
-    . '/usr/lib/sdk/rust-stable/enable.sh'
-    . '/usr/lib/sdk/llvm19/enable.sh'
 
     export CC='clang'
     export CXX='clang++'
@@ -197,6 +196,8 @@ get_rust_package(){
         get_all_deps
         find ./ -type f -exec mv -vf {} ../lib64/ ';'
         find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+        cd ../lib64/
+        mv -vf -- ../bin/lib*.so* ./
     fi
 }
 
@@ -236,6 +237,8 @@ get_deb_mirror(){
     get_all_deps
     find ./ -type f -exec mv -vf {} ../lib64/ ';'
     find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    cd ../lib64/
+    mv -vf -- ../bin/lib*.so* ./
 }
 
 get_helix_evil_editor(){
@@ -274,6 +277,8 @@ get_helix_evil_editor(){
     get_all_deps
     find ./ -type f -exec mv -vf {} ../lib64/ ';'
     find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
+    cd ../lib64/
+    mv -vf -- ../bin/lib*.so* ./
 }
 
 get_helix_editor(){
@@ -312,51 +317,8 @@ get_helix_editor(){
     get_all_deps
     find ./ -type f -exec mv -vf {} ../lib64/ ';'
     find '../bin' '../lib64' -type f -exec ln -vfs {} ./ ';'
-}
-
-get_rust_packages_standard(){
-    get_deb_mirror
-    get_helix_editor
-    get_helix_evil_editor
-    get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
-    get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
-    get_rust_package 'https://github.com/BurntSushi/xsv.git'
-    get_rust_package 'https://github.com/ClementTsang/bottom.git'
-    get_rust_package 'https://github.com/RaphGL/Tuckr.git'
-    get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
-    get_rust_package 'https://github.com/Wilfred/difftastic.git'
-    get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
-    get_rust_package 'https://github.com/alacritty/alacritty.git'
-    get_rust_package 'https://github.com/astral-sh/ruff.git'
-    get_rust_package 'https://github.com/astral-sh/uv.git'
-    get_rust_package 'https://github.com/atuinsh/atuin.git'
-    get_rust_package 'https://github.com/bootandy/dust.git'
-    get_rust_package 'https://github.com/dalance/procs.git'
-    get_rust_package 'https://github.com/darakian/ddh.git'
-    get_rust_package 'https://github.com/denisidoro/navi.git'
-    get_rust_package 'https://github.com/eza-community/eza.git'
-    get_rust_package 'https://github.com/fish-shell/fish-shell.git'
-    get_rust_package 'https://github.com/gblach/imge.git'
-    get_rust_package 'https://github.com/gblach/reflicate.git'
-    get_rust_package 'https://github.com/konradsz/igrep.git'
-    get_rust_package 'https://github.com/latex-lsp/texlab.git'
-    get_rust_package 'https://github.com/lsd-rs/lsd.git'
-    get_rust_package 'https://github.com/nushell/nushell.git'
-    get_rust_package 'https://github.com/redox-os/ion.git'
-    get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
-    get_rust_package 'https://github.com/sharkdp/bat.git'
-    get_rust_package 'https://github.com/sharkdp/fd.git'
-    get_rust_package 'https://github.com/sharkdp/hyperfine.git'
-    get_rust_package 'https://github.com/shshemi/tabiew.git'
-    get_rust_package 'https://github.com/skim-rs/skim.git'
-    get_rust_package 'https://github.com/starship/starship.git'
-    get_rust_package 'https://github.com/svenstaro/miniserve.git'
-    get_rust_package 'https://github.com/sxyazi/yazi.git'
-    get_rust_package 'https://github.com/vishaltelangre/ff.git'
-    get_rust_package 'https://github.com/watchexec/watchexec.git'
-    get_rust_package 'https://github.com/whitfin/runiq.git'
-    get_rust_package 'https://github.com/your-tools/ruplacer.git'
-    get_rust_package 'https://github.com/zellij-org/zellij.git'
+    cd ../lib64/
+    mv -vf -- ../bin/lib*.so* ./
 }
 
 get_tree_sitter () {
@@ -459,4 +421,55 @@ get_glibc () {
     "${CONFIGURE}" "--prefix=${INSTALL_DIR}"
     make -j
     make -j install
+}
+
+get_rust_packages_standard(){
+
+    get_deb_mirror
+    get_helix_editor
+    get_helix_evil_editor
+    get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
+
+    get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
+    get_rust_package 'https://github.com/BurntSushi/xsv.git'
+    get_rust_package 'https://github.com/ClementTsang/bottom.git'
+    get_rust_package 'https://github.com/RaphGL/Tuckr.git'
+    get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
+    get_rust_package 'https://github.com/Wilfred/difftastic.git'
+    get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
+    get_rust_package 'https://github.com/alacritty/alacritty.git'
+    get_rust_package 'https://github.com/astral-sh/ruff.git'
+    get_rust_package 'https://github.com/astral-sh/uv.git'
+    get_rust_package 'https://github.com/atuinsh/atuin.git'
+    get_rust_package 'https://github.com/bootandy/dust.git'
+    get_rust_package 'https://github.com/dalance/procs.git'
+    get_rust_package 'https://github.com/darakian/ddh.git'
+    get_rust_package 'https://github.com/denisidoro/navi.git'
+    get_rust_package 'https://github.com/eza-community/eza.git'
+    get_rust_package 'https://github.com/fish-shell/fish-shell.git'
+    get_rust_package 'https://github.com/gblach/imge.git'
+    get_rust_package 'https://github.com/gblach/reflicate.git'
+    get_rust_package 'https://github.com/konradsz/igrep.git'
+    get_rust_package 'https://github.com/latex-lsp/texlab.git'
+    get_rust_package 'https://github.com/lsd-rs/lsd.git'
+    get_rust_package 'https://github.com/nushell/nushell.git'
+    get_rust_package 'https://github.com/redox-os/ion.git'
+    get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
+    get_rust_package 'https://github.com/sharkdp/bat.git'
+    get_rust_package 'https://github.com/sharkdp/fd.git'
+    get_rust_package 'https://github.com/sharkdp/hyperfine.git'
+    get_rust_package 'https://github.com/shshemi/tabiew.git'
+    get_rust_package 'https://github.com/skim-rs/skim.git'
+    get_rust_package 'https://github.com/starship/starship.git'
+    get_rust_package 'https://github.com/svenstaro/miniserve.git'
+    get_rust_package 'https://github.com/sxyazi/yazi.git'
+    get_rust_package 'https://github.com/vishaltelangre/ff.git'
+    get_rust_package 'https://github.com/watchexec/watchexec.git'
+    get_rust_package 'https://github.com/whitfin/runiq.git'
+    get_rust_package 'https://github.com/your-tools/ruplacer.git'
+    get_rust_package 'https://github.com/zellij-org/zellij.git'
+
+    get_tmux
+    get_byobu
+    get_squashfs_tools
 }
