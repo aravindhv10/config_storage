@@ -122,7 +122,6 @@
   export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
   plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
   source "${ZSH}/oh-my-zsh.sh"
-
 #+end_src
 
 *** Copy the file
