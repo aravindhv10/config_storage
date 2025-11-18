@@ -1,4 +1,62 @@
 #!/bin/sh
+P_TOUCH () {
+    test -e "./${1}" || touch "./${1}"
+}
+
+P_GITADD () {
+    git add "./${1}"
+}
+
+P_CLEAN () {
+    rm -vf -- "./${1}"
+}
+
+P_READ () {
+    cat "./${1}"
+}
+
+P_PROCESS_PYTHON () {
+    expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
+}
+
+GITADD () {
+    P_TOUCH "${1}"
+    P_GITADD "${1}"
+}
+
+CLEAN () {
+    P_CLEAN "${1}"
+}
+
+READ_AND_PROCESS_FILE () {
+    P_TOUCH "${1}"
+    P_READ "${1}" | P_PROCESS_PYTHON
+}
+
+READ_ALL_PYTHON(){
+    echo '#!/usr/bin/env python3'
+    READ_AND_PROCESS_FILE "${1}.config.py"
+    READ_AND_PROCESS_FILE "${1}.import.py" | sort | uniq
+    READ_AND_PROCESS_FILE "${1}.function.py"
+    READ_AND_PROCESS_FILE "${1}.class.py"
+    READ_AND_PROCESS_FILE "${1}.execute.py"
+}
+
+CLEAN_ALL_PYTHON(){
+    P_CLEAN "${1}.config.py"
+    P_CLEAN "${1}.import.py"
+    P_CLEAN "${1}.function.py"
+    P_CLEAN "${1}.class.py"
+    P_CLEAN "${1}.execute.py"
+}
+
+PREPARE_PYTHON_FILE() {
+    READ_ALL_PYTHON "${1}" | P_PROCESS > "./${1}.py"
+    CLEAN_ALL_PYTHON "${1}"
+    chmod +x "./${1}.py"
+    GITADD "${1}.py"
+}
+
 install_flatpak(){
     which flatpak && return
     if test  "$('whoami')" = 'root'
@@ -102,9 +160,6 @@ get_ohmyzsh(){
     get_repo 'https://github.com/ohmyzsh/ohmyzsh.git'
     test -d "${HOME}/.oh-my-zsh" && rm -rf "${HOME}/.oh-my-zsh"
     test -L "${HOME}/.oh-my-zsh" || ln -vfs "./GITHUB/ohmyzsh/ohmyzsh" "${HOME}/.oh-my-zsh"
-    get_repo 'https://github.com/spaceship-prompt/spaceship-prompt.git'
-    ln -vfs "${HOME}/GITHUB/spaceship-prompt/spaceship-prompt" "${HOME}/.oh-my-zsh/custom/themes/"
-    ln -vfs "${HOME}/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
 }
 
 install_rust(){
@@ -140,7 +195,6 @@ get_squashfs_tools () {
     sd -F 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
     sd -F 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
     sd -F 'CFLAGS ?= -O2' 'CFLAGS ?= -O3 -march=x86-64-v3 -mtune=native' './Makefile'
-    . '/usr/lib/sdk/llvm19/enable.sh'
     export CC='clang'
     export CXX='clang++'
     export LDFLAGS='-Wl,-rpath=/var/tmp/squashfs/lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
@@ -208,9 +262,6 @@ get_deb_mirror(){
     cd deb_mirror
 
     PKG_NAME="$('basename' "$(realpath .)")"
-
-    . '/usr/lib/sdk/rust-stable/enable.sh'
-    . '/usr/lib/sdk/llvm19/enable.sh'
 
     export CC='clang'
     export CXX='clang++'

@@ -1,41 +1,107 @@
-* Important work space
+* Do the basic stuff
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . './important_functions.sh'
+  GITADD 'important_functions.org'
+  CLEAN '.git.sh'
+#+end_src
 
-** Functions
+* Important functions
 
-*** To clean
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  CLEAN () {
-      rm -vf -- "./${1}"
+** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD 'important_functions.sh'
+#+end_src
+
+** Primitive functions
+
+*** touch files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  P_TOUCH () {
+      test -e "./${1}" || touch "./${1}"
   }
 #+end_src
 
-*** Add files to git
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  ADDFILE () {
+*** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  P_GITADD () {
       git add "./${1}"
   }
 #+end_src
 
-** work
-
-*** Add
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  ADDFILE '.bashrc'
-  ADDFILE 'important_functions.org'
-  ADDFILE 'important_functions.sh'
+*** delete files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  P_CLEAN () {
+      rm -vf -- "./${1}"
+  }
 #+end_src
 
-*** Clean
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  CLEAN '.git.sh'
+*** Read the file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  P_READ () {
+      cat "./${1}"
+  }
 #+end_src
 
-*** status
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  git status
+*** Process the python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  P_PROCESS_PYTHON () {
+      expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
+  }
 #+end_src
 
-* Important functions:
+** Compound functions
+
+*** add files to GIT
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  GITADD () {
+      P_TOUCH "${1}"
+      P_GITADD "${1}"
+  }
+#+end_src
+
+*** Remove files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  CLEAN () {
+      P_CLEAN "${1}"
+  }
+#+end_src
+
+*** Python
+
+**** Read and process python file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  READ_AND_PROCESS_FILE () {
+      P_TOUCH "${1}"
+      P_READ "${1}" | P_PROCESS_PYTHON
+  }
+#+end_src
+
+**** Process all python files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  READ_ALL_PYTHON(){
+      echo '#!/usr/bin/env python3'
+      READ_AND_PROCESS_FILE "${1}.config.py"
+      READ_AND_PROCESS_FILE "${1}.import.py" | sort | uniq
+      READ_AND_PROCESS_FILE "${1}.function.py"
+      READ_AND_PROCESS_FILE "${1}.class.py"
+      READ_AND_PROCESS_FILE "${1}.execute.py"
+  }
+
+  CLEAN_ALL_PYTHON(){
+      P_CLEAN "${1}.config.py"
+      P_CLEAN "${1}.import.py"
+      P_CLEAN "${1}.function.py"
+      P_CLEAN "${1}.class.py"
+      P_CLEAN "${1}.execute.py"
+  }
+
+  PREPARE_PYTHON_FILE() {
+      READ_ALL_PYTHON "${1}" | P_PROCESS > "./${1}.py"
+      CLEAN_ALL_PYTHON "${1}"
+      chmod +x "./${1}.py"
+      GITADD "${1}.py"
+  }
+#+end_src
 
 ** Installing flatpak
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
@@ -51,7 +117,6 @@
 #+end_src
 
 ** Fast download file:
-
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   install_aria(){
       if test  "$('whoami')" = 'root'
@@ -143,6 +208,21 @@
   }
 #+end_src
 
+** zshrc
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD './zshrc'
+#+end_src
+
+*** Actual file
+#+begin_src conf :tangle ./zshrc
+  export SHELL=zsh
+  export ZSH="$HOME/.oh-my-zsh"
+  plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
+  source "${ZSH}/oh-my-zsh.sh"
+#+end_src
+
 ** setup zsh
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   install_zsh(){
@@ -159,9 +239,6 @@
       get_repo 'https://github.com/ohmyzsh/ohmyzsh.git'
       test -d "${HOME}/.oh-my-zsh" && rm -rf "${HOME}/.oh-my-zsh"
       test -L "${HOME}/.oh-my-zsh" || ln -vfs "./GITHUB/ohmyzsh/ohmyzsh" "${HOME}/.oh-my-zsh"
-      get_repo 'https://github.com/spaceship-prompt/spaceship-prompt.git'
-      ln -vfs "${HOME}/GITHUB/spaceship-prompt/spaceship-prompt" "${HOME}/.oh-my-zsh/custom/themes/"
-      ln -vfs "${HOME}/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
   }
 
   install_rust(){
@@ -190,8 +267,6 @@
   }
 #+end_src
 
-
-
 ** Download and compile squashfs tools
 
 *** shell function
@@ -207,7 +282,6 @@
       sd -F 'COMP_DEFAULT = gzip' 'COMP_DEFAULT = zstd' './Makefile'
       sd -F 'INSTALL_PREFIX = /usr/local' 'INSTALL_PREFIX = /var/tmp/squashfs' './Makefile'
       sd -F 'CFLAGS ?= -O2' 'CFLAGS ?= -O3 -march=x86-64-v3 -mtune=native' './Makefile'
-      . '/usr/lib/sdk/llvm19/enable.sh'
       export CC='clang'
       export CXX='clang++'
       export LDFLAGS='-Wl,-rpath=/var/tmp/squashfs/lib64 -Wl,--dynamic-linker=/var/tmp/squashfs/lib64/ld-linux-x86-64.so.2'
@@ -285,9 +359,6 @@
       cd deb_mirror
 
       PKG_NAME="$('basename' "$(realpath .)")"
-
-      . '/usr/lib/sdk/rust-stable/enable.sh'
-      . '/usr/lib/sdk/llvm19/enable.sh'
 
       export CC='clang'
       export CXX='clang++'
@@ -587,6 +658,6 @@
   (save-some-buffers)
   (org-babel-tangle)
   (async-shell-command "
-  './.git.sh'
+      './.git.sh'
   " "log" "err")
 #+end_src
