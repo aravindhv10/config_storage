@@ -14,4 +14,4 @@ RUN \
       && echo 'DONE apt-get stuff' ;
 
 RUN mkdir -pv -- "${HOME}/.config/helix"
-ADD ./config.toml '/root/.config/helix/config.toml'
+ADD ./config.toml "${HOME}/.config/helix/config.toml"

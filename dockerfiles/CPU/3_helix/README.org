@@ -115,7 +115,7 @@
 *** Copy the file
 #+begin_src conf :tangle ./Dockerfile
   RUN mkdir -pv -- "${HOME}/.config/helix"
-  ADD ./config.toml '/root/.config/helix/config.toml'
+  ADD ./config.toml "${HOME}/.config/helix/config.toml"
 #+end_src
 
 * COMMENT work space
