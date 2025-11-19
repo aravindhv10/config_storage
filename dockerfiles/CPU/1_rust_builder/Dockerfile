@@ -36,6 +36,7 @@ RUN \
         'neovim' \
         'ninja-build' \
         'pkg-config' \
+        'python3-newt' \
         'python3-sphinx' \
         'squashfs-tools' \
         'unzip' \
