@@ -82,17 +82,6 @@ RUN \
     && echo 'DONE pytorch' ;
 
 RUN \
-    echo 'START pytorch quantization and tensorrt' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'einops' \
-        'opencv_contrib_python' \
-        'opencv_python' \
-        'pillow' \
-        'torchao' \
-    && echo 'DONE pytorch quantization and tensorrt' ;
-
-RUN \
     echo 'START xformers install' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
@@ -109,6 +98,7 @@ RUN \
         'datasets' \
         'deepspeed' \
         'diffusers' \
+        'einops' \
         'evaluate' \
         'fastapi[standard]' \
         'fastexcel' \
@@ -120,10 +110,13 @@ RUN \
         'jupyterlab' \
         'lightning[extra]' \
         'matplotlib' \
+        'opencv_contrib_python' \
+        'opencv_python' \
         'openvino' \
         'optimum' \
         'optimum-quanto' \
         'packaging' \
+        'pillow' \
         'prodigyopt' \
         'protobuf' \
         'requests' \
@@ -131,6 +124,7 @@ RUN \
         'scikit-learn' \
         'sentencepiece' \
         'torch_dct' \
+        'torchao' \
         'torchmetrics' \
         'tqdm' \
         'transformers' \

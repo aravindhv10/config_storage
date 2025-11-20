@@ -178,20 +178,6 @@
       && echo 'DONE pytorch' ;
 #+end_src
 
-** Extra torch libraries, Tensor manipulation & Image libraries
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START pytorch quantization and tensorrt' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          'einops' \
-          'opencv_contrib_python' \
-          'opencv_python' \
-          'pillow' \
-          'torchao' \
-      && echo 'DONE pytorch quantization and tensorrt' ;
-#+end_src
-
 ** Install xformers
 #+begin_src conf :tangle ./Dockerfile
   RUN \
@@ -202,6 +188,7 @@
               'xformers' \
       && echo 'DONE xformers install' ;
 #+end_src
+
 
 ** Quantization, optimization and offloading
 #+begin_src conf :tangle ./Dockerfile
@@ -214,6 +201,7 @@
           'datasets' \
           'deepspeed' \
           'diffusers' \
+          'einops' \
           'evaluate' \
           'fastapi[standard]' \
           'fastexcel' \
@@ -225,10 +213,13 @@
           'jupyterlab' \
           'lightning[extra]' \
           'matplotlib' \
+          'opencv_contrib_python' \
+          'opencv_python' \
           'openvino' \
           'optimum' \
           'optimum-quanto' \
           'packaging' \
+          'pillow' \
           'prodigyopt' \
           'protobuf' \
           'requests' \
@@ -236,6 +227,7 @@
           'scikit-learn' \
           'sentencepiece' \
           'torch_dct' \
+          'torchao' \
           'torchmetrics' \
           'tqdm' \
           'transformers' \
