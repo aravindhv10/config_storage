@@ -1,0 +1,279 @@
+* Scripts to manage
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  . '../../../shell_functions/important_functions.sh'
+  GITADD 'README.org'
+  P_CLEAN '.git.sh'
+  P_CLEAN 'README.org~'
+#+end_src
+
+* Prepare and add the docker functions file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'host.image_names.sh'
+#+end_src
+
+* Host scripts
+
+** Important envs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  # IMAGE_NAME='debtestrustzshhelix'
+  IMAGE_NAME='debtestrustzshhelixpytorch'
+#+end_src
+
+** Important functions
+
+*** Build image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  BUILD_CONTAINER () {
+      CMD='sudo -A docker'
+      which buildah && CMD='buildah'
+      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile"
+  }
+#+end_src
+
+*** Run image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  RUN_CONTAINER () {
+      CMD='sudo -A docker'
+      which podman && CMD='podman'
+      ${CMD} run -it --rm \
+          -v "$(realpath .):/data" \
+          "${IMAGE_NAME}" zsh ;
+  }
+#+end_src
+
+* Scripts to build and run
+
+** Build image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_build.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_build.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  BUILD_CONTAINER
+#+end_src
+
+** Run image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_run.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_run.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  RUN_CONTAINER
+#+end_src
+
+* Prepare and add the dockerfile to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'Dockerfile'
+#+end_src
+
+* Basic image config
+
+** Main base image
+#+begin_src conf :tangle ./Dockerfile
+  FROM debtestrustzshhelixpy
+#+end_src
+
+* Installing python packages
+
+** Basic updates
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
+#+end_src
+
+** Main torch
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pytorch' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          '--index-url' 'https://download.pytorch.org/whl/cu128' \
+              'torch' \
+              'torchvision' \
+      && echo 'DONE pytorch' ;
+#+end_src
+
+** Extra torch libraries, Tensor manipulation & Image libraries
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pytorch quantization and tensorrt' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'einops' \
+          'opencv_contrib_python' \
+          'opencv_python' \
+          'pillow' \
+          'torchao' \
+      && echo 'DONE pytorch quantization and tensorrt' ;
+#+end_src
+
+** Install xformers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START xformers install' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          '--index-url' 'https://download.pytorch.org/whl/cu128' \
+              'xformers' \
+      && echo 'DONE xformers install' ;
+#+end_src
+
+** Quantization, optimization and offloading
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Quantization, optimization and offloading' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'accelerate' \
+          'albumentations' \
+          'datasets' \
+          'deepspeed' \
+          'diffusers' \
+          'evaluate' \
+          'fastapi[standard]' \
+          'fastexcel' \
+          'huggingface-hub' \
+          'inotify-simple' \
+          'ipython' \
+          'ipywidgets' \
+          'jupyter' \
+          'jupyterlab' \
+          'lightning[extra]' \
+          'matplotlib' \
+          'openvino' \
+          'optimum' \
+          'optimum-quanto' \
+          'packaging' \
+          'prodigyopt' \
+          'protobuf' \
+          'requests' \
+          'safetensors' \
+          'scikit-learn' \
+          'sentencepiece' \
+          'torch_dct' \
+          'torchmetrics' \
+          'tqdm' \
+          'transformers' \
+          'ultralytics' \
+          'urllib3' \
+          'wandb' \
+      && echo 'DONE Quantization, optimization and offloading' ;
+#+end_src
+
+* Clone and install from source
+
+** Transformers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START transformers source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/transformers.git' \
+      && uv pip install -e . \
+      && echo 'DONE transformers source install' ;
+#+end_src
+
+** pytorch video
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pytorch video source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
+      && uv pip install -e . \
+      && echo 'DONE pytorch video source install' ;
+#+end_src
+
+** Diffusers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START diffusers install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/diffusers.git' \
+      && uv pip install -e . \
+      && echo 'DONE diffusers install from source' ;
+#+end_src
+
+** TIMM
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START TIMM install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
+      && uv pip install -e . \
+      && echo 'DONE TIMM install from source' ;
+#+end_src
+
+** DOCTR
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START doctr install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/mindee/doctr.git' \
+      && uv pip install -e . \
+      && echo 'DONE doctr install from source' ;
+#+end_src
+
+* Download and install libtorch
+
+** Install apt stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+        --mount=target=/var/cache/apt,type=cache,sharing=locked \
+        echo 'START apt-get stuff' \
+        && apt-get -y update \
+        && apt-get install -y \
+            'aria2' \
+            'bear' \
+            'zip' \
+        && echo 'DONE apt-get stuff' ;
+#+end_src
+
+** Actual libtorch install
+#+begin_src conf :tangle ./Dockerfile
+  RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip'
+  RUN unzip './libtorch-shared-with-deps-2.9.1+cpu.zip'
+  RUN rm -vf -- './libtorch-shared-with-deps-2.9.1+cpu.zip'
+  ENV LIBTORCH="/usr/"
+  RUN \
+      echo 'Install libtorch' \
+      && cd libtorch \
+      && cd lib \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
+      && cd .. \
+      && cd include \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
+      && cd .. \
+      && cd share/cmake \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
+      && cd ../.. \
+      && cd .. \
+      && echo 'Done Install libtorch' ;
+#+end_src
+
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src
