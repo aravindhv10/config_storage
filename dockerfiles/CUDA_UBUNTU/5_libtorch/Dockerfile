@@ -1,6 +1,66 @@
 FROM debtestrustzshhelixpy
 
 RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'aria2' \
+          'automake' \
+          'bear' \
+          'bison' \
+          'build-essential' \
+          'clang' \
+          'cmake' \
+          'curl' \
+          'gawk' \
+          'gettext' \
+          'git' \
+          'git-lfs' \
+          'libevent-dev' \
+          'liblz4-dev' \
+          'liblzo2-dev' \
+          'libpcre2-16-0' \
+          'libpcre2-32-0' \
+          'libpcre2-8-0' \
+          'libpcre2-dev' \
+          'libpcre2-posix3' \
+          'libssl-dev' \
+          'libzstd-dev' \
+          'make' \
+          'neovim' \
+          'ninja-build' \
+          'pkg-config' \
+          'python3-newt' \
+          'python3-sphinx' \
+          'squashfs-tools' \
+          'unzip' \
+          'wget' \
+          'yacc' \
+          'zip' \
+      && echo 'DONE apt-get stuff' ;
+
+RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip'
+RUN unzip './libtorch-shared-with-deps-2.9.1+cpu.zip'
+RUN rm -vf -- './libtorch-shared-with-deps-2.9.1+cpu.zip'
+ENV LIBTORCH="/usr/"
+RUN \
+    echo 'Install libtorch' \
+    && cd libtorch \
+    && cd lib \
+    && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
+    && cd .. \
+    && cd include \
+    && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
+    && cd .. \
+    && cd share/cmake \
+    && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
+    && cd ../.. \
+    && cd .. \
+    && echo 'Done Install libtorch' ;
+
+RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install -U \
@@ -115,31 +175,24 @@ RUN \
     && echo 'DONE doctr install from source' ;
 
 RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'aria2' \
-          'bear' \
-          'zip' \
-      && echo 'DONE apt-get stuff' ;
+    echo 'START flash attn' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            '--no-build-isolation' \
+                'flash-attn' \
+    && echo 'DONE flash attn' ;
 
-RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip'
-RUN unzip './libtorch-shared-with-deps-2.9.1+cpu.zip'
-RUN rm -vf -- './libtorch-shared-with-deps-2.9.1+cpu.zip'
-ENV LIBTORCH="/usr/"
 RUN \
-    echo 'Install libtorch' \
-    && cd libtorch \
-    && cd lib \
-    && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
-    && cd .. \
-    && cd include \
-    && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
-    && cd .. \
-    && cd share/cmake \
-    && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
-    && cd ../.. \
-    && cd .. \
-    && echo 'Done Install libtorch' ;
+    echo 'START onnxstuff' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            'onnxruntime-gpu' \
+            'onnxscript' \
+    && echo 'DONE onnxstuff' ;
+
+RUN \
+    echo 'START Hub' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            'huggingface-hub' \
+    && echo 'DONE Hub' ;
