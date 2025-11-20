@@ -5,7 +5,7 @@ BUILD_CONTAINER () {
     CMD='sudo -A docker'
     which buildah && CMD='buildah'
     cp '../../../shell_functions/important_functions.sh' ./
-    ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile"
+    ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
 }
 
 RUN_CONTAINER () {
