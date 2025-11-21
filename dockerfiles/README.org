@@ -1,0 +1,45 @@
+* Build all cpu images
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cpu.sh
+  cd "$(dirname -- "${0}")"
+  './CPU/0_base/image_build.sh'
+  './CPU/1_rust_builder/image_build.sh'
+  './CPU/2_zsh/image_build.sh'
+  './CPU/3_helix/image_build.sh'
+  './CPU/4_python/image_build.sh'
+  './CPU/5_libtorch/image_build.sh'
+  './CPU/6_pytorch/image_build.sh'
+  exit '0'
+#+end_src
+
+* Build all cuda images
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
+  cd "$(dirname -- "${0}")"
+  './CUDA_UBUNTU/0_base/image_build.sh'
+  './CPU/1_rust_builder/image_build.sh'
+  './CPU/2_zsh/image_build.sh'
+  './CPU/3_helix/image_build.sh'
+  './CPU/4_python/image_build.sh'
+  './CUDA_UBUNTU/5_libtorch/image_build.sh'
+  './CUDA_UBUNTU/6_pytorch/image_build.sh'
+  exit '0'
+#+end_src
+
+* Script to work
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+  . '../shell_functions/important_functions.sh'
+  P_CLEAN '.git.sh'
+  P_CLEAN 'README.org~'
+  GITADD 'README.org'
+  GITADD 'build_cpu.sh'
+  GITADD 'build_cuda.sh'
+#+end_src
+
+* COMMENT Work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src
