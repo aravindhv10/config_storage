@@ -14,6 +14,7 @@ RUN \
           'clang' \
           'cmake' \
           'curl' \
+          'ffmpeg' \
           'gawk' \
           'gettext' \
           'git' \
