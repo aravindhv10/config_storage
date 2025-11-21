@@ -15,7 +15,8 @@
 
 ** Important envs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  IMAGE_NAME='debtestrustbuild'
+  # IMAGE_NAME='debtestrustzshhelixpytorch2'
+  IMAGE_NAME='burnexps'
 #+end_src
 
 ** Important functions
@@ -25,7 +26,6 @@
   BUILD_CONTAINER () {
       CMD='sudo -A docker'
       which buildah && CMD='buildah'
-      cp '../../../shell_functions/important_functions.sh' ./
       ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
   }
 #+end_src
@@ -35,14 +35,9 @@
   RUN_CONTAINER () {
       CMD='sudo -A docker'
       which podman && CMD='podman'
-      mkdir -pv -- in out
-
       ${CMD} run -it --rm \
           -v "$(realpath .):/data" \
-          -v "$(realpath .)/in:/root/GITHUB" \
-          -v "$(realpath .)/in:/root/GITLAB" \
-          -v "$(realpath .)/out:/var/tmp/" \
-          "${IMAGE_NAME}" bash ;
+          "${IMAGE_NAME}" zsh ;
   }
 #+end_src
 
@@ -81,47 +76,9 @@
   GITADD 'Dockerfile'
 #+end_src
 
-* Basic image config
-
-** Main base image
+* Main base image
 #+begin_src conf :tangle ./Dockerfile
-  FROM debtestrust
-#+end_src
-
-** Copy the Important functions (script to source) and source it
-#+begin_src conf :tangle ./Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-* Main command to run in the container
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  IMAGE_CMD='bash'
-#+end_src
-
-* Script to install packages to /usr/local
-
-** Add the install script to git
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD './install.sh'
-  GITADD './install_all.sh'
-#+end_src
-
-** Copy the script into the image
-#+begin_src conf :tangle ./Dockerfile
-  COPY './install.sh' '/root/install.sh'
-  COPY './install_all.sh' '/root/install_all.sh'
-#+end_src
-
-** Actual script
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install.sh
-  cd "$(dirname -- "${0}")"
-  exec cp -aspf -- "$(realpath ./bin)" '/usr/local/'
-#+end_src
-
-** Copy the scripts to the final dirs
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install_all.sh
-  cd "$(dirname -- "${0}")"
-  ls /var/tmp/* -d | sed 's@^@("cp" "-vf" "./install.sh" "@g;s@$@");@g' | sh
+  FROM debtestrustzshhelixpytorch2
 #+end_src
 
 * Important apt install stuff
@@ -132,45 +89,11 @@
       echo 'START apt-get stuff' \
       && apt-get -y update \
       && apt-get install -y \
-          'aria2' \
-          'automake' \
-          'bear' \
-          'bison' \
-          'build-essential' \
-          'clang' \
-          'cmake' \
-          'curl' \
-          'ffmpeg' \
-          'gawk' \
-          'gettext' \
-          'git' \
-          'git-lfs' \
-          'libevent-dev' \
-          'liblz4-dev' \
-          'liblzo2-dev' \
-          'libpcre2-16-0' \
-          'libpcre2-32-0' \
-          'libpcre2-8-0' \
-          'libpcre2-dev' \
-          'libpcre2-posix3' \
-          'libssl-dev' \
-          'libzstd-dev' \
-          'make' \
           'nasm' \
-          'neovim' \
-          'ninja-build' \
-          'pkg-config' \
-          'python3-newt' \
-          'python3-sphinx' \
-          'squashfs-tools' \
-          'unzip' \
-          'wget' \
-          'yacc' \
-          'zip' \
       && echo 'DONE apt-get stuff' ;
 #+end_src
 
-* COMMENT Work space
+* COMMENT work space
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)

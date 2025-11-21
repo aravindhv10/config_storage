@@ -35,6 +35,7 @@ RUN \
         'libssl-dev' \
         'libzstd-dev' \
         'make' \
+        'nasm' \
         'neovim' \
         'ninja-build' \
         'pkg-config' \
