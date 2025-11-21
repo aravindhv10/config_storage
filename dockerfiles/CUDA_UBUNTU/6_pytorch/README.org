@@ -159,7 +159,8 @@
       && echo 'DONE pytorch' ;
 #+end_src
 
-** Flash attn
+** COMMENT Flash attn
+This is just horrible to build!
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START flash attn' \

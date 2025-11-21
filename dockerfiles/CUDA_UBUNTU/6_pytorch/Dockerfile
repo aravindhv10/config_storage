@@ -66,14 +66,6 @@ RUN \
     && echo 'DONE pytorch' ;
 
 RUN \
-    echo 'START flash attn' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-            '--no-build-isolation' \
-                'flash-attn' \
-    && echo 'DONE flash attn' ;
-
-RUN \
     echo 'START Quantization, optimization and offloading' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
