@@ -117,6 +117,13 @@ RUN \
     && echo 'DONE transformers source install' ;
 
 RUN \
+    echo 'START huggingface-hub source install' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+    && uv pip install -e . \
+    && echo 'DONE huggingface-hub source install' ;
+
+RUN \
     echo 'START pytorch video source install' \
     && . "${HOME}/important_functions.sh" \
     && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
@@ -151,10 +158,3 @@ RUN \
             'onnxruntime-gpu' \
             'onnxscript' \
     && echo 'DONE onnxstuff' ;
-
-RUN \
-    echo 'START Hub' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-            'huggingface-hub' \
-    && echo 'DONE Hub' ;

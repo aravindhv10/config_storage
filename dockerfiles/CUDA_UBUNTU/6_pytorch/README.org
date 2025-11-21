@@ -230,6 +230,16 @@ This is just horrible to build!
       && echo 'DONE transformers source install' ;
 #+end_src
 
+** Huggingface hub
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START huggingface-hub source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+      && uv pip install -e . \
+      && echo 'DONE huggingface-hub source install' ;
+#+end_src
+
 ** pytorch video
 #+begin_src conf :tangle ./Dockerfile
   RUN \
@@ -281,7 +291,7 @@ This is just horrible to build!
       && echo 'DONE onnxstuff' ;
 #+end_src
 
-* Huggingface hub
+* COMMENT Huggingface hub
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START Hub' \
