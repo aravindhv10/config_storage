@@ -49,6 +49,7 @@ RUN \
         'ninja' \
         'packaging' \
         'pip' \
+        'psutil' \
         'setuptools' \
         'wheel' \
     && echo 'DONE pip' ;
