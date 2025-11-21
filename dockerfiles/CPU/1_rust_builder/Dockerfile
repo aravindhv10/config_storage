@@ -13,11 +13,13 @@ RUN \
     && apt-get install -y \
         'aria2' \
         'automake' \
+        'bear' \
         'bison' \
         'build-essential' \
         'clang' \
         'cmake' \
         'curl' \
+        'ffmpeg' \
         'gawk' \
         'gettext' \
         'git' \
@@ -42,4 +44,5 @@ RUN \
         'unzip' \
         'wget' \
         'yacc' \
+        'zip' \
     && echo 'DONE apt-get stuff' ;
