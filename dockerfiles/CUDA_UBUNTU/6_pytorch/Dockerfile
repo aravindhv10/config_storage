@@ -78,7 +78,6 @@ RUN \
         'evaluate' \
         'fastapi[standard]' \
         'fastexcel' \
-        'huggingface-hub' \
         'inotify-simple' \
         'ipython' \
         'ipywidgets' \
@@ -110,20 +109,6 @@ RUN \
     && echo 'DONE Quantization, optimization and offloading' ;
 
 RUN \
-    echo 'START transformers source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/transformers.git' \
-    && uv pip install -e . \
-    && echo 'DONE transformers source install' ;
-
-RUN \
-    echo 'START huggingface-hub source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
-    && uv pip install -e . \
-    && echo 'DONE huggingface-hub source install' ;
-
-RUN \
     echo 'START pytorch video source install' \
     && . "${HOME}/important_functions.sh" \
     && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
@@ -138,6 +123,13 @@ RUN \
     && echo 'DONE diffusers install from source' ;
 
 RUN \
+    echo 'START transformers source install' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/huggingface/transformers.git' \
+    && uv pip install -e . \
+    && echo 'DONE transformers source install' ;
+
+RUN \
     echo 'START TIMM install from source' \
     && . "${HOME}/important_functions.sh" \
     && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
@@ -145,11 +137,11 @@ RUN \
     && echo 'DONE TIMM install from source' ;
 
 RUN \
-    echo 'START doctr install from source' \
+    echo 'START huggingface-hub source install' \
     && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/mindee/doctr.git' \
+    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
     && uv pip install -e . \
-    && echo 'DONE doctr install from source' ;
+    && echo 'DONE huggingface-hub source install' ;
 
 RUN \
     echo 'START onnxstuff' \

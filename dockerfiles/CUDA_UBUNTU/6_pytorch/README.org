@@ -196,7 +196,6 @@ This is just horrible to build!
           'evaluate' \
           'fastapi[standard]' \
           'fastexcel' \
-          'huggingface-hub' \
           'inotify-simple' \
           'ipython' \
           'ipywidgets' \
@@ -230,26 +229,6 @@ This is just horrible to build!
 
 * Clone and install from source
 
-** Transformers
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START transformers source install' \
-      && . "${HOME}/important_functions.sh" \
-      && get_repo 'https://github.com/huggingface/transformers.git' \
-      && uv pip install -e . \
-      && echo 'DONE transformers source install' ;
-#+end_src
-
-** Huggingface hub
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START huggingface-hub source install' \
-      && . "${HOME}/important_functions.sh" \
-      && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
-      && uv pip install -e . \
-      && echo 'DONE huggingface-hub source install' ;
-#+end_src
-
 ** pytorch video
 #+begin_src conf :tangle ./Dockerfile
   RUN \
@@ -270,6 +249,16 @@ This is just horrible to build!
       && echo 'DONE diffusers install from source' ;
 #+end_src
 
+** Transformers
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START transformers source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/transformers.git' \
+      && uv pip install -e . \
+      && echo 'DONE transformers source install' ;
+#+end_src
+
 ** TIMM
 #+begin_src conf :tangle ./Dockerfile
   RUN \
@@ -280,7 +269,7 @@ This is just horrible to build!
       && echo 'DONE TIMM install from source' ;
 #+end_src
 
-** DOCTR
+** COMMENT DOCTR
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START doctr install from source' \
@@ -288,6 +277,16 @@ This is just horrible to build!
       && get_repo 'https://github.com/mindee/doctr.git' \
       && uv pip install -e . \
       && echo 'DONE doctr install from source' ;
+#+end_src
+
+** Huggingface hub
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START huggingface-hub source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+      && uv pip install -e . \
+      && echo 'DONE huggingface-hub source install' ;
 #+end_src
 
 * onnxscript and runtime
@@ -299,16 +298,6 @@ This is just horrible to build!
               'onnxruntime-gpu' \
               'onnxscript' \
       && echo 'DONE onnxstuff' ;
-#+end_src
-
-* COMMENT Huggingface hub
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Hub' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-              'huggingface-hub' \
-      && echo 'DONE Hub' ;
 #+end_src
 
 * COMMENT work space
