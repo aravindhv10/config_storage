@@ -15,8 +15,8 @@
 
 ** Important envs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  # IMAGE_NAME='debtestrustzshhelix'
-  IMAGE_NAME='debtestrustzshhelixpytorch'
+  # IMAGE_NAME='debtestrustzshhelixpytorch'
+  IMAGE_NAME='debtestrustzshhelixpytorch2'
 #+end_src
 
 ** Important functions
@@ -78,45 +78,47 @@
 
 * Main base image
 #+begin_src conf :tangle ./Dockerfile
-  FROM debtestrustzshhelixpy
+  FROM debtestrustzshhelixpytorch
 #+end_src
 
-* Download and install libtorch
+* Basic image config
 
-** Install apt stuff
+** Prepare venv
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-        --mount=target=/var/cache/apt,type=cache,sharing=locked \
-        echo 'START apt-get stuff' \
-        && apt-get -y update \
-        && apt-get install -y \
-            'aria2' \
-            'bear' \
-            'zip' \
-        && echo 'DONE apt-get stuff' ;
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
 #+end_src
 
-** Download and install libtorch
+** Install torch
 #+begin_src conf :tangle ./Dockerfile
-  RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip'
-  RUN unzip './libtorch-shared-with-deps-2.9.1+cpu.zip'
-  RUN rm -vf -- './libtorch-shared-with-deps-2.9.1+cpu.zip'
-  ENV LIBTORCH="/usr/"
   RUN \
-      echo 'Install libtorch' \
-      && cd libtorch \
-      && cd lib \
-      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
-      && cd .. \
-      && cd include \
-      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
-      && cd .. \
-      && cd share/cmake \
-      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
-      && cd ../.. \
-      && cd .. \
-      && echo 'Done Install libtorch' ;
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          '--index-url' 'https://download.pytorch.org/whl/cpu' \
+              'torch' \
+              'torchvision' \
+      && echo 'DONE pip' ;
+#+end_src
+
+** Install extra
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'einops' \
+          'timm' \
+      && echo 'DONE pip' ;
 #+end_src
 
 * COMMENT work space

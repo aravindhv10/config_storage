@@ -1,8 +1,5 @@
 FROM debtestrustzshhelixpy
 
-RUN uv pip install torch torchvision --index-url 'https://download.pytorch.org/whl/cpu'
-RUN uv pip install einops timm
-
 RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
