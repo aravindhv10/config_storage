@@ -110,6 +110,7 @@
 #+begin_src conf :tangle ./Dockerfile
   COPY './install.sh' '/root/install.sh'
   COPY './install_all.sh' '/root/install_all.sh'
+  COPY './compress.sh' '/root/compress.sh'
 #+end_src
 
 ** Actual script
@@ -123,6 +124,16 @@
   cd "$(dirname -- "${0}")"
   ls /var/tmp/* -d | sed 's@^@("cp" "-vf" "./install.sh" "@g;s@$@");@g' | sh
 #+end_src
+
+** Script to compress
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./compress.sh
+  cd "$('dirname' '--' "${0}")"
+  OUT="$('/bin/pwd').squashfs-zstd"
+  'rm' '-vf' '--' "${OUT}"
+  'mksquashfs' '.' "${OUT}"  '-comp' 'zstd' '-Xcompression-level' '18' '-b' '1048576' '-always-use-fragments' '-keep-as-directory' '-no-compression'
+  exit '0'
+#+end_src
+
 
 * Important apt install stuff
 #+begin_src conf :tangle ./Dockerfile

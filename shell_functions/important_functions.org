@@ -42,6 +42,13 @@
   }
 #+end_src
 
+*** compress file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  COMPRESS_FILE_ZSTD () {
+      'zstd' "${1}" '--long=30' '-18'
+  }
+#+end_src
+
 *** Process the python file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   P_PROCESS_PYTHON () {
