@@ -16,7 +16,7 @@ P_READ () {
 }
 
 P_PROCESS_PYTHON () {
-    expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | ruff format - 
+    expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | grep -v '^#!/usr/bin/env python3$' | ruff format - 
 }
 
 GITADD () {
