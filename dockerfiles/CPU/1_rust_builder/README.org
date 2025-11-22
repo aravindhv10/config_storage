@@ -104,6 +104,7 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   GITADD './install.sh'
   GITADD './install_all.sh'
+  GITADD './compress.sh'
 #+end_src
 
 ** Copy the script into the image
