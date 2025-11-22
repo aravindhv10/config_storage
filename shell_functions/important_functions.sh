@@ -51,7 +51,7 @@ CLEAN_ALL_PYTHON(){
 }
 
 PREPARE_PYTHON_FILE() {
-    READ_ALL_PYTHON "${1}" | P_PROCESS > "./${1}.py"
+    READ_ALL_PYTHON "${1}" | P_PROCESS_PYTHON > "./${1}.py"
     CLEAN_ALL_PYTHON "${1}"
     chmod +x "./${1}.py"
     GITADD "${1}.py"
