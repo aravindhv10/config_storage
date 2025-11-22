@@ -50,8 +50,9 @@ CLEAN_ALL_PYTHON(){
     P_CLEAN "${1}.execute.py"
 }
 
-PREPARE_PYTHON_FILE() {
-    READ_ALL_PYTHON "${1}" | P_PROCESS_PYTHON > "./${1}.py"
+PREPARE_PYTHON_FILE(){
+    echo '#!/usr/bin/env python3' > "./${1}.py"
+    READ_ALL_PYTHON "${1}" | P_PROCESS_PYTHON >> "./${1}.py"
     CLEAN_ALL_PYTHON "${1}"
     chmod +x "./${1}.py"
     GITADD "${1}.py"
