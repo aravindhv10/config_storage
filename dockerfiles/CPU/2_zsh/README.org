@@ -23,6 +23,7 @@
 *** Build image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   BUILD_CONTAINER () {
+      cp '../../../shell_functions/zshrc' ./
       CMD='sudo -A docker'
       which buildah && CMD='buildah'
       ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
@@ -80,6 +81,22 @@
   FROM debtestrustbuild
 #+end_src
 
+* Add rust programs
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START Downloading rust programs' \
+      && cd '/var/tmp/' \
+      && aria2c -c -x16 -j16 'https://github.com/aravindhv10/config_storage/releases/download/v1.0/out.tar.zst' \
+      && zstd -d --long=30 './out.tar.zst' \
+      && tar -xf './out.tar' \
+      && mv out/* ./ \
+      && rmdir -pv -- out \
+      && rm -vf -- './out.tar' './out.tar.zst' \
+      && echo 'DONE Downloading rust programs' ;
+
+  RUN ls /var/tmp/*/install.sh | sh
+#+end_src
+
 * Install zsh
 
 ** Install tools to download and install rust
@@ -100,8 +117,6 @@
 #+end_src
 
 ** Get ohmyzsh
-
-*** Download code
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START ohmyzsh' \
@@ -110,44 +125,9 @@
       && echo 'DONE ohmyzsh' ;
 #+end_src
 
-*** Add files to git
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD 'zshrc'
-#+end_src
-
-*** Actual script
-#+begin_src conf :tangle ./zshrc
-  export SHELL=zsh
-  export ZSH="$HOME/.oh-my-zsh"
-  export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
-  plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
-  source "${ZSH}/oh-my-zsh.sh"
-#+end_src
-
-*** Copy the file
+** Copy the config file
 #+begin_src conf :tangle ./Dockerfile
   ADD ./zshrc /root/.zshrc
-#+end_src
-
-* Add rust programs
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START Downloading rust programs' \
-      && cd '/var/tmp/' \
-      && aria2c -c -x16 -j16 'https://github.com/aravindhv10/config_storage/releases/download/v1.0/out.tar.zst' \
-      && zstd -d --long=30 './out.tar.zst' \
-      && tar -xf './out.tar' \
-      && mv out/* ./ \
-      && rmdir -pv -- out \
-      && rm -vf -- './out.tar' './out.tar.zst' \
-      && echo 'DONE Downloading rust programs' ;
-
-  RUN ls /var/tmp/*/install.sh | sh
-#+end_src
-
-* Add atuin
-#+begin_src conf :tangle ./Dockerfile
-  RUN atuin init zsh >> /root/.zshrc
 #+end_src
 
 * COMMENT work space

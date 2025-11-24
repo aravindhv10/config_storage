@@ -2,6 +2,7 @@
 IMAGE_NAME='debtestrustzsh'
 
 BUILD_CONTAINER () {
+    cp '../../../shell_functions/zshrc' ./
     CMD='sudo -A docker'
     which buildah && CMD='buildah'
     ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
