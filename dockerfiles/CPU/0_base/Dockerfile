@@ -20,8 +20,11 @@ ENV CARGO_HOME='/usr/local/cargo'
 ENV PATH='/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 ENV RUST_VERSION='1.91.1'
 
-RUN set -eux; \
-    \
+RUN \
+    --mount=target=/cache,type=cache,sharing=locked \
+    set -eux; \
+    mkdir -pv '/cache'; \
+    cd '/cache'; \
     arch="$(dpkg --print-architecture)"; \
     case "$arch" in \
         'amd64') \
@@ -59,12 +62,11 @@ RUN set -eux; \
     esac; \
     \
     url="https://static.rust-lang.org/rustup/archive/1.28.2/${rustArch}/rustup-init"; \
-    wget --progress=dot:giga "$url"; \
+    wget --progress=dot:giga -c "$url"; \
     echo "${rustupSha256} *rustup-init" | sha256sum -c -; \
     \
     chmod +x rustup-init; \
     ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${rustArch}; \
-    rm rustup-init; \
     chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
     \
     rustup --version; \
