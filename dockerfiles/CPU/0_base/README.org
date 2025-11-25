@@ -88,6 +88,19 @@
   USER root
 #+end_src
 
+** Run apt update
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get update' \
+      && apt-get update \
+      && apt-get -y install \
+          'aria2' \
+          'git' \
+      && echo 'DONE apt-get update' ;
+#+end_src
+
 * COMMENT work space
 #+begin_src emacs-lisp :results silent
   (save-buffer)
