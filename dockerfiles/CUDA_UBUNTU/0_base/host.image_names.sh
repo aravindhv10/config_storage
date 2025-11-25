@@ -1,5 +1,5 @@
 #!/bin/sh
-IMAGE_NAME='debtestrust'
+IMAGE_NAME='mainbase'
 
 BUILD_CONTAINER () {
     CMD='sudo -A docker'
