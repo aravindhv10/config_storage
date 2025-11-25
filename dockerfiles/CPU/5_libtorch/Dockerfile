@@ -6,7 +6,6 @@ RUN \
       echo 'START apt-get stuff' \
       && apt-get -y update \
       && apt-get install -y \
-          'aria2' \
           'bear' \
           'zip' \
       && echo 'DONE apt-get stuff' ;
