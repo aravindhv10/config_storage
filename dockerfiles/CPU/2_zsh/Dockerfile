@@ -1,6 +1,20 @@
 FROM debtestrustbuild
 
 RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    echo 'START apt-get stuff' \
+    && apt-get -y update \
+    && apt-get install -y \
+        'build-essential' \
+        'fish' \
+        'fzf' \
+        'git' \
+        'zstd' \
+        'zsh' \
+    && echo 'DONE apt-get stuff' ;
+
+RUN \
     --mount=target=/root/SHA512SUM,type=cache \
     --mount=target=/root/TMP,type=cache \
     echo 'START Download and install rust programs' \
@@ -19,27 +33,7 @@ RUN \
     && rm -vf -- './out.tar' './out.tar.zst' \
     && echo 'DONE Download and install rust programs' ;
 
-RUN \
-    --mount=target=/root/SHA512SUM,type=cache \
-    --mount=target=/root/TMP,type=cache \
-    echo 'START Downloading rust programs' \
-    && echo 'DONE Downloading rust programs' ;
-
 RUN ls /var/tmp/*/install.sh | sh
-
-RUN \
-    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-    --mount=target=/var/cache/apt,type=cache,sharing=locked \
-    echo 'START apt-get stuff' \
-    && apt-get -y update \
-    && apt-get install -y \
-        'build-essential' \
-        'fish' \
-        'fzf' \
-        'git' \
-        'zstd' \
-        'zsh' \
-    && echo 'DONE apt-get stuff' ;
 
 RUN \
     echo 'START ohmyzsh' \

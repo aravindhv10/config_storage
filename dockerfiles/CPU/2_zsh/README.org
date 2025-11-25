@@ -81,7 +81,26 @@
   FROM debtestrustbuild
 #+end_src
 
+* Install tools to download and install rust
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get stuff' \
+      && apt-get -y update \
+      && apt-get install -y \
+          'build-essential' \
+          'fish' \
+          'fzf' \
+          'git' \
+          'zstd' \
+          'zsh' \
+      && echo 'DONE apt-get stuff' ;
+#+end_src
+
 * Add rust programs
+
+** Download and extract the programs
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
@@ -103,37 +122,14 @@
       && echo 'DONE Download and install rust programs' ;
 #+end_src
 
-
+** Install the programs
 #+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/root/SHA512SUM,type=cache \
-      --mount=target=/root/TMP,type=cache \
-      echo 'START Downloading rust programs' \
-      && echo 'DONE Downloading rust programs' ;
-
   RUN ls /var/tmp/*/install.sh | sh
 #+end_src
 
-* Install zsh
+* Get ohmyzsh
 
-** Install tools to download and install rust
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get -y update \
-      && apt-get install -y \
-          'build-essential' \
-          'fish' \
-          'fzf' \
-          'git' \
-          'zstd' \
-          'zsh' \
-      && echo 'DONE apt-get stuff' ;
-#+end_src
-
-** Get ohmyzsh
+** Clone the code
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START ohmyzsh' \
