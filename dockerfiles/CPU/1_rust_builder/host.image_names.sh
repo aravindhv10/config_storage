@@ -1,5 +1,6 @@
 #!/bin/sh
 IMAGE_NAME='debtestrustbuild'
+IMAGE_CMD='bash'
 
 BUILD_CONTAINER () {
     CMD='sudo -A docker'
@@ -21,5 +22,3 @@ RUN_CONTAINER () {
         -v "$(realpath .)/cache:/usr/local/cargo/registry" \
         "${IMAGE_NAME}" bash ;
 }
-
-IMAGE_CMD='bash'
