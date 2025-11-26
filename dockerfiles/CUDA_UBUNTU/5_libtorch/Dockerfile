@@ -5,7 +5,6 @@ RUN \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
       echo 'START apt-get stuff' \
       && apt-get install -y \
-          'aria2' \
           'bear' \
           'zip' \
       && echo 'DONE apt-get stuff' ;
