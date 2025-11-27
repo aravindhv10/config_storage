@@ -29,8 +29,20 @@ fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.zshrc"
 }
 
+fn get_path_shrc(HOME: std::string::String) -> std::string::String {
+    HOME + "/.shrc"
+}
+
+fn get_content_shrc() -> std::string::String {
+    r#"
+export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+"#
+    .to_string()
+}
+
 fn get_content_zshrc() -> std::string::String {
     r#"
+. "${HOME}/.shrc"
 export SHELL=zsh
 export ZSH="$HOME/.oh-my-zsh"
 export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
@@ -44,16 +56,8 @@ eval "$(atuin init zsh)"
 fn main() {
     let current_env = get_env();
     let path_home = get_path_home(current_env);
-    let path_zshrc = get_path_zshrc(path_home);
-    println!("{path_zshrc:?}");
-
-    let mut zshrc: std::string::String = r#"
-export SHELL=zsh
-export ZSH="$HOME/.oh-my-zsh"
-export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
-plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
-source "${ZSH}/oh-my-zsh.sh"
-eval "$(atuin init zsh)"
-"#
-    .to_string();
+    let path_shrc = get_path_shrc(path_home.clone());
+    let path_zshrc = get_path_zshrc(path_home.clone());
+    std::fs::write(path_shrc, get_content_shrc()).expect("Unable to write shrc");
+    std::fs::write(path_zshrc, get_content_zshrc()).expect("Unable to write zshrc");
 }
