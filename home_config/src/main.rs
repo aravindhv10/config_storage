@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{arch::x86_64::_MM_FROUND_CUR_DIRECTION, str::FromStr};
 
 fn get_env() -> std::collections::HashMap<std::ffi::OsString, std::ffi::OsString> {
     let mut current_env =
@@ -12,7 +12,7 @@ fn get_env() -> std::collections::HashMap<std::ffi::OsString, std::ffi::OsString
 }
 
 fn get_path_home(
-    current_env: std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
+    current_env: &std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
 ) -> std::string::String {
     let HOME = std::ffi::OsString::from_str("HOME").unwrap();
     let HOME: std::ffi::OsString = match current_env.get(&HOME) {
@@ -53,9 +53,31 @@ eval "$(atuin init zsh)"
     .to_string()
 }
 
+struct configurator {
+    current_env: std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
+    path_home: std::string::String,
+    path_shrc: std::string::String,
+    path_zshrc: std::string::String,
+}
+
+impl configurator {
+    fn new() -> Self {
+        let current_env = get_env();
+        let path_home = get_path_home(&current_env);
+        let path_shrc = get_path_shrc(path_home.clone());
+        let path_zshrc = get_path_zshrc(path_home.clone());
+        configurator {
+            current_env: current_env,
+            path_home: path_home,
+            path_shrc: path_shrc,
+            path_zshrc: path_zshrc,
+        }
+    }
+}
+
 fn main() {
     let current_env = get_env();
-    let path_home = get_path_home(current_env);
+    let path_home = get_path_home(&current_env);
     let path_shrc = get_path_shrc(path_home.clone());
     let path_zshrc = get_path_zshrc(path_home.clone());
     std::fs::write(path_shrc, get_content_shrc()).expect("Unable to write shrc");
