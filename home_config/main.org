@@ -1,6 +1,9 @@
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . "${HOME}/important_functions.sh"
 
+  CLEAN '.git.sh'
+  CLEAN 'main.org~'
+
   GITADD 'Cargo.toml'
   GITADD 'host.image_names.sh'
   GITADD 'image_run.sh'
