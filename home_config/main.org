@@ -1,0 +1,17 @@
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  GITADD 'Cargo.toml'
+  GITADD 'host.image_names.sh'
+  GITADD 'image_run.sh'
+  GITADD 'main.org'
+  GITADD 'src/main.rs'
+#+end_src
+
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src

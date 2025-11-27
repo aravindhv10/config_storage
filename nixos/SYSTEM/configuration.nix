@@ -390,15 +390,16 @@ in {
     unstable.difftastic
     unstable.dust
     unstable.emacs30
-    unstable.helix
+    unstable.eza
     unstable.fd
     unstable.fzf
+    unstable.gitui
+    unstable.helix
     unstable.inkscape
     unstable.ironbar
     unstable.kickoff
     unstable.lapce
     unstable.lsd
-    unstable.eza
     unstable.lyx
     unstable.mako
     unstable.miniserve
@@ -420,6 +421,7 @@ in {
     unstable.squashfsTools
     unstable.starship
     unstable.swww
+    unstable.television
     unstable.tmux
     unstable.tofi
     unstable.uv
