@@ -25,16 +25,36 @@ fn get_path_home(
     HOME
 }
 
-fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
-    HOME + "/.zshrc"
-}
-
 fn get_path_shrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.shrc"
 }
 
+fn get_path_bashrc(HOME: std::string::String) -> std::string::String {
+    HOME + "/.bashrc"
+}
+
+fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
+    HOME + "/.zshrc"
+}
+
 fn get_path_github(HOME: std::string::String) -> std::string::String {
     HOME + "/GITHUB"
+}
+
+fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
+    let path_str = HOME + "/.config/helix/";
+    let path = std::path::Path::new(path_str.as_str());
+
+    match std::fs::create_dir_all(path) {
+        Ok(o) => println!("Created directory {}.", path_str.as_str()),
+        Err(e) => eprintln!(
+            "Error creating directories {} due to {}",
+            path_str.as_str(),
+            e
+        ),
+    }
+
+    path_str + "/config.toml"
 }
 
 fn get_content_shrc() -> std::string::String {
@@ -44,15 +64,32 @@ export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
     .to_string()
 }
 
+fn get_content_bashrc() -> std::string::String {
+    r#"
+. "${HOME}/.shrc"
+export SHELL=bash
+"#
+    .to_string()
+}
+
 fn get_content_zshrc() -> std::string::String {
     r#"
 . "${HOME}/.shrc"
 export SHELL=zsh
 export ZSH="$HOME/.oh-my-zsh"
-export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
 source "${ZSH}/oh-my-zsh.sh"
 eval "$(atuin init zsh)"
+"#
+    .to_string()
+}
+
+fn get_content_helix_config() -> std::string::String {
+    r#"
+theme = "modus_vivendi"
+
+[editor]
+true-color = true
 "#
     .to_string()
 }
@@ -63,6 +100,8 @@ struct configurator {
     path_shrc: std::string::String,
     path_zshrc: std::string::String,
     path_github: std::string::String,
+    path_bashrc: std::string::String,
+    path_helix_config: std::string::String,
 }
 
 impl configurator {
@@ -72,12 +111,16 @@ impl configurator {
         let path_shrc = get_path_shrc(path_home.clone());
         let path_zshrc = get_path_zshrc(path_home.clone());
         let path_github = get_path_github(path_home.clone());
+        let path_bashrc = get_path_bashrc(path_home.clone());
+        let path_helix_config = get_path_helix_config(path_home.clone());
         configurator {
             current_env: current_env,
             path_home: path_home,
             path_shrc: path_shrc,
             path_zshrc: path_zshrc,
             path_github: path_github,
+            path_bashrc: path_bashrc,
+            path_helix_config: path_helix_config,
         }
     }
 
@@ -176,6 +219,9 @@ impl configurator {
     fn setup_shell(self: &Self) {
         std::fs::write(&self.path_shrc, get_content_shrc()).expect("Unable to write shrc");
         std::fs::write(&self.path_zshrc, get_content_zshrc()).expect("Unable to write zshrc");
+        std::fs::write(&self.path_bashrc, get_content_bashrc()).expect("Unable to write bashrc");
+        std::fs::write(&self.path_helix_config, get_content_helix_config())
+            .expect("Unable to write helix config");
         self.get_oh_my_zsh();
     }
 }
