@@ -82,44 +82,78 @@ impl configurator {
     }
 
     fn get_github_repo(self: &Self, github_url: std::string::String) -> std::string::String {
-        // https://github.com/ohmyzsh/ohmyzsh.git
-
         let starting_point = "https://github.com".len();
         let ending_point = github_url.len() - ".git".len();
         let new_url = self.path_github.clone() + &github_url.clone()[starting_point..ending_point];
         let path = std::path::Path::new(new_url.as_str());
 
         match std::fs::create_dir_all(path) {
-            Ok(_) => println!("Directories created successfully or already existed."),
+            Ok(o) => println!("Created directory {}.", new_url.as_str()),
             Err(e) => eprintln!("Error creating directories: {}", e),
         }
 
-        let command = std::process::Command::new("git")
+        match std::env::set_current_dir(path) {
+            Ok(_) => {
+                println!("Currently in dir {}", new_url.as_str());
+            }
+            Err(e) => {
+                println!("Failed to change to dir {} due to {}", new_url.as_str(), e);
+            }
+        }
+
+        match std::process::Command::new("git")
             .arg("clone")
             .arg(github_url)
-            .arg(&new_url)
-            .output();
-
-        match command {
+            .arg(".")
+            .output()
+        {
             Ok(output) => {
-                // Check if the command executed successfully.
                 if output.status.success() {
-                    // Convert the stdout bytes to a UTF-8 string and print it.
                     println!(
                         "Command output: {}",
                         String::from_utf8_lossy(&output.stdout)
                     );
                 } else {
-                    // Print an error message if the command failed.
                     eprintln!("Command failed with exit code: {}", output.status);
                     eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
                 }
             }
             Err(e) => {
-                // Handle any errors that occurred during command execution.
                 eprintln!("Failed to execute command: {}", e);
             }
         }
+
+        match std::process::Command::new("git").arg("pull").output() {
+            Ok(o) => {
+                println!(
+                    "git pull executed successfully,\n{:?}\n{:?}",
+                    std::string::String::from_utf8_lossy(&o.stdout),
+                    std::string::String::from_utf8_lossy(&o.stderr),
+                )
+            }
+            Err(e) => {
+                println!("git pulled failed due to {}", e);
+            }
+        }
+
+        match std::process::Command::new("git")
+            .arg("submodule")
+            .arg("update")
+            .arg("--recursive")
+            .arg("--init")
+            .output()
+        {
+            Ok(o) => {
+                println!(
+                    "git submodule update,\n{:?}\n{:?}",
+                    std::string::String::from_utf8_lossy(&o.stdout),
+                    std::string::String::from_utf8_lossy(&o.stderr),
+                );
+            }
+            Err(e) => {
+                println!("Failed git submodule update failed due to: {}", e);
+            }
+        };
 
         new_url
     }
