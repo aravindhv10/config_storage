@@ -42,7 +42,7 @@ fn get_path_github(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
-    let path_str = HOME + "/.config/helix/";
+    let path_str = HOME + "/.config/helix";
     let path = std::path::Path::new(path_str.as_str());
 
     match std::fs::create_dir_all(path) {
@@ -58,7 +58,7 @@ fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
-    let path_str = HOME + "/.config/fish/";
+    let path_str = HOME + "/.config/fish";
     let path = std::path::Path::new(path_str.as_str());
 
     match std::fs::create_dir_all(path) {
@@ -71,6 +71,38 @@ fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
     }
 
     path_str + "/config.fish"
+}
+
+fn get_path_alacritty_config(HOME: std::string::String) -> std::string::String {
+    let path_str = HOME + "/.config/alacritty";
+    let path = std::path::Path::new(path_str.as_str());
+
+    match std::fs::create_dir_all(path) {
+        Ok(o) => println!("Created directory {}.", path_str.as_str()),
+        Err(e) => eprintln!(
+            "Error creating directories {} due to {}",
+            path_str.as_str(),
+            e
+        ),
+    }
+
+    path_str + "/alacritty.toml"
+}
+
+fn get_path_foot_config(HOME: std::string::String) -> std::string::String {
+    let path_str = HOME + "/.config/foot";
+    let path = std::path::Path::new(path_str.as_str());
+
+    match std::fs::create_dir_all(path) {
+        Ok(o) => println!("Created directory {}.", path_str.as_str()),
+        Err(e) => eprintln!(
+            "Error creating directories {} due to {}",
+            path_str.as_str(),
+            e
+        ),
+    }
+
+    path_str + "//foot.ini"
 }
 
 fn get_content_shrc() -> std::string::String {
@@ -136,6 +168,71 @@ end
     .to_string()
 }
 
+fn get_content_alacritty_config() -> std::string::String {
+    r#"
+window.decorations = "None"
+window.startup_mode = "Fullscreen"
+
+font.size = 16
+
+colors.normal.black = '#1e1e1e'
+colors.normal.red = '#ff5f59'
+colors.normal.green = '#44bc44'
+colors.normal.yellow = '#d0bc00'
+colors.normal.blue = '#2fafff'
+colors.normal.magenta = '#feacd0'
+colors.normal.cyan = '#00d3d0'
+colors.normal.white = '#ffffff'
+
+colors.bright.black = '#535353'
+colors.bright.red = '#ff7f9f'
+colors.bright.green = '#00c06f'
+colors.bright.yellow = '#dfaf7a'
+colors.bright.blue = '#00bcff'
+colors.bright.magenta = '#b6a0ff'
+colors.bright.cyan = '#6ae4b9'
+colors.bright.white = '#989898'
+
+colors.cursor.cursor = '#ffffff'
+colors.cursor.text = '#000000'
+
+colors.primary.background = '#000000'
+colors.primary.foreground = '#ffffff'
+
+colors.selection.background = '#5a5a5a'
+colors.selection.text = '#ffffff'
+"#
+    .to_string()
+}
+
+fn get_content_foot_config() -> std::string::String {
+    r#"
+font=monospace:size=16
+
+[colors]
+background=000000
+foreground=ffffff
+regular0=000000
+regular1=ff8059
+regular2=44bc44
+regular3=d0bc00
+regular4=2fafff
+regular5=feacd0
+regular6=00d3d0
+regular7=bfbfbf
+
+bright0=595959
+bright1=ef8b50
+bright2=70b900
+bright3=c0c530
+bright4=79a8ff
+bright5=b6a0ff
+bright6=6ae4b9
+bright7=ffffff
+"#
+    .to_string()
+}
+
 struct configurator {
     current_env: std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
     path_home: std::string::String,
@@ -145,6 +242,8 @@ struct configurator {
     path_bashrc: std::string::String,
     path_helix_config: std::string::String,
     path_fish_config: std::string::String,
+    path_alacritty_config: std::string::String,
+    path_foot_config: std::string::String,
 }
 
 impl configurator {
@@ -157,6 +256,9 @@ impl configurator {
         let path_bashrc = get_path_bashrc(path_home.clone());
         let path_helix_config = get_path_helix_config(path_home.clone());
         let path_fish_config = get_path_fish_config(path_home.clone());
+        let path_alacritty_config = get_path_alacritty_config(path_home.clone());
+        let path_foot_config = get_path_foot_config(path_home.clone());
+
         configurator {
             current_env: current_env,
             path_home: path_home,
@@ -166,6 +268,8 @@ impl configurator {
             path_bashrc: path_bashrc,
             path_helix_config: path_helix_config,
             path_fish_config: path_fish_config,
+            path_alacritty_config: path_alacritty_config,
+            path_foot_config: path_foot_config,
         }
     }
 
@@ -261,19 +365,30 @@ impl configurator {
         }
     }
 
-    fn setup_shell(self: &Self) {
+    fn setup_all_config(self: &Self) {
         std::fs::write(&self.path_shrc, get_content_shrc()).expect("Unable to write shrc");
+
         std::fs::write(&self.path_zshrc, get_content_zshrc()).expect("Unable to write zshrc");
+
         std::fs::write(&self.path_bashrc, get_content_bashrc()).expect("Unable to write bashrc");
+
         std::fs::write(&self.path_helix_config, get_content_helix_config())
             .expect("Unable to write helix config");
+
         std::fs::write(&self.path_fish_config, get_content_fish_config())
             .expect("Unable to write bashrc");
+
+        std::fs::write(&self.path_alacritty_config, get_content_alacritty_config())
+            .expect("Unable to write bashrc");
+
+        std::fs::write(&self.path_foot_config, get_content_foot_config())
+            .expect("Unable to write bashrc");
+
         self.get_oh_my_zsh();
     }
 }
 
 fn main() {
     let slave = configurator::new();
-    slave.setup_shell();
+    slave.setup_all_config();
 }
