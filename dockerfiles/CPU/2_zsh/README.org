@@ -130,22 +130,6 @@
   RUN home_config
 #+end_src
 
-* COMMENT Get ohmyzsh
-
-** Clone the code
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      echo 'START ohmyzsh' \
-      && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
-      && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
-      && echo 'DONE ohmyzsh' ;
-#+end_src
-
-** Copy the config file
-#+begin_src conf :tangle ./Dockerfile
-  ADD ./zshrc /root/.zshrc
-#+end_src
-
 * COMMENT work space
 #+begin_src emacs-lisp :results silent
   (save-buffer)
