@@ -105,23 +105,14 @@ eval "$(atuin init zsh)"
 
 fn get_content_helix_config() -> std::string::String {
     r#"
+editor.cursor-shape.insert = "bar"
+editor.cursor-shape.normal = "block"
+editor.cursor-shape.select = "underline"
+editor.file-picker.hidden = false
+editor.line-number = "relative"
+editor.lsp.display-inlay-hints = true
+editor.true-color = true
 theme = "modus_vivendi"
-
-[editor]
-    true-color = true
-    line-number = "relative"
-
-[editor.lsp]
-    display-inlay-hints = true
-
-
-[editor.cursor-shape]
-    insert = "bar"
-    normal = "block"
-    select = "underline"
-
-[editor.file-picker]
-    hidden = false
 "#
     .to_string()
 }
@@ -141,9 +132,6 @@ end
 function cat
     bat $argv
 end
-
-
-
 "#
     .to_string()
 }
