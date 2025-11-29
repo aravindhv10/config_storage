@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+// General configs
+
 fn get_env() -> std::collections::HashMap<std::ffi::OsString, std::ffi::OsString> {
     let mut current_env =
         std::collections::HashMap::<std::ffi::OsString, std::ffi::OsString>::new();
@@ -10,6 +12,8 @@ fn get_env() -> std::collections::HashMap<std::ffi::OsString, std::ffi::OsString
 
     current_env
 }
+
+// Get path for home dir
 
 fn get_path_home(
     current_env: &std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
@@ -25,21 +29,67 @@ fn get_path_home(
     HOME
 }
 
+fn get_path_github(HOME: std::string::String) -> std::string::String {
+    HOME + "/GITHUB"
+}
+
+////////////////////////////////////////////////////////////////
+// general shrc begin //////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 fn get_path_shrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.shrc"
 }
+
+fn get_content_shrc() -> std::string::String {
+    r#"
+export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
+"#
+    .to_string()
+}
+
+////////////////////////////////////////////////////////////////
+// general shrc end ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 fn get_path_bashrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.bashrc"
 }
 
+fn get_content_bashrc() -> std::string::String {
+    r#"
+. "${HOME}/.shrc"
+export SHELL=bash
+eval -- "$(starship init bash --print-full-init)"
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+"#
+    .to_string()
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.zshrc"
 }
 
-fn get_path_github(HOME: std::string::String) -> std::string::String {
-    HOME + "/GITHUB"
+fn get_content_zshrc() -> std::string::String {
+    r#"
+. "${HOME}/.shrc"
+export SHELL=zsh
+export ZSH="$HOME/.oh-my-zsh"
+plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
+source "${ZSH}/oh-my-zsh.sh"
+eval "$(atuin init zsh)"
+"#
+    .to_string()
 }
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
     let path_str = HOME + "/.config/helix";
@@ -57,6 +107,24 @@ fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
     path_str + "/config.toml"
 }
 
+fn get_content_helix_config() -> std::string::String {
+    r#"
+editor.cursor-shape.insert = "bar"
+editor.cursor-shape.normal = "block"
+editor.cursor-shape.select = "underline"
+editor.file-picker.hidden = false
+editor.line-number = "relative"
+editor.lsp.display-inlay-hints = true
+editor.true-color = true
+theme = "modus_vivendi"
+"#
+    .to_string()
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
     let path_str = HOME + "/.config/fish";
     let path = std::path::Path::new(path_str.as_str());
@@ -71,82 +139,6 @@ fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
     }
 
     path_str + "/config.fish"
-}
-
-fn get_path_alacritty_config(HOME: std::string::String) -> std::string::String {
-    let path_str = HOME + "/.config/alacritty";
-    let path = std::path::Path::new(path_str.as_str());
-
-    match std::fs::create_dir_all(path) {
-        Ok(o) => println!("Created directory {}.", path_str.as_str()),
-        Err(e) => eprintln!(
-            "Error creating directories {} due to {}",
-            path_str.as_str(),
-            e
-        ),
-    }
-
-    path_str + "/alacritty.toml"
-}
-
-fn get_path_foot_config(HOME: std::string::String) -> std::string::String {
-    let path_str = HOME + "/.config/foot";
-    let path = std::path::Path::new(path_str.as_str());
-
-    match std::fs::create_dir_all(path) {
-        Ok(o) => println!("Created directory {}.", path_str.as_str()),
-        Err(e) => eprintln!(
-            "Error creating directories {} due to {}",
-            path_str.as_str(),
-            e
-        ),
-    }
-
-    path_str + "//foot.ini"
-}
-
-fn get_content_shrc() -> std::string::String {
-    r#"
-export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
-"#
-    .to_string()
-}
-
-fn get_content_bashrc() -> std::string::String {
-    r#"
-. "${HOME}/.shrc"
-export SHELL=bash
-eval -- "$(starship init bash --print-full-init)"
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-"#
-    .to_string()
-}
-
-fn get_content_zshrc() -> std::string::String {
-    r#"
-. "${HOME}/.shrc"
-export SHELL=zsh
-export ZSH="$HOME/.oh-my-zsh"
-plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
-source "${ZSH}/oh-my-zsh.sh"
-eval "$(atuin init zsh)"
-"#
-    .to_string()
-}
-
-fn get_content_helix_config() -> std::string::String {
-    r#"
-editor.cursor-shape.insert = "bar"
-editor.cursor-shape.normal = "block"
-editor.cursor-shape.select = "underline"
-editor.file-picker.hidden = false
-editor.line-number = "relative"
-editor.lsp.display-inlay-hints = true
-editor.true-color = true
-theme = "modus_vivendi"
-"#
-    .to_string()
 }
 
 fn get_content_fish_config() -> std::string::String {
@@ -166,6 +158,26 @@ function cat
 end
 "#
     .to_string()
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+fn get_path_alacritty_config(HOME: std::string::String) -> std::string::String {
+    let path_str = HOME + "/.config/alacritty";
+    let path = std::path::Path::new(path_str.as_str());
+
+    match std::fs::create_dir_all(path) {
+        Ok(o) => println!("Created directory {}.", path_str.as_str()),
+        Err(e) => eprintln!(
+            "Error creating directories {} due to {}",
+            path_str.as_str(),
+            e
+        ),
+    }
+
+    path_str + "/alacritty.toml"
 }
 
 fn get_content_alacritty_config() -> std::string::String {
@@ -205,6 +217,26 @@ colors.selection.text = '#ffffff'
     .to_string()
 }
 
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+fn get_path_foot_config(HOME: std::string::String) -> std::string::String {
+    let path_str = HOME + "/.config/foot";
+    let path = std::path::Path::new(path_str.as_str());
+
+    match std::fs::create_dir_all(path) {
+        Ok(o) => println!("Created directory {}.", path_str.as_str()),
+        Err(e) => eprintln!(
+            "Error creating directories {} due to {}",
+            path_str.as_str(),
+            e
+        ),
+    }
+
+    path_str + "//foot.ini"
+}
+
 fn get_content_foot_config() -> std::string::String {
     r#"
 font=monospace:size=16
@@ -232,6 +264,10 @@ bright7=ffffff
 "#
     .to_string()
 }
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 struct configurator {
     current_env: std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
@@ -388,7 +424,14 @@ impl configurator {
     }
 }
 
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 fn main() {
     let slave = configurator::new();
     slave.setup_all_config();
 }
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
