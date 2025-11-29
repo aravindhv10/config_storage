@@ -16,6 +16,7 @@
   GITADD 'src/helix_config.toml'
   GITADD 'src/main.rs'
   GITADD 'src/shrc'
+  GITADD 'src/wezterm.lua'
   GITADD 'src/zshrc'
 #+end_src
 

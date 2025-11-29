@@ -171,6 +171,18 @@ fn get_content_foot_config() -> std::string::String {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+fn get_path_wezterm_config(HOME: std::string::String) -> std::string::String {
+    HOME + "/.wezterm.lua"
+}
+
+fn get_content_wezterm_config() -> std::string::String {
+    std::string::String::from(include_str!("wezterm.lua"))
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 struct configurator {
     current_env: std::collections::HashMap<std::ffi::OsString, std::ffi::OsString>,
     path_home: std::string::String,
@@ -182,6 +194,7 @@ struct configurator {
     path_fish_config: std::string::String,
     path_alacritty_config: std::string::String,
     path_foot_config: std::string::String,
+    path_wezterm_config: std::string::String,
 }
 
 impl configurator {
@@ -196,6 +209,7 @@ impl configurator {
         let path_fish_config = get_path_fish_config(path_home.clone());
         let path_alacritty_config = get_path_alacritty_config(path_home.clone());
         let path_foot_config = get_path_foot_config(path_home.clone());
+        let path_wezterm_config = get_path_wezterm_config(path_home.clone());
 
         configurator {
             current_env: current_env,
@@ -208,6 +222,7 @@ impl configurator {
             path_fish_config: path_fish_config,
             path_alacritty_config: path_alacritty_config,
             path_foot_config: path_foot_config,
+            path_wezterm_config: path_wezterm_config,
         }
     }
 
@@ -320,6 +335,9 @@ impl configurator {
             .expect("Unable to write bashrc");
 
         std::fs::write(&self.path_foot_config, get_content_foot_config())
+            .expect("Unable to write bashrc");
+
+        std::fs::write(&self.path_wezterm_config, get_content_wezterm_config())
             .expect("Unable to write bashrc");
 
         self.get_oh_my_zsh();
