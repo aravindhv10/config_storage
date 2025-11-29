@@ -109,9 +109,19 @@ theme = "modus_vivendi"
 
 [editor]
     true-color = true
+    line-number = "relative"
 
 [editor.lsp]
     display-inlay-hints = true
+
+
+[editor.cursor-shape]
+    insert = "bar"
+    normal = "block"
+    select = "underline"
+
+[editor.file-picker]
+    hidden = false
 "#
     .to_string()
 }
