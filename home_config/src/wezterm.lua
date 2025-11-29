@@ -65,6 +65,10 @@ config.launch_menu = {
     args = { 'bash', '-l' },
   },
   {
+    label = 'zsh',
+    args = { 'zsh', '-l' },
+  },
+  {
     label = 'tmux',
     args = { 'byobu-tmux' },
   },
