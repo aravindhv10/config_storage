@@ -106,6 +106,7 @@
       && apt-get install -y \
           'aria2' \
           'curl' \
+          'git' \
           'wget' \
       && echo 'DONE apt-get stuff' ;
 #+end_src
@@ -260,6 +261,7 @@
           'wget' \
           'yacc' \
           'zip' \
+          'zstd' \
       && echo 'DONE apt-get stuff' ;
 #+end_src
 

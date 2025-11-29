@@ -9,6 +9,7 @@ RUN \
     && apt-get install -y \
         'aria2' \
         'curl' \
+        'git' \
         'wget' \
     && echo 'DONE apt-get stuff' ;
 
@@ -118,4 +119,5 @@ RUN \
         'wget' \
         'yacc' \
         'zip' \
+        'zstd' \
     && echo 'DONE apt-get stuff' ;

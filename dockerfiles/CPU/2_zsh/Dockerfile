@@ -21,7 +21,7 @@ RUN \
     && adown \
         'https://github.com/aravindhv10/config_storage/releases/download/v1.0/out.tar.zst' \
         'out.tar.zst' \
-        'd7394b0fac769f3eaa1f57567db4c1a9f80b6697a8fd4a96b00830d82cae6c9839e5f1ce8e14e57f597473012206a60dad2748b5dca47c0fb282760af8a2d23d' \
+        '1aaba657c6b814ff2a75c1d4ec692c09b5c6c76ed4351fca366e8acf160b568750c7881475b4b01d4e2fa8b6eb7348377176bac9012c24303c088e5c047afde8' \
         '/var/tmp/out.tar.zst' \
     && cd '/var/tmp/' \
     && zstd -dfk --long=30 './out.tar.zst' \
@@ -33,10 +33,4 @@ RUN \
 
 RUN ls /var/tmp/*/install.sh | sh
 
-RUN \
-    echo 'START ohmyzsh' \
-    && git clone 'https://github.com/ohmyzsh/ohmyzsh.git' \
-    && ln -vfs "${HOME}/ohmyzsh" "${HOME}/.oh-my-zsh" \
-    && echo 'DONE ohmyzsh' ;
-
-ADD ./zshrc /root/.zshrc
+RUN home_config

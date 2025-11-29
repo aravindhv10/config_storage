@@ -58,8 +58,8 @@ fn get_path_bashrc(HOME: std::string::String) -> std::string::String {
 
 fn get_content_bashrc() -> std::string::String {
     r#"
-. "${HOME}/.shrc"
 export SHELL=bash
+. "${HOME}/.shrc"
 eval -- "$(starship init bash --print-full-init)"
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
@@ -77,8 +77,8 @@ fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
 
 fn get_content_zshrc() -> std::string::String {
     r#"
-. "${HOME}/.shrc"
 export SHELL=zsh
+. "${HOME}/.shrc"
 export ZSH="$HOME/.oh-my-zsh"
 plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
 source "${ZSH}/oh-my-zsh.sh"
@@ -143,6 +143,7 @@ fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
 
 fn get_content_fish_config() -> std::string::String {
     r#"
+export SHELL=fish
 . "$HOME/.shrc"
 atuin init fish | source
 source (starship init fish --print-full-init | psub)
