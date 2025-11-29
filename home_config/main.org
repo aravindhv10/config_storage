@@ -1,3 +1,4 @@
+* Main working script
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . "${HOME}/important_functions.sh"
 
@@ -11,6 +12,7 @@
   GITADD 'src/main.rs'
 #+end_src
 
+* run the script
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)

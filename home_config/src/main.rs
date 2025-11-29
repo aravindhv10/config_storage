@@ -57,9 +57,25 @@ fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
     path_str + "/config.toml"
 }
 
+fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
+    let path_str = HOME + "/.config/fish/";
+    let path = std::path::Path::new(path_str.as_str());
+
+    match std::fs::create_dir_all(path) {
+        Ok(o) => println!("Created directory {}.", path_str.as_str()),
+        Err(e) => eprintln!(
+            "Error creating directories {} due to {}",
+            path_str.as_str(),
+            e
+        ),
+    }
+
+    path_str + "/config.fish"
+}
+
 fn get_content_shrc() -> std::string::String {
     r#"
-export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
+export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
 "#
     .to_string()
 }
@@ -92,7 +108,32 @@ fn get_content_helix_config() -> std::string::String {
 theme = "modus_vivendi"
 
 [editor]
-true-color = true
+    true-color = true
+
+[editor.lsp]
+    display-inlay-hints = true
+"#
+    .to_string()
+}
+
+fn get_content_fish_config() -> std::string::String {
+    r#"
+. "$HOME/.shrc"
+atuin init fish | source
+source (starship init fish --print-full-init | psub)
+
+fish_vi_key_bindings
+
+function ls
+    eza -g $argv
+end
+
+function cat
+    bat $argv
+end
+
+
+
 "#
     .to_string()
 }
@@ -105,6 +146,7 @@ struct configurator {
     path_github: std::string::String,
     path_bashrc: std::string::String,
     path_helix_config: std::string::String,
+    path_fish_config: std::string::String,
 }
 
 impl configurator {
@@ -116,6 +158,7 @@ impl configurator {
         let path_github = get_path_github(path_home.clone());
         let path_bashrc = get_path_bashrc(path_home.clone());
         let path_helix_config = get_path_helix_config(path_home.clone());
+        let path_fish_config = get_path_fish_config(path_home.clone());
         configurator {
             current_env: current_env,
             path_home: path_home,
@@ -124,6 +167,7 @@ impl configurator {
             path_github: path_github,
             path_bashrc: path_bashrc,
             path_helix_config: path_helix_config,
+            path_fish_config: path_fish_config,
         }
     }
 
@@ -225,6 +269,8 @@ impl configurator {
         std::fs::write(&self.path_bashrc, get_content_bashrc()).expect("Unable to write bashrc");
         std::fs::write(&self.path_helix_config, get_content_helix_config())
             .expect("Unable to write helix config");
+        std::fs::write(&self.path_fish_config, get_content_fish_config())
+            .expect("Unable to write bashrc");
         self.get_oh_my_zsh();
     }
 }
