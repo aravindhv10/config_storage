@@ -68,6 +68,9 @@ fn get_content_bashrc() -> std::string::String {
     r#"
 . "${HOME}/.shrc"
 export SHELL=bash
+eval -- "$(starship init bash --print-full-init)"
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
 "#
     .to_string()
 }
