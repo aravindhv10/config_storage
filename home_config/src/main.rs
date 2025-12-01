@@ -329,13 +329,13 @@ impl configurator {
         }
     }
 
-    fn get_github_repo(self: &Self, github_url: std::string::String) -> std::string::String {
+    async fn get_github_repo(self: &Self, github_url: std::string::String) -> std::string::String {
         let starting_point = "https://github.com".len();
         let ending_point = github_url.len() - ".git".len();
         let new_url = self.path_github.clone() + &github_url.clone()[starting_point..ending_point];
         let path = std::path::Path::new(new_url.as_str());
 
-        match std::fs::create_dir_all(path) {
+        match tokio::fs::create_dir_all(path).await {
             Ok(o) => println!("Created directory {}.", new_url.as_str()),
             Err(e) => eprintln!("Error creating directories: {}", e),
         }
@@ -406,8 +406,10 @@ impl configurator {
         new_url
     }
 
-    fn get_oh_my_zsh(self: &Self) {
-        let _ = self.get_github_repo("https://github.com/ohmyzsh/ohmyzsh.git".to_string());
+    async fn get_oh_my_zsh(self: &Self) {
+        let _ = self
+            .get_github_repo("https://github.com/ohmyzsh/ohmyzsh.git".to_string())
+            .await;
         match std::os::unix::fs::symlink(
             "./GITHUB/ohmyzsh/ohmyzsh",
             self.path_home.clone() + "/.oh-my-zsh",
@@ -421,7 +423,7 @@ impl configurator {
         }
     }
 
-    fn setup_all_config(self: &Self) {
+    async fn setup_all_config(self: &Self) {
         std::fs::write(&self.path_shrc, get_content_shrc()).expect("Unable to write shrc");
 
         std::fs::write(&self.path_zshrc, get_content_zshrc()).expect("Unable to write zshrc");
@@ -443,8 +445,20 @@ impl configurator {
         std::fs::write(&self.path_wezterm_config, get_content_wezterm_config())
             .expect("Unable to write bashrc");
 
-        self.get_oh_my_zsh();
+        self.get_oh_my_zsh().await;
     }
+}
+
+fn do_all_config() {
+    let slave = configurator::new();
+
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .thread_stack_size(1 << 23)
+        .enable_all()
+        .build()
+        .expect("Unable to construct the tokio runtime");
+
+    runtime.block_on(async { tokio::join!(slave.setup_all_config()) });
 }
 
 ////////////////////////////////////////////////////////////////
@@ -452,8 +466,7 @@ impl configurator {
 ////////////////////////////////////////////////////////////////
 
 fn main() {
-    let slave = configurator::new();
-    slave.setup_all_config();
+    do_all_config();
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
