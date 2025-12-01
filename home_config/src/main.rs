@@ -138,7 +138,50 @@ fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_fish_config() -> std::string::String {
-    std::string::String::from(include_str!("fish_config.fish"))
+    let mut content_fish: std::string::String =
+        std::string::String::from(include_str!("fish_config.fish"));
+
+    match std::process::Command::new("atuin")
+        .args(["init", "fish"])
+        .output()
+    {
+        Ok(o) => {
+            match std::str::from_utf8(&o.stdout) {
+                Ok(o) => {
+                    content_fish = content_fish + o;
+                }
+                Err(e) => {
+                    println!("Unable to configure atuin for fish due to {}", e);
+                }
+            };
+        }
+        Err(e) => {
+            println!("atuin not found")
+        }
+    }
+
+    match std::process::Command::new("starship")
+        .args(["init", "fish", "--print-full-init"])
+        .output()
+    {
+        Ok(o) => {
+            match std::str::from_utf8(&o.stdout) {
+                Ok(o) => {
+                    content_fish = content_fish + o;
+                }
+                Err(e) => {
+                    println!("Unable to configure starship for fish due to {}", e);
+                }
+            };
+        }
+        Err(e) => {
+            println!("starship not found")
+        }
+    }
+
+    // source (starship init fish --print-full-init | psub)
+
+    content_fish
 }
 
 ////////////////////////////////////////////////////////////////
