@@ -68,7 +68,29 @@ fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_zshrc() -> std::string::String {
-    std::string::String::from(include_str!("zshrc"))
+    let mut contents_zshrc = std::string::String::from(include_str!("zshrc"));
+
+    match std::process::Command::new("atuin")
+        .args(["init", "zsh"])
+        .output()
+    {
+        Ok(o) => {
+            match std::str::from_utf8(&o.stdout) {
+                Ok(atuin_init) => {
+                    contents_zshrc = contents_zshrc + atuin_init;
+                    println!("Done initializing atuin");
+                }
+                Err(e) => {
+                    println!("Failed initializing atuin for zsh due to {}", e);
+                }
+            };
+        }
+        Err(e) => {
+            println!("atuin not found, not initizliaing it for zsh");
+        }
+    }
+
+    contents_zshrc
 }
 
 ////////////////////////////////////////////////////////////////
