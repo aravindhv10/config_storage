@@ -424,28 +424,17 @@ impl configurator {
     }
 
     async fn setup_all_config(self: &Self) {
-        std::fs::write(&self.path_shrc, get_content_shrc()).expect("Unable to write shrc");
-
-        std::fs::write(&self.path_zshrc, get_content_zshrc()).expect("Unable to write zshrc");
-
-        std::fs::write(&self.path_bashrc, get_content_bashrc()).expect("Unable to write bashrc");
-
-        std::fs::write(&self.path_helix_config, get_content_helix_config())
-            .expect("Unable to write helix config");
-
-        std::fs::write(&self.path_fish_config, get_content_fish_config())
-            .expect("Unable to write bashrc");
-
-        std::fs::write(&self.path_alacritty_config, get_content_alacritty_config())
-            .expect("Unable to write bashrc");
-
-        std::fs::write(&self.path_foot_config, get_content_foot_config())
-            .expect("Unable to write bashrc");
-
-        std::fs::write(&self.path_wezterm_config, get_content_wezterm_config())
-            .expect("Unable to write bashrc");
-
-        self.get_oh_my_zsh().await;
+        let status = tokio::join!(
+            tokio::fs::write(&self.path_shrc, get_content_shrc()),
+            tokio::fs::write(&self.path_zshrc, get_content_zshrc()),
+            tokio::fs::write(&self.path_bashrc, get_content_bashrc()),
+            tokio::fs::write(&self.path_helix_config, get_content_helix_config()),
+            tokio::fs::write(&self.path_fish_config, get_content_fish_config()),
+            tokio::fs::write(&self.path_alacritty_config, get_content_alacritty_config()),
+            tokio::fs::write(&self.path_foot_config, get_content_foot_config()),
+            tokio::fs::write(&self.path_wezterm_config, get_content_wezterm_config()),
+            self.get_oh_my_zsh()
+        );
     }
 }
 
