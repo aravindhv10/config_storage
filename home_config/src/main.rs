@@ -70,9 +70,10 @@ fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
 async fn get_content_zshrc() -> std::string::String {
     let mut contents_zshrc = std::string::String::from(include_str!("zshrc"));
 
-    match std::process::Command::new("atuin")
+    match tokio::process::Command::new("atuin")
         .args(["init", "zsh"])
         .output()
+        .await
     {
         Ok(o) => {
             match std::str::from_utf8(&o.stdout) {
@@ -141,9 +142,10 @@ async fn get_content_fish_config() -> std::string::String {
     let mut content_fish: std::string::String =
         std::string::String::from(include_str!("fish_config.fish"));
 
-    match std::process::Command::new("atuin")
+    match tokio::process::Command::new("atuin")
         .args(["init", "fish"])
         .output()
+        .await
     {
         Ok(o) => {
             match std::str::from_utf8(&o.stdout) {
@@ -160,9 +162,10 @@ async fn get_content_fish_config() -> std::string::String {
         }
     }
 
-    match std::process::Command::new("starship")
+    match tokio::process::Command::new("starship")
         .args(["init", "fish", "--print-full-init"])
         .output()
+        .await
     {
         Ok(o) => {
             match std::str::from_utf8(&o.stdout) {
@@ -179,7 +182,11 @@ async fn get_content_fish_config() -> std::string::String {
         }
     }
 
-    match std::process::Command::new("which").arg("bat").status() {
+    match tokio::process::Command::new("which")
+        .arg("bat")
+        .status()
+        .await
+    {
         Ok(o) => {
             match o.code() {
                 Some(c) => {
@@ -199,7 +206,11 @@ end
         Err(e) => {}
     };
 
-    match std::process::Command::new("which").arg("eza").status() {
+    match tokio::process::Command::new("which")
+        .arg("eza")
+        .status()
+        .await
+    {
         Ok(o) => {
             match o.code() {
                 Some(c) => {
