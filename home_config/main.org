@@ -9,7 +9,15 @@
   GITADD 'host.image_names.sh'
   GITADD 'image_run.sh'
   GITADD 'main.org'
+  GITADD 'src/alacritty.toml'
+  GITADD 'src/bashrc'
+  GITADD 'src/fish_config.fish'
+  GITADD 'src/foot.ini'
+  GITADD 'src/helix_config.toml'
   GITADD 'src/main.rs'
+  GITADD 'src/shrc'
+  GITADD 'src/wezterm.lua'
+  GITADD 'src/zshrc'
 #+end_src
 
 * run the script

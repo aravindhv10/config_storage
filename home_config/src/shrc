@@ -1,0 +1,1 @@
+export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"

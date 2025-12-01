@@ -1,6 +1,8 @@
 use std::str::FromStr;
 
-// General configs
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 fn get_env() -> std::collections::HashMap<std::ffi::OsString, std::ffi::OsString> {
     let mut current_env =
@@ -42,10 +44,7 @@ fn get_path_shrc(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_shrc() -> std::string::String {
-    r#"
-export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
-"#
-    .to_string()
+    std::string::String::from(include_str!("shrc"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -57,14 +56,7 @@ fn get_path_bashrc(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_bashrc() -> std::string::String {
-    r#"
-export SHELL=bash
-. "${HOME}/.shrc"
-eval -- "$(starship init bash --print-full-init)"
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-"#
-    .to_string()
+    std::string::String::from(include_str!("bashrc"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -76,15 +68,7 @@ fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_zshrc() -> std::string::String {
-    r#"
-export SHELL=zsh
-. "${HOME}/.shrc"
-export ZSH="$HOME/.oh-my-zsh"
-plugins=(eza fzf git starship vi-mode zoxide zsh-interactive-cd)
-source "${ZSH}/oh-my-zsh.sh"
-eval "$(atuin init zsh)"
-"#
-    .to_string()
+    std::string::String::from(include_str!("zshrc"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -108,17 +92,7 @@ fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_helix_config() -> std::string::String {
-    r#"
-editor.cursor-shape.insert = "bar"
-editor.cursor-shape.normal = "block"
-editor.cursor-shape.select = "underline"
-editor.file-picker.hidden = false
-editor.line-number = "relative"
-editor.lsp.display-inlay-hints = true
-editor.true-color = true
-theme = "modus_vivendi"
-"#
-    .to_string()
+    std::string::String::from(include_str!("helix_config.toml"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -142,23 +116,7 @@ fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_fish_config() -> std::string::String {
-    r#"
-export SHELL=fish
-. "$HOME/.shrc"
-atuin init fish | source
-source (starship init fish --print-full-init | psub)
-
-fish_vi_key_bindings
-
-function ls
-    eza -g $argv
-end
-
-function cat
-    bat $argv
-end
-"#
-    .to_string()
+    std::string::String::from(include_str!("fish_config.fish"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -182,40 +140,7 @@ fn get_path_alacritty_config(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_alacritty_config() -> std::string::String {
-    r#"
-window.decorations = "None"
-window.startup_mode = "Fullscreen"
-
-font.size = 16
-
-colors.normal.black = '#1e1e1e'
-colors.normal.red = '#ff5f59'
-colors.normal.green = '#44bc44'
-colors.normal.yellow = '#d0bc00'
-colors.normal.blue = '#2fafff'
-colors.normal.magenta = '#feacd0'
-colors.normal.cyan = '#00d3d0'
-colors.normal.white = '#ffffff'
-
-colors.bright.black = '#535353'
-colors.bright.red = '#ff7f9f'
-colors.bright.green = '#00c06f'
-colors.bright.yellow = '#dfaf7a'
-colors.bright.blue = '#00bcff'
-colors.bright.magenta = '#b6a0ff'
-colors.bright.cyan = '#6ae4b9'
-colors.bright.white = '#989898'
-
-colors.cursor.cursor = '#ffffff'
-colors.cursor.text = '#000000'
-
-colors.primary.background = '#000000'
-colors.primary.foreground = '#ffffff'
-
-colors.selection.background = '#5a5a5a'
-colors.selection.text = '#ffffff'
-"#
-    .to_string()
+    std::string::String::from(include_str!("alacritty.toml"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -239,31 +164,19 @@ fn get_path_foot_config(HOME: std::string::String) -> std::string::String {
 }
 
 fn get_content_foot_config() -> std::string::String {
-    r#"
-font=monospace:size=16
+    std::string::String::from(include_str!("foot.ini"))
+}
 
-[colors]
-background=000000
-foreground=ffffff
-regular0=000000
-regular1=ff8059
-regular2=44bc44
-regular3=d0bc00
-regular4=2fafff
-regular5=feacd0
-regular6=00d3d0
-regular7=bfbfbf
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
-bright0=595959
-bright1=ef8b50
-bright2=70b900
-bright3=c0c530
-bright4=79a8ff
-bright5=b6a0ff
-bright6=6ae4b9
-bright7=ffffff
-"#
-    .to_string()
+fn get_path_wezterm_config(HOME: std::string::String) -> std::string::String {
+    HOME + "/.wezterm.lua"
+}
+
+fn get_content_wezterm_config() -> std::string::String {
+    std::string::String::from(include_str!("wezterm.lua"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -281,6 +194,7 @@ struct configurator {
     path_fish_config: std::string::String,
     path_alacritty_config: std::string::String,
     path_foot_config: std::string::String,
+    path_wezterm_config: std::string::String,
 }
 
 impl configurator {
@@ -295,6 +209,7 @@ impl configurator {
         let path_fish_config = get_path_fish_config(path_home.clone());
         let path_alacritty_config = get_path_alacritty_config(path_home.clone());
         let path_foot_config = get_path_foot_config(path_home.clone());
+        let path_wezterm_config = get_path_wezterm_config(path_home.clone());
 
         configurator {
             current_env: current_env,
@@ -307,6 +222,7 @@ impl configurator {
             path_fish_config: path_fish_config,
             path_alacritty_config: path_alacritty_config,
             path_foot_config: path_foot_config,
+            path_wezterm_config: path_wezterm_config,
         }
     }
 
@@ -419,6 +335,9 @@ impl configurator {
             .expect("Unable to write bashrc");
 
         std::fs::write(&self.path_foot_config, get_content_foot_config())
+            .expect("Unable to write bashrc");
+
+        std::fs::write(&self.path_wezterm_config, get_content_wezterm_config())
             .expect("Unable to write bashrc");
 
         self.get_oh_my_zsh();

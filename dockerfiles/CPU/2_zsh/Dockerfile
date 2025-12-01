@@ -18,19 +18,5 @@ RUN \
     --mount=target=/root/TMP,type=cache \
     echo 'START Download and install rust programs' \
     && . "${HOME}/important_functions.sh" \
-    && adown \
-        'https://github.com/aravindhv10/config_storage/releases/download/v1.0/out.tar.zst' \
-        'out.tar.zst' \
-        '1aaba657c6b814ff2a75c1d4ec692c09b5c6c76ed4351fca366e8acf160b568750c7881475b4b01d4e2fa8b6eb7348377176bac9012c24303c088e5c047afde8' \
-        '/var/tmp/out.tar.zst' \
-    && cd '/var/tmp/' \
-    && zstd -dfk --long=30 './out.tar.zst' \
-    && tar -xf './out.tar' \
-    && mv out/* ./ \
-    && rmdir -pv -- out \
-    && rm -vf -- './out.tar' './out.tar.zst' \
+    && get_all_good_programs_and_config \
     && echo 'DONE Download and install rust programs' ;
-
-RUN ls /var/tmp/*/install.sh | sh
-
-RUN home_config

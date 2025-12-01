@@ -1,0 +1,32 @@
+
+window.decorations = "None"
+window.startup_mode = "Fullscreen"
+
+font.size = 16
+
+colors.normal.black = '#1e1e1e'
+colors.normal.red = '#ff5f59'
+colors.normal.green = '#44bc44'
+colors.normal.yellow = '#d0bc00'
+colors.normal.blue = '#2fafff'
+colors.normal.magenta = '#feacd0'
+colors.normal.cyan = '#00d3d0'
+colors.normal.white = '#ffffff'
+
+colors.bright.black = '#535353'
+colors.bright.red = '#ff7f9f'
+colors.bright.green = '#00c06f'
+colors.bright.yellow = '#dfaf7a'
+colors.bright.blue = '#00bcff'
+colors.bright.magenta = '#b6a0ff'
+colors.bright.cyan = '#6ae4b9'
+colors.bright.white = '#989898'
+
+colors.cursor.cursor = '#ffffff'
+colors.cursor.text = '#000000'
+
+colors.primary.background = '#000000'
+colors.primary.foreground = '#ffffff'
+
+colors.selection.background = '#5a5a5a'
+colors.selection.text = '#ffffff'
