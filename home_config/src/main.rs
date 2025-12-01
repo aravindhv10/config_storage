@@ -179,7 +179,45 @@ fn get_content_fish_config() -> std::string::String {
         }
     }
 
-    // source (starship init fish --print-full-init | psub)
+    match std::process::Command::new("which").arg("bat").status() {
+        Ok(o) => {
+            match o.code() {
+                Some(c) => {
+                    if (c == 0) {
+                        content_fish = content_fish
+                            + r#"
+function cat
+    bat $argv
+end
+"#;
+                        println!("Found bat, adding alias to cat for fish");
+                    }
+                }
+                None => {}
+            };
+        }
+        Err(e) => {}
+    };
+
+    match std::process::Command::new("which").arg("eza").status() {
+        Ok(o) => {
+            match o.code() {
+                Some(c) => {
+                    if (c == 0) {
+                        content_fish = content_fish
+                            + r#"
+function ls
+    eza -g $argv
+end
+"#;
+                        println!("Found eza, adding alias to ls for fish");
+                    }
+                }
+                None => {}
+            };
+        }
+        Err(e) => {}
+    };
 
     content_fish
 }
