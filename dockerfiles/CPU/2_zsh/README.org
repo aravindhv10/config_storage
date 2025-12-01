@@ -23,7 +23,7 @@
 *** Build image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   BUILD_CONTAINER () {
-      cp '../../../shell_functions/zshrc' ./
+      cp '../../../shell_functions/important_functions.sh' ./
       CMD='sudo -A docker'
       which buildah && CMD='buildah'
       ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
@@ -79,6 +79,11 @@
 ** Main base image
 #+begin_src conf :tangle ./Dockerfile
   FROM debtestrustbuild
+#+end_src
+
+** Copy the Important functions (script to source) and source it
+#+begin_src conf :tangle ./Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
 * Install tools to download and install rust
