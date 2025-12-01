@@ -596,6 +596,6 @@ get_all_good_programs_and_config () {
     && rmdir -pv -- out \
     && rm -vf -- './out.tar' './out.tar.zst' \
     && ls /var/tmp/*/install.sh | sh \
-    && home_config \
+    ; home_config \
     && echo 'DONE Download and install rust programs'
 }
