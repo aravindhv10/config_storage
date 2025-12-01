@@ -109,6 +109,9 @@ in {
     bash
   '';
 
+  programs.niri.enable = true;
+  programs.niri.package = unstable.niri;
+
   programs.wayfire = {
     enable = true;
     # package = unstable.wayfire;
@@ -142,7 +145,6 @@ in {
     atomix # puzzle game
     cheese # webcam tool
     epiphany # web browser
-    evince # document viewer
     geary # email reader
     gedit # text editor
     gnome-characters
@@ -265,10 +267,10 @@ in {
     curl
     dig
     distrobox
-    dive # look into docker image layers
+    dive
     dmidecode
     dnsmasq
-    docker-compose # start group of containers for dev
+    docker-compose
     ffmpeg
     ffmpeg.dev
     file
@@ -317,8 +319,8 @@ in {
     pciutils
     pkg-config
     podman
-    podman-compose # start group of containers for dev
-    podman-tui # status of containers in the terminal
+    podman-compose
+    podman-tui
     poppler-utils
     qbittorrent-enhanced
     qpdf
@@ -412,6 +414,7 @@ in {
     unstable.opencv4
     unstable.pdf2svg
     unstable.procs
+    unstable.quickshell
     unstable.rclone
     unstable.ripgrep
     unstable.ruff

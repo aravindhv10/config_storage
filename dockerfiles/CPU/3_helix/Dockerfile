@@ -10,6 +10,3 @@ RUN \
           'clang-tidy' \
           'clang-tools' \
       && echo 'DONE apt-get stuff' ;
-
-RUN mkdir -pv -- "${HOME}/.config/helix"
-ADD ./config.toml "${HOME}/.config/helix/config.toml"

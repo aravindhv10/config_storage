@@ -95,27 +95,6 @@
         && echo 'DONE apt-get stuff' ;
 #+end_src
 
-** Configuring helix
-
-*** Add the file to git
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD 'config.toml'
-#+end_src
-
-*** The actual config file
-#+begin_src conf :tangle ./config.toml
-  theme = "modus_vivendi"
-
-  [editor]
-  true-color = true
-#+end_src
-
-*** Copy the file
-#+begin_src conf :tangle ./Dockerfile
-  RUN mkdir -pv -- "${HOME}/.config/helix"
-  ADD ./config.toml "${HOME}/.config/helix/config.toml"
-#+end_src
-
 * COMMENT work space
 #+begin_src emacs-lisp :results silent
   (save-buffer)

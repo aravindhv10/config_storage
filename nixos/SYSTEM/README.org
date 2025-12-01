@@ -561,6 +561,12 @@ You can disable this if you're only using the Wayland session.
 
 **** Desktop environment
 
+***** Niri
+#+begin_src nix :tangle ./configuration.nix
+  programs.niri.enable = true;
+  programs.niri.package = unstable.niri;
+#+end_src
+
 ***** Wayfire
 #+begin_src nix :tangle ./configuration.nix
   programs.wayfire = {
@@ -611,7 +617,6 @@ You can disable this if you're only using the Wayland session.
     atomix # puzzle game
     cheese # webcam tool
     epiphany # web browser
-    evince # document viewer
     geary # email reader
     gedit # text editor
     gnome-characters
@@ -627,9 +632,17 @@ You can disable this if you're only using the Wayland session.
   ]);
 #+end_src
 
-**** Editors
+**** COMMENT Editors
 
 ***** COMMENT Helix
+
+****** COMMENT Simple
+#+begin_src nix :tangle ./configuration.nix
+  programs.helix.enable = true;
+  programs.helix.package = unstable.helix;
+#+end_src
+
+****** COMMENT Lots of config
 #+begin_src nix :tangle ./configuration.nix
   programs.helix = {
     enable = true;
@@ -852,6 +865,7 @@ You can disable this if you're only using the Wayland session.
   } ;
 #+end_src
 
+
 **** firefox.
 #+begin_src nix :tangle ./configuration.nix
   programs.firefox.enable = true;
@@ -936,15 +950,6 @@ You can disable this if you're only using the Wayland session.
 
 ****** FULL LIST
 
-******* COMMENT DISABLED
-#+begin_src nix :tangle ./configuration.nix
-  fishPlugins.done
-  fishPlugins.forgit
-  fishPlugins.fzf-fish
-  fishPlugins.grc
-  fishPlugins.hydro
-#+end_src
-
 ******* MAIN PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   acpi
@@ -966,10 +971,10 @@ You can disable this if you're only using the Wayland session.
   curl
   dig
   distrobox
-  dive # look into docker image layers
+  dive
   dmidecode
   dnsmasq
-  docker-compose # start group of containers for dev
+  docker-compose
   ffmpeg
   ffmpeg.dev
   file
@@ -1018,8 +1023,8 @@ You can disable this if you're only using the Wayland session.
   pciutils
   pkg-config
   podman
-  podman-compose # start group of containers for dev
-  podman-tui # status of containers in the terminal
+  podman-compose
+  podman-tui
   poppler-utils
   qbittorrent-enhanced
   qpdf
@@ -1159,6 +1164,7 @@ You can disable this if you're only using the Wayland session.
   unstable.opencv4
   unstable.pdf2svg
   unstable.procs
+  unstable.quickshell
   unstable.rclone
   unstable.ripgrep
   unstable.ruff
