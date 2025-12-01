@@ -43,7 +43,7 @@ fn get_path_shrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.shrc"
 }
 
-fn get_content_shrc() -> std::string::String {
+async fn get_content_shrc() -> std::string::String {
     std::string::String::from(include_str!("shrc"))
 }
 
@@ -55,7 +55,7 @@ fn get_path_bashrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.bashrc"
 }
 
-fn get_content_bashrc() -> std::string::String {
+async fn get_content_bashrc() -> std::string::String {
     std::string::String::from(include_str!("bashrc"))
 }
 
@@ -67,7 +67,7 @@ fn get_path_zshrc(HOME: std::string::String) -> std::string::String {
     HOME + "/.zshrc"
 }
 
-fn get_content_zshrc() -> std::string::String {
+async fn get_content_zshrc() -> std::string::String {
     let mut contents_zshrc = std::string::String::from(include_str!("zshrc"));
 
     match std::process::Command::new("atuin")
@@ -113,7 +113,7 @@ fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
     path_str + "/config.toml"
 }
 
-fn get_content_helix_config() -> std::string::String {
+async fn get_content_helix_config() -> std::string::String {
     std::string::String::from(include_str!("helix_config.toml"))
 }
 
@@ -137,7 +137,7 @@ fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
     path_str + "/config.fish"
 }
 
-fn get_content_fish_config() -> std::string::String {
+async fn get_content_fish_config() -> std::string::String {
     let mut content_fish: std::string::String =
         std::string::String::from(include_str!("fish_config.fish"));
 
@@ -242,7 +242,7 @@ fn get_path_alacritty_config(HOME: std::string::String) -> std::string::String {
     path_str + "/alacritty.toml"
 }
 
-fn get_content_alacritty_config() -> std::string::String {
+async fn get_content_alacritty_config() -> std::string::String {
     std::string::String::from(include_str!("alacritty.toml"))
 }
 
@@ -266,7 +266,7 @@ fn get_path_foot_config(HOME: std::string::String) -> std::string::String {
     path_str + "//foot.ini"
 }
 
-fn get_content_foot_config() -> std::string::String {
+async fn get_content_foot_config() -> std::string::String {
     std::string::String::from(include_str!("foot.ini"))
 }
 
@@ -278,7 +278,7 @@ fn get_path_wezterm_config(HOME: std::string::String) -> std::string::String {
     HOME + "/.wezterm.lua"
 }
 
-fn get_content_wezterm_config() -> std::string::String {
+async fn get_content_wezterm_config() -> std::string::String {
     std::string::String::from(include_str!("wezterm.lua"))
 }
 
@@ -349,11 +349,12 @@ impl configurator {
             }
         }
 
-        match std::process::Command::new("git")
+        match tokio::process::Command::new("git")
             .arg("clone")
             .arg(github_url)
             .arg(".")
             .output()
+            .await
         {
             Ok(output) => {
                 if output.status.success() {
@@ -371,7 +372,11 @@ impl configurator {
             }
         }
 
-        match std::process::Command::new("git").arg("pull").output() {
+        match tokio::process::Command::new("git")
+            .arg("pull")
+            .output()
+            .await
+        {
             Ok(o) => {
                 println!(
                     "git pull executed successfully,\n{:?}\n{:?}",
@@ -384,12 +389,13 @@ impl configurator {
             }
         }
 
-        match std::process::Command::new("git")
+        match tokio::process::Command::new("git")
             .arg("submodule")
             .arg("update")
             .arg("--recursive")
             .arg("--init")
             .output()
+            .await
         {
             Ok(o) => {
                 println!(
@@ -410,10 +416,12 @@ impl configurator {
         let _ = self
             .get_github_repo("https://github.com/ohmyzsh/ohmyzsh.git".to_string())
             .await;
-        match std::os::unix::fs::symlink(
+        match tokio::fs::symlink(
             "./GITHUB/ohmyzsh/ohmyzsh",
             self.path_home.clone() + "/.oh-my-zsh",
-        ) {
+        )
+        .await
+        {
             Ok(_) => {
                 println!("Created oh-my-zsh symlink")
             }
@@ -425,16 +433,30 @@ impl configurator {
 
     async fn setup_all_config(self: &Self) {
         let status = tokio::join!(
-            tokio::fs::write(&self.path_shrc, get_content_shrc()),
-            tokio::fs::write(&self.path_zshrc, get_content_zshrc()),
-            tokio::fs::write(&self.path_bashrc, get_content_bashrc()),
-            tokio::fs::write(&self.path_helix_config, get_content_helix_config()),
-            tokio::fs::write(&self.path_fish_config, get_content_fish_config()),
-            tokio::fs::write(&self.path_alacritty_config, get_content_alacritty_config()),
-            tokio::fs::write(&self.path_foot_config, get_content_foot_config()),
-            tokio::fs::write(&self.path_wezterm_config, get_content_wezterm_config()),
+            tokio::fs::write(&self.path_shrc, get_content_shrc().await),
+            tokio::fs::write(&self.path_zshrc, get_content_zshrc().await),
+            tokio::fs::write(&self.path_bashrc, get_content_bashrc().await),
+            tokio::fs::write(&self.path_helix_config, get_content_helix_config().await),
+            tokio::fs::write(&self.path_fish_config, get_content_fish_config().await),
+            tokio::fs::write(
+                &self.path_alacritty_config,
+                get_content_alacritty_config().await
+            ),
+            tokio::fs::write(&self.path_foot_config, get_content_foot_config().await),
+            tokio::fs::write(
+                &self.path_wezterm_config,
+                get_content_wezterm_config().await
+            ),
             self.get_oh_my_zsh()
         );
+        status.0.expect("failed putting shrc");
+        status.1.expect("failed putting zshrc");
+        status.2.expect("failed putting bashrc");
+        status.3.expect("failed putting helix");
+        status.4.expect("failed putting fish");
+        status.5.expect("failed putting alacritty");
+        status.6.expect("failed putting foot");
+        status.7.expect("failed putting wezterm");
     }
 }
 
