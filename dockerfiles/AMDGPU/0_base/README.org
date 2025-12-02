@@ -1,0 +1,111 @@
+* Scripts to manage
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  . '../../../shell_functions/important_functions.sh'
+  GITADD 'README.org'
+  P_CLEAN '.git.sh'
+  P_CLEAN 'README.org~'
+#+end_src
+
+* Prepare and add the docker functions file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'host.image_names.sh'
+#+end_src
+
+* Host scripts
+
+** Important envs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  IMAGE_NAME='mainbase'
+#+end_src
+
+** Important functions
+
+*** Build image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  BUILD_CONTAINER () {
+      CMD='sudo -A docker'
+      which buildah && CMD='buildah'
+      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
+  }
+#+end_src
+
+*** Run image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  RUN_CONTAINER () {
+      CMD='sudo -A docker'
+      which podman && CMD='podman'
+      ${CMD} run -it --rm -v "$(realpath .):/data" "${IMAGE_NAME}" bash
+  }
+#+end_src
+
+* Scripts to build and run
+
+** Build image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_build.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_build.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  BUILD_CONTAINER
+#+end_src
+
+** Run image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_run.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_run.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  RUN_CONTAINER
+#+end_src
+
+* Prepare and add the dockerfile to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'Dockerfile'
+#+end_src
+
+* Basic image config
+
+** Main base image
+#+begin_src conf :tangle ./Dockerfile
+  FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.12_pytorch_release_2.9.1
+#+end_src
+
+** Basic configs
+#+begin_src conf :tangle ./Dockerfile
+  ENV HOME='/root'
+  ENV DEBIAN_FRONTEND='noninteractive'
+  WORKDIR '/root'
+  USER root
+#+end_src
+
+** Run apt update
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get update' \
+      && apt-get update \
+      && apt-get -y install \
+          'aria2' \
+          'git' \
+      && echo 'DONE apt-get update' ;
+#+end_src
+
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src
