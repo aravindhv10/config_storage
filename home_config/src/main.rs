@@ -446,6 +446,12 @@ impl configurator {
         new_url
     }
 
+    async fn update_config_store(self: &Self) {
+        let _ = self
+            .get_github_repo("https://github.com/aravindhv10/config_storage.git".to_string())
+            .await;
+    }
+
     async fn get_oh_my_zsh(self: &Self) {
         let _ = self
             .get_github_repo("https://github.com/ohmyzsh/ohmyzsh.git".to_string())
@@ -481,7 +487,8 @@ impl configurator {
                 &self.path_wezterm_config,
                 get_content_wezterm_config().await
             ),
-            self.get_oh_my_zsh()
+            self.get_oh_my_zsh(),
+            self.update_config_store()
         );
         status.0.expect("failed putting shrc");
         status.1.expect("failed putting zshrc");
