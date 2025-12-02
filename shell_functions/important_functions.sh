@@ -587,7 +587,7 @@ get_all_good_programs_and_config () {
     && adown \
         'https://github.com/aravindhv10/config_storage/releases/download/v1.0/out.tar.zst' \
         'out.tar.zst' \
-        'e1455765795ed6d1a46a4d2f5f0df67f82547a15a011aae7fb489bf374d0e73713f3ac2b70165b9f899ffa62af8d9d46890279378b4b4a19b31891e7a7807298' \
+        '961d03b1e35164416a36eec73da772f64fb37a37a2be594fc5ecdcea5877b5a73e7f7fe7539d91c802a808114785af797dd88b491916f9e73cb94b3e474bb100' \
         '/var/tmp/out.tar.zst' \
     && cd '/var/tmp/' \
     && zstd -dfk --long=30 './out.tar.zst' \
