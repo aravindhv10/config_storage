@@ -41,7 +41,7 @@
           '--security-opt' 'seccomp=unconfined' \
           -v "$(realpath .):/data" \
           "${IMAGE_NAME}" bash \
-      l
+      ;
   }
 #+end_src
 

@@ -17,5 +17,5 @@ RUN_CONTAINER () {
         '--security-opt' 'seccomp=unconfined' \
         -v "$(realpath .):/data" \
         "${IMAGE_NAME}" bash \
-    l
+    ;
 }
