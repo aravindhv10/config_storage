@@ -15,7 +15,7 @@ RUN \
 
 ENV RUSTUP_HOME='/usr/local/rustup'
 ENV CARGO_HOME='/usr/local/cargo'
-ENV PATH='/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+ENV PATH="/usr/local/cargo/bin:${PATH}"
 ENV RUST_VERSION='1.91.1'
 
 RUN \
