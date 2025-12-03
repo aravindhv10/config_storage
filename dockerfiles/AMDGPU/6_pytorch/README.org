@@ -77,19 +77,14 @@
   FROM debtestrustzshhelixpytorch
 #+end_src
 
-** Copy the Important functions (script to source) and source it
-#+begin_src conf :tangle ./Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
 * Basic image config
 
 ** Prepare venv
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pip' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
+      && . "/opt/venv/bin/activate" \
+      && uv pip install \
           'ipython' \
           'ninja' \
           'packaging' \
@@ -103,8 +98,8 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pip' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
+      && . "/opt/venv/bin/activate" \
+      && uv pip install \
           'einops' \
           'timm' \
       && echo 'DONE pip' ;

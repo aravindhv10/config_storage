@@ -82,32 +82,12 @@
   FROM debtestrustzshhelixpy
 #+end_src
 
-** Copy the Important functions (script to source) and source it
-#+begin_src conf :tangle ./Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
 * Download and install libtorch
-
-** Install apt stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-        --mount=target=/var/cache/apt,type=cache,sharing=locked \
-        echo 'START apt-get stuff' \
-        && apt-get install -y \
-            'bear' \
-            'zip' \
-        && echo 'DONE apt-get stuff' ;
-#+end_src
-
-** Download and install libtorch
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
       --mount=target=/root/TMP,type=cache \
       echo 'START Download and install libtorch' \
-      && . "${HOME}/important_functions.sh" \
       && cd '/opt/venv/lib/python3.12/site-packages/torch' \
       && cd lib \
       && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
@@ -122,7 +102,7 @@
       && echo 'DONE Download and install libtorch' ;
 #+end_src
 
-** Set env to find libtorch
+* Set env to find libtorch
 #+begin_src conf :tangle ./Dockerfile
   ENV LIBTORCH="/usr/"
 #+end_src

@@ -1,11 +1,9 @@
 FROM debtestrustzshhelixpytorch
 
-COPY './important_functions.sh' '/root/important_functions.sh'
-
 RUN \
     echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
+    && . "/opt/venv/bin/activate" \
+    && uv pip install \
         'ipython' \
         'ninja' \
         'packaging' \
@@ -16,8 +14,8 @@ RUN \
 
 RUN \
     echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
+    && . "/opt/venv/bin/activate" \
+    && uv pip install \
         'einops' \
         'timm' \
     && echo 'DONE pip' ;
