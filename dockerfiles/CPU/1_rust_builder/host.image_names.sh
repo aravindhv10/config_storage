@@ -3,9 +3,9 @@ IMAGE_NAME='debtestrustbuild'
 IMAGE_CMD='bash'
 
 BUILD_CONTAINER () {
+    cp '../../../shell_functions/important_functions.sh' ./
     CMD='sudo -A docker'
     which buildah && CMD='buildah'
-    cp '../../../shell_functions/important_functions.sh' ./
     ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
 }
 
