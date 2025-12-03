@@ -88,8 +88,8 @@
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pip' \
-      && . "/opt/venv/bin/activate" \
-      && uv pip install \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
           'ipython' \
           'ninja' \
           'packaging' \
@@ -99,12 +99,25 @@
       && echo 'DONE pip' ;
 #+end_src
 
+** Install torch
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          '--index-url' 'https://download.pytorch.org/whl/rocm6.4' \
+              'torch' \
+              'torchvision' \
+      && echo 'DONE pip' ;
+
+#+end_src
+
 ** Install extra
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pip' \
-      && . "/opt/venv/bin/activate" \
-      && uv pip install \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
           'einops' \
           'timm' \
       && echo 'DONE pip' ;
