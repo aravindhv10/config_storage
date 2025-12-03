@@ -599,3 +599,60 @@ get_all_good_programs_and_config () {
     ; home_config \
     && echo 'DONE Download and install rust programs'
 }
+
+get_apt_packages() {
+    echo 'START apt-get update' \
+    && apt-get update \
+    && apt-get -y install \
+        'aria2' \
+        'automake' \
+        'bear' \
+        'bison' \
+        'build-essential' \
+        'clang' \
+        'clang-format' \
+        'clang-tidy' \
+        'clang-tools' \
+        'clangd' \
+        'cmake' \
+        'curl' \
+        'ffmpeg' \
+        'fish' \
+        'fzf' \
+        'gawk' \
+        'gettext' \
+        'git' \
+        'git-lfs' \
+        'ipython3' \
+        'libevent-dev' \
+        'liblz4-dev' \
+        'liblzo2-dev' \
+        'libopencv-dev' \
+        'libpcre2-16-0' \
+        'libpcre2-32-0' \
+        'libpcre2-8-0' \
+        'libpcre2-dev' \
+        'libpcre2-posix3' \
+        'libssl-dev' \
+        'libzstd-dev' \
+        'make' \
+        'nasm' \
+        'neovim' \
+        'ninja-build' \
+        'pkg-config' \
+        'python3-dev' \
+        'python3-newt' \
+        'python3-opencv' \
+        'python3-pip' \
+        'python3-setuptools' \
+        'python3-sphinx' \
+        'python3-venv' \
+        'squashfs-tools' \
+        'unzip' \
+        'wget' \
+        'yacc' \
+        'zip' \
+        'zsh' \
+        'zstd' \
+    && echo 'DONE apt-get update' ; 
+}
