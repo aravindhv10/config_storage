@@ -13,7 +13,7 @@ RUN \
     echo 'START apt-get update' \
     && apt-get update \
     && . '/root/important_functions.sh' \
-    && get_apt_packages
+    && get_apt_packages \
     && echo 'DONE apt-get update' ;
 
 ENV RUSTUP_HOME='/usr/local/rustup'
