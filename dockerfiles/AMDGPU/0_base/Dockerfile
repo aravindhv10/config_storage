@@ -1,1 +1,1 @@
-FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.12_pytorch_release_2.9.1
+FROM rocm/dev-ubuntu-24.04:6.4.4-complete
