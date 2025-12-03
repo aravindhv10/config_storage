@@ -83,6 +83,11 @@
   FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.12_pytorch_release_2.9.1
 #+end_src
 
+** Copy the Important functions (script to source) and source it
+#+begin_src conf :tangle ./Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
 ** Basic configs
 #+begin_src conf :tangle ./Dockerfile
   ENV HOME='/root'

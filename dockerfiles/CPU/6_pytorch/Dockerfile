@@ -1,5 +1,7 @@
 FROM debtestrustzshhelixpytorch
 
+COPY './important_functions.sh' '/root/important_functions.sh'
+
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \

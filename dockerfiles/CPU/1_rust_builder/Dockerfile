@@ -2,6 +2,8 @@ FROM mainbase
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
+COPY './important_functions.sh' '/root/important_functions.sh'
+
 RUN \
     --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     --mount=target=/var/cache/apt,type=cache,sharing=locked \
