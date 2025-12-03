@@ -16,7 +16,7 @@
 ** Important envs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   # IMAGE_NAME='debtestrustzshhelix'
-  IMAGE_NAME='debtestrustzshhelixpy'
+  IMAGE_NAME='debtestrustzshhelixpytorch'
 #+end_src
 
 ** Important functions
@@ -77,36 +77,56 @@
   GITADD 'Dockerfile'
 #+end_src
 
-* Basic image config
-
-** Main base image
+* Main base image
 #+begin_src conf :tangle ./Dockerfile
-  FROM debtestrustzshhelix
+  FROM debtestrustzshhelixpy
 #+end_src
 
-** Important apt install stuff
+* Download and install libtorch
+
+** Install apt stuff
 #+begin_src conf :tangle ./Dockerfile
   RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get install -y \
-          'ipython3' \
-          'libopencv-dev' \
-          'python3-dev' \
-          'python3-opencv' \
-          'python3-pip' \
-          'python3-setuptools' \
-          'python3-venv' \
-      && echo 'DONE apt-get stuff' ;
+        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+        --mount=target=/var/cache/apt,type=cache,sharing=locked \
+        echo 'START apt-get stuff' \
+        && apt-get install -y \
+            'bear' \
+            'zip' \
+        && echo 'DONE apt-get stuff' ;
 #+end_src
 
-** Prepare venv
+** Download and install libtorch
 #+begin_src conf :tangle ./Dockerfile
-  RUN uv venv "/opt/venv"
-  ENV PATH="/opt/venv/bin:${PATH}"
-  ENV VIRTUAL_ENV="/opt/venv"
-  ENV VIRTUAL_ENV_PROMPT='venv'
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install libtorch' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip' \
+          'libtorch.zip' \
+          '86cd32e4c4a1e8810b1e7596cfa52341e16ab220e4a602bfbefa6af3227bac5cf83aa7372ffb1e787c893653a4c77a549c7e8c2e850ca9cbc325008d5f0b5237' \
+          "${HOME}/libtorch.zip" \
+      && cd "${HOME}" \
+      && unzip './libtorch.zip' \
+      && cd libtorch \
+      && cd lib \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
+      && cd .. \
+      && cd include \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
+      && cd .. \
+      && cd share/cmake \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
+      && cd ../.. \
+      && cd .. \
+      && echo 'DONE Download and install libtorch' ;
+#+end_src
+
+** Set env to find libtorch
+#+begin_src conf :tangle ./Dockerfile
+  ENV LIBTORCH="/usr/"
 #+end_src
 
 * COMMENT work space

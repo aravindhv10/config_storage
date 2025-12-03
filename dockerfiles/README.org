@@ -1,3 +1,15 @@
+* Script to work
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+  . '../shell_functions/important_functions.sh'
+  P_CLEAN '.git.sh'
+  P_CLEAN 'README.org~'
+  GITADD 'README.org'
+  GITADD 'build_cpu.sh'
+  GITADD 'build_cuda.sh'
+  GITADD 'common_functions.sh'
+#+end_src
+
 * Build all cpu images
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cpu.sh
   cd "$(dirname -- "${0}")"
@@ -24,15 +36,14 @@
   exit '0'
 #+end_src
 
-* Script to work
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  cd "$(dirname -- "${0}")"
-  . '../shell_functions/important_functions.sh'
-  P_CLEAN '.git.sh'
-  P_CLEAN 'README.org~'
-  GITADD 'README.org'
-  GITADD 'build_cpu.sh'
-  GITADD 'build_cuda.sh'
+* Important common functions
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./common_functions.sh
+  BUILD_CONTAINER () {
+      cp '../../../shell_functions/important_functions.sh' ./
+      CMD='sudo -A docker'
+      which buildah && CMD='buildah'
+      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
+  }
 #+end_src
 
 * COMMENT Work space

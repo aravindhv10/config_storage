@@ -2,11 +2,7 @@
 # IMAGE_NAME='debtestrustzshhelix'
 IMAGE_NAME='debtestrustzshhelixpy'
 
-BUILD_CONTAINER () {
-    CMD='sudo -A docker'
-    which buildah && CMD='buildah'
-    ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
-}
+. '../../common_functions.sh'
 
 RUN_CONTAINER () {
     CMD='sudo -A docker'
