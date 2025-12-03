@@ -640,6 +640,7 @@ get_apt_packages() {
         'neovim' \
         'ninja-build' \
         'pkg-config' \
+        'protobuf-compiler' \
         'python3-dev' \
         'python3-newt' \
         'python3-opencv' \
