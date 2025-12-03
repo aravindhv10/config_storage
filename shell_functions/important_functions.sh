@@ -601,9 +601,7 @@ get_all_good_programs_and_config () {
 }
 
 get_apt_packages() {
-    echo 'START apt-get update' \
-    && apt-get update \
-    && apt-get -y install \
+    apt-get -y install \
         'aria2' \
         'automake' \
         'bear' \
@@ -655,5 +653,5 @@ get_apt_packages() {
         'zip' \
         'zsh' \
         'zstd' \
-    && echo 'DONE apt-get update' ; 
+    ; 
 }

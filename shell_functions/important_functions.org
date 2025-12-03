@@ -741,9 +741,7 @@
 ** Install all important apt packages
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_apt_packages() {
-      echo 'START apt-get update' \
-      && apt-get update \
-      && apt-get -y install \
+      apt-get -y install \
           'aria2' \
           'automake' \
           'bear' \
@@ -795,7 +793,7 @@
           'zip' \
           'zsh' \
           'zstd' \
-      && echo 'DONE apt-get update' ; 
+      ; 
   }
 #+end_src
 
