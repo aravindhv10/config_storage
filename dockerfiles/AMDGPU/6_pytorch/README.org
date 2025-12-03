@@ -1,0 +1,120 @@
+* Scripts to manage
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  . '../../../shell_functions/important_functions.sh'
+  GITADD 'README.org'
+  P_CLEAN '.git.sh'
+  P_CLEAN 'README.org~'
+#+end_src
+
+* Prepare and add the docker functions file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'host.image_names.sh'
+#+end_src
+
+* Host scripts
+
+** Important envs
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  # IMAGE_NAME='debtestrustzshhelixpytorch'
+  IMAGE_NAME='debtestrustzshhelixpytorch2'
+#+end_src
+
+** Important functions
+
+*** Build image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  . '../../common_functions.sh'
+#+end_src
+
+*** Run image
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
+  RUN_CONTAINER () {
+      CMD='sudo -A docker'
+      which podman && CMD='podman'
+      ${CMD} run -it --rm \
+          -v "$(realpath .):/data" \
+          "${IMAGE_NAME}" zsh ;
+  }
+#+end_src
+
+* Scripts to build and run
+
+** Build image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_build.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_build.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  BUILD_CONTAINER
+#+end_src
+
+** Run image
+
+*** Add file to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'image_run.sh'
+#+end_src
+
+*** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./image_run.sh
+  cd "$(dirname -- "${0}")"
+  . './host.image_names.sh'
+  RUN_CONTAINER
+#+end_src
+
+* Prepare and add the dockerfile to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'Dockerfile'
+#+end_src
+
+* Main base image
+#+begin_src conf :tangle ./Dockerfile
+  FROM debtestrustzshhelixpytorch
+#+end_src
+
+** Copy the Important functions (script to source) and source it
+#+begin_src conf :tangle ./Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
+* Basic image config
+
+** Prepare venv
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
+#+end_src
+
+** Install extra
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'einops' \
+          'timm' \
+      && echo 'DONE pip' ;
+#+end_src
+
+* COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+  " "log" "err")
+#+end_src
