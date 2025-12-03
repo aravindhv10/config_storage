@@ -71,29 +71,8 @@
 #+end_src
 
 * Basic image config
-
-** Main base image
 #+begin_src conf :tangle ./Dockerfile
   FROM debtestrustzsh
-#+end_src
-
-** Copy the Important functions (script to source) and source it
-#+begin_src conf :tangle ./Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-** Install aria2
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-        --mount=target=/var/cache/apt,type=cache,sharing=locked \
-        echo 'START apt-get stuff' \
-        && apt-get install -y \
-            'clangd' \
-            'clang-format' \
-            'clang-tidy' \
-            'clang-tools' \
-        && echo 'DONE apt-get stuff' ;
 #+end_src
 
 * COMMENT work space

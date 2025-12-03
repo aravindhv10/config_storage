@@ -77,7 +77,7 @@
   FROM debtestrustzshhelixpytorch
 #+end_src
 
-** Copy the Important functions (script to source) and source it
+* Copy the Important functions (script to source) and source it
 #+begin_src conf :tangle ./Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src

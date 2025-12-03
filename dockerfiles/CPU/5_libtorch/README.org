@@ -77,26 +77,12 @@
   FROM debtestrustzshhelixpy
 #+end_src
 
-** Copy the Important functions (script to source) and source it
+* Copy the Important functions (script to source) and source it
 #+begin_src conf :tangle ./Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
 * Download and install libtorch
-
-** Install apt stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-        --mount=target=/var/cache/apt,type=cache,sharing=locked \
-        echo 'START apt-get stuff' \
-        && apt-get install -y \
-            'bear' \
-            'zip' \
-        && echo 'DONE apt-get stuff' ;
-#+end_src
-
-** Download and install libtorch
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \

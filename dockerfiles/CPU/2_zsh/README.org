@@ -76,25 +76,9 @@
   FROM debtestrustbuild
 #+end_src
 
-** Copy the Important functions (script to source) and source it
+* Copy the Important functions (script to source) and source it
 #+begin_src conf :tangle ./Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-* Install tools to download and install rust
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get install -y \
-          'build-essential' \
-          'fish' \
-          'fzf' \
-          'git' \
-          'zstd' \
-          'zsh' \
-      && echo 'DONE apt-get stuff' ;
 #+end_src
 
 * Add rust programs
