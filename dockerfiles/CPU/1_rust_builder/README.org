@@ -85,9 +85,12 @@
   FROM mainbase
 #+end_src
 
-** Copy the Important functions (script to source) and source it
+** Basic configs
 #+begin_src conf :tangle ./Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
+  ENV HOME='/root'
+  ENV DEBIAN_FRONTEND='noninteractive'
+  WORKDIR '/root'
+  USER root
 #+end_src
 
 ** Copy the Important functions (script to source) and source it
@@ -95,21 +98,19 @@
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-* Install rust
-
-** Install tools to download and install rust
+** Run apt update
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get install -y \
-          'aria2' \
-          'curl' \
-          'git' \
-          'wget' \
-      && echo 'DONE apt-get stuff' ;
+      echo 'START apt-get update' \
+      && apt-get update \
+      && . '/root/important_functions.sh' \
+      && get_apt_packages
+      && echo 'DONE apt-get update' ;
 #+end_src
+
+* Install rust
 
 ** Setup ENV for rust
 #+begin_src conf :tangle ./Dockerfile
@@ -217,52 +218,6 @@
   'rm' '-vf' '--' "${OUT}"
   'mksquashfs' '.' "${OUT}"  '-comp' 'zstd' '-Xcompression-level' '18' '-b' '1048576' '-always-use-fragments' '-keep-as-directory' '-no-compression'
   exit '0'
-#+end_src
-
-* Important apt install stuff
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get stuff' \
-      && apt-get install -y \
-          'aria2' \
-          'automake' \
-          'bear' \
-          'bison' \
-          'build-essential' \
-          'clang' \
-          'cmake' \
-          'curl' \
-          'ffmpeg' \
-          'gawk' \
-          'gettext' \
-          'git' \
-          'git-lfs' \
-          'libevent-dev' \
-          'liblz4-dev' \
-          'liblzo2-dev' \
-          'libpcre2-16-0' \
-          'libpcre2-32-0' \
-          'libpcre2-8-0' \
-          'libpcre2-dev' \
-          'libpcre2-posix3' \
-          'libssl-dev' \
-          'libzstd-dev' \
-          'make' \
-          'nasm' \
-          'neovim' \
-          'ninja-build' \
-          'pkg-config' \
-          'python3-newt' \
-          'python3-sphinx' \
-          'squashfs-tools' \
-          'unzip' \
-          'wget' \
-          'yacc' \
-          'zip' \
-          'zstd' \
-      && echo 'DONE apt-get stuff' ;
 #+end_src
 
 * COMMENT Work space

@@ -77,36 +77,8 @@
 #+end_src
 
 * Basic image config
-
-** Main base image
 #+begin_src conf :tangle ./Dockerfile
   FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.12_pytorch_release_2.9.1
-#+end_src
-
-** Copy the Important functions (script to source) and source it
-#+begin_src conf :tangle ./Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-** Basic configs
-#+begin_src conf :tangle ./Dockerfile
-  ENV HOME='/root'
-  ENV DEBIAN_FRONTEND='noninteractive'
-  WORKDIR '/root'
-  USER root
-#+end_src
-
-** Run apt update
-#+begin_src conf :tangle ./Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get update' \
-      && apt-get update \
-      && apt-get -y install \
-          'aria2' \
-          'git' \
-      && echo 'DONE apt-get update' ;
 #+end_src
 
 * COMMENT work space
