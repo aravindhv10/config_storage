@@ -1,5 +1,7 @@
 FROM debtestrustzshhelixpytorch
 
+COPY './important_functions.sh' '/root/important_functions.sh'
+
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
@@ -108,4 +110,12 @@ RUN \
     && uv pip install \
             'onnxruntime-gpu' \
             'onnxscript' \
+    && echo 'DONE onnxstuff' ;
+
+RUN \
+    echo 'START onnxstuff' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+            'grpcio' \
+            'grpcio-tools' \
     && echo 'DONE onnxstuff' ;
