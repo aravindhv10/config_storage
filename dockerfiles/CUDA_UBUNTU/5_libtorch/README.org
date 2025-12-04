@@ -17,6 +17,7 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
   # IMAGE_NAME='debtestrustzshhelix'
   IMAGE_NAME='debtestrustzshhelixpytorch'
+  LISTEN_PORT=8080
 #+end_src
 
 ** Important functions

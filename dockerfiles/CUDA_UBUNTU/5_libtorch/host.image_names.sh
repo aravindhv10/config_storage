@@ -1,6 +1,7 @@
 #!/bin/sh
 # IMAGE_NAME='debtestrustzshhelix'
 IMAGE_NAME='debtestrustzshhelixpytorch'
+LISTEN_PORT=8080
 
 . '../../common_functions.sh'
 
