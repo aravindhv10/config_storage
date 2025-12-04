@@ -22,11 +22,7 @@
 
 *** Build image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  BUILD_CONTAINER () {
-      CMD='sudo -A docker'
-      which buildah && CMD='buildah'
-      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
-  }
+  . '../../common_functions.sh'
 #+end_src
 
 *** Run image

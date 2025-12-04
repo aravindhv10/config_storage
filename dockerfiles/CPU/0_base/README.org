@@ -70,8 +70,6 @@
 #+end_src
 
 * Basic image config
-
-** Main base image
 #+begin_src conf :tangle ./Dockerfile
   FROM debian:testing-backports
 #+end_src

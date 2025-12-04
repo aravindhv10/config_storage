@@ -110,7 +110,7 @@
       && echo 'DONE Download and install libtorch' ;
 #+end_src
 
-** Set env to find libtorch
+* Set env to find libtorch
 #+begin_src conf :tangle ./Dockerfile
   ENV LIBTORCH="/usr/"
 #+end_src

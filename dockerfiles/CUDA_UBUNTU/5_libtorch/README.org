@@ -23,11 +23,7 @@
 
 *** Build image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  BUILD_CONTAINER () {
-      CMD='sudo -A docker'
-      which buildah && CMD='buildah'
-      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
-  }
+  . '../../common_functions.sh'
 #+end_src
 
 *** Run image
@@ -36,6 +32,15 @@
       CMD='sudo -A docker'
       which podman && CMD='podman'
       ${CMD} run -it --rm \
+          --gpus 'all,"capabilities=compute,utility,video"' \
+          --ipc host \
+          --ulimit memlock=-1 \
+          --ulimit stack=67108864 \
+          --shm-size 107374182400 \
+          --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+          -v "CACHE:/root/.cache" \
+          -v "CACHE:/root/.triton" \
+          -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
           -v "$(realpath .):/data" \
           "${IMAGE_NAME}" zsh ;
   }
@@ -81,28 +86,25 @@
   FROM debtestrustzshhelixpy
 #+end_src
 
-* Download and install libtorch
-
-** Install apt stuff
+* Copy the Important functions (script to source) and source it
 #+begin_src conf :tangle ./Dockerfile
-  RUN \
-        --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-        --mount=target=/var/cache/apt,type=cache,sharing=locked \
-        echo 'START apt-get stuff' \
-        && apt-get install -y \
-            'bear' \
-            'zip' \
-        && echo 'DONE apt-get stuff' ;
+  COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-** Actual libtorch install
+* Download and install libtorch
 #+begin_src conf :tangle ./Dockerfile
-  RUN aria2c -c -x16 -j16 'https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.1%2Bcu128.zip'
-  RUN unzip './libtorch-shared-with-deps-2.9.1+cu128.zip'
-  RUN rm -vf -- './libtorch-shared-with-deps-2.9.1+cu128.zip'
-  ENV LIBTORCH="/usr/"
   RUN \
-      echo 'Install libtorch' \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install libtorch' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.9.1%2Bcpu.zip' \
+          'libtorch.zip' \
+          '86cd32e4c4a1e8810b1e7596cfa52341e16ab220e4a602bfbefa6af3227bac5cf83aa7372ffb1e787c893653a4c77a549c7e8c2e850ca9cbc325008d5f0b5237' \
+          "${HOME}/libtorch.zip" \
+      && cd "${HOME}" \
+      && unzip './libtorch.zip' \
       && cd libtorch \
       && cd lib \
       && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
@@ -114,7 +116,12 @@
       && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
       && cd ../.. \
       && cd .. \
-      && echo 'Done Install libtorch' ;
+      && echo 'DONE Download and install libtorch' ;
+#+end_src
+
+* Set env to find libtorch
+#+begin_src conf :tangle ./Dockerfile
+  ENV LIBTORCH="/usr/"
 #+end_src
 
 * COMMENT work space

@@ -374,7 +374,7 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
   };
 #+end_src
 
-**** GPU drivers related
+**** COMMENT GPU drivers related
 #+begin_src nix :tangle ./configuration.nix
   hardware.graphics.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 #+end_src
@@ -573,14 +573,9 @@ You can disable this if you're only using the Wayland session.
       enable = true;
       # package = unstable.wayfire;
       plugins = [
-          pkgs.wayfirePlugins.firedecor
-          pkgs.wayfirePlugins.focus-request
           pkgs.wayfirePlugins.wayfire-plugins-extra
-          pkgs.wayfirePlugins.wayfire-shadows
           pkgs.wayfirePlugins.wcm
           pkgs.wayfirePlugins.wf-shell
-          pkgs.wayfirePlugins.windecor
-          pkgs.wayfirePlugins.wwp-switcher
       ];
   } ;
 #+end_src
@@ -963,8 +958,8 @@ You can disable this if you're only using the Wayland session.
   cargo
   cargo-info
   catppuccin-kde
-  clang_19
-  clang-tools_19
+  llvmPackages_20.clang
+  llvmPackages_20.clang-tools
   clinfo
   cmake
   conky
@@ -1015,7 +1010,6 @@ You can disable this if you're only using the Wayland session.
   nh
   nix-index
   nix-ld
-  nm-tray
   openconnect
   openssl
   parted

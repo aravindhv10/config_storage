@@ -50,15 +50,6 @@ in {
     QT_SCALE_FACTOR = "1.25";
   };
 
-  hardware.graphics.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
-
-  systemd.tmpfiles.rules = [
-    "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
-  ];
-
-  hardware.graphics.enable32Bit = true;
-  hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
-
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
 
   boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
@@ -116,14 +107,9 @@ in {
     enable = true;
     # package = unstable.wayfire;
     plugins = [
-      pkgs.wayfirePlugins.firedecor
-      pkgs.wayfirePlugins.focus-request
       pkgs.wayfirePlugins.wayfire-plugins-extra
-      pkgs.wayfirePlugins.wayfire-shadows
       pkgs.wayfirePlugins.wcm
       pkgs.wayfirePlugins.wf-shell
-      pkgs.wayfirePlugins.windecor
-      pkgs.wayfirePlugins.wwp-switcher
     ];
   };
 
@@ -259,8 +245,8 @@ in {
     cargo
     cargo-info
     catppuccin-kde
-    clang_19
-    clang-tools_19
+    llvmPackages_20.clang
+    llvmPackages_20.clang-tools
     clinfo
     cmake
     conky
@@ -311,7 +297,6 @@ in {
     nh
     nix-index
     nix-ld
-    nm-tray
     openconnect
     openssl
     parted
