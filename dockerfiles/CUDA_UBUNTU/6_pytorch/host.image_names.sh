@@ -11,6 +11,7 @@ RUN_CONTAINER () {
     ${CMD} run -it --rm \
         --gpus 'all,"capabilities=compute,utility,video"' \
         --ipc host \
+        --net host \
         --ulimit memlock=-1 \
         --ulimit stack=67108864 \
         --shm-size 107374182400 \
