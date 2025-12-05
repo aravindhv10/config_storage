@@ -24,11 +24,7 @@
 
 *** Build image
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./host.image_names.sh
-  BUILD_CONTAINER () {
-      CMD='sudo -A docker'
-      which buildah && CMD='buildah'
-      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
-  }
+  . '../../common_functions.sh'
 #+end_src
 
 *** Run image
@@ -39,6 +35,7 @@
       ${CMD} run -it --rm \
           --gpus 'all,"capabilities=compute,utility,video"' \
           --ipc host \
+          --net host \
           --ulimit memlock=-1 \
           --ulimit stack=67108864 \
           --shm-size 107374182400 \
@@ -91,9 +88,14 @@
   FROM debtestrustzshhelixpytorch
 #+end_src
 
+* Copy the Important functions (script to source) and source it
+#+begin_src conf :tangle ./Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
 * Installing python packages
 
-** Basic updates
+** Prepare venv
 #+begin_src conf :tangle ./Dockerfile
   RUN \
       echo 'START pip' \
@@ -251,6 +253,17 @@ This is just horrible to build!
       && uv pip install \
               'onnxruntime-gpu' \
               'onnxscript' \
+      && echo 'DONE onnxstuff' ;
+#+end_src
+
+* grpc stuff
+#+begin_src conf :tangle ./Dockerfile
+  RUN \
+      echo 'START onnxstuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+              'grpcio' \
+              'grpcio-tools' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
