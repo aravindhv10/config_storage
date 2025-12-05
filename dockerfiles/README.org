@@ -9,7 +9,6 @@
   GITADD 'build_cpu.sh'
   GITADD 'build_cuda.sh'
   GITADD 'build_rocm.sh'
-  GITADD 'common_functions.sh'
   GITADD 'CPU/0_base/Dockerfile'
   GITADD 'CPU/1_rust_builder/Dockerfile'
   GITADD 'CPU/2_zsh/Dockerfile'
@@ -19,6 +18,7 @@
   GITADD 'CPU/6_pytorch/Dockerfile'
   GITADD 'README.org'
 #+end_src
+
 
 * Main build script
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./build_container.sh
@@ -36,16 +36,27 @@
   exit '0'
 #+end_src
 
+
 * Actual dockerfiles
 
-** For cpu
+** 0_base
 
-*** Base image
+*** CPU
 #+begin_src conf :mkdirp yes :tangle ./CPU/0_base/Dockerfile
   FROM debian:testing-backports
 #+end_src
 
-*** Installing rust
+*** CUDA_UBUNTU
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
+  FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
+#+end_src
+
+*** AMDGPU
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU/0_base/Dockerfile
+  FROM rocm/dev-ubuntu-24.04:6.4.4-complete
+#+end_src
+
+** 1_rust_builder
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   FROM 0_base
 
@@ -128,7 +139,7 @@
   RUN rustup component add rustfmt
 #+end_src
 
-*** Install and configure zsh
+** 2_zsh
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_zsh/Dockerfile
   FROM 1_rust_builder
 
@@ -143,12 +154,12 @@
       && echo 'DONE Download and install rust programs' ;
 #+end_src
 
-*** Helix wrapper
+** 3_helix
 #+begin_src conf :mkdirp yes :tangle ./CPU/3_helix/Dockerfile
   FROM 2_zsh
 #+end_src
 
-*** Setting up basic python venv
+** 4_python
 #+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
   FROM 3_helix
 
@@ -158,7 +169,9 @@
   ENV VIRTUAL_ENV_PROMPT='venv'
 #+end_src
 
-*** Install libtorch for c++ and rust
+** 5_libtorch
+
+*** CPU
 #+begin_src conf :mkdirp yes :tangle ./CPU/5_libtorch/Dockerfile
   FROM 4_python
 
@@ -192,7 +205,77 @@
   ENV LIBTORCH="/usr/"
 #+end_src
 
-*** Install additional python packages
+*** CUDA_UBUNTU
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/5_libtorch/Dockerfile
+  FROM 4_python
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install libtorch' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.1%2Bcu128.zip' \
+          'libtorch.zip' \
+          'ffbe0d9e3250cdcfc6f2fe8498e6b41a6e0949cbf048fb6e430b96bc4eda1a39d9857612fca487c30840572b1e51f4534d36b42bd0924b9ee7ec3bfb6f27c204' \
+          "${HOME}/libtorch.zip" \
+      && cd "${HOME}" \
+      && unzip './libtorch.zip' \
+      && cd libtorch \
+      && cd lib \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
+      && cd .. \
+      && cd include \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
+      && cd .. \
+      && cd share/cmake \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
+      && cd ../.. \
+      && cd .. \
+      && echo 'DONE Download and install libtorch' ;
+
+  ENV LIBTORCH="/usr/"
+#+end_src
+
+*** AMDGPU
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU/5_libtorch/Dockerfile
+  FROM 4_python
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install libtorch' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://download.pytorch.org/libtorch/rocm6.4/libtorch-shared-with-deps-2.9.1%2Brocm6.4.zip' \
+          'libtorch.zip' \
+          '0cd40a87997d418dbcd5d2e7550d608b5cd44d241b7409118142311d434c32c247e1a96b80ee9bd7b4cf70c53b8bd43e0bf7078c1cecf07445dfcebf438e6486' \
+          "${HOME}/libtorch.zip" \
+      && cd "${HOME}" \
+      && unzip './libtorch.zip' \
+      && cd libtorch \
+      && cd lib \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
+      && cd .. \
+      && cd include \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
+      && cd .. \
+      && cd share/cmake \
+      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
+      && cd ../.. \
+      && cd .. \
+      && echo 'DONE Download and install libtorch' ;
+
+  ENV LIBTORCH="/usr/"
+#+end_src
+
+** 6_pytorch
+
+*** CPU
 #+begin_src conf :mkdirp yes :tangle ./CPU/6_pytorch/Dockerfile
   FROM 5_libtorch
 
@@ -226,9 +309,174 @@
           'einops' \
           'timm' \
       && echo 'DONE pip' ;
+
+  RUN \
+      echo 'START onnxstuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'grpcio' \
+          'grpcio-tools' \
+          'onnxruntime' \
+          'onnxscript' \
+      && echo 'DONE onnxstuff' ;
 #+end_src
 
-* Build all cpu images
+*** CUDA_UBUNTU
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/6_pytorch/Dockerfile
+  FROM 5_libtorch
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'psutil' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
+
+  RUN \
+      echo 'START pytorch' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          '--index-url' 'https://download.pytorch.org/whl/cu128' \
+              'torch' \
+              'torchao' \
+              'torchvision' \
+              'xformers' \
+      && echo 'DONE pytorch' ;
+
+  RUN \
+      echo 'START Quantization, optimization and offloading' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'accelerate' \
+          'albumentations' \
+          'datasets' \
+          'deepspeed' \
+          'diffusers' \
+          'einops' \
+          'evaluate' \
+          'fastapi[standard]' \
+          'fastexcel' \
+          'inotify-simple' \
+          'ipython' \
+          'ipywidgets' \
+          'jupyter' \
+          'jupyterlab' \
+          'lightning[extra]' \
+          'matplotlib' \
+          'opencv_contrib_python' \
+          'opencv_python' \
+          'openvino' \
+          'optimum' \
+          'optimum-quanto' \
+          'packaging' \
+          'pillow' \
+          'prodigyopt' \
+          'protobuf' \
+          'requests' \
+          'safetensors' \
+          'scikit-learn' \
+          'sentencepiece' \
+          'torch_dct' \
+          'torchao' \
+          'torchmetrics' \
+          'tqdm' \
+          'transformers' \
+          'ultralytics' \
+          'urllib3' \
+          'wandb' \
+      && echo 'DONE Quantization, optimization and offloading' ;
+
+  RUN \
+      echo 'START pytorch video source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
+      && uv pip install -e . \
+      && echo 'DONE pytorch video source install' ;
+
+  RUN \
+      echo 'START diffusers install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/diffusers.git' \
+      && uv pip install -e . \
+      && echo 'DONE diffusers install from source' ;
+
+  RUN \
+      echo 'START transformers source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/transformers.git' \
+      && uv pip install -e . \
+      && echo 'DONE transformers source install' ;
+
+  RUN \
+      echo 'START TIMM install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
+      && uv pip install -e . \
+      && echo 'DONE TIMM install from source' ;
+
+  RUN \
+      echo 'START huggingface-hub source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+      && uv pip install -e . \
+      && echo 'DONE huggingface-hub source install' ;
+
+  RUN \
+      echo 'START onnxstuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'grpcio' \
+          'grpcio-tools' \
+          'onnxruntime-gpu' \
+          'onnxscript' \
+      && echo 'DONE onnxstuff' ;
+#+end_src
+
+*** AMDGPU
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU/6_pytorch/Dockerfile
+FROM debtestrustzshhelixpytorch
+
+RUN \
+    echo 'START pip' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install -U \
+        'ipython' \
+        'ninja' \
+        'packaging' \
+        'pip' \
+        'setuptools' \
+        'wheel' \
+    && echo 'DONE pip' ;
+
+RUN \
+    echo 'START pip' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install -U \
+        '--index-url' 'https://download.pytorch.org/whl/rocm6.4' \
+            'torch' \
+            'torchvision' \
+    && echo 'DONE pip' ;
+
+RUN \
+    echo 'START pip' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install -U \
+        'einops' \
+        'timm' \
+    && echo 'DONE pip' ;
+#+end_src
+
+* Script to build images
+
+** CPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cpu.sh
   cd "$(dirname -- "${0}")"
   './build_container.sh' 'CPU/0_base'
@@ -241,16 +489,16 @@
   exit '0'
 #+end_src
 
-* Build all cuda images
+** CUDA_UBUNTU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
   cd "$(dirname -- "${0}")"
-  './CUDA_UBUNTU/0_base/image_build.sh'
-  './CPU/1_rust_builder/image_build.sh'
-  './CPU/2_zsh/image_build.sh'
-  './CPU/3_helix/image_build.sh'
-  './CPU/4_python/image_build.sh'
-  './CUDA_UBUNTU/5_libtorch/image_build.sh'
-  './CUDA_UBUNTU/6_pytorch/image_build.sh'
+  './build_container.sh' 'CUDA_UBUNTU/0_base'
+  './build_container.sh' 'CPU/1_rust_builder'
+  './build_container.sh' 'CPU/2_zsh'
+  './build_container.sh' 'CPU/3_helix'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
+  './build_container.sh' 'CUDA_UBUNTU/6_pytorch'
   exit '0'
 #+end_src
 
@@ -265,16 +513,6 @@
   './AMDGPU/5_libtorch/image_build.sh'
   './AMDGPU/6_pytorch/image_build.sh'
   exit '0'
-#+end_src
-
-* Important common functions
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./common_functions.sh
-  BUILD_CONTAINER () {
-      cp '../../../shell_functions/important_functions.sh' ./
-      CMD='sudo -A docker'
-      which buildah && CMD='buildah'
-      ${CMD} build -t "${IMAGE_NAME}" -f "./Dockerfile" .
-  }
 #+end_src
 
 * COMMENT Work space

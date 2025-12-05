@@ -30,3 +30,13 @@ RUN \
         'einops' \
         'timm' \
     && echo 'DONE pip' ;
+
+RUN \
+    echo 'START onnxstuff' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        'grpcio' \
+        'grpcio-tools' \
+        'onnxruntime' \
+        'onnxscript' \
+    && echo 'DONE onnxstuff' ;
