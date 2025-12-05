@@ -60,7 +60,6 @@ RUN \
         'scikit-learn' \
         'sentencepiece' \
         'torch_dct' \
-        'torchao' \
         'torchmetrics' \
         'tqdm' \
         'transformers' \
