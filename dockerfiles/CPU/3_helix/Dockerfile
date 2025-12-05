@@ -1,1 +1,1 @@
-FROM debtestrustzsh
+FROM 2_zsh

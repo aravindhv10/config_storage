@@ -1,4 +1,4 @@
-FROM mainbase
+FROM 0_base
 
 ENV HOME='/root'
 ENV DEBIAN_FRONTEND='noninteractive'
@@ -77,7 +77,3 @@ RUN \
 RUN rustup component add rust-src
 RUN rustup component add rust-analyzer
 RUN rustup component add rustfmt
-
-COPY './install.sh' '/root/install.sh'
-COPY './install_all.sh' '/root/install_all.sh'
-COPY './compress.sh' '/root/compress.sh'

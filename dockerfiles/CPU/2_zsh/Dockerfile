@@ -1,4 +1,4 @@
-FROM debtestrustbuild
+FROM 1_rust_builder
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 

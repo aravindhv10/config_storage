@@ -1,4 +1,4 @@
-FROM debtestrustzshhelix
+FROM 3_helix
 
 RUN uv venv "${HOME}/venv"
 ENV PATH="/root/venv/bin:${PATH}"
