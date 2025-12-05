@@ -26,7 +26,7 @@ RUN \
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
+    && uv pip install \
         'einops' \
         'timm' \
     && echo 'DONE pip' ;

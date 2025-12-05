@@ -1,5 +1,7 @@
 FROM 5_libtorch
 
+COPY './important_functions.sh' '/root/important_functions.sh'
+
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
@@ -19,3 +21,13 @@ RUN \
         'einops' \
         'timm' \
     && echo 'DONE pip' ;
+
+RUN \
+    echo 'START onnxstuff' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        'grpcio' \
+        'grpcio-tools' \
+        'onnxruntime' \
+        'onnxscript' \
+    && echo 'DONE onnxstuff' ;
