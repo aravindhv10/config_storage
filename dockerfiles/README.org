@@ -7,7 +7,6 @@
 
 
   GITADD 'AMDGPU/0_base/Dockerfile'
-  GITADD 'AMDGPU/4_python/Dockerfile'
   GITADD 'AMDGPU/5_libtorch/Dockerfile'
   GITADD 'AMDGPU/6_pytorch/Dockerfile'
   GITADD 'build_container.sh'
@@ -21,13 +20,11 @@
   GITADD 'CPU/4_python/Dockerfile'
   GITADD 'CPU/5_libtorch/Dockerfile'
   GITADD 'CPU/6_pytorch/Dockerfile'
-  GITADD 'CPU/tmp_additions/Dockerfile'
   GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
   GITADD 'README.org'
 #+end_src
-
 
 * Main build script
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./build_container.sh
