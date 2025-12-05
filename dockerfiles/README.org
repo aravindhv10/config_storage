@@ -30,6 +30,7 @@
   GITADD 'run_rocm.sh'
 
   GITADD 'AMDGPU_PYT/0_base/Dockerfile'
+  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
 #+end_src
 
 * Main build script
