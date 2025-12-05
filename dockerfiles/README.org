@@ -1,18 +1,15 @@
 * Script to work
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   cd "$(dirname -- "${0}")"
+
   . '../shell_functions/important_functions.sh'
+
   CLEAN '.git.sh'
   CLEAN 'README.org~'
-
 
   GITADD 'AMDGPU/0_base/Dockerfile'
   GITADD 'AMDGPU/5_libtorch/Dockerfile'
   GITADD 'AMDGPU/6_pytorch/Dockerfile'
-  GITADD 'build_container.sh'
-  GITADD 'build_cpu.sh'
-  GITADD 'build_cuda.sh'
-  GITADD 'build_rocm.sh'
   GITADD 'CPU/0_base/Dockerfile'
   GITADD 'CPU/1_rust_builder/Dockerfile'
   GITADD 'CPU/2_zsh/Dockerfile'
@@ -24,6 +21,13 @@
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
   GITADD 'README.org'
+  GITADD 'build_container.sh'
+  GITADD 'build_cpu.sh'
+  GITADD 'build_cuda.sh'
+  GITADD 'build_rocm.sh'
+  GITADD 'run_cpu.sh'
+  GITADD 'run_cuda.sh'
+  GITADD 'run_rocm.sh'
 #+end_src
 
 * Main build script
@@ -41,7 +45,6 @@
   ${CMD} build -t "${IMAGE_NAME}" -f './Dockerfile' . && touch "./build/${H}"
   exit '0'
 #+end_src
-
 
 * Actual dockerfiles
 
@@ -519,6 +522,75 @@
   './build_container.sh' 'AMDGPU/5_libtorch'
   './build_container.sh' 'AMDGPU/6_pytorch'
   exit '0'
+#+end_src
+
+* Script to run image
+
+** AMDGPU
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_rocm.sh
+  cd "$('dirname' '--' "${0}")"
+  IMAGE_NAME="$(basename -- "$(realpath -- .)")"
+  podman run \
+      -it --rm \
+      '--device' '/dev/kfd' \
+      '--device' '/dev/dri' \
+      '--net' 'host' \
+      '--security-opt' 'seccomp=unconfined' \
+      --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+      -v "$(realpath .):/data/source" \
+      -v "${HOME}/BUILD:/data/build" \
+      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/.cache" \
+      "${IMAGE_NAME}" zsh \
+  ;
+#+end_src
+
+** CPU
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cpu.sh
+  cd "$('dirname' '--' "${0}")"
+  IMAGE_NAME="$(basename -- "$(realpath -- .)")"
+  podman run \
+      -it --rm \
+      '--device' '/dev/dri' \
+      '--net' 'host' \
+      '--security-opt' 'seccomp=unconfined' \
+      --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+      -v "$(realpath .):/data/source" \
+      -v "${HOME}/BUILD:/data/build" \
+      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/.cache" \
+      "${IMAGE_NAME}" zsh \
+  ;
+#+end_src
+
+** CUDA_UBUNTU
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda.sh
+  cd "$('dirname' '--' "${0}")"
+  IMAGE_NAME="$(basename -- "$(realpath -- .)")"
+  MKDIR './input'
+  MKDIR './output'
+  MKDIR './model'
+  INPUT="$(realpath ./input)"
+  OUTPUT="$(realpath ./output)"
+  MODEL="$(realpath ./model)"
+  sudo -A docker run \
+      --tty \
+      --interactive \
+      --rm \
+      --gpus 'all,"capabilities=compute,utility,video"' \
+      --ipc host \
+      --ulimit memlock=-1 \
+      --ulimit stack=67108864 \
+      --shm-size 107374182400 \
+      --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+      -v "${INPUT}:/data/input" \
+      -v "${OUTPUT}:/data/output" \
+      -v "${MODEL}:/data/model" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
 #+end_src
 
 * COMMENT Work space
