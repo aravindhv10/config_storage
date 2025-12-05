@@ -6,4 +6,5 @@ cd "$(dirname -- "${0}")"
 './build_container.sh' 'CPU/3_helix'
 './build_container.sh' 'CPU/4_python'
 './build_container.sh' 'AMDGPU_PYT/5_libtorch'
+'./build_container.sh' 'AMDGPU_PYT/6_pytorch'
 exit '0'

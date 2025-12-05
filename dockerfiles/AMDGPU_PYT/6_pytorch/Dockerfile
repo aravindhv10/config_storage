@@ -16,15 +16,6 @@ RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install -U \
-        '--index-url' 'https://download.pytorch.org/whl/rocm6.4' \
-            'torch' \
-            'torchvision' \
-    && echo 'DONE pip' ;
-
-RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
         'einops' \
         'timm' \
     && echo 'DONE pip' ;
