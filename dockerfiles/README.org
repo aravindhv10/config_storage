@@ -5,6 +5,11 @@
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
+
+  GITADD 'AMDGPU/0_base/Dockerfile'
+  GITADD 'AMDGPU/4_python/Dockerfile'
+  GITADD 'AMDGPU/5_libtorch/Dockerfile'
+  GITADD 'AMDGPU/6_pytorch/Dockerfile'
   GITADD 'build_container.sh'
   GITADD 'build_cpu.sh'
   GITADD 'build_cuda.sh'
@@ -16,6 +21,10 @@
   GITADD 'CPU/4_python/Dockerfile'
   GITADD 'CPU/5_libtorch/Dockerfile'
   GITADD 'CPU/6_pytorch/Dockerfile'
+  GITADD 'CPU/tmp_additions/Dockerfile'
+  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
+  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
+  GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
   GITADD 'README.org'
 #+end_src
 
@@ -442,36 +451,36 @@
 
 *** AMDGPU
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU/6_pytorch/Dockerfile
-FROM debtestrustzshhelixpytorch
+  FROM debtestrustzshhelixpytorch
 
-RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
-        'ipython' \
-        'ninja' \
-        'packaging' \
-        'pip' \
-        'setuptools' \
-        'wheel' \
-    && echo 'DONE pip' ;
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
 
-RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
-        '--index-url' 'https://download.pytorch.org/whl/rocm6.4' \
-            'torch' \
-            'torchvision' \
-    && echo 'DONE pip' ;
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          '--index-url' 'https://download.pytorch.org/whl/rocm6.4' \
+              'torch' \
+              'torchvision' \
+      && echo 'DONE pip' ;
 
-RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
-        'einops' \
-        'timm' \
-    && echo 'DONE pip' ;
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'einops' \
+          'timm' \
+      && echo 'DONE pip' ;
 #+end_src
 
 * Script to build images
@@ -502,16 +511,16 @@ RUN \
   exit '0'
 #+end_src
 
-* Build all rocm images
+** AMDGPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm.sh
   cd "$(dirname -- "${0}")"
-  './AMDGPU/0_base/image_build.sh'
-  './CPU/1_rust_builder/image_build.sh'
-  './CPU/2_zsh/image_build.sh'
-  './CPU/3_helix/image_build.sh'
-  './CPU/4_python/image_build.sh'
-  './AMDGPU/5_libtorch/image_build.sh'
-  './AMDGPU/6_pytorch/image_build.sh'
+  './build_container.sh' 'AMDGPU/0_base'
+  './build_container.sh' 'CPU/1_rust_builder'
+  './build_container.sh' 'CPU/2_zsh'
+  './build_container.sh' 'CPU/3_helix'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'AMDGPU/5_libtorch'
+  './build_container.sh' 'AMDGPU/6_pytorch'
   exit '0'
 #+end_src
 

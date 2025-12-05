@@ -1,4 +1,6 @@
-FROM debtestrustzshhelixpy
+FROM 4_python
+
+COPY './important_functions.sh' '/root/important_functions.sh'
 
 RUN \
     --mount=target=/root/SHA512SUM,type=cache \
