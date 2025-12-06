@@ -1,15 +1,29 @@
 * Script to work
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   cd "$(dirname -- "${0}")"
+#+end_src
 
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   . '../shell_functions/important_functions.sh'
+#+end_src
 
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   CLEAN '.git.sh'
   CLEAN 'README.org~'
+#+end_src
 
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   GITADD 'AMDGPU/0_base/Dockerfile'
   GITADD 'AMDGPU/5_libtorch/Dockerfile'
   GITADD 'AMDGPU/6_pytorch/Dockerfile'
+  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
+  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
+  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
+  GITADD 'build_container.sh'
+  GITADD 'build_cpu.sh'
+  GITADD 'build_cuda.sh'
+  GITADD 'build_rocm_pytorch.sh'
+  GITADD 'build_rocm.sh'
   GITADD 'CPU/0_base/Dockerfile'
   GITADD 'CPU/1_rust_builder/Dockerfile'
   GITADD 'CPU/2_zsh/Dockerfile'
@@ -21,18 +35,9 @@
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
   GITADD 'README.org'
-  GITADD 'build_container.sh'
-  GITADD 'build_cpu.sh'
-  GITADD 'build_cuda.sh'
-  GITADD 'build_rocm.sh'
-  GITADD 'build_rocm_pytorch.sh'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
-
-  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
-  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
-  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
 #+end_src
 
 * Main build script
@@ -80,16 +85,27 @@
 #+end_src
 
 ** 1_rust_builder
+
+*** 1
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   FROM 0_base
+#+end_src
 
+*** 2
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
   WORKDIR '/root'
   USER root
+#+end_src
 
+*** 3
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
 
+*** 4
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -98,65 +114,59 @@
       && . '/root/important_functions.sh' \
       && get_apt_packages \
       && echo 'DONE apt-get update' ;
+#+end_src
 
+*** 5
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   ENV RUSTUP_HOME='/usr/local/rustup'
   ENV CARGO_HOME='/usr/local/cargo'
   ENV PATH="/usr/local/cargo/bin:${PATH}"
   ENV RUST_VERSION='1.91.1'
+#+end_src
+
+*** 6
+
+**** 6.1
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install rust' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://sh.rustup.rs' \
+          'sh.rustup.rs' \
+          'b44833a5cc74448c8ace263bea5499b9dccd0b3b5ad08bbd6c5aafcefe7f421a77d04cdf0e24f1e19de0bf4ff93e170d035665ea10afd3eb228a1633ad13dfaa' \
+          "${HOME}/rustup-init.sh" \
+      && cd "${HOME}" \
+      && chmod +x 'rustup-init.sh' \
+      && './rustup-init.sh' '-y' '--no-modify-path' \
+      && echo 'DONE Download and install rust'
+#+end_src
+
+**** COMMENT 6.2
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+  RUN mkdir -pv '/cache'
 
   RUN \
       --mount=target=/cache,type=cache,sharing=locked \
       set -eux; \
-      mkdir -pv '/cache'; \
       cd '/cache'; \
       arch="$(dpkg --print-architecture)"; \
-      case "$arch" in \
-          'amd64') \
-              rustArch='x86_64-unknown-linux-gnu'; \
-              rustupSha256='20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c'; \
-              ;; \
-          'armhf') \
-              rustArch='armv7-unknown-linux-gnueabihf'; \
-              rustupSha256='3b8daab6cc3135f2cd4b12919559e6adaee73a2fbefb830fadf0405c20231d61'; \
-              ;; \
-          'arm64') \
-              rustArch='aarch64-unknown-linux-gnu'; \
-              rustupSha256='e3853c5a252fca15252d07cb23a1bdd9377a8c6f3efa01531109281ae47f841c'; \
-              ;; \
-          'i386') \
-              rustArch='i686-unknown-linux-gnu'; \
-              rustupSha256='a5db2c4b29d23e9b318b955dd0337d6b52e93933608469085c924e0d05b1df1f'; \
-              ;; \
-          'ppc64el') \
-              rustArch='powerpc64le-unknown-linux-gnu'; \
-              rustupSha256='acd89c42b47c93bd4266163a7b05d3f26287d5148413c0d47b2e8a7aa67c9dc0'; \
-              ;; \
-          's390x') \
-              rustArch='s390x-unknown-linux-gnu'; \
-              rustupSha256='726b7fd5d8805e73eab4a024a2889f8859d5a44e36041abac0a2436a52d42572'; \
-              ;; \
-          'riscv64') \
-              rustArch='riscv64gc-unknown-linux-gnu'; \
-              rustupSha256='09e64cc1b7a3e99adaa15dd2d46a3aad9d44d71041e2a96100d165c98a8fd7a7'; \
-              ;; \
-          ,*) \
-              echo >&2 "unsupported architecture: $arch"; \
-              exit 1; \
-              ;; \
-      esac; \
-      \
+      rustArch='x86_64-unknown-linux-gnu'; \
+      rustupSha256='20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c'; \
       url="https://static.rust-lang.org/rustup/archive/1.28.2/${rustArch}/rustup-init"; \
       wget --progress=dot:giga -c "$url"; \
-      echo "${rustupSha256} *rustup-init" | sha256sum -c -; \
-      \
       chmod +x rustup-init; \
-      ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${rustArch}; \
+      './rustup-init' -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${rustArch}; \
       chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
-      \
       rustup --version; \
       cargo --version; \
       rustc --version;
+#+end_src
 
+*** 7
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
   RUN rustup component add rust-src
   RUN rustup component add rust-analyzer
   RUN rustup component add rustfmt
