@@ -1,4 +1,4 @@
-FROM 1_rust_builder
+FROM 2_install_rust
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 

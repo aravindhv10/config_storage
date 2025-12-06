@@ -13,31 +13,39 @@
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD 'AMDGPU/0_base/Dockerfile'
-  GITADD 'AMDGPU/5_libtorch/Dockerfile'
-  GITADD 'AMDGPU/6_pytorch/Dockerfile'
-  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
-  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
-  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
   GITADD 'build_container.sh'
+
   GITADD 'build_cpu.sh'
   GITADD 'build_cuda.sh'
+
   GITADD 'build_rocm_pytorch.sh'
   GITADD 'build_rocm.sh'
-  GITADD 'CPU/0_base/Dockerfile'
-  GITADD 'CPU/1_rust_builder/Dockerfile'
-  GITADD 'CPU/2_zsh/Dockerfile'
-  GITADD 'CPU/3_helix/Dockerfile'
-  GITADD 'CPU/4_python/Dockerfile'
-  GITADD 'CPU/5_libtorch/Dockerfile'
-  GITADD 'CPU/6_pytorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
-  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
+
   GITADD 'README.org'
+
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
+
+  GITADD 'AMDGPU/0_base/Dockerfile'
+  GITADD 'AMDGPU/5_libtorch/Dockerfile'
+  GITADD 'AMDGPU/6_pytorch/Dockerfile'
+
+  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
+  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
+  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
+
+  GITADD 'CPU/0_base/Dockerfile'
+  GITADD 'CPU/1_install_packages/Dockerfile'
+  GITADD 'CPU/2_install_rust/Dockerfile'
+  GITADD 'CPU/3_good_setup/Dockerfile'
+  GITADD 'CPU/4_python/Dockerfile'
+  GITADD 'CPU/5_libtorch/Dockerfile'
+  GITADD 'CPU/6_pytorch/Dockerfile'
+
+  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
+  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
+  GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
 #+end_src
 
 * Main build script
@@ -84,28 +92,28 @@
   RUN ln -vfs -- ../opt/venv /root/venv
 #+end_src
 
-** 1_rust_builder
+** 1_install_packages
 
-*** 1
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+*** Base image
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   FROM 0_base
 #+end_src
 
-*** 2
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+*** Important env
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
   WORKDIR '/root'
   USER root
 #+end_src
 
-*** 3
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+*** Copy important functions
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-*** 4
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+*** Install common packages
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -116,18 +124,22 @@
       && echo 'DONE apt-get update' ;
 #+end_src
 
-*** 5
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+** 2_install_rust
+
+*** Base image
+#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
+  FROM 1_install_packages
+#+end_src
+
+*** Setting env
+#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   ENV RUSTUP_HOME='/usr/local/rustup'
   ENV CARGO_HOME='/usr/local/cargo'
   ENV PATH="/usr/local/cargo/bin:${PATH}"
-  ENV RUST_VERSION='1.91.1'
 #+end_src
 
-*** 6
-
-**** 6.1
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+*** Download and install rust
+#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
       --mount=target=/root/TMP,type=cache \
@@ -135,7 +147,7 @@
       && . "${HOME}/important_functions.sh" \
       && adown \
           'https://sh.rustup.rs' \
-          'sh.rustup.rs' \
+          'rustup.rs' \
           'b44833a5cc74448c8ace263bea5499b9dccd0b3b5ad08bbd6c5aafcefe7f421a77d04cdf0e24f1e19de0bf4ff93e170d035665ea10afd3eb228a1633ad13dfaa' \
           "${HOME}/rustup-init.sh" \
       && cd "${HOME}" \
@@ -144,40 +156,27 @@
       && echo 'DONE Download and install rust'
 #+end_src
 
-**** COMMENT 6.2
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
-  RUN mkdir -pv '/cache'
-
-  RUN \
-      --mount=target=/cache,type=cache,sharing=locked \
-      set -eux; \
-      cd '/cache'; \
-      arch="$(dpkg --print-architecture)"; \
-      rustArch='x86_64-unknown-linux-gnu'; \
-      rustupSha256='20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c'; \
-      url="https://static.rust-lang.org/rustup/archive/1.28.2/${rustArch}/rustup-init"; \
-      wget --progress=dot:giga -c "$url"; \
-      chmod +x rustup-init; \
-      './rustup-init' -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${rustArch}; \
-      chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
-      rustup --version; \
-      cargo --version; \
-      rustc --version;
-#+end_src
-
-*** 7
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_rust_builder/Dockerfile
+*** Install additional rust components
+#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN rustup component add rust-src
   RUN rustup component add rust-analyzer
   RUN rustup component add rustfmt
 #+end_src
 
-** 2_zsh
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_zsh/Dockerfile
-  FROM 1_rust_builder
+** 3_good_setup
 
+*** The base image
+#+begin_src conf :mkdirp yes :tangle ./CPU/3_good_setup/Dockerfile
+  FROM 2_install_rust
+#+end_src
+
+*** Copy important functions shell script
+#+begin_src conf :mkdirp yes :tangle ./CPU/3_good_setup/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
 
+*** Configure zsh and other stuff
+#+begin_src conf :mkdirp yes :tangle ./CPU/3_good_setup/Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
       --mount=target=/root/TMP,type=cache \
@@ -187,15 +186,15 @@
       && echo 'DONE Download and install rust programs' ;
 #+end_src
 
-** 3_helix
-#+begin_src conf :mkdirp yes :tangle ./CPU/3_helix/Dockerfile
-  FROM 2_zsh
+** 4_python
+
+*** The base image
+#+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
+  FROM 3_good_setup
 #+end_src
 
-** 4_python
+*** Setup venv if it does not already exist
 #+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
-  FROM 3_helix
-
   RUN test -e "${HOME}/venv" || uv venv "${HOME}/venv"
   ENV PATH="/root/venv/bin:${PATH}"
   ENV VIRTUAL_ENV="${HOME}/venv"
@@ -661,56 +660,56 @@
 
 ** CPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cpu.sh
-  cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CPU/0_base'
-  './build_container.sh' 'CPU/1_rust_builder'
-  './build_container.sh' 'CPU/2_zsh'
-  './build_container.sh' 'CPU/3_helix'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'CPU/5_libtorch'
-  './build_container.sh' 'CPU/6_pytorch'
-  exit '0'
+cd "$(dirname -- "${0}")"
+'./build_container.sh' 'CPU/0_base'
+'./build_container.sh' 'CPU/1_install_packages'
+'./build_container.sh' 'CPU/2_install_rust'
+'./build_container.sh' 'CPU/3_good_setup'
+'./build_container.sh' 'CPU/4_python'
+'./build_container.sh' 'CPU/5_libtorch'
+'./build_container.sh' 'CPU/6_pytorch'
+exit '0'
 #+end_src
 
 ** CUDA_UBUNTU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
-  cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CUDA_UBUNTU/0_base'
-  './build_container.sh' 'CPU/1_rust_builder'
-  './build_container.sh' 'CPU/2_zsh'
-  './build_container.sh' 'CPU/3_helix'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
-  './build_container.sh' 'CUDA_UBUNTU/6_pytorch'
-  exit '0'
+cd "$(dirname -- "${0}")"
+'./build_container.sh' 'CUDA_UBUNTU/0_base'
+'./build_container.sh' 'CPU/1_install_packages'
+'./build_container.sh' 'CPU/2_install_rust'
+'./build_container.sh' 'CPU/3_good_setup'
+'./build_container.sh' 'CPU/4_python'
+'./build_container.sh' 'CUDA_UBUNTU/5_libtorch'
+'./build_container.sh' 'CUDA_UBUNTU/6_pytorch'
+exit '0'
 #+end_src
 
 ** AMDGPU
 
 *** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm.sh
-  cd "$(dirname -- "${0}")"
-  './build_container.sh' 'AMDGPU/0_base'
-  './build_container.sh' 'CPU/1_rust_builder'
-  './build_container.sh' 'CPU/2_zsh'
-  './build_container.sh' 'CPU/3_helix'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'AMDGPU/5_libtorch'
-  './build_container.sh' 'AMDGPU/6_pytorch'
-  exit '0'
+cd "$(dirname -- "${0}")"
+'./build_container.sh' 'AMDGPU/0_base'
+'./build_container.sh' 'CPU/1_install_packages'
+'./build_container.sh' 'CPU/2_install_rust'
+'./build_container.sh' 'CPU/3_good_setup'
+'./build_container.sh' 'CPU/4_python'
+'./build_container.sh' 'AMDGPU/5_libtorch'
+'./build_container.sh' 'AMDGPU/6_pytorch'
+exit '0'
 #+end_src
 
 *** Pytorch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm_pytorch.sh
-  cd "$(dirname -- "${0}")"
-  './build_container.sh' 'AMDGPU_PYT/0_base'
-  './build_container.sh' 'CPU/1_rust_builder'
-  './build_container.sh' 'CPU/2_zsh'
-  './build_container.sh' 'CPU/3_helix'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'AMDGPU_PYT/5_libtorch'
-  './build_container.sh' 'AMDGPU_PYT/6_pytorch'
-  exit '0'
+cd "$(dirname -- "${0}")"
+'./build_container.sh' 'AMDGPU_PYT/0_base'
+'./build_container.sh' 'CPU/1_install_packages'
+'./build_container.sh' 'CPU/2_install_rust'
+'./build_container.sh' 'CPU/3_good_setup'
+'./build_container.sh' 'CPU/4_python'
+'./build_container.sh' 'AMDGPU_PYT/5_libtorch'
+'./build_container.sh' 'AMDGPU_PYT/6_pytorch'
+exit '0'
 #+end_src
 
 * Script to run image
