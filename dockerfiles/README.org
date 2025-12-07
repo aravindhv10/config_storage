@@ -86,56 +86,27 @@
 #+end_src
 
 **** Pytorch
-docker pull rocm/dev-ubuntu-24.04:7.1.1-complete
-podman pull rocm/dev-ubuntu-24.04:7.1.1-complete
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
+  FROM rocm/pytorch:rocm7.1_ubuntu24.04_py3.13_pytorch_release_2.9.1
+#+end_src
 
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
-  # FROM rocm/pytorch:rocm7.1_ubuntu24.04_py3.13_pytorch_release_2.9.1 as pytorch
-  FROM rocm/pytorch:rocm7.1_ubuntu24.04_py3.13_pytorch_release_2.9.1
-
-  # FROM rocm/dev-ubuntu-24.04:7.1.1-complete
-
-  # COPY --from=pytorch /opt/venv /opt/venv
-
   RUN ln -vfs -- ../opt/venv /root/venv
 #+end_src
 
-# Make the directory if it doesn't exist yet.
-# This location is recommended by the distribution maintainers.
-sudo mkdir --parents --mode=0755 /etc/apt/keyrings
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
 
-# Download the key, convert the signing-key to a full
-# keyring required by apt and store in the keyring directory
-wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | \
-    gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
-
-sudo tee /etc/apt/sources.list.d/rocm.list << EOF
-deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.1.1 noble main
-deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/graphics/7.1.1/ubuntu noble main
-EOF
-
-sudo tee /etc/apt/preferences.d/rocm-pin-600 << EOF
-Package: *
-Pin: release o=repo.radeon.com
-Pin-Priority: 600
-EOF
-
-apt update
-
-apt install \
-    rocm \
-    rocm-developer-tools \
-    rocm-hip-libraries \
-    rocm-hip-runtime \
-    rocm-hip-runtime-dev \
-    rocm-hip-sdk \
-    rocm-language-runtime \
-    rocm-ml-libraries \
-    rocm-ml-sdk \
-    rocm-opencl-runtime \
-    rocm-opencl-sdk \
-    rocm-openmp-sdk \
-;
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get update' \
+      && . '/root/important_functions.sh' \
+      && get_amd_rocm_packages_ubuntu \
+      && echo 'DONE apt-get update' ;
+#+end_src
 
 ** 1_install_packages
 
