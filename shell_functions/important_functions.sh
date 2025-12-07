@@ -628,7 +628,7 @@ EOF
 
 apt update
 
-apt install \
+apt -y install \
     'rocm' \
     'rocm-developer-tools' \
     'rocm-hip-libraries' \
