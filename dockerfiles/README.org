@@ -295,11 +295,17 @@
 *** AMDGPU
 
 **** Pytorch
+
+***** Base parts
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/5_libtorch/Dockerfile
   FROM 4_python
-
   COPY './important_functions.sh' '/root/important_functions.sh'
+  ENV CMAKE_PREFIX_PATH='/opt/venv/lib/python3.13/site-packages/torch/share/cmake'
+  ENV LIBTORCH='/opt/venv/lib/python3.13/site-packages/torch'
+#+end_src
 
+***** COMMENT Pytorch
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/5_libtorch/Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
       --mount=target=/root/TMP,type=cache \
@@ -317,8 +323,6 @@
       && cd ../.. \
       && cd .. \
       && echo 'DONE Download and install libtorch' ;
-
-  ENV LIBTORCH="/usr/"
 #+end_src
 
 **** Regular
