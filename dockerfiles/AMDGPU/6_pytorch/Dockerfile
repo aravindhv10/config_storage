@@ -1,6 +1,5 @@
 FROM 5_libtorch
 
-
 COPY './important_functions.sh' '/root/important_functions.sh'
 
 RUN \
