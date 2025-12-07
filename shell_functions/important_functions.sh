@@ -607,6 +607,8 @@ echo 'START install wget' \
 && apt-get install wget \
 && echo 'DONE install wget' ;
 
+mkdir --parents --mode=0755 /etc/apt/keyrings
+
 echo 'START get gpg certificate' \
 && wget 'https://repo.radeon.com/rocm/rocm.gpg.key' -O - \
 | gpg --dearmor \
