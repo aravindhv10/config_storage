@@ -432,7 +432,9 @@
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           '--index-url' 'https://download.pytorch.org/whl/cu128' \
+              'tensorrt' \
               'torch' \
+              'torch-tensorrt' \
               'torchao' \
               'torchvision' \
               'xformers' \
@@ -532,6 +534,8 @@
           'torch-tensorrt' \
       && echo 'DONE onnxstuff' ;
 #+end_src
+
+uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
 
 *** AMDGPU
 
