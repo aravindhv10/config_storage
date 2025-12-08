@@ -114,6 +114,7 @@ RUN \
     && uv pip install \
         'grpcio' \
         'grpcio-tools' \
+        'nvidia-modelopt[all]' \
         'onnxruntime-gpu' \
         'onnxscript' \
     && echo 'DONE onnxstuff' ;
