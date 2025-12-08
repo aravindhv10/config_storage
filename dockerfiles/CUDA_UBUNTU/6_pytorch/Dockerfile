@@ -114,10 +114,3 @@ RUN \
         'onnxruntime-gpu' \
         'onnxscript' \
     && echo 'DONE onnxstuff' ;
-
-RUN \
-    echo 'START onnxstuff' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'torch-tensorrt' \
-    && echo 'DONE onnxstuff' ;
