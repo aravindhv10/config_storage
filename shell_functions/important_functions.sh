@@ -666,6 +666,7 @@ get_apt_packages() {
         'gettext' \
         'git' \
         'git-lfs' \
+        'graphicsmagick-imagemagick-compat' \
         'ipython3' \
         'libevent-dev' \
         'liblz4-dev' \
