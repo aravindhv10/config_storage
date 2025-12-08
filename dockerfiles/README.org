@@ -526,12 +526,12 @@
       && uv pip install \
           'grpcio' \
           'grpcio-tools' \
-          'nvidia-modelopt[all]' \
           'onnxruntime-gpu' \
           'onnxscript' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
+          'nvidia-modelopt[all]' \
 uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
 
 *** AMDGPU
