@@ -427,11 +427,15 @@
           'wheel' \
       && echo 'DONE pip' ;
 
+
+          # '--index-url' 'https://download.pytorch.org/whl/cu128' \
+
   RUN \
       echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          '--index-url' 'https://download.pytorch.org/whl/cu128' \
+          '--extra-index-url' 'https://download.pytorch.org/whl/cu128' \
+              'tensorrt' \
               'torch' \
               'torch-tensorrt' \
               'torchao' \
