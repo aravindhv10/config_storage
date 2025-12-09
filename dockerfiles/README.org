@@ -430,7 +430,7 @@
   RUN \
       echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
+      && uv pip install \
           'ipython' \
           'ninja' \
           'packaging' \
@@ -439,22 +439,6 @@
           'setuptools' \
           'wheel' \
       && echo 'DONE pip' ;
-
-
-          # '--index-url' 'https://download.pytorch.org/whl/cu128' \
-
-  RUN \
-      echo 'START pytorch' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install \
-          '--extra-index-url' 'https://download.pytorch.org/whl/cu128' \
-              'tensorrt' \
-              'torch' \
-              'torch-tensorrt' \
-              'torchao' \
-              'torchvision' \
-              'xformers' \
-      && echo 'DONE pytorch' ;
 
   RUN \
       echo 'START Quantization, optimization and offloading' \
@@ -928,15 +912,15 @@ exit '0'
 
 *** Official
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
-cd "$(dirname -- "${0}")"
-'./build_container.sh' 'CUDA_UBUNTU/0_base'
-'./build_container.sh' 'CPU/1_install_packages'
-'./build_container.sh' 'CPU/2_install_rust'
-'./build_container.sh' 'CPU/3_good_setup'
-'./build_container.sh' 'CPU/4_python'
-'./build_container.sh' 'CUDA_UBUNTU/5_libtorch'
-'./build_container.sh' 'CUDA_UBUNTU/6_pytorch'
-exit '0'
+  cd "$(dirname -- "${0}")"
+  './build_container.sh' 'CUDA_UBUNTU/0_base'
+  './build_container.sh' 'CPU/1_install_packages'
+  './build_container.sh' 'CPU/2_install_rust'
+  './build_container.sh' 'CPU/3_good_setup'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
+  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/6_pytorch'
+  exit '0'
 #+end_src
 
 ** AMDGPU

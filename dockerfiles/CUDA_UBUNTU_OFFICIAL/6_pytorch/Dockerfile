@@ -5,7 +5,7 @@ COPY './important_functions.sh' '/root/important_functions.sh'
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
+    && uv pip install \
         'ipython' \
         'ninja' \
         'packaging' \
@@ -14,22 +14,6 @@ RUN \
         'setuptools' \
         'wheel' \
     && echo 'DONE pip' ;
-
-
-        # '--index-url' 'https://download.pytorch.org/whl/cu128' \
-
-RUN \
-    echo 'START pytorch' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        '--extra-index-url' 'https://download.pytorch.org/whl/cu128' \
-            'tensorrt' \
-            'torch' \
-            'torch-tensorrt' \
-            'torchao' \
-            'torchvision' \
-            'xformers' \
-    && echo 'DONE pytorch' ;
 
 RUN \
     echo 'START Quantization, optimization and offloading' \
