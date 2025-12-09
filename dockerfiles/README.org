@@ -915,7 +915,7 @@ exit '0'
 *** Official
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CUDA_UBUNTU/0_base'
+  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/0_base'
   './build_container.sh' 'CPU/1_install_packages'
   './build_container.sh' 'CPU/2_install_rust'
   './build_container.sh' 'CPU/3_good_setup'
