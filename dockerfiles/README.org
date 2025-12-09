@@ -16,7 +16,9 @@
   GITADD 'build_container.sh'
 
   GITADD 'build_cpu.sh'
+
   GITADD 'build_cuda.sh'
+  GITADD 'build_cuda_official.sh'
 
   GITADD 'build_rocm_pytorch.sh'
   GITADD 'build_rocm.sh'
