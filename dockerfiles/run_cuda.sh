@@ -1,5 +1,6 @@
 #!/bin/sh
 cd "$('dirname' '--' "${0}")"
+. "${HOME}/important_functions.sh"
 IMAGE_NAME="$(basename -- "$(realpath -- .)")"
 MKDIR './input'
 MKDIR './output'
@@ -22,6 +23,7 @@ sudo -A docker run \
     -v "${MODEL}:/data/model" \
     -v "CACHE:/root/.cache" \
     -v "CACHE:/root/.triton" \
-    -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;
+
+    # -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \

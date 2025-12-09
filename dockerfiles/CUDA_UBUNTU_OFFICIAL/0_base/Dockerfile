@@ -1,0 +1,1 @@
+FROM nvcr.io/nvidia/pytorch:25.11-py3

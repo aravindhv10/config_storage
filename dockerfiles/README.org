@@ -46,6 +46,8 @@
   GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
+
+  GITADD 'CUDA_UBUNTU_OFFICIAL/0_base/Dockerfile'
 #+end_src
 
 * Main build script
@@ -74,6 +76,13 @@
 #+end_src
 
 *** CUDA_UBUNTU
+
+**** Official
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/0_base/Dockerfile
+  FROM nvcr.io/nvidia/pytorch:25.11-py3
+#+end_src
+
+**** Regular
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
   FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 #+end_src
@@ -776,7 +785,22 @@ exit '0'
 #+end_src
 
 ** CUDA_UBUNTU
+
+*** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
+cd "$(dirname -- "${0}")"
+'./build_container.sh' 'CUDA_UBUNTU/0_base'
+'./build_container.sh' 'CPU/1_install_packages'
+'./build_container.sh' 'CPU/2_install_rust'
+'./build_container.sh' 'CPU/3_good_setup'
+'./build_container.sh' 'CPU/4_python'
+'./build_container.sh' 'CUDA_UBUNTU/5_libtorch'
+'./build_container.sh' 'CUDA_UBUNTU/6_pytorch'
+exit '0'
+#+end_src
+
+*** Official
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
 cd "$(dirname -- "${0}")"
 './build_container.sh' 'CUDA_UBUNTU/0_base'
 './build_container.sh' 'CPU/1_install_packages'
@@ -856,8 +880,11 @@ exit '0'
 #+end_src
 
 ** CUDA_UBUNTU
+
+*** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda.sh
   cd "$('dirname' '--' "${0}")"
+  . "${HOME}/important_functions.sh"
   IMAGE_NAME="$(basename -- "$(realpath -- .)")"
   MKDIR './input'
   MKDIR './output'
@@ -880,9 +907,10 @@ exit '0'
       -v "${MODEL}:/data/model" \
       -v "CACHE:/root/.cache" \
       -v "CACHE:/root/.triton" \
-      -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
       "${IMAGE_NAME}" "${IMAGE_CMD}" \
   ;
+
+      # -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
 #+end_src
 
 * COMMENT Work space
