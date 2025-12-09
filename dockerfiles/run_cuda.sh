@@ -2,9 +2,7 @@
 cd "$('dirname' '--' "${0}")"
 . "${HOME}/important_functions.sh"
 IMAGE_NAME="$(basename -- "$(realpath -- .)")"
-MKDIR './input'
-MKDIR './output'
-MKDIR './model'
+mkdir -pv -- './input' './output' './model'
 INPUT="$(realpath ./input)"
 OUTPUT="$(realpath ./output)"
 MODEL="$(realpath ./model)"
