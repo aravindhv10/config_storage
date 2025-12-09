@@ -137,6 +137,7 @@
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
+  ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
   WORKDIR '/root'
   USER root
 #+end_src

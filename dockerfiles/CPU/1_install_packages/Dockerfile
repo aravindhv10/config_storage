@@ -2,6 +2,7 @@ FROM 0_base
 
 ENV HOME='/root'
 ENV DEBIAN_FRONTEND='noninteractive'
+ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
 WORKDIR '/root'
 USER root
 
