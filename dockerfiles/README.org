@@ -427,19 +427,32 @@
 **** Official
 
 ***** NEW Single
+
+
+****** Set the base image
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   FROM nvcr.io/nvidia/pytorch:25.11-py3
-
   RUN python3 -m venv --system-site-packages /root/venv
+#+end_src
 
+****** Set basic envs
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
   ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
   WORKDIR '/root'
   USER root
+#+end_src
 
+****** Copy important scripts
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
 
+****** Install rust
+
+******* Install aria
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -448,7 +461,10 @@
       && apt-get -y install \
           'aria2' \
       && echo 'DONE apt-get update' ;
+#+end_src
 
+******* Install and configure rust
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   ENV RUSTUP_HOME='/usr/local/rustup'
   ENV CARGO_HOME='/usr/local/cargo'
   ENV PATH="/usr/local/cargo/bin:${PATH}"
@@ -467,12 +483,18 @@
       && chmod +x 'rustup-init.sh' \
       && './rustup-init.sh' '-y' '--no-modify-path' \
       && echo 'DONE Download and install rust'
+#+end_src
 
+******* Install rust components
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   RUN rustup component add rust-src
   RUN rustup component add rust-analyzer
   RUN rustup component add rustfmt
+#+end_src
 
+******* Good configs for shells
 
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
       --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -482,16 +504,22 @@
           'fish' \
           'fzf' \
           'git' \
+          'zsh' \
           'zstd' \
       && echo 'DONE apt-get update' ;
+#+end_src
 
-  # RUN \
-  #     --mount=target=/root/SHA512SUM,type=cache \
-  #     --mount=target=/root/TMP,type=cache \
-  #     echo 'START Download and install rust programs' \
-  #     && . "${HOME}/important_functions.sh" \
-  #     && get_all_good_programs_and_config \
-  #     && echo 'DONE Download and install rust programs' ;
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install rust programs' \
+      && . "${HOME}/important_functions.sh" \
+      && get_all_good_programs_and_config \
+      && echo 'DONE Download and install rust programs' ;
+#+end_src
+
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
 #+end_src
 
 ***** COMMENT OLD

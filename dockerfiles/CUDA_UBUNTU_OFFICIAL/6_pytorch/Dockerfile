@@ -1,5 +1,4 @@
 FROM nvcr.io/nvidia/pytorch:25.11-py3
-
 RUN python3 -m venv --system-site-packages /root/venv
 
 ENV HOME='/root'
@@ -42,7 +41,6 @@ RUN rustup component add rust-src
 RUN rustup component add rust-analyzer
 RUN rustup component add rustfmt
 
-
 RUN \
     --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -52,13 +50,16 @@ RUN \
         'fish' \
         'fzf' \
         'git' \
+        'zsh' \
         'zstd' \
     && echo 'DONE apt-get update' ;
 
-# RUN \
-#     --mount=target=/root/SHA512SUM,type=cache \
-#     --mount=target=/root/TMP,type=cache \
-#     echo 'START Download and install rust programs' \
-#     && . "${HOME}/important_functions.sh" \
-#     && get_all_good_programs_and_config \
-#     && echo 'DONE Download and install rust programs' ;
+RUN \
+    --mount=target=/root/SHA512SUM,type=cache \
+    --mount=target=/root/TMP,type=cache \
+    echo 'START Download and install rust programs' \
+    && . "${HOME}/important_functions.sh" \
+    && get_all_good_programs_and_config \
+    && echo 'DONE Download and install rust programs' ;
+
+
