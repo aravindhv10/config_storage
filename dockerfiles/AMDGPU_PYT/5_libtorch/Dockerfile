@@ -1,5 +1,9 @@
 FROM 4_python
 COPY './important_functions.sh' '/root/important_functions.sh'
-ENV CMAKE_PREFIX_PATH='/opt/venv/lib/python3.13/site-packages/torch/share/cmake'
-ENV LD_LIBRARY_PATH="/opt/venv/lib/python3.13/site-packages/torch/lib:${LD_LIBRARY_PATH}"
 ENV LIBTORCH='/opt/venv/lib/python3.13/site-packages/torch'
+ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
+ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
+
+ENV LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch'
+ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
+ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
