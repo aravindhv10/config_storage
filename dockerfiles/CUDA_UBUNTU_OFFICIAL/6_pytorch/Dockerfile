@@ -83,6 +83,7 @@ RUN \
         'safetensors' \
         'setuptools' \
         'wheel' \
+        'timm' \
     && echo 'DONE pip' ;
 
 RUN \

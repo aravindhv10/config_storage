@@ -556,6 +556,7 @@
           'safetensors' \
           'setuptools' \
           'wheel' \
+          'timm' \
       && echo 'DONE pip' ;
 
   RUN \
@@ -572,6 +573,7 @@
       && uv pip install -e . \
       && echo 'DONE huggingface-hub source install' ;
 #+end_src
+uv pip install --no-deps timm
 
 ******** COMMENT Unverified
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
