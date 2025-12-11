@@ -91,3 +91,10 @@ RUN \
     && get_repo 'https://github.com/huggingface/transformers.git' \
     && uv pip install -e . \
     && echo 'DONE transformers source install' ;
+
+RUN \
+    echo 'START huggingface-hub source install' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+    && uv pip install -e . \
+    && echo 'DONE huggingface-hub source install' ;
