@@ -563,16 +563,17 @@
       && uv pip install -e . \
       && echo 'DONE transformers source install' ;
 
+#+end_src
+
+******** COMMENT Unverified
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   RUN \
       echo 'START TIMM install from source' \
       && . "${HOME}/important_functions.sh" \
       && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
       && uv pip install -e . \
       && echo 'DONE TIMM install from source' ;
-#+end_src
 
-******** COMMENT Unverified
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   RUN \
       echo 'START diffusers install from source' \
       && . "${HOME}/important_functions.sh" \
