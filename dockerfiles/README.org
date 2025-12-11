@@ -425,6 +425,92 @@
 *** CUDA_UBUNTU
 
 **** Official
+
+***** NEW Single
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
+  FROM nvcr.io/nvidia/pytorch:25.11-py3
+
+  RUN python3 -m venv --system-site-packages /root/venv
+
+  ENV HOME='/root'
+  ENV DEBIAN_FRONTEND='noninteractive'
+  ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
+  WORKDIR '/root'
+  USER root
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get update' \
+      && apt-get update \
+      && apt-get -y install \
+          'aria2' \
+          'automake' \
+          'build-essential' \
+          'cmake' \
+          'curl' \
+          'fish' \
+          'fzf' \
+          'gawk' \
+          'git' \
+          'libopencv-dev' \
+          'libpcre2-16-0' \
+          'libpcre2-32-0' \
+          'libpcre2-8-0' \
+          'libpcre2-dev' \
+          'libpcre2-posix3' \
+          'libssl-dev' \
+          'libzstd-dev' \
+          'make' \
+          'nasm' \
+          'neovim' \
+          'ninja-build' \
+          'pkg-config' \
+          'protobuf-compiler' \
+          'squashfs-tools' \
+          'unzip' \
+          'wget' \
+          'yacc' \
+          'zip' \
+          'zsh' \
+          'zstd' \
+      && echo 'DONE apt-get update' ;
+
+  ENV RUSTUP_HOME='/usr/local/rustup'
+  ENV CARGO_HOME='/usr/local/cargo'
+  ENV PATH="/usr/local/cargo/bin:${PATH}"
+
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install rust' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://sh.rustup.rs' \
+          'rustup.rs' \
+          'b44833a5cc74448c8ace263bea5499b9dccd0b3b5ad08bbd6c5aafcefe7f421a77d04cdf0e24f1e19de0bf4ff93e170d035665ea10afd3eb228a1633ad13dfaa' \
+          "${HOME}/rustup-init.sh" \
+      && cd "${HOME}" \
+      && chmod +x 'rustup-init.sh' \
+      && './rustup-init.sh' '-y' '--no-modify-path' \
+      && echo 'DONE Download and install rust'
+
+  RUN rustup component add rust-src
+  RUN rustup component add rust-analyzer
+  RUN rustup component add rustfmt
+
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install rust programs' \
+      && . "${HOME}/important_functions.sh" \
+      && get_all_good_programs_and_config \
+      && echo 'DONE Download and install rust programs' ;
+#+end_src
+
+***** COMMENT OLD
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   FROM 5_libtorch
 
@@ -916,12 +1002,6 @@ exit '0'
 *** Official
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/0_base'
-  './build_container.sh' 'CPU/1_install_packages'
-  './build_container.sh' 'CPU/2_install_rust'
-  './build_container.sh' 'CPU/3_good_setup'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
   './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/6_pytorch'
   exit '0'
 #+end_src
