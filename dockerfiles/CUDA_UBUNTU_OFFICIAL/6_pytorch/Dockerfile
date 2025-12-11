@@ -83,7 +83,6 @@ RUN \
         'safetensors' \
         'setuptools' \
         'wheel' \
-        'timm' \
     && echo 'DONE pip' ;
 
 RUN \
@@ -99,3 +98,10 @@ RUN \
     && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
     && uv pip install -e . \
     && echo 'DONE huggingface-hub source install' ;
+
+RUN \
+    echo 'START TIMM install from source' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
+    && uv pip install --no-deps -e . \
+    && echo 'DONE TIMM install from source' ;
