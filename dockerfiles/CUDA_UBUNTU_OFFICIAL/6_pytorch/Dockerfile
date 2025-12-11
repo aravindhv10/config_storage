@@ -79,9 +79,10 @@ RUN \
         'packaging' \
         'pip' \
         'psutil' \
+        'pyyaml' \
+        'safetensors' \
         'setuptools' \
         'wheel' \
-        'safetensors' \
     && echo 'DONE pip' ;
 
 RUN \
