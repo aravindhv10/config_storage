@@ -81,6 +81,7 @@ RUN \
         'psutil' \
         'setuptools' \
         'wheel' \
+        'safetensors' \
     && echo 'DONE pip' ;
 
 RUN \
