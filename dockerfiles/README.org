@@ -428,7 +428,6 @@
 
 ***** NEW Single
 
-
 ****** Set the base image
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   FROM nvcr.io/nvidia/pytorch:25.11-py3
@@ -534,20 +533,14 @@
 #+end_src
 
 ******* Configure libtorch
-
-***** Base parts
-#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/5_libtorch/Dockerfile
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   ENV LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch'
   ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
 
-***** COMMENT OLD
+******* Configure python venv
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
-  FROM 5_libtorch
-
-  COPY './important_functions.sh' '/root/important_functions.sh'
-
   RUN \
       echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
