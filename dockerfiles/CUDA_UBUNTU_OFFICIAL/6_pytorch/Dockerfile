@@ -112,3 +112,13 @@ RUN \
     && get_repo 'https://github.com/huggingface/diffusers.git' \
     && uv pip install -e . \
     && echo 'DONE diffusers install from source' ;
+
+RUN \
+    echo 'START onnxstuff' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        'grpcio' \
+        'grpcio-tools' \
+        'onnxruntime-gpu' \
+        'onnxscript' \
+    && echo 'DONE onnxstuff' ;
