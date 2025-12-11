@@ -564,7 +564,7 @@
       && echo 'DONE transformers source install' ;
 #+end_src
 
-******** Unverified
+******** COMMENT Unverified
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
   RUN \
       echo 'START diffusers install from source' \
