@@ -38,31 +38,22 @@ RUN \
     && './rustup-init.sh' '-y' '--no-modify-path' \
     && echo 'DONE Download and install rust'
 
-# RUN rustup component add rust-src
-# RUN rustup component add rust-analyzer
-# RUN rustup component add rustfmt
+RUN rustup component add rust-src
+RUN rustup component add rust-analyzer
+RUN rustup component add rustfmt
 
 
-# RUN \
-#     --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-#     --mount=target=/var/cache/apt,type=cache,sharing=locked \
-#     echo 'START apt-get update' \
-#     && apt-get update \
-#     && apt-get -y install \
-#         'aria2' \
-#         'automake' \
-#         'bear' \
-#         'bison' \
-#         'build-essential' \
-#         'cmake' \
-#         'curl' \
-#         'fish' \
-#         'fzf' \
-#         'gawk' \
-#         'git' \
-#         'make' \
-#         'zstd' \
-#     && echo 'DONE apt-get update' ;
+RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    echo 'START apt-get update' \
+    && apt-get update \
+    && apt-get -y install \
+        'fish' \
+        'fzf' \
+        'git' \
+        'zstd' \
+    && echo 'DONE apt-get update' ;
 
 # RUN \
 #     --mount=target=/root/SHA512SUM,type=cache \
