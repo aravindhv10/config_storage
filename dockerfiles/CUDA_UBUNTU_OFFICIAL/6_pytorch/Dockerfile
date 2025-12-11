@@ -84,55 +84,6 @@ RUN \
     && echo 'DONE pip' ;
 
 RUN \
-    echo 'START Quantization, optimization and offloading' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'accelerate' \
-        'albumentations' \
-        'datasets' \
-        'deepspeed' \
-        'diffusers' \
-        'einops' \
-        'evaluate' \
-        'fastapi[standard]' \
-        'fastexcel' \
-        'inotify-simple' \
-        'ipython' \
-        'ipywidgets' \
-        'jupyter' \
-        'jupyterlab' \
-        'lightning[extra]' \
-        'matplotlib' \
-        'opencv_contrib_python' \
-        'opencv_python' \
-        'openvino' \
-        'optimum' \
-        'optimum-quanto' \
-        'packaging' \
-        'pillow' \
-        'prodigyopt' \
-        'protobuf' \
-        'requests' \
-        'safetensors' \
-        'scikit-learn' \
-        'sentencepiece' \
-        'torch_dct' \
-        'torchmetrics' \
-        'tqdm' \
-        'transformers' \
-        'ultralytics' \
-        'urllib3' \
-        'wandb' \
-    && echo 'DONE Quantization, optimization and offloading' ;
-
-RUN \
-    echo 'START pytorch video source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
-    && uv pip install -e . \
-    && echo 'DONE pytorch video source install' ;
-
-RUN \
     echo 'START diffusers install from source' \
     && . "${HOME}/important_functions.sh" \
     && get_repo 'https://github.com/huggingface/diffusers.git' \
