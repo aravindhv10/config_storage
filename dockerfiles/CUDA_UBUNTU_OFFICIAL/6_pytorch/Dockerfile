@@ -84,18 +84,19 @@ RUN \
     && echo 'DONE pip' ;
 
 RUN \
+    echo 'START transformers source install' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/huggingface/transformers.git' \
+    && uv pip install -e . \
+    && echo 'DONE transformers source install' ;
+
+RUN \
     echo 'START diffusers install from source' \
     && . "${HOME}/important_functions.sh" \
     && get_repo 'https://github.com/huggingface/diffusers.git' \
     && uv pip install -e . \
     && echo 'DONE diffusers install from source' ;
 
-RUN \
-    echo 'START transformers source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/transformers.git' \
-    && uv pip install -e . \
-    && echo 'DONE transformers source install' ;
 
 RUN \
     echo 'START TIMM install from source' \
