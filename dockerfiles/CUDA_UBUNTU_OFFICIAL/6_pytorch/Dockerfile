@@ -105,3 +105,10 @@ RUN \
     && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
     && uv pip install --no-deps -e . \
     && echo 'DONE TIMM install from source' ;
+
+RUN \
+    echo 'START diffusers install from source' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/huggingface/diffusers.git' \
+    && uv pip install -e . \
+    && echo 'DONE diffusers install from source' ;
