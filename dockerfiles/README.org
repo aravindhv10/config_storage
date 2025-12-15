@@ -1,42 +1,54 @@
+* Files to ignore
+#+begin_src conf :mkdirp yes :tangle ./.gitignore
+  /CPU/0_base/build/
+  /CPU/0_base/important_functions.sh
+  /CPU/1_install_packages/build/
+  /CPU/1_install_packages/important_functions.sh
+  /CPU/1_rust_builder/
+  /CPU/2_install_rust/build/
+  /CPU/2_install_rust/important_functions.sh
+  /CPU/2_zsh/
+  /CPU/3_good_setup/build/
+  /CPU/3_good_setup/important_functions.sh
+  /CPU/4_python/build/
+  /CPU/4_python/important_functions.sh
+  /CPU/5_libtorch/build/
+  /CPU/5_libtorch/important_functions.sh
+  /CPU/6_pytorch/build/
+  /CPU/6_pytorch/important_functions.sh
+  /CPU/6_pytorch/main.c
+  /CPU/6_pytorch/main.h
+  /CPU/6_pytorch/run_cpu.sh
+  /important_functions.sh
+  /waste/
+#+end_src
+
 * Script to work
+
+** Change to the relevant dir
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   cd "$(dirname -- "${0}")"
 #+end_src
 
+** Source the commonly used functions
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   . '../shell_functions/important_functions.sh'
 #+end_src
 
+** Cleanup unused files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 #+end_src
 
+** Add the main files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD 'build_container.sh'
-
-  GITADD 'build_cpu.sh'
-
-  GITADD 'build_cuda.sh'
-  GITADD 'build_cuda_official.sh'
-
-  GITADD 'build_rocm_pytorch.sh'
-  GITADD 'build_rocm.sh'
-
-  GITADD 'README.org'
-
-  GITADD 'run_cpu.sh'
-  GITADD 'run_cuda.sh'
-  GITADD 'run_rocm.sh'
-
   GITADD 'AMDGPU/0_base/Dockerfile'
   GITADD 'AMDGPU/5_libtorch/Dockerfile'
   GITADD 'AMDGPU/6_pytorch/Dockerfile'
-
   GITADD 'AMDGPU_PYT/0_base/Dockerfile'
   GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
   GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
-
   GITADD 'CPU/0_base/Dockerfile'
   GITADD 'CPU/1_install_packages/Dockerfile'
   GITADD 'CPU/2_install_rust/Dockerfile'
@@ -44,13 +56,23 @@
   GITADD 'CPU/4_python/Dockerfile'
   GITADD 'CPU/5_libtorch/Dockerfile'
   GITADD 'CPU/6_pytorch/Dockerfile'
-
   GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
-
   GITADD 'CUDA_UBUNTU_OFFICIAL/0_base/Dockerfile'
+  GITADD 'CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile'
+  GITADD 'CUDA_UBUNTU_OFFICIAL/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile'
+  GITADD 'README.org'
+  GITADD 'build_container.sh'
+  GITADD 'build_cpu.sh'
+  GITADD 'build_cuda.sh'
+  GITADD 'build_cuda_official.sh'
+  GITADD 'build_rocm.sh'
+  GITADD 'build_rocm_pytorch.sh'
+  GITADD 'run_cpu.sh'
+  GITADD 'run_cuda.sh'
+  GITADD 'run_rocm.sh'
 #+end_src
 
 * Main build script
@@ -1204,6 +1226,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
+      git status
   " "log" "err")
 #+end_src
 
