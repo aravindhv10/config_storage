@@ -1,16 +1,4 @@
-* Do the basic stuff
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  . './important_functions.sh'
-  GITADD 'important_functions.org'
-  CLEAN '.git.sh'
-#+end_src
-
 * Important functions
-
-** Add file to git
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD 'important_functions.sh'
-#+end_src
 
 ** Primitive functions
 
@@ -217,11 +205,6 @@
 #+end_src
 
 ** zshrc
-
-*** Add file to git
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD './zshrc'
-#+end_src
 
 *** Actual file
 #+begin_src conf :tangle ./zshrc
@@ -846,12 +829,38 @@
   }
 #+end_src
 
+* Do the basic stuff
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . './important_functions.sh'
+  CLEAN '.git.sh'
+  CLEAN 'important_functions.org~'
+  GITADD 'important_functions.org'
+  GITADD 'important_functions.sh'
+  git status
+#+end_src
+
 * COMMENT Work space
+
+** Basic add
 #+begin_src elisp :results silent
   (save-buffer)
   (save-some-buffers)
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
+  " "log" "err")
+#+end_src
+
+
+** Add, commit and push
+#+begin_src elisp :results silent
+  (save-buffer)
+  (save-some-buffers)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+      git commit -m 'Work on important functions'
+      ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
+      git push
   " "log" "err")
 #+end_src
