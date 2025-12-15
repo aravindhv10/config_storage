@@ -43,6 +43,7 @@
 
 ** Add the main files
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD '.gitignore'
   GITADD 'AMDGPU/0_base/Dockerfile'
   GITADD 'AMDGPU/5_libtorch/Dockerfile'
   GITADD 'AMDGPU/6_pytorch/Dockerfile'
@@ -1236,7 +1237,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'More work on nvcr images'
+      git commit -m 'Added gitignore'
       ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
