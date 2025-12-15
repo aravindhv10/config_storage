@@ -128,12 +128,52 @@
 
 ** 1_install_packages
 
-*** Base image
+*** Official nvidia
+
+**** Base image
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
+  FROM 0_base
+#+end_src
+
+**** Important env
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
+  ENV HOME='/root'
+  ENV DEBIAN_FRONTEND='noninteractive'
+  ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
+  WORKDIR '/root'
+  USER root
+#+end_src
+
+**** Copy important functions
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
+**** Install common packages
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get update' \
+      && apt-get update \
+      && apt-get -y install \
+          'aria2' \
+          'fish' \
+          'fzf' \
+          'git' \
+          'zsh' \
+          'zstd' \
+      && echo 'DONE apt-get update' ;
+#+end_src
+
+*** CPU
+
+**** Base image
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   FROM 0_base
 #+end_src
 
-*** Important env
+**** Important env
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
@@ -142,12 +182,12 @@
   USER root
 #+end_src
 
-*** Copy important functions
+**** Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-*** Install common packages
+**** Install common packages
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
@@ -273,6 +313,17 @@
 #+end_src
 
 *** CUDA_UBUNTU
+
+**** Official
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/5_libtorch/Dockerfile
+  FROM 4_python
+
+  ENV LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch'
+  ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
+  ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
+#+end_src
+
+**** Customized
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/5_libtorch/Dockerfile
   FROM 4_python
 
@@ -425,6 +476,64 @@
 *** CUDA_UBUNTU
 
 **** Official
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
+  FROM 5_libtorch
+
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'psutil' \
+          'pyyaml' \
+          'safetensors' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
+
+  RUN \
+      echo 'START transformers source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/transformers.git' \
+      && uv pip install -e . \
+      && echo 'DONE transformers source install' ;
+
+  RUN \
+      echo 'START huggingface-hub source install' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+      && uv pip install -e . \
+      && echo 'DONE huggingface-hub source install' ;
+
+  RUN \
+      echo 'START TIMM install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
+      && uv pip install --no-deps -e . \
+      && echo 'DONE TIMM install from source' ;
+
+  RUN \
+      echo 'START diffusers install from source' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/huggingface/diffusers.git' \
+      && uv pip install -e . \
+      && echo 'DONE diffusers install from source' ;
+
+  RUN \
+      echo 'START onnxstuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'grpcio' \
+          'grpcio-tools' \
+          'onnxruntime-gpu' \
+          'onnxscript' \
+      && echo 'DONE onnxstuff' ;
+#+end_src
+
+**** COMMENT Official traditional
 
 ***** NEW Single
 
@@ -595,10 +704,6 @@
       && echo 'DONE onnxstuff' ;
 #+end_src
 
-******* Install more apt stuff
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile
-#+end_src
-
 **** Regular
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/6_pytorch/Dockerfile
   FROM 5_libtorch
@@ -617,7 +722,6 @@
           'setuptools' \
           'wheel' \
       && echo 'DONE pip' ;
-
 
           # '--index-url' 'https://download.pytorch.org/whl/cu128' \
 
@@ -953,35 +1057,41 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
 
 ** CPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cpu.sh
-cd "$(dirname -- "${0}")"
-'./build_container.sh' 'CPU/0_base'
-'./build_container.sh' 'CPU/1_install_packages'
-'./build_container.sh' 'CPU/2_install_rust'
-'./build_container.sh' 'CPU/3_good_setup'
-'./build_container.sh' 'CPU/4_python'
-'./build_container.sh' 'CPU/5_libtorch'
-'./build_container.sh' 'CPU/6_pytorch'
-exit '0'
+  cd "$(dirname -- "${0}")"
+  './build_container.sh' 'CPU/0_base'
+  './build_container.sh' 'CPU/1_install_packages'
+  './build_container.sh' 'CPU/2_install_rust'
+  './build_container.sh' 'CPU/3_good_setup'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'CPU/5_libtorch'
+  './build_container.sh' 'CPU/6_pytorch'
+  exit '0'
 #+end_src
 
 ** CUDA_UBUNTU
 
 *** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
-cd "$(dirname -- "${0}")"
-'./build_container.sh' 'CUDA_UBUNTU/0_base'
-'./build_container.sh' 'CPU/1_install_packages'
-'./build_container.sh' 'CPU/2_install_rust'
-'./build_container.sh' 'CPU/3_good_setup'
-'./build_container.sh' 'CPU/4_python'
-'./build_container.sh' 'CUDA_UBUNTU/5_libtorch'
-'./build_container.sh' 'CUDA_UBUNTU/6_pytorch'
-exit '0'
+  cd "$(dirname -- "${0}")"
+  './build_container.sh' 'CUDA_UBUNTU/0_base'
+  './build_container.sh' 'CPU/1_install_packages'
+  './build_container.sh' 'CPU/2_install_rust'
+  './build_container.sh' 'CPU/3_good_setup'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
+  './build_container.sh' 'CUDA_UBUNTU/6_pytorch'
+  exit '0'
 #+end_src
 
 *** Official
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
   cd "$(dirname -- "${0}")"
+  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/0_base'
+  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/1_install_packages'
+  './build_container.sh' 'CPU/2_install_rust'
+  './build_container.sh' 'CPU/3_good_setup'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/5_libtorch'
   './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/6_pytorch'
   exit '0'
 #+end_src
@@ -990,28 +1100,28 @@ exit '0'
 
 *** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm.sh
-cd "$(dirname -- "${0}")"
-'./build_container.sh' 'AMDGPU/0_base'
-'./build_container.sh' 'CPU/1_install_packages'
-'./build_container.sh' 'CPU/2_install_rust'
-'./build_container.sh' 'CPU/3_good_setup'
-'./build_container.sh' 'CPU/4_python'
-'./build_container.sh' 'AMDGPU/5_libtorch'
-'./build_container.sh' 'AMDGPU/6_pytorch'
-exit '0'
+  cd "$(dirname -- "${0}")"
+  './build_container.sh' 'AMDGPU/0_base'
+  './build_container.sh' 'CPU/1_install_packages'
+  './build_container.sh' 'CPU/2_install_rust'
+  './build_container.sh' 'CPU/3_good_setup'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'AMDGPU/5_libtorch'
+  './build_container.sh' 'AMDGPU/6_pytorch'
+  exit '0'
 #+end_src
 
 *** Pytorch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm_pytorch.sh
-cd "$(dirname -- "${0}")"
-'./build_container.sh' 'AMDGPU_PYT/0_base'
-'./build_container.sh' 'CPU/1_install_packages'
-'./build_container.sh' 'CPU/2_install_rust'
-'./build_container.sh' 'CPU/3_good_setup'
-'./build_container.sh' 'CPU/4_python'
-'./build_container.sh' 'AMDGPU_PYT/5_libtorch'
-'./build_container.sh' 'AMDGPU_PYT/6_pytorch'
-exit '0'
+  cd "$(dirname -- "${0}")"
+  './build_container.sh' 'AMDGPU_PYT/0_base'
+  './build_container.sh' 'CPU/1_install_packages'
+  './build_container.sh' 'CPU/2_install_rust'
+  './build_container.sh' 'CPU/3_good_setup'
+  './build_container.sh' 'CPU/4_python'
+  './build_container.sh' 'AMDGPU_PYT/5_libtorch'
+  './build_container.sh' 'AMDGPU_PYT/6_pytorch'
+  exit '0'
 #+end_src
 
 * Script to run image
@@ -1087,10 +1197,24 @@ exit '0'
 #+end_src
 
 * COMMENT Work space
+
+** Only add files to git
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
+  " "log" "err")
+#+end_src
+
+** Add, commit, push
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+      './.git.sh'
+      git commit -m 'More work on nvcr images'
+      ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
+      git push
   " "log" "err")
 #+end_src
