@@ -106,6 +106,14 @@ RUN \
     && echo 'DONE huggingface-hub source install' ;
 
 RUN \
+    echo 'START Install detectron2 and detrex' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+    && uv pip install '--no-build-isolation' -e 'detectron2' \
+    && uv pip install '--no-build-isolation' -e '.' \
+    && echo 'DONE Install detectron2 and detrex' ;
+
+RUN \
     echo 'START onnxstuff' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \

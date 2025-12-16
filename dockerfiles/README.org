@@ -546,6 +546,14 @@
       && echo 'DONE diffusers install from source' ;
 
   RUN \
+      echo 'START Install detectron2 and detrex' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+      && uv pip install '--no-build-isolation' -e 'detectron2' \
+      && uv pip install '--no-build-isolation' -e '.' \
+      && echo 'DONE Install detectron2 and detrex' ;
+
+  RUN \
       echo 'START onnxstuff' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
@@ -837,6 +845,14 @@
       && echo 'DONE huggingface-hub source install' ;
 
   RUN \
+      echo 'START Install detectron2 and detrex' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+      && uv pip install '--no-build-isolation' -e 'detectron2' \
+      && uv pip install '--no-build-isolation' -e '.' \
+      && echo 'DONE Install detectron2 and detrex' ;
+
+  RUN \
       echo 'START onnxstuff' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
@@ -948,6 +964,13 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
       && uv pip install -e . \
       && echo 'DONE huggingface-hub source install' ;
 
+  RUN \
+      echo 'START Install detectron2 and detrex' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+      && uv pip install '--no-build-isolation' -e 'detectron2' \
+      && uv pip install '--no-build-isolation' -e '.' \
+      && echo 'DONE Install detectron2 and detrex' ;
 
   RUN \
       echo 'START onnxstuff' \
@@ -1064,6 +1087,14 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
       && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
       && uv pip install -e . \
       && echo 'DONE huggingface-hub source install' ;
+
+  RUN \
+      echo 'START Install detectron2 and detrex' \
+      && . "${HOME}/important_functions.sh" \
+      && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+      && uv pip install '--no-build-isolation' -e 'detectron2' \
+      && uv pip install '--no-build-isolation' -e '.' \
+      && echo 'DONE Install detectron2 and detrex' ;
 
   RUN \
       echo 'START onnxstuff' \
@@ -1237,7 +1268,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Added gitignore'
+      git commit -m 'Added detrex and detectron'
       ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
