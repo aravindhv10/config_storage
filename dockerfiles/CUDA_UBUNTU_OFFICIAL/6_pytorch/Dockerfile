@@ -59,4 +59,5 @@ RUN \
         'grpcio-tools' \
         'onnxruntime-gpu' \
         'onnxscript' \
+        'ultralytics' \
     && echo 'DONE onnxstuff' ;
