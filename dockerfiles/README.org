@@ -493,6 +493,7 @@
           'grpcio-tools' \
           'onnxruntime' \
           'onnxscript' \
+          'ultralytics' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
@@ -861,6 +862,7 @@
           'grpcio-tools' \
           'onnxruntime-gpu' \
           'onnxscript' \
+          'ultralytics' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
@@ -981,6 +983,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
           'grpcio-tools' \
           'onnxruntime' \
           'onnxscript' \
+          'ultralytics' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
@@ -1105,6 +1108,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
           'grpcio-tools' \
           'onnxruntime' \
           'onnxscript' \
+          'ultralytics' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
@@ -1269,7 +1273,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Added ultralytics'
+      git commit -m 'Added ultralytics for all docker files'
       ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")

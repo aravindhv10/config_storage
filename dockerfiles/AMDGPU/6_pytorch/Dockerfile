@@ -117,4 +117,5 @@ RUN \
         'grpcio-tools' \
         'onnxruntime' \
         'onnxscript' \
+        'ultralytics' \
     && echo 'DONE onnxstuff' ;
