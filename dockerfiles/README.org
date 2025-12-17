@@ -546,13 +546,13 @@
       && uv pip install -e . \
       && echo 'DONE diffusers install from source' ;
 
-  RUN \
-      echo 'START Install detectron2 and detrex' \
-      && . "${HOME}/important_functions.sh" \
-      && get_repo 'https://github.com/IDEA-Research/detrex.git' \
-      && uv pip install '--no-build-isolation' -e 'detectron2' \
-      && uv pip install '--no-build-isolation' -e '.' \
-      && echo 'DONE Install detectron2 and detrex' ;
+  # RUN \
+  #     echo 'START Install detectron2 and detrex' \
+  #     && . "${HOME}/important_functions.sh" \
+  #     && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+  #     && uv pip install '--no-build-isolation' -e 'detectron2' \
+  #     && uv pip install '--no-build-isolation' -e '.' \
+  #     && echo 'DONE Install detectron2 and detrex' ;
 
   RUN \
       echo 'START onnxstuff' \
@@ -1273,7 +1273,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Added ultralytics for all docker files'
+      git commit -m 'Disable detectron in cuda official images for now'
       ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
