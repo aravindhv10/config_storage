@@ -519,6 +519,16 @@
       && echo 'DONE pip' ;
 
   RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'albumentations' \
+          'einops' \
+          'inotify_simple' \
+          'lightning' \
+      && echo 'DONE pip' ;
+
+  RUN \
       echo 'START transformers source install' \
       && . "${HOME}/important_functions.sh" \
       && get_repo 'https://github.com/huggingface/transformers.git' \
@@ -1273,7 +1283,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Disable detectron in cuda official images for now'
+      git commit -m 'Added more packages for cuda tensorrt'
       ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
