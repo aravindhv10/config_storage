@@ -15,15 +15,15 @@ RUN \
         'wheel' \
     && echo 'DONE pip' ;
 
-RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'albumentations' \
-        'einops' \
-        'inotify_simple' \
-        'lightning' \
-    && echo 'DONE pip' ;
+# RUN \
+#     echo 'START pip' \
+#     && . "${HOME}/venv/bin/activate" \
+#     && uv pip install \
+#         'albumentations' \
+#         'einops' \
+#         'inotify_simple' \
+#         'lightning' \
+#     && echo 'DONE pip' ;
 
 RUN \
     echo 'START transformers source install' \
