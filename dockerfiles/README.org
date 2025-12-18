@@ -886,7 +886,7 @@
       echo 'START tensorrt' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          '--index-url' 'https://download.pytorch.org/whl/cu130' \
+          '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
               'torch-tensorrt' \
       && echo 'DONE onnxstuff' ;
 #+end_src
