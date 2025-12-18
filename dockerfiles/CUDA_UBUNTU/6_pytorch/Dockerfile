@@ -21,7 +21,7 @@ RUN \
     echo 'START pytorch' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        '--index-url' 'https://download.pytorch.org/whl/cu128' \
+        '--index-url' 'https://download.pytorch.org/whl/cu130' \
             'torch' \
             'torchao' \
             'torchvision' \
@@ -128,13 +128,13 @@ RUN \
     echo 'START tensorrt' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'tensorrt>=10.9.0,<10.10.0' \
+        'tensorrt' \
     && echo 'DONE onnxstuff' ;
 
 RUN \
     echo 'START tensorrt' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        '--index-url' 'https://download.pytorch.org/whl/cu128' \
+        '--index-url' 'https://download.pytorch.org/whl/cu130' \
             'torch-tensorrt' \
     && echo 'DONE onnxstuff' ;

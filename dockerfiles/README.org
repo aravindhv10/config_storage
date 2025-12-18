@@ -111,7 +111,7 @@
 
 **** Regular
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
-  FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
+  FROM nvidia/cuda:13.0.2-cudnn-devel-ubuntu24.04
 #+end_src
 
 *** AMDGPU
@@ -358,9 +358,9 @@
       echo 'START Download and install libtorch' \
       && . "${HOME}/important_functions.sh" \
       && adown \
-          'https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.1%2Bcu128.zip' \
+          'https://download.pytorch.org/libtorch/cu130/libtorch-shared-with-deps-2.9.1%2Bcu130.zip' \
           'libtorch.zip' \
-          'ffbe0d9e3250cdcfc6f2fe8498e6b41a6e0949cbf048fb6e430b96bc4eda1a39d9857612fca487c30840572b1e51f4534d36b42bd0924b9ee7ec3bfb6f27c204' \
+          'fbd9c8f54d061600b464202b10a7c053f54ee286466dcf3bf890828a2973e5142c2fb382aae3db56ccca6b403e9021f28d9c43e1bae2085811e62aabd7ee34bd' \
           "${HOME}/libtorch.zip" \
       && cd "${HOME}" \
       && unzip './libtorch.zip' \
@@ -772,7 +772,7 @@
       echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          '--index-url' 'https://download.pytorch.org/whl/cu128' \
+          '--index-url' 'https://download.pytorch.org/whl/cu130' \
               'torch' \
               'torchao' \
               'torchvision' \
@@ -879,19 +879,17 @@
       echo 'START tensorrt' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          'tensorrt>=10.9.0,<10.10.0' \
+          'tensorrt' \
       && echo 'DONE onnxstuff' ;
 
   RUN \
       echo 'START tensorrt' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          '--index-url' 'https://download.pytorch.org/whl/cu128' \
+          '--index-url' 'https://download.pytorch.org/whl/cu130' \
               'torch-tensorrt' \
       && echo 'DONE onnxstuff' ;
 #+end_src
-
-
 
 *** AMDGPU
 
@@ -1297,7 +1295,7 @@
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'More refinements of tensorrt installs'
+      git commit -m 'Upgrading torch to 13.0'
       $HOME/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")

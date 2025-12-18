@@ -8,9 +8,9 @@ RUN \
     echo 'START Download and install libtorch' \
     && . "${HOME}/important_functions.sh" \
     && adown \
-        'https://download.pytorch.org/libtorch/cu128/libtorch-shared-with-deps-2.9.1%2Bcu128.zip' \
+        'https://download.pytorch.org/libtorch/cu130/libtorch-shared-with-deps-2.9.1%2Bcu130.zip' \
         'libtorch.zip' \
-        'ffbe0d9e3250cdcfc6f2fe8498e6b41a6e0949cbf048fb6e430b96bc4eda1a39d9857612fca487c30840572b1e51f4534d36b42bd0924b9ee7ec3bfb6f27c204' \
+        'fbd9c8f54d061600b464202b10a7c053f54ee286466dcf3bf890828a2973e5142c2fb382aae3db56ccca6b403e9021f28d9c43e1bae2085811e62aabd7ee34bd' \
         "${HOME}/libtorch.zip" \
     && cd "${HOME}" \
     && unzip './libtorch.zip' \
