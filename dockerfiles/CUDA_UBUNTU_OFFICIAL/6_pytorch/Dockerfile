@@ -71,11 +71,3 @@ RUN \
         'onnxscript' \
         'ultralytics' \
     && echo 'DONE onnxstuff' ;
-
-RUN \
-    echo 'START onnxstuff' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'tensorrt' \
-        'torch-tensorrt' \
-    && echo 'DONE onnxstuff' ;
