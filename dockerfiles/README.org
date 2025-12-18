@@ -574,6 +574,14 @@
           'onnxscript' \
           'ultralytics' \
       && echo 'DONE onnxstuff' ;
+
+  RUN \
+      echo 'START onnxstuff' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'tensorrt' \
+          'torch-tensorrt' \
+      && echo 'DONE onnxstuff' ;
 #+end_src
 
 **** COMMENT Official traditional
@@ -1283,7 +1291,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Reverted libopencv-dev to cuda official image'
+      git commit -m 'Added tensorrt to cuda custom image'
       $HOME/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
