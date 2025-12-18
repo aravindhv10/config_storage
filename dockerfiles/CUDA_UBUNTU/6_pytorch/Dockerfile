@@ -125,10 +125,16 @@ RUN \
     && echo 'DONE onnxstuff' ;
 
 RUN \
-    echo 'START pytorch' \
+    echo 'START tensorrt' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        '--extra-index-url' 'https://download.pytorch.org/whl/cu128' \
-            'tensorrt' \
+        'tensorrt>=10.9.0,<10.10.0' \
+    && echo 'DONE onnxstuff' ;
+
+RUN \
+    echo 'START tensorrt' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        '--index-url' 'https://download.pytorch.org/whl/cu128' \
             'torch-tensorrt' \
-    && echo 'DONE pytorch' ;
+    && echo 'DONE onnxstuff' ;
