@@ -18,6 +18,7 @@ RUN \
         'fish' \
         'fzf' \
         'git' \
+        'libopencv-dev' \
         'zsh' \
         'zstd' \
     && echo 'DONE apt-get update' ;

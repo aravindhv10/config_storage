@@ -184,6 +184,7 @@
           'fish' \
           'fzf' \
           'git' \
+          'libopencv-dev' \
           'zsh' \
           'zstd' \
       && echo 'DONE apt-get update' ;
@@ -1283,7 +1284,7 @@ uv pip install torch  --extra-index-url https://download.pytorch.org/whl/cu118
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Added more packages for cuda tensorrt'
+      git commit -m 'Added libopencv-dev to cuda official image'
       ${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
