@@ -15,7 +15,28 @@ RUN \
         'wheel' \
     && echo 'DONE pip' ;
 
-        # '--index-url' 'https://download.pytorch.org/whl/cu128' \
+RUN \
+    echo 'START pip' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install \
+        'dllist' \
+        'tensorrt' \
+        'tensorrt-cu13' \
+        'tensorrt-cu13-bindings' \
+        'tensorrt-cu13-libs' \
+        'typing-extensions' \
+    && echo 'DONE pip' ;
+
+# RUN \
+#     echo 'START pytorch' \
+#     && . "${HOME}/venv/bin/activate" \
+#     && uv pip install \
+#         '--index-url' 'https://download.pytorch.org/whl/cu130' \
+#             'torch' \
+#             'torchao' \
+#             'torchvision' \
+#             'xformers' \
+#     && echo 'DONE pytorch' ;
 
 RUN \
     echo 'START pytorch' \
@@ -23,6 +44,7 @@ RUN \
     && uv pip install \
         '--index-url' 'https://download.pytorch.org/whl/cu130' \
             'torch' \
+            'torch-tensorrt' \
             'torchao' \
             'torchvision' \
             'xformers' \
@@ -124,17 +146,17 @@ RUN \
         'ultralytics' \
     && echo 'DONE onnxstuff' ;
 
-RUN \
-    echo 'START tensorrt' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'tensorrt' \
-    && echo 'DONE onnxstuff' ;
+# RUN \
+#     echo 'START tensorrt' \
+#     && . "${HOME}/venv/bin/activate" \
+#     && uv pip install \
+#         'tensorrt' \
+#     && echo 'DONE onnxstuff' ;
 
-RUN \
-    echo 'START tensorrt' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
-            'torch-tensorrt' \
-    && echo 'DONE onnxstuff' ;
+# RUN \
+#     echo 'START tensorrt' \
+#     && . "${HOME}/venv/bin/activate" \
+#     && uv pip install \
+#         '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
+#             'torch-tensorrt' \
+#     && echo 'DONE onnxstuff' ;
