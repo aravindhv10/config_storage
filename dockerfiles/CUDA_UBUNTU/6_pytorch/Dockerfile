@@ -15,18 +15,18 @@ RUN \
         'wheel' \
     && echo 'DONE pip' ;
 
-RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'dllist' \
-        'tensorrt-cu13' \
-        'tensorrt-cu13-bindings' \
-        'tensorrt-cu13-libs' \
-        'tensorrt-cu13>=10.13.0,<10.14.0' \
-        'tensorrt>=10.13.0,<10.14.0' \
-        'typing-extensions' \
-    && echo 'DONE pip' ;
+# RUN \
+#     echo 'START pip' \
+#     && . "${HOME}/venv/bin/activate" \
+#     && uv pip install \
+#         'dllist' \
+#         'tensorrt-cu13' \
+#         'tensorrt-cu13-bindings' \
+#         'tensorrt-cu13-libs' \
+#         'tensorrt-cu13>=10.13.0,<10.14.0' \
+#         'tensorrt>=10.13.0,<10.14.0' \
+#         'typing-extensions' \
+#     && echo 'DONE pip' ;
 
 # RUN \
 #     echo 'START pytorch' \
@@ -43,7 +43,8 @@ RUN \
     echo 'START pytorch' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        '--index-url' 'https://download.pytorch.org/whl/cu130' \
+        '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
+            'tensorrt' \
             'torch' \
             'torch-tensorrt' \
             'torchao' \
