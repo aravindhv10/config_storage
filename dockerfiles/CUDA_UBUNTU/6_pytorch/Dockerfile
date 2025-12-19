@@ -20,10 +20,10 @@ RUN \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
         'dllist' \
-        'tensorrt' \
         'tensorrt-cu13' \
         'tensorrt-cu13-bindings' \
         'tensorrt-cu13-libs' \
+        'tensorrt>=10.13.0,<10.14.0' \
         'typing-extensions' \
     && echo 'DONE pip' ;
 
