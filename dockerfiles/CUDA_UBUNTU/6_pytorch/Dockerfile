@@ -23,6 +23,7 @@ RUN \
         'tensorrt-cu13' \
         'tensorrt-cu13-bindings' \
         'tensorrt-cu13-libs' \
+        'tensorrt-cu13>=10.13.0,<10.14.0' \
         'tensorrt>=10.13.0,<10.14.0' \
         'typing-extensions' \
     && echo 'DONE pip' ;
