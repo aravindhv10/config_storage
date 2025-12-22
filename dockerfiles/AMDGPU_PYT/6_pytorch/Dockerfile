@@ -16,97 +16,70 @@ RUN \
     && echo 'DONE pip' ;
 
 RUN \
+    echo 'START Download all sources' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
+    && get_repo 'https://github.com/huggingface/diffusers.git' \
+    && get_repo 'https://github.com/huggingface/transformers.git' \
+    && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
+    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+    && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+    && echo 'START Download all sources' ;
+
+RUN \
     echo 'START Quantization, optimization and offloading' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'accelerate' \
-        'albumentations' \
-        'datasets' \
-        'deepspeed' \
-        'diffusers' \
-        'einops' \
-        'evaluate' \
-        'fastapi[standard]' \
-        'fastexcel' \
-        'inotify-simple' \
-        'ipython' \
-        'ipywidgets' \
-        'jupyter' \
-        'jupyterlab' \
-        'lightning[extra]' \
-        'matplotlib' \
-        'opencv_contrib_python' \
-        'opencv_python' \
-        'openvino' \
-        'optimum' \
-        'optimum-quanto' \
-        'packaging' \
-        'pillow' \
-        'prodigyopt' \
-        'protobuf' \
-        'requests' \
-        'safetensors' \
-        'scikit-learn' \
-        'sentencepiece' \
-        'torch_dct' \
-        'torchmetrics' \
-        'tqdm' \
-        'transformers' \
-        'ultralytics' \
-        'urllib3' \
-        'wandb' \
-    && echo 'DONE Quantization, optimization and offloading' ;
+            'accelerate' \
+            'albumentations' \
+            'datasets' \
+            'deepspeed' \
+            'einops' \
+            'evaluate' \
+            'fastapi[standard]' \
+            'fastexcel' \
+            'grpcio' \
+            'grpcio-tools' \
+            'inotify-simple' \
+            'ipython' \
+            'ipywidgets' \
+            'jupyter' \
+            'jupyterlab' \
+            'lightning[extra]' \
+            'matplotlib' \
+            'onnxruntime-gpu' \
+            'onnxscript' \
+            'opencv_contrib_python' \
+            'opencv_python' \
+            'openvino' \
+            'optimum' \
+            'optimum-quanto' \
+            'packaging' \
+            'pillow' \
+            'prodigyopt' \
+            'protobuf' \
+            'requests' \
+            'safetensors' \
+            'scikit-learn' \
+            'sentencepiece' \
+            'torch_dct' \
+            'torchmetrics' \
+            'tqdm' \
+            'ultralytics' \
+            'urllib3' \
+            'wandb' \
+            -e "${HOME}/GITHUB/facebookresearch/pytorchvideo" \
+            -e "${HOME}/GITHUB/huggingface/diffusers" \
+            -e "${HOME}/GITHUB/huggingface/huggingface_hub" \
+            -e "${HOME}/GITHUB/huggingface/pytorch-image-models" \
+            -e "${HOME}/GITHUB/huggingface/transformers" \
+    && echo 'DONE onnxstuff' ;
 
 RUN \
-    echo 'START pytorch video source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
-    && uv pip install -e . \
-    && echo 'DONE pytorch video source install' ;
-
-RUN \
-    echo 'START diffusers install from source' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/diffusers.git' \
-    && uv pip install -e . \
-    && echo 'DONE diffusers install from source' ;
-
-RUN \
-    echo 'START transformers source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/transformers.git' \
-    && uv pip install -e . \
-    && echo 'DONE transformers source install' ;
-
-RUN \
-    echo 'START TIMM install from source' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
-    && uv pip install -e . \
-    && echo 'DONE TIMM install from source' ;
-
-RUN \
-    echo 'START huggingface-hub source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
-    && uv pip install -e . \
-    && echo 'DONE huggingface-hub source install' ;
-
-RUN \
-    echo 'START Install detectron2 and detrex' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/IDEA-Research/detrex.git' \
-    && uv pip install '--no-build-isolation' -e 'detectron2' \
-    && uv pip install '--no-build-isolation' -e '.' \
-    && echo 'DONE Install detectron2 and detrex' ;
-
-RUN \
-    echo 'START onnxstuff' \
+    echo 'START Quantization, optimization and offloading' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'grpcio' \
-        'grpcio-tools' \
-        'onnxruntime' \
-        'onnxscript' \
-        'ultralytics' \
+        '--no-build-isolation' \
+            -e "${HOME}/GITHUB/IDEA-Research/detrex" \
+            -e "${HOME}/GITHUB/IDEA-Research/detrex/detectron2" \
     && echo 'DONE onnxstuff' ;
