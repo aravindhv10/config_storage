@@ -2,55 +2,16 @@ FROM 5_libtorch
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
-# RUN \
-#     echo 'START pip' \
-#     && . "${HOME}/venv/bin/activate" \
-#     && uv pip install -U \
-#         'ipython' \
-#         'ninja' \
-#         'packaging' \
-#         'pip' \
-#         'psutil' \
-#         'setuptools' \
-#         'wheel' \
-#     && echo 'DONE pip' ;
-
-# RUN \
-#     echo 'START pip' \
-#     && . "${HOME}/venv/bin/activate" \
-#     && uv pip install \
-#         'dllist' \
-#         'tensorrt-cu13' \
-#         'tensorrt-cu13-bindings' \
-#         'tensorrt-cu13-libs' \
-#         'tensorrt-cu13>=10.13.0,<10.14.0' \
-#         'tensorrt>=10.13.0,<10.14.0' \
-#         'typing-extensions' \
-#     && echo 'DONE pip' ;
-
-# RUN \
-#     echo 'START pytorch' \
-#     && . "${HOME}/venv/bin/activate" \
-#     && uv pip install \
-#         '--index-url' 'https://download.pytorch.org/whl/cu130' \
-#             'torch' \
-#             'torchao' \
-#             'torchvision' \
-#             'xformers' \
-#     && echo 'DONE pytorch' ;
-
-# RUN \
-#     echo 'START pytorch' \
-#     && . "${HOME}/venv/bin/activate" \
-#     && uv pip install \
-#         '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
-#             'tensorrt' \
-#             'torch' \
-#             'torch-tensorrt' \
-#             'torchao' \
-#             'torchvision' \
-#             'xformers' \
-#     && echo 'DONE pytorch' ;
+RUN \
+    echo 'START Download all sources' \
+    && . "${HOME}/important_functions.sh" \
+    && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
+    && get_repo 'https://github.com/huggingface/diffusers.git' \
+    && get_repo 'https://github.com/huggingface/transformers.git' \
+    && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
+    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
+    && get_repo 'https://github.com/IDEA-Research/detrex.git' \
+    && echo 'START Download all sources' ;
 
 RUN \
     echo 'START Quantization, optimization and offloading' \
@@ -60,11 +21,12 @@ RUN \
         'albumentations' \
         'datasets' \
         'deepspeed' \
-        'diffusers' \
         'einops' \
         'evaluate' \
         'fastapi[standard]' \
         'fastexcel' \
+        'grpcio' \
+        'grpcio-tools' \
         'inotify-simple' \
         'ipython' \
         'ipywidgets' \
@@ -72,6 +34,8 @@ RUN \
         'jupyterlab' \
         'lightning[extra]' \
         'matplotlib' \
+        'onnxruntime-gpu' \
+        'onnxscript' \
         'opencv_contrib_python' \
         'opencv_python' \
         'openvino' \
@@ -88,77 +52,14 @@ RUN \
         'torch_dct' \
         'torchmetrics' \
         'tqdm' \
-        'transformers' \
         'ultralytics' \
         'urllib3' \
         'wandb' \
-    && echo 'DONE Quantization, optimization and offloading' ;
-
-RUN \
-    echo 'START pytorch video source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
-    && uv pip install -e . \
-    && echo 'DONE pytorch video source install' ;
-
-RUN \
-    echo 'START diffusers install from source' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/diffusers.git' \
-    && uv pip install -e . \
-    && echo 'DONE diffusers install from source' ;
-
-RUN \
-    echo 'START transformers source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/transformers.git' \
-    && uv pip install -e . \
-    && echo 'DONE transformers source install' ;
-
-RUN \
-    echo 'START TIMM install from source' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
-    && uv pip install -e . \
-    && echo 'DONE TIMM install from source' ;
-
-RUN \
-    echo 'START huggingface-hub source install' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
-    && uv pip install -e . \
-    && echo 'DONE huggingface-hub source install' ;
-
-RUN \
-    echo 'START Install detectron2 and detrex' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/IDEA-Research/detrex.git' \
-    && uv pip install '--no-build-isolation' -e 'detectron2' \
-    && uv pip install '--no-build-isolation' -e '.' \
-    && echo 'DONE Install detectron2 and detrex' ;
-
-RUN \
-    echo 'START onnxstuff' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'grpcio' \
-        'grpcio-tools' \
-        'onnxruntime-gpu' \
-        'onnxscript' \
-        'ultralytics' \
+        -e "${HOME}/GITHUB/IDEA-Research/detrex" \
+        -e "${HOME}/GITHUB/IDEA-Research/detrex/detectron2" \
+        -e "${HOME}/GITHUB/facebookresearch/pytorchvideo" \
+        -e "${HOME}/GITHUB/huggingface/diffusers" \
+        -e "${HOME}/GITHUB/huggingface/huggingface_hub" \
+        -e "${HOME}/GITHUB/huggingface/pytorch-image-models" \
+        -e "${HOME}/GITHUB/huggingface/transformers" \
     && echo 'DONE onnxstuff' ;
-
-# RUN \
-#     echo 'START tensorrt' \
-#     && . "${HOME}/venv/bin/activate" \
-#     && uv pip install \
-#         'tensorrt' \
-#     && echo 'DONE onnxstuff' ;
-
-# RUN \
-#     echo 'START tensorrt' \
-#     && . "${HOME}/venv/bin/activate" \
-#     && uv pip install \
-#         '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
-#             'torch-tensorrt' \
-#     && echo 'DONE onnxstuff' ;
