@@ -102,43 +102,28 @@
 #+end_src
 
 *** CUDA_UBUNTU
-
-**** Official
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/0_base/Dockerfile
-  FROM nvcr.io/nvidia/pytorch:25.11-py3
-  RUN python3 -m venv --system-site-packages /root/venv
-#+end_src
-
-**** Regular
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
   FROM nvidia/cuda:13.0.2-cudnn-devel-ubuntu24.04
 #+end_src
 
 *** AMDGPU
 
-**** Regular
-#+begin_src conf :mkdirp yes :tangle ./AMDGPU/0_base/Dockerfile
-  FROM rocm/dev-ubuntu-24.04:6.4.4-complete
-#+end_src
-
-**** Pytorch
-
-***** Main base image
+**** Main base image
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   FROM rocm/pytorch:rocm7.1_ubuntu24.04_py3.13_pytorch_release_2.9.1
 #+end_src
 
-***** provide default python venv for use later
+**** provide default python venv for use later
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   RUN ln -vfs -- '../opt/venv' '/root/venv'
 #+end_src
 
-***** Copy important functions script
+**** Copy important functions script
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-***** Install essential rocm packages
+**** Install essential rocm packages
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
@@ -150,44 +135,6 @@
 #+end_src
 
 ** 1_install_packages
-
-*** Official nvidia
-
-**** Base image
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
-  FROM 0_base
-#+end_src
-
-**** Important env
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
-  ENV HOME='/root'
-  ENV DEBIAN_FRONTEND='noninteractive'
-  ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
-  WORKDIR '/root'
-  USER root
-#+end_src
-
-**** Copy important functions
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-**** Install common packages
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile
-  RUN \
-      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-      --mount=target=/var/cache/apt,type=cache,sharing=locked \
-      echo 'START apt-get update' \
-      && apt-get update \
-      && apt-get -y install \
-          'aria2' \
-          'fish' \
-          'fzf' \
-          'git' \
-          'zsh' \
-          'zstd' \
-      && echo 'DONE apt-get update' ;
-#+end_src
 
 *** CPU
 
@@ -373,48 +320,12 @@
 #+end_src
 
 *** AMDGPU
-
-**** Pytorch
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/5_libtorch/Dockerfile
   FROM 4_python
   COPY './important_functions.sh' '/root/important_functions.sh'
   ENV LIBTORCH='/opt/venv/lib/python3.13/site-packages/torch'
   ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
-#+end_src
-
-**** Regular
-#+begin_src conf :mkdirp yes :tangle ./AMDGPU/5_libtorch/Dockerfile
-  FROM 4_python
-
-  COPY './important_functions.sh' '/root/important_functions.sh'
-
-  RUN \
-      --mount=target=/root/SHA512SUM,type=cache \
-      --mount=target=/root/TMP,type=cache \
-      echo 'START Download and install libtorch' \
-      && . "${HOME}/important_functions.sh" \
-      && adown \
-          'https://download.pytorch.org/libtorch/rocm6.4/libtorch-shared-with-deps-2.9.1%2Brocm6.4.zip' \
-          'libtorch.zip' \
-          '0cd40a87997d418dbcd5d2e7550d608b5cd44d241b7409118142311d434c32c247e1a96b80ee9bd7b4cf70c53b8bd43e0bf7078c1cecf07445dfcebf438e6486' \
-          "${HOME}/libtorch.zip" \
-      && cd "${HOME}" \
-      && unzip './libtorch.zip' \
-      && cd libtorch \
-      && cd lib \
-      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/lib/");@g' | sh \
-      && cd .. \
-      && cd include \
-      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/include/");@g' | sh \
-      && cd .. \
-      && cd share/cmake \
-      && ls | sed 's@^@(cp -vapf -- "@g;s@$@" "/usr/share/cmake");@g' | sh \
-      && cd ../.. \
-      && cd .. \
-      && echo 'DONE Download and install libtorch' ;
-
-  ENV LIBTORCH="/usr/"
 #+end_src
 
 ** 6_pytorch
@@ -909,13 +820,7 @@
 *** Official
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/0_base'
-  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/1_install_packages'
-  './build_container.sh' 'CPU/2_install_rust'
-  './build_container.sh' 'CPU/3_good_setup'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/5_libtorch'
-  './build_container.sh' 'CUDA_UBUNTU_OFFICIAL/6_pytorch'
+  echo 'Deprecated, run the ./build_cuda.sh'
   exit '0'
 #+end_src
 
@@ -924,13 +829,7 @@
 *** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'AMDGPU/0_base'
-  './build_container.sh' 'CPU/1_install_packages'
-  './build_container.sh' 'CPU/2_install_rust'
-  './build_container.sh' 'CPU/3_good_setup'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'AMDGPU/5_libtorch'
-  './build_container.sh' 'AMDGPU/6_pytorch'
+  echo 'Deprecated, run the ./build_rocm_pytorch.sh'
   exit '0'
 #+end_src
 
@@ -1037,7 +936,7 @@
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git commit -m 'Streamlining python package installations'
+      git commit -m 'More cleanups and streamlining'
       $HOME/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
       git push
   " "log" "err")
