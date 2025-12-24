@@ -3,36 +3,6 @@ FROM 5_libtorch
 COPY './important_functions.sh' '/root/important_functions.sh'
 
 RUN \
-    echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        'ipython' \
-        'ninja' \
-        'packaging' \
-        'pip' \
-        'psutil' \
-        'setuptools' \
-        'wheel' \
-    && echo 'DONE pip' ;
-
-RUN \
-    echo 'START Download all sources' \
-    && . "${HOME}/important_functions.sh" \
-    && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
-    && get_repo 'https://github.com/huggingface/diffusers.git' \
-    && get_repo 'https://github.com/huggingface/transformers.git' \
-    && git switch - \
-    && get_repo 'https://github.com/huggingface/transformers.git' \
-    && git checkout 'tags/v4.57.3' \
-    && get_repo 'https://github.com/huggingface/pytorch-image-models.git' \
-    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
-    && git switch - \
-    && get_repo 'https://github.com/huggingface/huggingface_hub.git' \
-    && git checkout 'tags/v0.36.0' \
-    && get_repo 'https://github.com/IDEA-Research/detrex.git' \
-    && echo 'START Download all sources' ;
-
-RUN \
     echo 'START Quantization, optimization and offloading' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \

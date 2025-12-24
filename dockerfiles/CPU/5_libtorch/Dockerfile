@@ -28,3 +28,16 @@ RUN \
     && echo 'DONE Download and install libtorch' ;
 
 ENV LIBTORCH="/usr/"
+
+RUN \
+    echo 'START pip' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install -U \
+        'ipython' \
+        'ninja' \
+        'packaging' \
+        'pip' \
+        'psutil' \
+        'setuptools' \
+        'wheel' \
+    && echo 'DONE pip' ;
