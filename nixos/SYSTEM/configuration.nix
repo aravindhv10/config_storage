@@ -245,8 +245,6 @@ in {
     cargo
     cargo-info
     catppuccin-kde
-    llvmPackages_20.clang
-    llvmPackages_20.clang-tools
     clinfo
     cmake
     conky
@@ -278,6 +276,7 @@ in {
     gsettings-desktop-schemas
     jq
     json-glib
+    kdePackages.kolourpaint
     kitty
     libarchive
     libcap
@@ -287,6 +286,8 @@ in {
     libseccomp
     libxml2
     lldb
+    llvmPackages_20.clang
+    llvmPackages_20.clang-tools
     lxc
     man-pages
     man-pages-posix

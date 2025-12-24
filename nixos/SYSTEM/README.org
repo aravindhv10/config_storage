@@ -958,8 +958,6 @@ You can disable this if you're only using the Wayland session.
   cargo
   cargo-info
   catppuccin-kde
-  llvmPackages_20.clang
-  llvmPackages_20.clang-tools
   clinfo
   cmake
   conky
@@ -991,6 +989,7 @@ You can disable this if you're only using the Wayland session.
   gsettings-desktop-schemas
   jq
   json-glib
+  kdePackages.kolourpaint
   kitty
   libarchive
   libcap
@@ -1000,6 +999,8 @@ You can disable this if you're only using the Wayland session.
   libseccomp
   libxml2
   lldb
+  llvmPackages_20.clang
+  llvmPackages_20.clang-tools
   lxc
   man-pages
   man-pages-posix
