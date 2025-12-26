@@ -13,7 +13,6 @@ RUN \
     && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
     && echo 'START Download all sources' ;
 
-
 RUN \
     echo 'START Download all sources' \
     && . "${HOME}/important_functions.sh" \

@@ -136,14 +136,12 @@
 
 ** 1_install_packages
 
-*** CPU
-
-**** Base image
+*** Base image
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   FROM 0_base
 #+end_src
 
-**** Important env
+*** Important env
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
@@ -152,12 +150,12 @@
   USER root
 #+end_src
 
-**** Copy important functions
+*** Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-**** Install common packages
+*** Install common packages
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
@@ -259,7 +257,6 @@
       && get_repo 'https://github.com/facebookresearch/pytorchvideo.git' \
       && echo 'START Download all sources' ;
 
-
   RUN \
       echo 'START Download all sources' \
       && . "${HOME}/important_functions.sh" \
@@ -340,6 +337,19 @@
           'setuptools' \
           'wheel' \
       && echo 'DONE pip' ;
+
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          '--index-url' 'https://download.pytorch.org/whl/cpu' \
+              'torch' \
+              'torchvision' \
+      && echo 'DONE pip' ;
+
+  ENV LIBTORCH='/root/venv/lib/python3.12/site-packages/torch'
+  ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
+  ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
 
 *** CUDA_UBUNTU
@@ -410,15 +420,6 @@
   FROM 5_libtorch
 
   COPY './important_functions.sh' '/root/important_functions.sh'
-
-  RUN \
-      echo 'START pip' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
-          '--index-url' 'https://download.pytorch.org/whl/cpu' \
-              'torch' \
-              'torchvision' \
-      && echo 'DONE pip' ;
 
   RUN \
       echo 'START pip' \
