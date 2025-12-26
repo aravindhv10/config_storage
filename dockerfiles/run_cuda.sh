@@ -23,5 +23,3 @@ sudo -A docker run \
     -v "CACHE:/root/.triton" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;
-
-    # -p "0.0.0.0:${LISTEN_PORT}:${LISTEN_PORT}/tcp" \
