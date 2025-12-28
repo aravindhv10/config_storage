@@ -1024,6 +1024,7 @@ You can disable this if you're only using the Wayland session.
   qbittorrent-enhanced
   qpdf
   rust-analyzer
+  rust-bindgen
   rustc
   rustfmt
   shellcheck

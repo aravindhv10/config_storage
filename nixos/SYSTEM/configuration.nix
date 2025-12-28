@@ -311,6 +311,7 @@ in {
     qbittorrent-enhanced
     qpdf
     rust-analyzer
+    rust-bindgen
     rustc
     rustfmt
     shellcheck
