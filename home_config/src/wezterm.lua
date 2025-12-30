@@ -83,3 +83,4 @@ config.launch_menu = {
 }
 
 return config
+

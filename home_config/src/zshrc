@@ -17,4 +17,3 @@ function yz() {
 	rm -f -- "$tmp"
 }
 
-
