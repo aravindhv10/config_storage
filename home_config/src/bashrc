@@ -1,5 +1,4 @@
 export SHELL=bash
 . "${HOME}/.shrc"
-eval -- "$(starship init bash --print-full-init)"
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
