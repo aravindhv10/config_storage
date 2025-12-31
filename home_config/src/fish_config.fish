@@ -1,5 +1,5 @@
 export SHELL=fish
-. "$HOME/.shrc"
+export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
 
 fish_vi_key_bindings
 
