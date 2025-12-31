@@ -483,7 +483,6 @@ get_byobu () {
 
 get_tmux () {
     get_repo 'https://github.com/tmux/tmux.git'
-    git checkout 'tags/3.6'
     sudo -A apt install automake libevent-dev yacc libncurses-dev build-essential
     sh './autogen.sh'
     mkdir -pv -- "${HOME}/build/tmux"

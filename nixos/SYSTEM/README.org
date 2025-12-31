@@ -1061,6 +1061,7 @@ You can disable this if you're only using the Wayland session.
   einops
   fastapi
   flask
+  h5py
   inotify-simple
   ipython
   jax

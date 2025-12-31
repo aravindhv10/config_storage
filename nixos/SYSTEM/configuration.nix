@@ -340,6 +340,7 @@ in {
         einops
         fastapi
         flask
+        h5py
         inotify-simple
         ipython
         jax
