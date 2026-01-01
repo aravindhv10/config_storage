@@ -40,7 +40,7 @@
 *** decompress file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   DECOMPRESS_FILE_ZSTD () {
-      'zstd' "${1}" '--long=30' '-d'
+      'zstd' "${1}" '--long=30' '-d' '-f'
   }
 #+end_src
 

@@ -20,7 +20,7 @@ COMPRESS_FILE_ZSTD () {
 }
 
 DECOMPRESS_FILE_ZSTD () {
-    'zstd' "${1}" '--long=30' '-d'
+    'zstd' "${1}" '--long=30' '-d' '-f'
 }
 
 INSTALL_FOLDER () {
