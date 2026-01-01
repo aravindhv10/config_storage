@@ -19,6 +19,14 @@ COMPRESS_FILE_ZSTD () {
     'zstd' "${1}" '--long=30' '-18'
 }
 
+DECOMPRESS_FILE_ZSTD () {
+    'zstd' "${1}" '--long=30' '-d'
+}
+
+INSTALL_FOLDER () {
+    cp -aspf -- "$('realpath' '--' "${1}/bin")" '/usr/local/'
+}
+
 P_PROCESS_PYTHON () {
     expand | grep -v '^ *$' | grep -v '^#!/usr/bin/python3$' | grep -v '^#!/usr/bin/env python3$' | ruff format - 
 }

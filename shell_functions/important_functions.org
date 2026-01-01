@@ -37,6 +37,20 @@
   }
 #+end_src
 
+*** decompress file
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  DECOMPRESS_FILE_ZSTD () {
+      'zstd' "${1}" '--long=30' '-d'
+  }
+#+end_src
+
+*** install folder
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  INSTALL_FOLDER () {
+      cp -aspf -- "$('realpath' '--' "${1}/bin")" '/usr/local/'
+  }
+#+end_src
+
 *** Process the python file
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   P_PROCESS_PYTHON () {
