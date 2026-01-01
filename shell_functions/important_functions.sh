@@ -599,6 +599,7 @@ INSTALL_ZST_ZRCHIVE () {
             "${1}" \
             "/var/tmp/${2}.tar.zst" \
     ;
+    cd '/var/tmp'
     DECOMPRESS_FILE_ZSTD "${2}.tar.zst"
     tar -xf "${2}.tar"
     INSTALL_FOLDER "${2}"
