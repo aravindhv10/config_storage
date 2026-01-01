@@ -93,10 +93,10 @@ do_download() {
     which aria2c || install_aria
 
     test -e "${HOME}/TMP/${2}.aria2" \
-        && aria2c -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
+        && aria2c --check-certificate=false -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
 
     test -e "${HOME}/TMP/${2}" \
-        || aria2c -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
+        || aria2c --check-certificate=false -c -x16 -j16 "${1}" -o "${2}" -d "${HOME}/TMP/" ;
 }
 
 do_link(){
