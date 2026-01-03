@@ -47,6 +47,7 @@
 *** install folder
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   INSTALL_FOLDER () {
+      mkdir -pv -- '/usr/local/'
       cp -aspf -- "$('realpath' '--' "${1}/bin")" '/usr/local/'
   }
 #+end_src

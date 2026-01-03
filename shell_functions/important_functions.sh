@@ -24,6 +24,7 @@ DECOMPRESS_FILE_ZSTD () {
 }
 
 INSTALL_FOLDER () {
+    mkdir -pv -- '/usr/local/'
     cp -aspf -- "$('realpath' '--' "${1}/bin")" '/usr/local/'
 }
 
