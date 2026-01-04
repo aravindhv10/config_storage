@@ -266,6 +266,13 @@ fonts.packages = with pkgs; [ nerdfonts ];
 
 ***** MAIN
 
+****** Additional hosts
+#+begin_src nix :tangle ./configuration.nix
+  hosts = {
+    "192.168.122.2" = ["vm"];
+  };
+#+end_src
+
 ****** TIME
 
 ******* FIXED
