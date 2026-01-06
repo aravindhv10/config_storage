@@ -130,3 +130,6 @@
 /wrapper_code/wrapper.org~
 /zellij_flatpak_wrapper/#main.org#
 /zellij_flatpak_wrapper/main.org~
+/target/
+/home_config/Cargo.lock
+/home_config/target/
