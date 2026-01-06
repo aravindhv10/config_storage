@@ -23,59 +23,6 @@
   /waste/
 #+end_src
 
-* Script to work
-
-** Change to the relevant dir
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  cd "$(dirname -- "${0}")"
-#+end_src
-
-** Source the commonly used functions
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  . '../shell_functions/important_functions.sh'
-#+end_src
-
-** Cleanup unused files
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  CLEAN '.git.sh'
-  CLEAN 'README.org~'
-#+end_src
-
-** Add the main files
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
-  GITADD '.gitignore'
-  GITADD 'AMDGPU/0_base/Dockerfile'
-  GITADD 'AMDGPU/5_libtorch/Dockerfile'
-  GITADD 'AMDGPU/6_pytorch/Dockerfile'
-  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
-  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
-  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
-  GITADD 'CPU/0_base/Dockerfile'
-  GITADD 'CPU/1_install_packages/Dockerfile'
-  GITADD 'CPU/2_install_rust/Dockerfile'
-  GITADD 'CPU/3_good_setup/Dockerfile'
-  GITADD 'CPU/4_python/Dockerfile'
-  GITADD 'CPU/5_libtorch/Dockerfile'
-  GITADD 'CPU/6_pytorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
-  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU_OFFICIAL/0_base/Dockerfile'
-  GITADD 'CUDA_UBUNTU_OFFICIAL/1_install_packages/Dockerfile'
-  GITADD 'CUDA_UBUNTU_OFFICIAL/5_libtorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU_OFFICIAL/6_pytorch/Dockerfile'
-  GITADD 'README.org'
-  GITADD 'build_container.sh'
-  GITADD 'build_cpu.sh'
-  GITADD 'build_cuda.sh'
-  GITADD 'build_cuda_official.sh'
-  GITADD 'build_rocm.sh'
-  GITADD 'build_rocm_pytorch.sh'
-  GITADD 'run_cpu.sh'
-  GITADD 'run_cuda.sh'
-  GITADD 'run_rocm.sh'
-#+end_src
-
 * Main build script
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./build_container.sh
   cd "$('dirname' -- "${0}")"
@@ -560,8 +507,6 @@
 #+end_src
 
 ** CUDA_UBUNTU
-
-*** Regular
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
   cd "$(dirname -- "${0}")"
   './build_container.sh' 'CUDA_UBUNTU/0_base'
@@ -574,23 +519,7 @@
   exit '0'
 #+end_src
 
-*** Official
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda_official.sh
-  cd "$(dirname -- "${0}")"
-  echo 'Deprecated, run the ./build_cuda.sh'
-  exit '0'
-#+end_src
-
 ** AMDGPU
-
-*** Regular
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm.sh
-  cd "$(dirname -- "${0}")"
-  echo 'Deprecated, run the ./build_rocm_pytorch.sh'
-  exit '0'
-#+end_src
-
-*** Pytorch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm_pytorch.sh
   cd "$(dirname -- "${0}")"
   './build_container.sh' 'AMDGPU_PYT/0_base'
@@ -671,26 +600,50 @@
   ;
 #+end_src
 
-* COMMENT Work space
+* Script to work
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
 
-** Only add files to git
+  . '../shell_functions/important_functions.sh'
+
+  CLEAN '.git.sh'
+  CLEAN 'README.org~'
+
+  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
+  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
+  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
+  GITADD 'build_container.sh'
+  GITADD 'build_cpu.sh'
+  GITADD 'build_cuda.sh'
+  GITADD 'build_rocm_pytorch.sh'
+  GITADD 'CPU/0_base/Dockerfile'
+  GITADD 'CPU/1_install_packages/Dockerfile'
+  GITADD 'CPU/2_install_rust/Dockerfile'
+  GITADD 'CPU/3_good_setup/Dockerfile'
+  GITADD 'CPU/4_python/Dockerfile'
+  GITADD 'CPU/5_libtorch/Dockerfile'
+  GITADD 'CPU/6_pytorch/Dockerfile'
+  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
+  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
+  GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
+  GITADD 'README.org'
+  GITADD 'run_cpu.sh'
+  GITADD 'run_cuda.sh'
+  GITADD 'run_rocm.sh'
+
+  git commit -m 'Updated docker stuff'
+  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh"
+  git push
+
+  exit '0'
+#+end_src
+
+* COMMENT Work space
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
       git status
-  " "log" "err")
-#+end_src
-
-** Add, commit, push
-#+begin_src emacs-lisp :results silent
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "
-      './.git.sh'
-      git commit -m 'More cleanups and streamlining of dockerfiles'
-      $HOME/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
-      git push
   " "log" "err")
 #+end_src
