@@ -1,6 +1,7 @@
 export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 
 test -e  "${HOME}/.cargo/env" && . "${HOME}/.cargo/env"
+test -e  "${HOME}/important_functions.sh" && . "${HOME}/important_functions.sh"
 
 y() {
 	set -- "$@" --cwd-file "$(mktemp -t yazi-cwd.XXXXXX)"
