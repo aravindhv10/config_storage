@@ -31,18 +31,11 @@ async fn get_path_home(
     HOME
 }
 
-async fn get_path_github(HOME: std::string::String) -> std::string::String {
+async fn get_path_github(HOME: std::string::String) -> anyhow::Result<std::string::String> {
     let GITHUB = std::string::String::from(HOME) + "/GITHUB";
     let path = std::path::Path::new(GITHUB.as_str());
-    match tokio::fs::create_dir_all(path).await {
-        Ok(_) => {
-            println!("Created GITHUB dir");
-        }
-        Err(e) => {
-            println!("Unable to create GITHUB dir due to {}", e);
-        }
-    };
-    return GITHUB;
+    tokio::fs::create_dir_all(path).await?;
+    Ok(GITHUB)
 }
 
 ////////////////////////////////////////////////////////////////
@@ -108,20 +101,11 @@ async fn get_content_zshrc() -> std::string::String {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-async fn get_path_helix_config(HOME: std::string::String) -> std::string::String {
+async fn get_path_helix_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/helix";
     let path = std::path::Path::new(path_str.as_str());
-
-    match tokio::fs::create_dir_all(path).await {
-        Ok(o) => println!("Created directory {}.", path_str.as_str()),
-        Err(e) => eprintln!(
-            "Error creating directories {} due to {}",
-            path_str.as_str(),
-            e
-        ),
-    }
-
-    path_str + "/config.toml"
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/config.toml")
 }
 
 async fn get_content_helix_config() -> std::string::String {
@@ -132,20 +116,11 @@ async fn get_content_helix_config() -> std::string::String {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-async fn get_path_fish_config(HOME: std::string::String) -> std::string::String {
+async fn get_path_fish_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/fish";
     let path = std::path::Path::new(path_str.as_str());
-
-    match tokio::fs::create_dir_all(path).await {
-        Ok(o) => println!("Created directory {}.", path_str.as_str()),
-        Err(e) => eprintln!(
-            "Error creating directories {} due to {}",
-            path_str.as_str(),
-            e
-        ),
-    }
-
-    path_str + "/config.fish"
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/config.fish")
 }
 
 async fn get_content_fish_config() -> std::string::String {
@@ -247,20 +222,13 @@ end
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-async fn get_path_alacritty_config(HOME: std::string::String) -> std::string::String {
+async fn get_path_alacritty_config(
+    HOME: std::string::String,
+) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/alacritty";
     let path = std::path::Path::new(path_str.as_str());
-
-    match tokio::fs::create_dir_all(path).await {
-        Ok(o) => println!("Created directory {}.", path_str.as_str()),
-        Err(e) => eprintln!(
-            "Error creating directories {} due to {}",
-            path_str.as_str(),
-            e
-        ),
-    }
-
-    path_str + "/alacritty.toml"
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/alacritty.toml")
 }
 
 async fn get_content_alacritty_config() -> std::string::String {
@@ -271,20 +239,11 @@ async fn get_content_alacritty_config() -> std::string::String {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-async fn get_path_foot_config(HOME: std::string::String) -> std::string::String {
+async fn get_path_foot_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/foot";
     let path = std::path::Path::new(path_str.as_str());
-
-    match tokio::fs::create_dir_all(path).await {
-        Ok(o) => println!("Created directory {}.", path_str.as_str()),
-        Err(e) => eprintln!(
-            "Error creating directories {} due to {}",
-            path_str.as_str(),
-            e
-        ),
-    }
-
-    path_str + "//foot.ini"
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "//foot.ini")
 }
 
 async fn get_content_foot_config() -> std::string::String {
@@ -322,7 +281,7 @@ struct configurator {
 }
 
 impl configurator {
-    async fn new() -> Self {
+    async fn new() -> anyhow::Result<Self> {
         let current_env = get_env();
         let path_home = get_path_home(&current_env).await;
 
@@ -348,40 +307,31 @@ impl configurator {
             get_path_wezterm_config(path_home.clone()),
         );
 
-        configurator {
+        Ok(configurator {
             current_env: current_env,
             path_home: path_home,
             path_shrc: path_shrc,
             path_zshrc: path_zshrc,
-            path_github: path_github,
+            path_github: path_github?,
             path_bashrc: path_bashrc,
-            path_helix_config: path_helix_config,
-            path_fish_config: path_fish_config,
-            path_alacritty_config: path_alacritty_config,
-            path_foot_config: path_foot_config,
+            path_helix_config: path_helix_config?,
+            path_fish_config: path_fish_config?,
+            path_alacritty_config: path_alacritty_config?,
+            path_foot_config: path_foot_config?,
             path_wezterm_config: path_wezterm_config,
-        }
+        })
     }
 
-    async fn get_github_repo(self: &Self, github_url: std::string::String) -> std::string::String {
+    async fn get_github_repo(
+        self: &Self,
+        github_url: std::string::String,
+    ) -> anyhow::Result<std::string::String> {
         let starting_point = "https://github.com".len();
         let ending_point = github_url.len() - ".git".len();
         let new_url = self.path_github.clone() + &github_url.clone()[starting_point..ending_point];
         let path = std::path::Path::new(new_url.as_str());
-
-        match tokio::fs::create_dir_all(path).await {
-            Ok(o) => println!("Created directory {}.", new_url.as_str()),
-            Err(e) => eprintln!("Error creating directories: {}", e),
-        }
-
-        match std::env::set_current_dir(path) {
-            Ok(_) => {
-                println!("Currently in dir {}", new_url.as_str());
-            }
-            Err(e) => {
-                println!("Failed to change to dir {} due to {}", new_url.as_str(), e);
-            }
-        }
+        tokio::fs::create_dir_all(path).await?;
+        std::env::set_current_dir(path)?;
 
         match tokio::process::Command::new("git")
             .arg("clone")
@@ -443,19 +393,20 @@ impl configurator {
             }
         };
 
-        new_url
+        Ok(new_url)
     }
 
-    async fn update_config_store(self: &Self) {
-        let _ = self
-            .get_github_repo("https://github.com/aravindhv10/config_storage.git".to_string())
-            .await;
+    async fn update_config_store(self: &Self) -> anyhow::Result<()> {
+        self.get_github_repo("https://github.com/aravindhv10/config_storage.git".to_string())
+            .await?;
+
+        Ok(())
     }
 
-    async fn get_oh_my_zsh(self: &Self) {
-        let _ = self
-            .get_github_repo("https://github.com/ohmyzsh/ohmyzsh.git".to_string())
-            .await;
+    async fn get_oh_my_zsh(self: &Self) -> anyhow::Result<()> {
+        self.get_github_repo("https://github.com/ohmyzsh/ohmyzsh.git".to_string())
+            .await?;
+
         match tokio::fs::symlink(
             "./GITHUB/ohmyzsh/ohmyzsh",
             self.path_home.clone() + "/.oh-my-zsh",
@@ -463,15 +414,17 @@ impl configurator {
         .await
         {
             Ok(_) => {
-                println!("Created oh-my-zsh symlink")
+                println!("Created oh-my-zsh symlink");
             }
             Err(e) => {
                 println!("failed to create symlink {}", e);
             }
         }
+
+        Ok(())
     }
 
-    async fn setup_all_config(self: &Self) {
+    async fn setup_all_config(self: &Self) -> anyhow::Result<()> {
         let status = tokio::join!(
             tokio::fs::write(&self.path_shrc, get_content_shrc().await),
             tokio::fs::write(&self.path_zshrc, get_content_zshrc().await),
@@ -490,20 +443,21 @@ impl configurator {
             self.get_oh_my_zsh(),
             self.update_config_store()
         );
-        status.0.expect("failed putting shrc");
-        status.1.expect("failed putting zshrc");
-        status.2.expect("failed putting bashrc");
-        status.3.expect("failed putting helix");
-        status.4.expect("failed putting fish");
-        status.5.expect("failed putting alacritty");
-        status.6.expect("failed putting foot");
-        status.7.expect("failed putting wezterm");
+        status.0?;
+        status.1?;
+        status.2?;
+        status.3?;
+        status.4?;
+        status.5?;
+        status.6?;
+        status.7?;
+        Ok(())
     }
 }
 
-async fn do_all_config() {
-    let slave = configurator::new().await;
-    slave.setup_all_config().await;
+async fn do_all_config() -> anyhow::Result<()> {
+    let slave = configurator::new().await?;
+    slave.setup_all_config().await
 }
 
 fn do_all_config_wrapper() {
