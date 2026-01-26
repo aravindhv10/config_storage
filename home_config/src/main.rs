@@ -331,9 +331,9 @@ impl configurator {
         let new_url = self.path_github.clone() + &github_url.clone()[starting_point..ending_point];
         let path = std::path::Path::new(new_url.as_str());
         tokio::fs::create_dir_all(path).await?;
-        std::env::set_current_dir(path)?;
 
         match tokio::process::Command::new("git")
+            .current_dir(path)
             .arg("clone")
             .arg(github_url)
             .arg(".")
@@ -357,7 +357,9 @@ impl configurator {
         }
 
         match tokio::process::Command::new("git")
+            .current_dir(path)
             .arg("pull")
+            .arg("--ff-only")
             .output()
             .await
         {
@@ -374,6 +376,7 @@ impl configurator {
         }
 
         match tokio::process::Command::new("git")
+            .current_dir(path)
             .arg("submodule")
             .arg("update")
             .arg("--recursive")
