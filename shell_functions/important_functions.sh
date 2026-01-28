@@ -751,9 +751,10 @@ get_apt_packages() {
         'libpcre2-posix3' \
         'libsqlite3-dev' \
         'libssl-dev' \
-        'libstdc++-10-dev' \
         'libstdc++-12-dev' \
+        'libstdc++-13-dev' \
         'libstdc++-14-dev' \
+        'libstdc++-15-dev' \
         'libvulkan1' \
         'libwayland-dev' \
         'libx11-xcb-dev' \
@@ -784,3 +785,5 @@ get_apt_packages() {
         'zstd' \
     ; 
 }
+
+        # 'libstdc++-10-dev' \
