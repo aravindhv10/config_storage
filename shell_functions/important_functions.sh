@@ -723,16 +723,24 @@ get_apt_packages() {
         'clangd' \
         'cmake' \
         'curl' \
+        'elfutils' \
         'ffmpeg' \
         'fish' \
         'fzf' \
+        'g++' \
         'gawk' \
+        'gcc' \
         'gettext' \
+        'gettext-base' \
         'git' \
         'git-lfs' \
         'graphicsmagick-imagemagick-compat' \
         'ipython3' \
+        'jq' \
+        'libasound2-dev' \
         'libevent-dev' \
+        'libfontconfig-dev' \
+        'libgit2-dev' \
         'liblz4-dev' \
         'liblzo2-dev' \
         'libopencv-dev' \
@@ -741,9 +749,20 @@ get_apt_packages() {
         'libpcre2-8-0' \
         'libpcre2-dev' \
         'libpcre2-posix3' \
+        'libsqlite3-dev' \
         'libssl-dev' \
+        'libstdc++-10-dev' \
+        'libstdc++-12-dev' \
+        'libstdc++-14-dev' \
+        'libvulkan1' \
+        'libwayland-dev' \
+        'libx11-xcb-dev' \
+        'libxkbcommon-x11-dev' \
         'libzstd-dev' \
         'make' \
+        'mold' \
+        'musl-dev' \
+        'musl-tools' \
         'nasm' \
         'neovim' \
         'ninja-build' \
