@@ -357,7 +357,6 @@
           'grpcio-tools' \
           'onnxruntime' \
           'onnxscript' \
-          'ultralytics' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
