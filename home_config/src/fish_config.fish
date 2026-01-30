@@ -1,5 +1,6 @@
 export SHELL=fish
 export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
+export EDITOR='hx'
 
 fish_vi_key_bindings
 
