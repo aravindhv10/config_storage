@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Started GIT scripts
+  Started new emacs config
 #+end_src
 
 ** Add git stuff
@@ -24,6 +24,7 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
+  emacs_new/README.org
   .gitignore
   GIT.org
 #+end_src
