@@ -754,7 +754,6 @@ get_apt_packages() {
         'libstdc++-12-dev' \
         'libstdc++-13-dev' \
         'libstdc++-14-dev' \
-        'libstdc++-15-dev' \
         'libvulkan1' \
         'libwayland-dev' \
         'libx11-xcb-dev' \
