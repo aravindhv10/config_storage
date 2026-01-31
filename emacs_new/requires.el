@@ -11,6 +11,7 @@
 (require 'helpful)
 (require 'llama)
 (require 'magit)
+(require 'projectile)
 (require 'rainbow-delimiters)
 (require 'rainbow-identifiers)
 (require 'rainbow-mode)

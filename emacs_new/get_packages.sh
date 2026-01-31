@@ -1,6 +1,7 @@
 #!/bin/sh
 GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
 GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
+GET_EMACS_PKG 'https://github.com/bbatsov/projectile.git'
 GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
 GET_EMACS_PKG 'https://github.com/dgutov/diff-hl.git'
 GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'

@@ -17,6 +17,7 @@
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./get_packages.sh
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
   GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
+  GET_EMACS_PKG 'https://github.com/bbatsov/projectile.git'
   GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
   GET_EMACS_PKG 'https://github.com/dgutov/diff-hl.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
@@ -41,10 +42,10 @@
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
 #+end_src
 
-  magit/transient
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/bbatsov/projectile"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
@@ -80,6 +81,7 @@
   (require 'helpful)
   (require 'llama)
   (require 'magit)
+  (require 'projectile)
   (require 'rainbow-delimiters)
   (require 'rainbow-identifiers)
   (require 'rainbow-mode)

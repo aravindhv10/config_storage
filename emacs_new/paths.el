@@ -1,5 +1,6 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/bbatsov/projectile"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
