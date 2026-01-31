@@ -215,6 +215,26 @@ end
         Err(e) => {}
     };
 
+    match tokio::process::Command::new("sk")
+        .args(["--shell", "fish"])
+        .output()
+        .await
+    {
+        Ok(o) => {
+            match std::str::from_utf8(&o.stdout) {
+                Ok(o) => {
+                    content_fish = content_fish + o;
+                }
+                Err(e) => {
+                    println!("Unable to configure atuin for fish due to {}", e);
+                }
+            };
+        }
+        Err(e) => {
+            println!("atuin not found")
+        }
+    }
+
     content_fish
 }
 

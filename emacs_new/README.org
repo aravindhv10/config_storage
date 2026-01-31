@@ -26,10 +26,14 @@
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
   GET_EMACS_PKG 'https://github.com/magit/magit.git'
+  GET_EMACS_PKG 'https://github.com/magit/transient.git'
+  GET_EMACS_PKG 'https://github.com/magit/with-editor.git'
   GET_EMACS_PKG 'https://github.com/magnars/dash.el.git'
   GET_EMACS_PKG 'https://github.com/magnars/s.el.git'
   GET_EMACS_PKG 'https://github.com/noctuid/annalist.el.git'
   GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
+  GET_EMACS_PKG 'https://github.com/tarsius/cond-let.git'
+  GET_EMACS_PKG 'https://github.com/tarsius/llama.git'
   GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
   GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
 #+end_src
@@ -37,7 +41,7 @@
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
 #+end_src
 
-  GET_EMACS_PKG 'https://github.com/magit/magit.git'
+  magit/transient
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
@@ -50,10 +54,14 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/magit/lisp"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/transient/lisp"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/with-editor/lisp"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/llama"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
 #+end_src
@@ -61,6 +69,7 @@
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
   (require 'annalist)
   (require 'company)
+  (require 'cond-let)
   (require 'counsel)
   (require 'dash)
   (require 'diff-hl)
@@ -69,12 +78,15 @@
   (require 'evil-collection)
   (require 'f)
   (require 'helpful)
+  (require 'llama)
   (require 'magit)
   (require 'rainbow-delimiters)
   (require 'rainbow-identifiers)
   (require 'rainbow-mode)
   (require 's)
   (require 'swiper)
+  (require 'transient)
+  (require 'with-editor)
   (require 'yasnippet)
   (require 'yasnippet-snippets)
 #+end_src
