@@ -24,8 +24,10 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
+  emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
+  emacs_new/hooks.el
   emacs_new/paths.el
   emacs_new/README.org
   emacs_new/requires.el

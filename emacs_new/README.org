@@ -6,16 +6,19 @@
       get_repo "${1}"
   }
 
-  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
   GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
+  GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'
+  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
+  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/magnars/dash.el.git'
   GET_EMACS_PKG 'https://github.com/magnars/s.el.git'
   GET_EMACS_PKG 'https://github.com/noctuid/annalist.el.git'
   GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
@@ -23,15 +26,18 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
@@ -43,8 +49,33 @@
   (require 'evil-collection)
   (require 'f)
   (require 'helpful)
+  (require 'rainbow-delimiters)
+  (require 'rainbow-identifiers)
+  (require 'rainbow-mode)
   (require 's)
   (require 'swiper)
+#+end_src
+
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./hooks.el
+  (add-hook 'conf-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'conf-mode-hook 'rainbow-identifiers-mode)
+  (add-hook 'conf-mode-hook 'rainbow-mode)
+  (add-hook 'dired-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'dired-mode-hook 'rainbow-identifiers-mode)
+  (add-hook 'dired-mode-hook 'rainbow-mode)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'prog-mode-hook 'rainbow-identifiers-mode)
+  (add-hook 'prog-mode-hook 'rainbow-mode)
+  (add-hook 'text-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'text-mode-hook 'rainbow-identifiers-mode)
+  (add-hook 'text-mode-hook 'rainbow-mode)
+#+end_src
+
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./bindings.el
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+  (global-set-key (kbd "C-h x") #'helpful-command)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
@@ -53,22 +84,24 @@
   ;; Evil and evil collections
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
+  (setq modus-themes-org-blocks 'tinted-background)
+  (setq-default indent-tabs-mode nil)
 
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/requires.el"))
-
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/hooks.el"))
 
   (evil-mode 1)
+  (which-key-mode 1)
   (global-company-mode 1)
   (evil-collection-init)
   (ivy-mode 1)
+  (global-display-line-numbers-mode 1)
 
   ;; Note that the built-in `describe-function' includes both functions
   ;; and macros. `helpful-function' is functions only, so we provide
   ;; `helpful-callable' as a drop-in replacement.
-  (global-set-key (kbd "C-h f") #'helpful-callable)
-  (global-set-key (kbd "C-h v") #'helpful-variable)
-  (global-set-key (kbd "C-h k") #'helpful-key)
-  (global-set-key (kbd "C-h x") #'helpful-command)
+
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/bindings.el"))
 
   (load-theme 'modus-vivendi)
 
@@ -85,4 +118,3 @@
    ;; If there is more than one, they won't work right.
    '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight bold :height 158 :width normal)))))
 #+end_src
-

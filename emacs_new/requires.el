@@ -6,5 +6,8 @@
 (require 'evil-collection)
 (require 'f)
 (require 'helpful)
+(require 'rainbow-delimiters)
+(require 'rainbow-identifiers)
+(require 'rainbow-mode)
 (require 's)
 (require 'swiper)
