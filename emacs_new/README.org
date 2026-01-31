@@ -4,31 +4,54 @@
 
   GET_EMACS_PKG () {
       get_repo "${1}"
-      ln -vfs "$(realpath .)" "${HOME}/.emacs.d/"
   }
 
-  GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
+  GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
+  GET_EMACS_PKG 'https://github.com/magnars/dash.el.git'
+  GET_EMACS_PKG 'https://github.com/magnars/s.el.git'
   GET_EMACS_PKG 'https://github.com/noctuid/annalist.el.git'
+  GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
 
   ;; Evil and evil collections
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
 
   (require 'annalist)
+  (require 'dash)
+  (require 'elisp-refs)
   (require 'evil)
   (require 'evil-collection)
+  (require 'f)
+  (require 'helpful)
+  (require 's)
 
   (evil-mode 1)
   (evil-collection-init)
-#+end_src
 
+  ;; Note that the built-in `describe-function' includes both functions
+  ;; and macros. `helpful-function' is functions only, so we provide
+  ;; `helpful-callable' as a drop-in replacement.
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+  (global-set-key (kbd "C-h x") #'helpful-command)
+
+  (load-theme 'modus-vivendi)
+#+end_src
