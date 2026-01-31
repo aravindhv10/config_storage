@@ -8,6 +8,7 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/magit/magit/lisp"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
