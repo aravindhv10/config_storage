@@ -1,4 +1,6 @@
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./setup.sh
+  cd "$(dirname -- "${0}")"
+
   . "${HOME}/important_functions.sh"
   cp -apf -- '.emacs.d' "${HOME}/"
 
@@ -6,7 +8,15 @@
       get_repo "${1}"
   }
 
+  . './get_packages.sh'
+
+  mkdir -pv -- "${HOME}/.emacs.d/snippets/"
+  rsync -avh --progress "${HOME}/GITHUB/AndreaCrotti/yasnippet-snippets/snippets/" "${HOME}/.emacs.d/snippets/"
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./get_packages.sh
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
+  GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
   GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
   GET_EMACS_PKG 'https://github.com/dgutov/diff-hl.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
@@ -14,6 +24,7 @@
   GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
+  GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
   GET_EMACS_PKG 'https://github.com/magnars/dash.el.git'
   GET_EMACS_PKG 'https://github.com/magnars/s.el.git'
   GET_EMACS_PKG 'https://github.com/noctuid/annalist.el.git'
@@ -27,19 +38,21 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
@@ -57,6 +70,8 @@
   (require 'rainbow-mode)
   (require 's)
   (require 'swiper)
+  (require 'yasnippet)
+  (require 'yasnippet-snippets)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./hooks.el
@@ -83,30 +98,30 @@
   (global-set-key (kbd "M-/") #'dabbrev-completion)
 #+end_src
 
-#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
-  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/paths.el"))
-
-  ;; Evil and evil collections
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables.el
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   (setq modus-themes-org-blocks 'tinted-background)
   (setq-default indent-tabs-mode nil)
+#+end_src
 
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./modes.el
+  (evil-collection-init)
+  (evil-mode 1)
+  (global-company-mode 1)
+  (global-diff-hl-mode)
+  (global-display-line-numbers-mode 1)
+  (ivy-mode 1)
+  (which-key-mode 1)
+  (yas-global-mode 1)
+#+end_src
+
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/paths.el"))
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/variables.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/requires.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/hooks.el"))
-
-  (evil-mode 1)
-  (which-key-mode 1)
-  (global-company-mode 1)
-  (evil-collection-init)
-  (ivy-mode 1)
-  (global-display-line-numbers-mode 1)
-  (global-diff-hl-mode)
-
-  ;; Note that the built-in `describe-function' includes both functions
-  ;; and macros. `helpful-function' is functions only, so we provide
-  ;; `helpful-callable' as a drop-in replacement.
-
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/modes.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/bindings.el"))
 
   (load-theme 'modus-vivendi)

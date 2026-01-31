@@ -27,11 +27,14 @@
   emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
+  emacs_new/get_packages.sh
   emacs_new/hooks.el
+  emacs_new/modes.el
   emacs_new/paths.el
   emacs_new/README.org
   emacs_new/requires.el
   emacs_new/setup.sh
+  emacs_new/variables.el
   .gitignore
   GIT.org
 #+end_src
@@ -139,45 +142,58 @@
   wrapper_code/wrapper.org~
   zellij_flatpak_wrapper/#main.org#
   zellij_flatpak_wrapper/main.org~
+  helix/README.org~
 #+end_src
 
 ** ignore
 #+begin_src conf :mkdirp yes :tangle ./GIT/gitignore.txt
-  GIT/commit_and_push.sh
-  GIT/git_add.txt
-  GIT/gitignore.txt
-  GIT/message.txt
-  GIT/rm.txt
-  GIT/work.sh
-  RUST/bin/
-  RUST/compile.el
-  RUST/exe/
   add_elpaca_submodules.sh
   add_rust_submodules.sh
+  dockerfiles/AMDGPU_PYT/0_base/build/
+  dockerfiles/AMDGPU_PYT/0_base/important_functions.sh
+  dockerfiles/AMDGPU_PYT/5_libtorch/build/
+  dockerfiles/AMDGPU_PYT/5_libtorch/important_functions.sh
+  dockerfiles/AMDGPU_PYT/6_pytorch/build/
+  dockerfiles/AMDGPU_PYT/6_pytorch/deb_mirror/
+  dockerfiles/AMDGPU_PYT/6_pytorch/home_config/
+  dockerfiles/AMDGPU_PYT/6_pytorch/important_functions.sh
+  dockerfiles/AMDGPU_PYT/6_pytorch/run_rocm.sh
+  dockerfiles/AMDGPU_PYT/6_pytorch/tmp.rs
+  dockerfiles/AMDGPU_PYT/6_pytorch/XANMOD/
+  dockerfiles/CPU/3_good_setup/run_cpu.sh
+  dockerfiles/CPU/3_good_setup/RUST_CAMERA/
   emacs.d/.lsp-session-v1
   emacs.d/projectile-bookmarks.eld
   emacs.d/recentf
   emacs.d/tmp.el
   emacs.d/transient/
   git_add.txt
+  GIT/commit_and_push.sh
+  GIT/git_add.txt
+  GIT/gitignore.txt
   gitignore.txt
-  helix/README.org~
+  GIT/message.txt
+  GIT/rm.txt
+  GIT/work.sh
   home_config/Cargo.lock
   home_config/target/
   kde_shortcuts/applications/#README.org#
   kde_shortcuts/scripts/README.org~
   launcher_script_template/scripts/main.org~
   main.org~
-  nixos/#configuration.nix#
   nixos/.config/dconf/
   nixos/.config/kwalletrc
   nixos/.config/pulse/
   nixos/.config/session/
+  nixos/#configuration.nix#
   nixos/HOME/main.org~
   rm.txt
+  RUST/bin/
+  RUST/compile.el
+  RUST/exe/
   scripts/alacritty_master.sh~
-  shell_functions/.important_functions.org.~undo-tree~
   shell_functions/important_functions.org~
+  shell_functions/.important_functions.org.~undo-tree~
   starship/copy.sh~
   target/
   wireguard_scripts/privatekey

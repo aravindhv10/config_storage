@@ -12,3 +12,5 @@
 (require 'rainbow-mode)
 (require 's)
 (require 'swiper)
+(require 'yasnippet)
+(require 'yasnippet-snippets)

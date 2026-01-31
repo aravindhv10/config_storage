@@ -1,0 +1,8 @@
+(evil-collection-init)
+(evil-mode 1)
+(global-company-mode 1)
+(global-diff-hl-mode)
+(global-display-line-numbers-mode 1)
+(ivy-mode 1)
+(which-key-mode 1)
+(yas-global-mode 1)
