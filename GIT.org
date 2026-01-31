@@ -24,10 +24,15 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
-  emacs_new/README.org
   .gitignore
   GIT.org
+  emacs_new/.emacs.d/early-init.el
+  emacs_new/.emacs.d/init.el
+  emacs_new/README.org
+  emacs_new/setup.sh
 #+end_src
+
+
 
 ** rm
 #+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
