@@ -8,6 +8,7 @@ GET_EMACS_PKG () {
 
 GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
 GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
+GET_EMACS_PKG 'https://github.com/dgutov/diff-hl.git'
 GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
 GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
 GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'

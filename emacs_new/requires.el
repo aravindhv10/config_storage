@@ -1,6 +1,7 @@
 (require 'annalist)
 (require 'company)
 (require 'dash)
+(require 'diff-hl)
 (require 'elisp-refs)
 (require 'evil)
 (require 'evil-collection)

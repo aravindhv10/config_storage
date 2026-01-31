@@ -11,3 +11,4 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))

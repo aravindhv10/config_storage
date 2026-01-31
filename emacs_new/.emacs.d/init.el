@@ -15,6 +15,7 @@
 (evil-collection-init)
 (ivy-mode 1)
 (global-display-line-numbers-mode 1)
+(global-diff-hl-mode)
 
 ;; Note that the built-in `describe-function' includes both functions
 ;; and macros. `helpful-function' is functions only, so we provide
