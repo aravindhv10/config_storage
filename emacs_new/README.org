@@ -34,13 +34,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
 #+end_src
 
-#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
-  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/paths.el"))
-
-  ;; Evil and evil collections
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
   (require 'annalist)
   (require 'company)
   (require 'dash)
@@ -51,6 +45,16 @@
   (require 'helpful)
   (require 's)
   (require 'swiper)
+#+end_src
+
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/paths.el"))
+
+  ;; Evil and evil collections
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/requires.el"))
 
 
   (evil-mode 1)
@@ -81,3 +85,4 @@
    ;; If there is more than one, they won't work right.
    '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight bold :height 158 :width normal)))))
 #+end_src
+

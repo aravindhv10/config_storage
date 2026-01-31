@@ -1,34 +1,16 @@
-(add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
-(add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
+(load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/paths.el"))
 
 ;; Evil and evil collections
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
 
-(require 'annalist)
-(require 'company)
-(require 'dash)
-(require 'elisp-refs)
-(require 'evil)
-(require 'evil-collection)
-(require 'f)
-(require 'helpful)
-(require 's)
-(require 'swiper)
+(load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/requires.el"))
 
 
 (evil-mode 1)
 (global-company-mode 1)
 (evil-collection-init)
-(ivy-mode)
+(ivy-mode 1)
 
 ;; Note that the built-in `describe-function' includes both functions
 ;; and macros. `helpful-function' is functions only, so we provide
