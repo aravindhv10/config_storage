@@ -72,6 +72,7 @@
   (require 'swiper)
   (require 'yasnippet)
   (require 'yasnippet-snippets)
+  (require 'counsel)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./hooks.el

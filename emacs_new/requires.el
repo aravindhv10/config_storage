@@ -14,3 +14,4 @@
 (require 'swiper)
 (require 'yasnippet)
 (require 'yasnippet-snippets)
+(require 'counsel)
