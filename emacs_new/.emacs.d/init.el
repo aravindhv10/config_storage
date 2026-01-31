@@ -7,12 +7,14 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
 
 ;; Evil and evil collections
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
 
 (require 'annalist)
+(require 'company)
 (require 'dash)
 (require 'elisp-refs)
 (require 'evil)
@@ -24,6 +26,7 @@
 
 
 (evil-mode 1)
+(global-company-mode 1)
 (evil-collection-init)
 (ivy-mode)
 
