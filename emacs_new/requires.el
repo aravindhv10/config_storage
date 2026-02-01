@@ -1,4 +1,5 @@
 (require 'annalist)
+(require 'avy)
 (require 'company)
 (require 'cond-let)
 (require 'counsel)
@@ -9,6 +10,7 @@
 (require 'evil-collection)
 (require 'f)
 (require 'helpful)
+(require 'hydra)
 (require 'key-chord)
 (require 'llama)
 (require 'magit)

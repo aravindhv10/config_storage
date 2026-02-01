@@ -21,6 +21,7 @@
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
   GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
+  GET_EMACS_PKG 'https://github.com/abo-abo/avy.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/hydra.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
   GET_EMACS_PKG 'https://github.com/bbatsov/projectile.git'
@@ -52,6 +53,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/avy"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/hydra"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/bbatsov/projectile"))
@@ -76,6 +78,7 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
   (require 'annalist)
+  (require 'avy)
   (require 'company)
   (require 'cond-let)
   (require 'counsel)
@@ -119,11 +122,12 @@
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./bindings.el
+  (global-set-key (kbd "C-;") 'avy-goto-line)
+  (global-set-key (kbd "C-M-/") #'dabbrev-expand)
   (global-set-key (kbd "C-h f") #'helpful-callable)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h x") #'helpful-command)
-  (global-set-key (kbd "C-M-/") #'dabbrev-expand)
   (global-set-key (kbd "M-/") #'dabbrev-completion)
 #+end_src
 
