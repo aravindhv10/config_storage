@@ -139,9 +139,9 @@
   (key-chord-define-global "o0" 'hydra-org/body)
   (key-chord-define-global "o8" 'hydra-org/body)
   (key-chord-define-global "o9" 'hydra-org/body)
-  (key-chord-define-global "q1" 'hydra-counsel)
-  (key-chord-define-global "q2" 'hydra-counsel)
-  (key-chord-define-global "q`" 'hydra-counsel)
+  (key-chord-define-global "q1" 'hydra-counsel/body)
+  (key-chord-define-global "q2" 'hydra-counsel/body)
+  (key-chord-define-global "q`" 'hydra-counsel/body)
   (key-chord-define-global "s1" 'swiper)
   (key-chord-define-global "s2" 'swiper)
   (key-chord-define-global "s3" 'swiper)
@@ -202,7 +202,9 @@
     hydra-counsel (:color blue)
     "zoom"
     ("s" swiper "swiper")
-    ("l" counsel-rg "counsel-rg")
+    ("r" counsel-rg "counsel-rg")
+    ("f" counsel-fzf "counsel-fzf")
+    ("b" counsel-switch-buffer "counsel-switch-buffer")
   )
 #+end_src
 
