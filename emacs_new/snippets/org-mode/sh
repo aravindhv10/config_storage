@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_sh
+# key: <sh>
+# --
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./${0:tmp}.sh
+  $1
+#+end_src

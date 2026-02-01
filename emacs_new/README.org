@@ -23,6 +23,7 @@
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
   GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'
+  GET_EMACS_PKG 'https://github.com/emacsorphanage/key-chord.git'
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
@@ -51,6 +52,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
@@ -79,6 +81,7 @@
   (require 'evil-collection)
   (require 'f)
   (require 'helpful)
+  (require 'key-chord)
   (require 'llama)
   (require 'magit)
   (require 'projectile)
@@ -132,6 +135,7 @@
   (global-diff-hl-mode)
   (global-display-line-numbers-mode 1)
   (ivy-mode 1)
+  (key-chord-mode 1)
   (which-key-mode 1)
   (yas-global-mode 1)
 #+end_src

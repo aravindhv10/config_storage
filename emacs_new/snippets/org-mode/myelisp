@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: myelisp
+# key: <el>
+# --
+#+begin_src emacs-lisp :results silent
+(save-buffer)
+(org-babel-tangle)
+(async-shell-command "
+        $0
+" "log" "err")
+#+end_src

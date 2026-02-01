@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_py
+# key: <py>
+# --
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./${0:tmp}.py
+  $1
+#+end_src
