@@ -11,6 +11,12 @@
   (basic-save-buffer)
   (goto-line mytmpline))
 
+
+(defun myfun/switch_window ()
+  (interactive)
+  (other-window)
+  )
+
 (defhydra
   hydra-org (:color blue)
   "org"
@@ -22,7 +28,6 @@
   ("c" myfun/copy-org-src-block "copy")
   ("<escape>" nil "cancel" :color blue))
 
-
 (defhydra
   hydra-counsel (:color blue)
   "zoom"
@@ -30,3 +35,11 @@
   ("f" counsel-fzf "counsel-fzf")
   ("b" counsel-switch-buffer "counsel-switch-buffer")
   ("r" counsel-rg "counsel-rg"))
+
+(defhydra
+  hydra-window (:color red)
+  "zoom"
+  ("-" evil-window-split "evil-split-buffer")
+  ("f" toggle-frame-fullscreen "toggle-frame-fullscreen")
+  ("t" tear-off-window "tear-off-window")
+  ("w" other-window "other-window"))

@@ -123,12 +123,12 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./bindings.el
   (global-set-key (kbd "C-;") 'avy-goto-line)
+  (global-set-key (kbd "C-M-/") #'dabbrev-expand)
   (global-set-key (kbd "C-c l") #'myfun/copy-org-src-block )
   (global-set-key (kbd "C-h f") #'helpful-callable)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h x") #'helpful-command)
-  (global-set-key (kbd "C-M-/") #'dabbrev-expand)
   (global-set-key (kbd "M-/") #'company-dabbrev)
   (key-chord-define-global "6u" 'vundo)
   (key-chord-define-global "7u" 'vundo)
@@ -145,6 +145,9 @@
   (key-chord-define-global "s1" 'swiper)
   (key-chord-define-global "s2" 'swiper)
   (key-chord-define-global "s3" 'swiper)
+  (key-chord-define-global "w1" 'hydra-window/body)
+  (key-chord-define-global "w2" 'hydra-window/body)
+  (key-chord-define-global "w3" 'hydra-window/body)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables.el
@@ -187,6 +190,12 @@
     (basic-save-buffer)
     (goto-line mytmpline))
 
+
+  (defun myfun/switch_window ()
+    (interactive)
+    (other-window)
+    )
+
   (defhydra
     hydra-org (:color blue)
     "org"
@@ -198,7 +207,6 @@
     ("c" myfun/copy-org-src-block "copy")
     ("<escape>" nil "cancel" :color blue))
 
-
   (defhydra
     hydra-counsel (:color blue)
     "zoom"
@@ -206,6 +214,14 @@
     ("f" counsel-fzf "counsel-fzf")
     ("b" counsel-switch-buffer "counsel-switch-buffer")
     ("r" counsel-rg "counsel-rg"))
+
+  (defhydra
+    hydra-window (:color red)
+    "zoom"
+    ("-" evil-window-split "evil-split-buffer")
+    ("f" toggle-frame-fullscreen "toggle-frame-fullscreen")
+    ("t" tear-off-window "tear-off-window")
+    ("w" other-window "other-window"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el
