@@ -11,11 +11,10 @@
   (basic-save-buffer)
   (goto-line mytmpline))
 
-
 (defun myfun/switch_window ()
   (interactive)
-  (other-window)
-  )
+  (other-window 1)
+  (hydra-window/body))
 
 (defhydra
   hydra-org (:color blue)
@@ -34,13 +33,19 @@
   ("s" swiper "swiper")
   ("f" counsel-fzf "counsel-fzf")
   ("b" counsel-switch-buffer "counsel-switch-buffer")
-  ("r" counsel-rg "counsel-rg"))
+  ("r" counsel-rg "counsel-rg")
+  ("<escape>" nil "cancel" :color blue))
 
-(defhydra
-  hydra-window (:color red)
-  "zoom"
-  ("-" evil-window-split "evil-split-buffer")
-  ("f" toggle-frame-fullscreen "toggle-frame-fullscreen")
-  ("t" tear-off-window "tear-off-window")
-  ("d" kill-buffer-and-window "kill-buffer-and-window")
-  ("w" other-window "other-window"))
+(defhydra hydra-window (:color red)
+  "window"
+  ("w" other-window "other" :color red)
+  ("s" save-buffer "save" :color red)
+  ("t" tear-off-window "tear" :color red)
+  ("r" toggle-frame-fullscreen "fullscreen" :color red)
+  ("d" delete-window "delete_window" :color red)
+  ("f" delete-frame "delete_frame" :color red)
+  ("v" evil-window-vsplit "vertical split" :color red)
+  ("h" evil-window-split "horizontal split" :color red)
+  ("b" counsel-switch-buffer "switch_buffer" :color blue)
+  ("k" kill-buffer "kill_buffer" :color blue)
+  ("<escape>" nil "cancel" :color blue))
