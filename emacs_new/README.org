@@ -133,9 +133,15 @@
   (key-chord-define-global "6u" 'vundo)
   (key-chord-define-global "7u" 'vundo)
   (key-chord-define-global "8u" 'vundo)
+  (key-chord-define-global "a1" 'counsel-rg)
+  (key-chord-define-global "a2" 'counsel-rg)
+  (key-chord-define-global "a`" 'counsel-rg)
   (key-chord-define-global "o0" 'hydra-org/body)
   (key-chord-define-global "o8" 'hydra-org/body)
   (key-chord-define-global "o9" 'hydra-org/body)
+  (key-chord-define-global "q1" 'hydra-counsel)
+  (key-chord-define-global "q2" 'hydra-counsel)
+  (key-chord-define-global "q`" 'hydra-counsel)
   (key-chord-define-global "s1" 'swiper)
   (key-chord-define-global "s2" 'swiper)
   (key-chord-define-global "s3" 'swiper)
@@ -190,6 +196,14 @@
     ("a" org-edit-src-abort "abort")
     ("c" myfun/copy-org-src-block "copy")
     ("<escape>" nil "cancel" :color blue))
+
+
+  (defhydra
+    hydra-counsel (:color blue)
+    "zoom"
+    ("s" swiper "swiper")
+    ("l" counsel-rg "counsel-rg")
+  )
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el

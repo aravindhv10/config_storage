@@ -21,3 +21,11 @@
   ("a" org-edit-src-abort "abort")
   ("c" myfun/copy-org-src-block "copy")
   ("<escape>" nil "cancel" :color blue))
+
+
+(defhydra
+  hydra-counsel (:color blue)
+  "zoom"
+  ("s" swiper "swiper")
+  ("l" counsel-rg "counsel-rg")
+)
