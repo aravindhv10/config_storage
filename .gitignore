@@ -6,6 +6,8 @@
 /dnsmasq/README.org~
 /emacs.d/early-init.el~
 /emacs.d/.early-init.el.~undo-tree~
+/emacs.d/#init.el#
+/emacs.d/.#init.el
 /emacs.d/init.el~
 /emacs.d/.init.el.~undo-tree~
 /emacs.d/#init.org#
@@ -53,6 +55,7 @@
 /foot/foot.org~
 /..gitmodules.~undo-tree~
 /GIT.org~
+/helix/README.org~
 /#main.org#
 /.#main.org
 /.main.org.~undo-tree~
@@ -99,7 +102,6 @@
 /wrapper_code/wrapper.org~
 /zellij_flatpak_wrapper/#main.org#
 /zellij_flatpak_wrapper/main.org~
-/helix/README.org~
 add_elpaca_submodules.sh
 add_rust_submodules.sh
 dockerfiles/AMDGPU_PYT/0_base/build/

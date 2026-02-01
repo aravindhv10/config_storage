@@ -129,6 +129,18 @@
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h x") #'helpful-command)
   (global-set-key (kbd "M-/") #'dabbrev-completion)
+
+  (key-chord-define-global "6u" 'vundo)
+  (key-chord-define-global "7u" 'vundo)
+  (key-chord-define-global "8u" 'vundo)
+
+  (key-chord-define-global "o8" 'hydra-org/body)
+  (key-chord-define-global "o9" 'hydra-org/body)
+  (key-chord-define-global "o0" 'hydra-org/body)
+
+  (key-chord-define-global "s1" 'swiper)
+  (key-chord-define-global "s2" 'swiper)
+  (key-chord-define-global "s3" 'swiper)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables.el
@@ -153,16 +165,25 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables_post.el
   (setq vundo-glyph-alist vundo-unicode-symbols)
-
-  (key-chord-define-global "7u" 'vundo)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./functions.el
-(defun myfun/copy-org-src-block ()
-  (interactive)
-  (org-edit-src-code)
-  (kill-ring-save  (point-min) (point-max))
-  (org-edit-src-abort))
+  (defun myfun/copy-org-src-block ()
+    (interactive)
+    (org-edit-src-code)
+    (kill-ring-save  (point-min) (point-max))
+    (org-edit-src-abort))
+
+  (defhydra
+    hydra-org (:color blue)
+    "org"
+    (";" org-toggle-comment "comment" :color red)
+    ("e" org-edit-src-code "edit")
+    ("t" org-babel-tangle "tangle")
+    ("x" org-babel-execute-src-block "exec")
+    ("a" org-edit-src-abort "abort")
+    ("c" myfun/copy-org-src-block "copy")
+    ("<escape>" nil "cancel" :color blue))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el
