@@ -4,6 +4,13 @@
   (kill-ring-save  (point-min) (point-max))
   (org-edit-src-abort))
 
+(defun myfun/save_and_format_py ()
+  (interactive)
+  (setq mytmpline (line-number-at-pos))
+  (shell-command-on-region (point-min) (point-max) "ruff format -" (current-buffer) t "*yapf3 error*" t)
+  (basic-save-buffer)
+  (goto-line mytmpline))
+
 (defhydra
   hydra-org (:color blue)
   "org"
