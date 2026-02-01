@@ -27,6 +27,7 @@
   emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
+  emacs_new/functions.el
   emacs_new/get_packages.sh
   emacs_new/hooks.el
   emacs_new/main.el

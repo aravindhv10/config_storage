@@ -1,0 +1,5 @@
+(defun myfun/copy-org-src-block ()
+  (interactive)
+  (org-edit-src-code)
+  (kill-ring-save  (point-min) (point-max))
+  (org-edit-src-abort))
