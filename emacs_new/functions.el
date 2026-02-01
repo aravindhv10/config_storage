@@ -7,7 +7,7 @@
 (defun myfun/save_and_format_py ()
   (interactive)
   (setq mytmpline (line-number-at-pos))
-  (shell-command-on-region (point-min) (point-max) "ruff format -" (current-buffer) t "*yapf3 error*" t)
+  (shell-command-on-region (point-min) (point-max) "ruff format -" (current-buffer) t "*ruff error*" t)
   (basic-save-buffer)
   (goto-line mytmpline))
 
