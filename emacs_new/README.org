@@ -152,6 +152,7 @@
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./modes.el
+  (electric-pair-mode 1)
   (evil-collection-init)
   (evil-mode 1)
   (global-company-mode 1)

@@ -1,3 +1,4 @@
+(electric-pair-mode 1)
 (evil-collection-init)
 (evil-mode 1)
 (global-company-mode 1)
