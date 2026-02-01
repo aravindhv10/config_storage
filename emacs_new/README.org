@@ -19,6 +19,7 @@
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
   GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
   GET_EMACS_PKG 'https://github.com/bbatsov/projectile.git'
+  GET_EMACS_PKG 'https://github.com/casouri/vundo.git'
   GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
   GET_EMACS_PKG 'https://github.com/dgutov/diff-hl.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
@@ -48,6 +49,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/bbatsov/projectile"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/casouri/vundo"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
@@ -92,6 +94,7 @@
   (require 's)
   (require 'swiper)
   (require 'transient)
+  (require 'vundo)
   (require 'with-editor)
   (require 'yasnippet)
   (require 'yasnippet-snippets)
@@ -122,11 +125,11 @@
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables.el
+  (setq-default indent-tabs-mode nil)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   (setq modus-themes-org-blocks 'tinted-background)
   (setq org-confirm-babel-evaluate nil)
-  (setq-default indent-tabs-mode nil)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./modes.el
@@ -141,12 +144,17 @@
   (yas-global-mode 1)
 #+end_src
 
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables_post.el
+  (setq vundo-glyph-alist vundo-unicode-symbols)
+#+end_src
+
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/paths.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/variables.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/requires.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/hooks.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/modes.el"))
+  (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/variables_post.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/bindings.el"))
 
   (load-theme 'modus-vivendi)

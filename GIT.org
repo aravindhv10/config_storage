@@ -36,6 +36,7 @@
   emacs_new/requires.el
   emacs_new/setup.sh
   emacs_new/variables.el
+  emacs_new/variables_post.el
   .gitignore
   GIT.org
   home_config/src/main.rs

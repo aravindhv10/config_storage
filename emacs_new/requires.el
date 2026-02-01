@@ -19,6 +19,7 @@
 (require 's)
 (require 'swiper)
 (require 'transient)
+(require 'vundo)
 (require 'with-editor)
 (require 'yasnippet)
 (require 'yasnippet-snippets)
