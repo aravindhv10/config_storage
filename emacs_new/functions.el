@@ -27,7 +27,7 @@
   hydra-counsel (:color blue)
   "zoom"
   ("s" swiper "swiper")
-  ("r" counsel-rg "counsel-rg")
   ("f" counsel-fzf "counsel-fzf")
   ("b" counsel-switch-buffer "counsel-switch-buffer")
+  ("r" counsel-rg "counsel-rg")
 )
