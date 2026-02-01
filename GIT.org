@@ -29,6 +29,7 @@
   emacs_new/.emacs.d/init.el
   emacs_new/get_packages.sh
   emacs_new/hooks.el
+  emacs_new/main.el
   emacs_new/modes.el
   emacs_new/paths.el
   emacs_new/README.org
