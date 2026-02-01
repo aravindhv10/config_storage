@@ -6,6 +6,7 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))

@@ -9,6 +9,7 @@
 (require 'evil-collection)
 (require 'f)
 (require 'helpful)
+(require 'key-chord)
 (require 'llama)
 (require 'magit)
 (require 'projectile)

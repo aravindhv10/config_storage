@@ -4,5 +4,6 @@
 (global-diff-hl-mode)
 (global-display-line-numbers-mode 1)
 (ivy-mode 1)
+(key-chord-mode 1)
 (which-key-mode 1)
 (yas-global-mode 1)

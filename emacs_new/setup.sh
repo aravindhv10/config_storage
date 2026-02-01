@@ -1,8 +1,8 @@
 #!/bin/sh
 cd "$(dirname -- "${0}")"
+mkdir -pv -- "${HOME}/.emacs.d/snippets/"
 
 . "${HOME}/important_functions.sh"
-cp -apf -- '.emacs.d' "${HOME}/"
 
 GET_EMACS_PKG () {
     get_repo "${1}"
@@ -10,5 +10,6 @@ GET_EMACS_PKG () {
 
 . './get_packages.sh'
 
-mkdir -pv -- "${HOME}/.emacs.d/snippets/"
+rsync -avh --progress "${HOME}/GITHUB/aravindhv10/config_storage/emacs_new/.emacs.d/" "${HOME}/.emacs.d/"
 rsync -avh --progress "${HOME}/GITHUB/AndreaCrotti/yasnippet-snippets/snippets/" "${HOME}/.emacs.d/snippets/"
+rsync -avh --progress "${HOME}/GITHUB/aravindhv10/config_storage/emacs_new/snippets/" "${HOME}/.emacs.d/snippets/"
