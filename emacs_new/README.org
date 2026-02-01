@@ -153,6 +153,8 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables_post.el
   (setq vundo-glyph-alist vundo-unicode-symbols)
+
+  (key-chord-define-global "7u" 'vundo)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el
