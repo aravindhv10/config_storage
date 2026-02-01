@@ -42,4 +42,5 @@
   ("-" evil-window-split "evil-split-buffer")
   ("f" toggle-frame-fullscreen "toggle-frame-fullscreen")
   ("t" tear-off-window "tear-off-window")
+  ("d" kill-buffer-and-window "kill-buffer-and-window")
   ("w" other-window "other-window"))
