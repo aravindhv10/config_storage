@@ -204,8 +204,7 @@
     ("s" swiper "swiper")
     ("f" counsel-fzf "counsel-fzf")
     ("b" counsel-switch-buffer "counsel-switch-buffer")
-    ("r" counsel-rg "counsel-rg")
-  )
+    ("r" counsel-rg "counsel-rg"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el

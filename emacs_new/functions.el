@@ -29,5 +29,4 @@
   ("s" swiper "swiper")
   ("f" counsel-fzf "counsel-fzf")
   ("b" counsel-switch-buffer "counsel-switch-buffer")
-  ("r" counsel-rg "counsel-rg")
-)
+  ("r" counsel-rg "counsel-rg"))
