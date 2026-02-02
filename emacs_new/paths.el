@@ -1,7 +1,3 @@
-(add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
-
-
-
 (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
@@ -17,7 +13,9 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/magit/lisp"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/transient/lisp"))

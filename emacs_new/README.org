@@ -31,7 +31,9 @@
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
   GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'
+  GET_EMACS_PKG 'https://github.com/emacsorphanage/htmlize.git'
   GET_EMACS_PKG 'https://github.com/emacsorphanage/key-chord.git'
+  GET_EMACS_PKG 'https://github.com/flycheck/flycheck.git'
   GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
   GET_EMACS_PKG 'https://github.com/magit/magit.git'
   GET_EMACS_PKG 'https://github.com/magit/transient.git'
@@ -42,14 +44,12 @@
   GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
   GET_EMACS_PKG 'https://github.com/tarsius/cond-let.git'
   GET_EMACS_PKG 'https://github.com/tarsius/llama.git'
-  GET_EMACS_PKG 'https://github.com/flycheck/flycheck.git'
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
@@ -65,7 +65,9 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/magit/lisp"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/transient/lisp"))
@@ -79,7 +81,6 @@
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
-  (require 'flycheck)
   (require 'annalist)
   (require 'avy)
   (require 'company)
@@ -91,7 +92,9 @@
   (require 'evil)
   (require 'evil-collection)
   (require 'f)
+  (require 'flycheck)
   (require 'helpful)
+  (require 'htmlize)
   (require 'hydra)
   (require 'key-chord)
   (require 'llama)
