@@ -1,3 +1,7 @@
+(add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
+
+
+
 (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))

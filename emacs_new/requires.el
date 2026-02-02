@@ -1,3 +1,4 @@
+(require 'flycheck)
 (require 'annalist)
 (require 'avy)
 (require 'company)

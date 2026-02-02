@@ -8,3 +8,4 @@
 (key-chord-mode 1)
 (which-key-mode 1)
 (yas-global-mode 1)
+(global-flycheck-mode +1)
