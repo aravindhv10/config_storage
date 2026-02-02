@@ -5,7 +5,7 @@
 (global-set-key (kbd "C-h k") #'helpful-key)
 (global-set-key (kbd "C-h v") #'helpful-variable)
 (global-set-key (kbd "C-h x") #'helpful-command)
-(global-set-key (kbd "M-/") #'company-dabbrev)
+(global-set-key (kbd "M-/") #'dabbrev-complete)
 (key-chord-define-global "6u" 'vundo)
 (key-chord-define-global "7u" 'vundo)
 (key-chord-define-global "8u" 'vundo)
