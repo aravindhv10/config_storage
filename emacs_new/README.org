@@ -166,6 +166,9 @@
   (key-chord-define-global "w3" 'myfun/switch_window)
   (key-chord-define-global "e3" 'counsel-switch-buffer)
   (key-chord-define-global "e4" 'counsel-switch-buffer)
+  (key-chord-define-global "p9" 'hydra-projectile/body)
+  (key-chord-define-global "p0" 'hydra-projectile/body)
+  (key-chord-define-global "p-" 'hydra-projectile/body)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables.el
@@ -247,6 +250,14 @@
     ("b" counsel-switch-buffer "switch_buffer" :color blue)
     ("k" kill-buffer "kill_buffer" :color blue)
     ("<escape>" nil "cancel" :color blue))
+
+  (defhydra hydra-projectile (:color blue)
+    "window"
+    ("f" projectile-find-file "projectile-find-file" :color blue)
+    ("d" projectile-dired "projectile-dired" :color blue)
+    ("g" projectile-find-dir "projectile-find-dir" :color blue)
+    ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
+    ("<escape>" nil "cancel" :color blue))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./main.el
@@ -278,4 +289,9 @@
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
    '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight bold :height 158 :width normal)))))
+#+end_src
+
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
 #+end_src

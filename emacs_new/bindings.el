@@ -36,3 +36,6 @@
 (key-chord-define-global "w3" 'myfun/switch_window)
 (key-chord-define-global "e3" 'counsel-switch-buffer)
 (key-chord-define-global "e4" 'counsel-switch-buffer)
+(key-chord-define-global "p9" 'hydra-projectile/body)
+(key-chord-define-global "p0" 'hydra-projectile/body)
+(key-chord-define-global "p-" 'hydra-projectile/body)

@@ -49,3 +49,11 @@
   ("b" counsel-switch-buffer "switch_buffer" :color blue)
   ("k" kill-buffer "kill_buffer" :color blue)
   ("<escape>" nil "cancel" :color blue))
+
+(defhydra hydra-projectile (:color blue)
+  "window"
+  ("f" projectile-find-file "projectile-find-file" :color blue)
+  ("d" projectile-dired "projectile-dired" :color blue)
+  ("g" projectile-find-dir "projectile-find-dir" :color blue)
+  ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
+  ("<escape>" nil "cancel" :color blue))
