@@ -30,6 +30,7 @@
   GET_EMACS_PKG 'https://github.com/dgutov/diff-hl.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil-collection.git'
   GET_EMACS_PKG 'https://github.com/emacs-evil/evil.git'
+  GET_EMACS_PKG 'https://github.com/emacs-lsp/lsp-mode.git'
   GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'
   GET_EMACS_PKG 'https://github.com/emacsorphanage/htmlize.git'
   GET_EMACS_PKG 'https://github.com/emacsorphanage/key-chord.git'
@@ -44,9 +45,6 @@
   GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
   GET_EMACS_PKG 'https://github.com/tarsius/cond-let.git'
   GET_EMACS_PKG 'https://github.com/tarsius/llama.git'
-#+end_src
-
-#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
@@ -64,6 +62,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-lsp/lsp-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
@@ -98,6 +97,7 @@
   (require 'hydra)
   (require 'key-chord)
   (require 'llama)
+  (require 'lsp-mode)
   (require 'magit)
   (require 'projectile)
   (require 'rainbow-delimiters)
@@ -273,6 +273,9 @@
   (load-theme 'modus-vivendi)
 #+end_src
 
+#+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/early-init.el
+#+end_src
+
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./.emacs.d/init.el
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/main.el"))
 
@@ -290,6 +293,7 @@
    ;; If there is more than one, they won't work right.
    '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight bold :height 158 :width normal)))))
 #+end_src
+
 
 #+begin_src emacs-lisp :results silent
   (save-buffer)

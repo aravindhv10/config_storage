@@ -15,6 +15,7 @@
 (require 'hydra)
 (require 'key-chord)
 (require 'llama)
+(require 'lsp-mode)
 (require 'magit)
 (require 'projectile)
 (require 'rainbow-delimiters)

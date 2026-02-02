@@ -12,6 +12,7 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/dgutov/diff-hl"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-evil/evil-collection"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/emacs-lsp/lsp-mode"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
