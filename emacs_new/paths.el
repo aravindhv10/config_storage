@@ -27,3 +27,4 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/llama"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/ht.el"))

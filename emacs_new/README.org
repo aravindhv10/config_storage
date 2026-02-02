@@ -21,6 +21,7 @@
   GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
   GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/ht.el.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/avy.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/hydra.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
@@ -77,9 +78,11 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/llama"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/ht.el"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
+  (require 'ht)
   (require 'annalist)
   (require 'avy)
   (require 'company)

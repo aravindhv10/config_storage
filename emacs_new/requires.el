@@ -1,3 +1,4 @@
+(require 'ht)
 (require 'annalist)
 (require 'avy)
 (require 'company)
