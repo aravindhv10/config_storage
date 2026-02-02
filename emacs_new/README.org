@@ -50,9 +50,6 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
   (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
-
-
-
   (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
@@ -184,11 +181,11 @@
   (global-company-mode 1)
   (global-diff-hl-mode)
   (global-display-line-numbers-mode 1)
+  (global-flycheck-mode +1)
   (ivy-mode 1)
   (key-chord-mode 1)
   (which-key-mode 1)
   (yas-global-mode 1)
-  (global-flycheck-mode +1)
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./variables_post.el
