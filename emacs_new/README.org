@@ -230,11 +230,13 @@
     hydra-org (:color blue)
     "org"
     (";" org-toggle-comment "comment" :color red)
-    ("e" org-edit-src-code "edit")
-    ("t" org-babel-tangle "tangle")
-    ("x" org-babel-execute-src-block "exec")
-    ("a" org-edit-src-abort "abort")
-    ("c" myfun/copy-org-src-block "copy")
+    ("e" org-edit-src-code "edit" :color blue)
+    ("t" org-babel-tangle "tangle" :color red)
+    ("x" org-babel-execute-src-block "exec" :color red)
+    ("a" org-edit-src-abort "abort" :color blue)
+    ("c" myfun/copy-org-src-block "copy" :color red)
+    ("k" org-babel-previous-src-block "org-babel-previous-src-block" :color red)
+    ("j" org-babel-next-src-block "next src block"  :color red)
     ("<escape>" nil "cancel" :color blue))
 
   (defhydra
@@ -267,6 +269,7 @@
     ("d" projectile-dired "projectile-dired" :color blue)
     ("g" projectile-find-dir "projectile-find-dir" :color blue)
     ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
+    ("m" magit "magit" :color blue)
     ("<escape>" nil "cancel" :color blue))
 #+end_src
 
