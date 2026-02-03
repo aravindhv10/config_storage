@@ -19,6 +19,7 @@
 (require 'lsp-mode)
 (require 'magit)
 (require 'markdown-mode)
+(require 'nix-mode)
 (require 'projectile)
 (require 'rainbow-delimiters)
 (require 'rainbow-identifiers)

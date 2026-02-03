@@ -41,6 +41,7 @@
   .gitignore
   GIT.org
   home_config/src/main.rs
+  nixos/SYSTEM/README.org
 #+end_src
 
 ** rm

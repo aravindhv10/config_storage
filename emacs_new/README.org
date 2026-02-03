@@ -16,16 +16,10 @@
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./get_packages.sh
-  GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
-  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
-  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
-  GET_EMACS_PKG 'https://github.com/Malabarba/spinner.el.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/ht.el.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/avy.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/hydra.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
+  GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
   GET_EMACS_PKG 'https://github.com/bbatsov/projectile.git'
   GET_EMACS_PKG 'https://github.com/casouri/vundo.git'
   GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
@@ -36,6 +30,8 @@
   GET_EMACS_PKG 'https://github.com/emacsmirror/rainbow-mode.git'
   GET_EMACS_PKG 'https://github.com/emacsorphanage/htmlize.git'
   GET_EMACS_PKG 'https://github.com/emacsorphanage/key-chord.git'
+  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
+  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/flycheck/flycheck.git'
   GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
   GET_EMACS_PKG 'https://github.com/jrblevin/markdown-mode.git'
@@ -44,10 +40,15 @@
   GET_EMACS_PKG 'https://github.com/magit/with-editor.git'
   GET_EMACS_PKG 'https://github.com/magnars/dash.el.git'
   GET_EMACS_PKG 'https://github.com/magnars/s.el.git'
+  GET_EMACS_PKG 'https://github.com/Malabarba/spinner.el.git'
+  GET_EMACS_PKG 'https://github.com/NixOS/nix-mode.git'
   GET_EMACS_PKG 'https://github.com/noctuid/annalist.el.git'
   GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
   GET_EMACS_PKG 'https://github.com/tarsius/cond-let.git'
   GET_EMACS_PKG 'https://github.com/tarsius/llama.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/ht.el.git'
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
@@ -76,6 +77,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/Malabarba/spinner.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/NixOS/nix-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
@@ -107,6 +109,7 @@
   (require 'lsp-mode)
   (require 'magit)
   (require 'markdown-mode)
+  (require 'nix-mode)
   (require 'projectile)
   (require 'rainbow-delimiters)
   (require 'rainbow-identifiers)

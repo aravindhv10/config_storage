@@ -23,6 +23,7 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Malabarba/spinner.el"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/NixOS/nix-mode"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))

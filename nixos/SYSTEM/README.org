@@ -1192,6 +1192,7 @@ You can disable this if you're only using the Wayland session.
   unstable.yofi
   unstable.zed-editor
   unstable.zoxide
+  unstable.emacs-lsp-booster
 #+end_src
 
 ******* CUSTOM SOURCES
