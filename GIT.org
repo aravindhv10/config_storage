@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  More work on new emacs config
+  Updates to nixos configuration
 #+end_src
 
 ** Add git stuff
@@ -45,15 +45,8 @@
   emacs_new/setup.sh
   emacs_new/variables.el
   emacs_new/variables_post.el
-  GIT/commit_and_push.sh
-  GIT/git_add.txt
-  GIT/gitignore.txt
   .gitignore
-  GIT/message.txt
   GIT.org
-  GIT/pull.sh
-  GIT/rm.txt
-  GIT/work.sh
   home_config/src/main.rs
   nixos/SYSTEM/configuration.nix
   nixos/SYSTEM/hardware-configuration.nix
@@ -196,6 +189,8 @@
   GIT/gitignore.txt
   gitignore.txt
   GIT/message.txt
+  GIT.org
+  GIT/pull.sh
   GIT/rm.txt
   GIT/work.sh
   home_config/Cargo.lock

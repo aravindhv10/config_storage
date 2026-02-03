@@ -137,6 +137,8 @@
   (add-hook 'text-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'text-mode-hook 'rainbow-identifiers-mode)
   (add-hook 'text-mode-hook 'rainbow-mode)
+
+  (add-to-list 'company-backends '(company-dabbrev))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./bindings.el
@@ -333,7 +335,6 @@
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/variables.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/requires.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/hooks.el"))
-  (add-to-list 'company-backends '(company-dabbrev))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/modes.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/variables_post.el"))
   (load-file (expand-file-name "~/GITHUB/aravindhv10/config_storage/emacs_new/functions.el"))
@@ -362,7 +363,6 @@
    ;; If there is more than one, they won't work right.
    '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight bold :height 158 :width normal)))))
 #+end_src
-
 
 #+begin_src emacs-lisp :results silent
   (save-buffer)
