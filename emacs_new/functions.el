@@ -34,6 +34,7 @@
   ("f" counsel-fzf "counsel-fzf")
   ("b" counsel-switch-buffer "counsel-switch-buffer")
   ("r" counsel-rg "counsel-rg")
+  ("d" counsel-dired "counsel-dired")
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra hydra-window (:color red)
