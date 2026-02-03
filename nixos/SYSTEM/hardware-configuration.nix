@@ -1,23 +1,21 @@
+{ config, lib, pkgs, modulesPath, ... }:
+
 {
-  config,
-  lib,
-  pkgs,
-  modulesPath,
-  ...
-}: {
-  imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-partlabel/linux";
-    fsType = "btrfs";
-    options = ["subvol=@" "compress=zstd:3"];
-  };
+imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-partlabel/efi";
-    fsType = "vfat";
-    options = ["fmask=0077" "dmask=0077"];
-  };
+fileSystems."/" = {
+  device = "/dev/disk/by-partlabel/linux";
+  fsType = "btrfs";
+  options = [ "subvol=@" "compress=zstd:3" ];
+};
 
-  swapDevices = [{device = "/dev/disk/by-partlabel/swap0";}];
+fileSystems."/boot" = {
+  device = "/dev/disk/by-partlabel/efi";
+  fsType = "vfat";
+  options = [ "fmask=0077" "dmask=0077" ];
+};
+
+swapDevices = [{device = "/dev/disk/by-partlabel/swap0";}];
+
 }

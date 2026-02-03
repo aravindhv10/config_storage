@@ -48,6 +48,8 @@
   .gitignore
   GIT.org
   home_config/src/main.rs
+  nixos/SYSTEM/configuration.nix
+  nixos/SYSTEM/hardware-configuration.nix
   nixos/SYSTEM/README.org
 #+end_src
 
