@@ -10,3 +10,4 @@
 (add-hook 'text-mode-hook 'rainbow-delimiters-mode)
 (add-hook 'text-mode-hook 'rainbow-identifiers-mode)
 (add-hook 'text-mode-hook 'rainbow-mode)
+(add-to-list 'company-backends '(company-dabbrev))

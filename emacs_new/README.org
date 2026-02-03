@@ -51,16 +51,10 @@
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Malabarba/spinner.el"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/ht.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/avy"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/hydra"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/bbatsov/projectile"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/casouri/vundo"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
@@ -71,6 +65,8 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/jrblevin/markdown-mode"))
@@ -79,10 +75,14 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/with-editor/lisp"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Malabarba/spinner.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/llama"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/ht.el"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
@@ -134,6 +134,7 @@
   (add-hook 'text-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'text-mode-hook 'rainbow-identifiers-mode)
   (add-hook 'text-mode-hook 'rainbow-mode)
+  (add-to-list 'company-backends '(company-dabbrev))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./bindings.el
