@@ -39,3 +39,6 @@
 (key-chord-define-global "p9" 'hydra-projectile/body)
 (key-chord-define-global "p0" 'hydra-projectile/body)
 (key-chord-define-global "p-" 'hydra-projectile/body)
+(key-chord-define-global "t4" 'hydra-format-and-save/body)
+(key-chord-define-global "t5" 'hydra-format-and-save/body)
+(key-chord-define-global "t6" 'hydra-format-and-save/body)
