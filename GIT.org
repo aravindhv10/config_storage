@@ -15,6 +15,12 @@
   git status
 #+end_src
 
+** Pull
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/pull.sh
+  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB//setup.sh"
+  git pull
+#+end_src
+
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
   git commit -m "$(cat './GIT/message.txt')"
@@ -211,6 +217,13 @@
 #+end_src
 
 * work space
+
+** pull
+#+begin_src emacs-lisp :results silent
+  (async-shell-command "
+          './GIT/pull.sh'
+      " "log" "err")
+#+end_src
 
 ** Only add
 #+begin_src emacs-lisp :results silent
