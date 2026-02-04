@@ -1,4 +1,5 @@
 (setq-default indent-tabs-mode nil)
+(setq ee-terminal-command "wezterm")
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
 (setq key-chord-two-keys-delay 0.2)

@@ -5,6 +5,7 @@
 (require 'counsel)
 (require 'dash)
 (require 'diff-hl)
+(require 'eee)
 (require 'elisp-refs)
 (require 'evil)
 (require 'evil-collection)

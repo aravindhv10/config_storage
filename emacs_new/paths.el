@@ -12,6 +12,7 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsmirror/rainbow-mode"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/eval-exec/eee.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
