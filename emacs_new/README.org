@@ -36,6 +36,7 @@
   GET_EMACS_PKG 'https://github.com/flycheck/flycheck.git'
   GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
   GET_EMACS_PKG 'https://github.com/jrblevin/markdown-mode.git'
+  GET_EMACS_PKG 'https://github.com/jwiegley/emacs-async.git'
   GET_EMACS_PKG 'https://github.com/magit/magit.git'
   GET_EMACS_PKG 'https://github.com/magit/transient.git'
   GET_EMACS_PKG 'https://github.com/magit/with-editor.git'
@@ -73,6 +74,7 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/jrblevin/markdown-mode"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/jwiegley/emacs-async"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/magit/lisp"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/transient/lisp"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/with-editor/lisp"))
@@ -91,6 +93,7 @@
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
   (require 'annalist)
+  (require 'async)
   (require 'avy)
   (require 'company)
   (require 'cond-let)

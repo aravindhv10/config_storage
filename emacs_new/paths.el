@@ -18,6 +18,7 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/jrblevin/markdown-mode"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/jwiegley/emacs-async"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/magit/lisp"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/transient/lisp"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/with-editor/lisp"))

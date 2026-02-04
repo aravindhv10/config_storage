@@ -1,4 +1,5 @@
 (require 'annalist)
+(require 'async)
 (require 'avy)
 (require 'company)
 (require 'cond-let)
