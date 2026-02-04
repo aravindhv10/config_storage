@@ -341,6 +341,7 @@ in {
     (unstable.python313.withPackages (ps:
       with ps; [
         albumentations
+        datafusion
         einops
         fastapi
         flask

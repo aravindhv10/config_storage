@@ -98,11 +98,12 @@
 
 (defhydra hydra-projectile (:color blue)
   "window"
-  ("f" projectile-find-file "projectile-find-file" :color blue)
   ("d" projectile-dired "projectile-dired" :color blue)
+  ("e" projectile-run-eshell "eshell" :color blue)
+  ("f" projectile-find-file "projectile-find-file" :color blue)
   ("g" projectile-find-dir "projectile-find-dir" :color blue)
-  ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
   ("m" magit "magit" :color blue)
+  ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 ;; |----------------------------------------------------------------------------------------------------------------------------------|
