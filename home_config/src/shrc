@@ -5,11 +5,16 @@ test -e  "${HOME}/.cargo/env" && . "${HOME}/.cargo/env"
 test -e  "${HOME}/important_functions.sh" && . "${HOME}/important_functions.sh"
 
 y() {
-	set -- "$@" --cwd-file "$(mktemp -t yazi-cwd.XXXXXX)"
-	command yazi "$@"
-	shift $(($# - 1))
-	set -- "$(command cat < "$1"; printf .; rm -f -- "$1")"
-	set -- "${1%.}"
-	[ -n "$1" ] && [ "$1" != "$PWD" ] && command cd -- "$1"
+	yazi \
+		--chooser-file "/tmp/yazi-chooser-${$}" \
+		--cwd-file "/tmp/yazi-cwd-${$}" \
+	;
+
+	cd "$(cat "/tmp/yazi-cwd-${$}")"
+
+	rm -f -- \
+		 "/tmp/yazi-chooser-${$}" \
+		 "/tmp/yazi-cwd-${$}" \
+	;
 }
 
