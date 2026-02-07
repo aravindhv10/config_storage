@@ -26,6 +26,7 @@
 (require 'rainbow-delimiters)
 (require 'rainbow-identifiers)
 (require 'rainbow-mode)
+(require 'rust-mode)
 (require 's)
 (require 'spinner)
 (require 'swiper)

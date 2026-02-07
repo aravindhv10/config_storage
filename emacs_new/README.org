@@ -16,10 +16,17 @@
 #+end_src
 
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./get_packages.sh
+  GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
+  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
+  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
+  GET_EMACS_PKG 'https://github.com/Malabarba/spinner.el.git'
+  GET_EMACS_PKG 'https://github.com/NixOS/nix-mode.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
+  GET_EMACS_PKG 'https://github.com/Wilfred/ht.el.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/avy.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/hydra.git'
   GET_EMACS_PKG 'https://github.com/abo-abo/swiper.git'
-  GET_EMACS_PKG 'https://github.com/AndreaCrotti/yasnippet-snippets.git'
   GET_EMACS_PKG 'https://github.com/bbatsov/projectile.git'
   GET_EMACS_PKG 'https://github.com/casouri/vundo.git'
   GET_EMACS_PKG 'https://github.com/company-mode/company-mode.git'
@@ -31,8 +38,6 @@
   GET_EMACS_PKG 'https://github.com/emacsorphanage/htmlize.git'
   GET_EMACS_PKG 'https://github.com/emacsorphanage/key-chord.git'
   GET_EMACS_PKG 'https://github.com/eval-exec/eee.el.git'
-  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-delimiters.git'
-  GET_EMACS_PKG 'https://github.com/Fanael/rainbow-identifiers.git'
   GET_EMACS_PKG 'https://github.com/flycheck/flycheck.git'
   GET_EMACS_PKG 'https://github.com/joaotavora/yasnippet.git'
   GET_EMACS_PKG 'https://github.com/jrblevin/markdown-mode.git'
@@ -42,22 +47,25 @@
   GET_EMACS_PKG 'https://github.com/magit/with-editor.git'
   GET_EMACS_PKG 'https://github.com/magnars/dash.el.git'
   GET_EMACS_PKG 'https://github.com/magnars/s.el.git'
-  GET_EMACS_PKG 'https://github.com/Malabarba/spinner.el.git'
-  GET_EMACS_PKG 'https://github.com/NixOS/nix-mode.git'
   GET_EMACS_PKG 'https://github.com/noctuid/annalist.el.git'
   GET_EMACS_PKG 'https://github.com/rejeep/f.el.git'
+  GET_EMACS_PKG 'https://github.com/rust-lang/rust-mode.git'
   GET_EMACS_PKG 'https://github.com/tarsius/cond-let.git'
   GET_EMACS_PKG 'https://github.com/tarsius/llama.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
-  GET_EMACS_PKG 'https://github.com/Wilfred/ht.el.git'
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./paths.el
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Malabarba/spinner.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/NixOS/nix-mode"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/ht.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/avy"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/hydra"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/abo-abo/swiper"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/AndreaCrotti/yasnippet-snippets"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/bbatsov/projectile"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/casouri/vundo"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/company-mode/company-mode"))
@@ -69,8 +77,6 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/htmlize"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/emacsorphanage/key-chord"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/eval-exec/eee.el"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-delimiters"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Fanael/rainbow-identifiers"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/flycheck/flycheck"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/joaotavora/yasnippet"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/jrblevin/markdown-mode"))
@@ -80,15 +86,11 @@
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magit/with-editor/lisp"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/dash.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/magnars/s.el"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Malabarba/spinner.el"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/NixOS/nix-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
+  (add-to-list 'load-path (expand-file-name "~/GITHUB/rust-lang/rust-mode"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
   (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/llama"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/elisp-refs"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/helpful"))
-  (add-to-list 'load-path (expand-file-name "~/GITHUB/Wilfred/ht.el"))
 #+end_src
 
 #+begin_src emacs-lisp :results silent :mkdirp yes :tangle ./requires.el
@@ -120,6 +122,7 @@
   (require 'rainbow-delimiters)
   (require 'rainbow-identifiers)
   (require 'rainbow-mode)
+  (require 'rust-mode)
   (require 's)
   (require 'spinner)
   (require 'swiper)
