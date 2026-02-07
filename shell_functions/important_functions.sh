@@ -500,8 +500,9 @@ get_rust_packages_standard(){
 
     get_helix_evil_editor
     get_helix_editor
-    get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
+    # get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
 
+    get_rust_package 'https://github.com/chmln/sd.git'
     get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
     get_rust_package 'https://github.com/BurntSushi/xsv.git'
     get_rust_package 'https://github.com/ClementTsang/bottom.git'
