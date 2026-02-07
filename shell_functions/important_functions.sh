@@ -310,13 +310,13 @@ get_rust_package(){
 get_deb_mirror(){
     mkdir -pv "${HOME}/GITLAB/aravindhv101"
     cd "${HOME}/GITLAB/aravindhv101"
-    git clone 'https://gitlab.com/aravindhv101/deb_mirror.git'
+    git clone 'https://github.com/aravindhv10/deb_mirror.git'
     cd deb_mirror
 
     PKG_NAME="$('basename' "$(realpath .)")"
 
-    export CC='clang'
-    export CXX='clang++'
+    export CC='gcc'
+    export CXX='g++'
     export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
     export LDFLAGS='-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2'
     export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
