@@ -285,6 +285,7 @@ get_rust_package(){
 
     DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
 
+    cargo clean
     cargo build --release
 
     if test "${#}" '-ge' '2'
@@ -325,6 +326,7 @@ get_helix_evil_editor(){
 
     DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
 
+    cargo clean
     cargo build --release
 
     cp -apf -- './runtime' "${DIR_DEST}"
@@ -361,6 +363,7 @@ get_helix_editor(){
 
     DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
 
+    cargo clean
     cargo build --release
 
     cp -apf -- './runtime' "${DIR_DEST}"

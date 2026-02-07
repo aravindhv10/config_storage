@@ -376,6 +376,7 @@
 
       DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
 
+      cargo clean
       cargo build --release
 
       if test "${#}" '-ge' '2'
@@ -421,6 +422,7 @@
 
       DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
 
+      cargo clean
       cargo build --release
 
       cp -apf -- './runtime' "${DIR_DEST}"
@@ -460,6 +462,7 @@
 
       DIR_DEST="/var/tmp/${PKG_NAME}/bin/"
 
+      cargo clean
       cargo build --release
 
       cp -apf -- './runtime' "${DIR_DEST}"
