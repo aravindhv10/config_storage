@@ -324,7 +324,7 @@ get_deb_mirror(){
 
     export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
     export LDFLAGS='-Wl,-rpath=/var/tmp/deb_mirror/lib64 -Wl,--dynamic-linker=/var/tmp/deb_mirror/lib64/ld-linux-x86-64.so.2'
-    # export RUSTFLAGS="-C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
+    export RUSTFLAGS='-C link-args=-Wl,-rpath=/var/tmp/deb_mirror/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/deb_mirror/lib64/ld-linux-x86-64.so.2'
 
     mkdir -pv -- '/var/tmp/deb_mirror/lib64/' '/var/tmp/deb_mirror/bin/' '/var/tmp/deb_mirror/exe/'
     cp -vn -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/deb_mirror/lib64/ld-linux-x86-64.so.2'
