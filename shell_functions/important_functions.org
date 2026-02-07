@@ -399,6 +399,7 @@
   }
 #+end_src
 
+
 *** deb_mirror
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_deb_mirror(){
@@ -662,21 +663,24 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_rust_packages_standard(){
 
-      get_deb_mirror
-      get_helix_editor
       get_helix_evil_editor
+      get_helix_editor
       get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
 
+      get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
+      get_rust_package 'https://github.com/BurntSushi/xsv.git'
+      get_rust_package 'https://github.com/ClementTsang/bottom.git'
+      get_rust_package 'https://github.com/RaphGL/Tuckr.git'
+      get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
+      get_rust_package 'https://github.com/Wilfred/difftastic.git'
       get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
-      get_rust_package 'https://github.com/alexpasmantier/television.git'
       get_rust_package 'https://github.com/alacritty/alacritty.git'
+      get_rust_package 'https://github.com/alexpasmantier/television.git'
+      get_rust_package 'https://github.com/aravindhv10/deb_mirror.git'
       get_rust_package 'https://github.com/astral-sh/ruff.git'
       get_rust_package 'https://github.com/astral-sh/uv.git'
       get_rust_package 'https://github.com/atuinsh/atuin.git'
       get_rust_package 'https://github.com/bootandy/dust.git'
-      get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
-      get_rust_package 'https://github.com/BurntSushi/xsv.git'
-      get_rust_package 'https://github.com/ClementTsang/bottom.git'
       get_rust_package 'https://github.com/dalance/procs.git'
       get_rust_package 'https://github.com/darakian/ddh.git'
       get_rust_package 'https://github.com/denisidoro/navi.git'
@@ -690,7 +694,6 @@
       get_rust_package 'https://github.com/lsd-rs/lsd.git'
       get_rust_package 'https://github.com/matheus-git/systemd-manager-tui.git'
       get_rust_package 'https://github.com/nushell/nushell.git'
-      get_rust_package 'https://github.com/RaphGL/Tuckr.git'
       get_rust_package 'https://github.com/redox-os/ion.git'
       get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
       get_rust_package 'https://github.com/sharkdp/bat.git'
@@ -699,13 +702,11 @@
       get_rust_package 'https://github.com/shshemi/tabiew.git'
       get_rust_package 'https://github.com/skim-rs/skim.git'
       get_rust_package 'https://github.com/starship/starship.git'
-      get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
       get_rust_package 'https://github.com/svenstaro/miniserve.git'
       get_rust_package 'https://github.com/sxyazi/yazi.git'
       get_rust_package 'https://github.com/vishaltelangre/ff.git'
       get_rust_package 'https://github.com/watchexec/watchexec.git'
       get_rust_package 'https://github.com/whitfin/runiq.git'
-      get_rust_package 'https://github.com/Wilfred/difftastic.git'
       get_rust_package 'https://github.com/your-tools/ruplacer.git'
       get_rust_package 'https://github.com/zellij-org/zellij.git'
 
