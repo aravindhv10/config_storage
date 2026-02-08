@@ -49,6 +49,7 @@
   emacs_new/variables_post.el
   home_config/Cargo.toml
   home_config/src/main.rs
+  home_config/src/mysync.rs
   nixos/SYSTEM/README.org
   nixos/SYSTEM/configuration.nix
   nixos/SYSTEM/hardware-configuration.nix
