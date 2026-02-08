@@ -6,6 +6,7 @@
 (require 'counsel)
 (require 'dash)
 (require 'diff-hl)
+(require 'dockerfile-mode)
 (require 'eee)
 (require 'elisp-refs)
 (require 'evil)

@@ -32,5 +32,6 @@
 (add-to-list 'load-path (expand-file-name "~/GITHUB/noctuid/annalist.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/rejeep/f.el"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/rust-lang/rust-mode"))
+(add-to-list 'load-path (expand-file-name "~/GITHUB/spotify/dockerfile-mode"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/cond-let"))
 (add-to-list 'load-path (expand-file-name "~/GITHUB/tarsius/llama"))
