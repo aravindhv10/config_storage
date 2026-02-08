@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Updates to nixos configuration
+  Updated home config for atuin
 #+end_src
 
 ** Add git stuff

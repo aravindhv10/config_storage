@@ -74,7 +74,7 @@ async fn get_content_zshrc() -> std::string::String {
     let mut contents_zshrc = std::string::String::from(include_str!("zshrc"));
 
     match tokio::process::Command::new("atuin")
-        .args(["init", "zsh"])
+        .args(["init", "zsh", "--disable-up-arrow"])
         .output()
         .await
     {
@@ -128,7 +128,7 @@ async fn get_content_fish_config() -> std::string::String {
         std::string::String::from(include_str!("fish_config.fish"));
 
     match tokio::process::Command::new("atuin")
-        .args(["init", "fish"])
+        .args(["init", "fish", "--disable-up-arrow"])
         .output()
         .await
     {
