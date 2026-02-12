@@ -2,16 +2,16 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Added rust snippet
+  Updated helix config
 #+end_src
 
 ** Add git stuff
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/work.sh
-  sed 's@^@(git add "./@g ; s@$@");@g' './GIT/git_add.txt' | sh &
   sed 's@^@(rm -vf -- "./@g ; s@$@");@g' './GIT/rm.txt' | sh &
   sed 's@^@/@g' './GIT/rm.txt' > './.gitignore'
   cat './GIT/gitignore.txt' >> './.gitignore'
   wait
+  git add '--pathspec-from-file=./GIT/git_add.txt'
   git status
 #+end_src
 
@@ -53,6 +53,7 @@
   emacs_new/variables.el
   emacs_new/variables_post.el
   home_config/Cargo.toml
+  home_config/src/helix_config.toml
   home_config/src/main.rs
   home_config/src/mysync.rs
   nixos/SYSTEM/README.org

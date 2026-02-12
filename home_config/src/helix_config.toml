@@ -1,10 +1,11 @@
-
+editor.color-modes = true
+editor.completion-trigger-len = 1
 editor.cursor-shape.insert = "bar"
 editor.cursor-shape.normal = "block"
 editor.cursor-shape.select = "underline"
 editor.file-picker.hidden = false
 editor.line-number = "relative"
 editor.lsp.display-inlay-hints = true
+editor.rainbow-brackets = true
 editor.true-color = true
 theme = "modus_vivendi"
-
