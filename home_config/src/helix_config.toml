@@ -1,3 +1,4 @@
+editor.auto-pairs = true
 editor.color-modes = true
 editor.completion-trigger-len = 1
 editor.cursor-shape.insert = "bar"
