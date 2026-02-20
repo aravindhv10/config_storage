@@ -37,3 +37,5 @@ GET_EMACS_PKG 'https://github.com/rust-lang/rust-mode.git'
 GET_EMACS_PKG 'https://github.com/spotify/dockerfile-mode.git'
 GET_EMACS_PKG 'https://github.com/tarsius/cond-let.git'
 GET_EMACS_PKG 'https://github.com/tarsius/llama.git'
+
+get_repo 'https://github.com/emacsmirror/auctex.git' ; make -j4
