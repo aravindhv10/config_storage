@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Updated helix config
+  Updated emacs config
 #+end_src
 
 ** Add git stuff

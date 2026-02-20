@@ -13,6 +13,7 @@
 (require 'evil-collection)
 (require 'f)
 (require 'flycheck)
+(require 'gnuplot)
 (require 'helpful)
 (require 'ht)
 (require 'htmlize)
