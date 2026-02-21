@@ -9,19 +9,6 @@
 in {
   imports = [./hardware-configuration.nix ./kernel_config.nix];
 
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
-    };
-
-    grub = {
-      efiSupport = true;
-
-      device = "/dev/nvme0n1";
-    };
-  };
-
   networking = {
     hosts = {
       "192.168.122.2" = ["vm"];
@@ -47,11 +34,6 @@ in {
     EDITOR = "hx";
 
     QT_SCALE_FACTOR = "1.25";
-  };
-
-  boot.tmp = {
-    useTmpfs = true;
-    tmpfsSize = "60%";
   };
 
   networking.hostName = "nixos";

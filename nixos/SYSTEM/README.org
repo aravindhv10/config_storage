@@ -100,14 +100,20 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
-    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+    boot.extraModulePackages = [];
     boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
     boot.initrd.kernelModules = [];
     boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-    boot.extraModulePackages = [];
-    boot.tmp.useTmpfs = true;
+    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+    boot.loader.efi.canTouchEfiVariables = true;
+    boot.loader.efi.efiSysMountPoint = "/boot/efi";
+    boot.loader.grub.device = "/dev/nvme0n1";
+    boot.loader.grub.efiInstallAsRemovable = true;
+    boot.loader.grub.efiSupport = true;
+    boot.loader.systemd-boot.enable = false;
     boot.tmp.tmpfsSize = "60%";
+    boot.tmp.useTmpfs = true;
   }
 #+end_src
 
@@ -159,7 +165,7 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
   imports = [./hardware-configuration.nix ./kernel_config.nix];
 #+end_src
 
-**** Bootloader.
+**** COMMENT Bootloader.
 
 ***** BEGIN
 #+begin_src nix :tangle ./configuration.nix
@@ -439,14 +445,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
       linux_sgx = pkgs.callPackage linux_sgx_pkg{};
   in 
       pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-#+end_src
-
-**** Mount tmpfs on /tmp
-#+begin_src nix :tangle ./configuration.nix
-  boot.tmp = {
-    useTmpfs = true ;
-    tmpfsSize = "60%" ;
-  } ;
 #+end_src
 
 **** Hostname
