@@ -32,33 +32,28 @@
       export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
       sudo -A cp -vf -- "./${1}" "/etc/nixos/${1}"
   }
+
+  C 'configuration.nix'
+  C 'hardware-configuration.nix'
+  C 'kernel_config.nix'
+  C 'rebuild_boot.sh'
+  C 'rebuild_switch.sh'
 #+end_src
 
 * Script to rebuild and switch
 
-** with /var/tmp as tmp
-
-*** switch
+** switch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./rebuild_switch.sh
   export TMPDIR='/var/tmp'
   nixos-rebuild switch
   echo '#### DONE ####'
 #+end_src
 
-*** boot
+** boot
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./rebuild_boot.sh
   export TMPDIR='/var/tmp'
   nixos-rebuild boot
   echo '#### DONE ####'
-#+end_src
-
-** Script to copy the files to the destination
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  C 'configuration.nix'
-  C 'hardware-configuration.nix'
-  C 'kernel_config.nix'
-  C 'rebuild_boot.sh'
-  C 'rebuild_switch.sh'
 #+end_src
 
 * hardware-configuration
@@ -91,7 +86,7 @@ to /etc/nixos/configuration.nix instead.
   }
 #+end_src
 
-* Kernel configs
+* Boot configs
 #+begin_src nix :tangle ./kernel_config.nix
   {
     config,
