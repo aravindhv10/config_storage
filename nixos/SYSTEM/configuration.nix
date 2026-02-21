@@ -9,22 +9,6 @@
 in {
   imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix];
 
-  networking = {
-    hosts = {
-      "192.168.122.2" = ["vm"];
-    };
-
-    timeServers = ["ntp.example.com" "time.google.com"];
-
-    networkmanager.enable = true;
-
-    nftables.enable = true;
-
-    firewall.enable = false;
-
-    useDHCP = lib.mkDefault true;
-  };
-
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 

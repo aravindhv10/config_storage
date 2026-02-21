@@ -98,20 +98,31 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
-    boot.extraModulePackages = [];
-    boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-    boot.initrd.kernelModules = [];
-    boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
-    boot.loader.efi.canTouchEfiVariables = true;
-    boot.loader.efi.efiSysMountPoint = "/boot/efi";
-    boot.loader.grub.device = "/dev/nvme0n1";
-    boot.loader.grub.efiInstallAsRemovable = false;
-    boot.loader.grub.efiSupport = true;
-    boot.loader.systemd-boot.enable = false;
-    boot.tmp.tmpfsSize = "60%";
-    boot.tmp.useTmpfs = true;
+    boot = {
+      loader = {
+          efi.canTouchEfiVariables = true;
+          efi.efiSysMountPoint = "/boot/efi";
+          grub.device = "/dev/nvme0n1";
+          grub.efiInstallAsRemovable = false;
+          grub.efiSupport = true;
+          systemd-boot.enable = false;
+      } ;
+
+      tmp = {
+          tmpfsSize = "60%";
+          useTmpfs = true;
+      } ;
+
+      initrd = {
+          availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
+          kernelModules = [];
+      } ;
+      
+      extraModulePackages = [];
+      kernelModules = ["kvm-amd" "amdgpu"];
+      kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+      kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
+    };
   }
 #+end_src
 
@@ -132,12 +143,15 @@ to /etc/nixos/configuration.nix instead.
       timeServers = ["ntp.example.com" "time.google.com"];
 
       networkmanager.enable = true;
-
       nftables.enable = true;
-
       firewall.enable = false;
-
       useDHCP = lib.mkDefault true;
+      # interfaces.wlp1s0.useDHCP = lib.mkDefault true;
+      # wireless.enable = true;
+      # proxy.default = "http://user:password@proxy:port/";
+      # proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+      # firewall.allowedTCPPorts = [ ... ];
+      # firewall.allowedUDPPorts = [ ... ];
     };
   }
 #+end_src
@@ -289,87 +303,6 @@ in case =canTouchEfiVariables= doesn't work for your system
 ***** COMMENT Nerd Fonts
 #+begin_src nix :tangle ./configuration.nix
 fonts.packages = with pkgs; [ nerdfonts ];
-#+end_src
-
-**** Networking
-
-***** BEGIN
-#+begin_src nix :tangle ./configuration.nix
-  networking = {
-#+end_src
-
-***** MAIN
-
-****** Additional hosts
-#+begin_src nix :tangle ./configuration.nix
-  hosts = {
-    "192.168.122.2" = ["vm"];
-  };
-#+end_src
-
-****** TIME
-
-******* FIXED
-#+begin_src nix :tangle ./configuration.nix
-  timeServers = [ "ntp.example.com" "time.google.com" ];
-#+end_src
-
-******* COMMENT ORIGINAL
-#+begin_src nix :tangle ./configuration.nix
-  timeServers = options.networking.timeServers.default ++ [ "ntp.example.com" "time.google.com" ];
-#+end_src
-
-****** COMMENT wpa_supplicant
-Enables wireless support via wpa_supplicant.
-#+begin_src nix :tangle ./configuration.nix
-  wireless.enable = true;
-#+end_src
-
-****** COMMENT Proxy
-Configure network proxy if necessary
-#+begin_src nix :tangle ./configuration.nix
-  proxy.default = "http://user:password@proxy:port/";
-  proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-#+end_src
-
-****** Enable networking with network manager
-#+begin_src nix :tangle ./configuration.nix
-  networkmanager.enable = true;
-#+end_src
-
-****** COMMENT Open ports in the firewall.
-#+begin_src nix :tangle ./configuration.nix
-  firewall.allowedTCPPorts = [ ... ];
-  firewall.allowedUDPPorts = [ ... ];
-#+end_src
-
-****** Enable nftables
-#+begin_src nix :tangle ./configuration.nix
-  nftables.enable = true;
-#+end_src
-
-****** Or disable the firewall altogether.
-#+begin_src nix :tangle ./configuration.nix
-  firewall.enable = false;
-#+end_src
-
-****** Enables DHCP on each ethernet and wireless interface
-In case of scripted networking (the default) this is the recommended approach.
-#+begin_src nix :tangle ./configuration.nix
-  useDHCP = lib.mkDefault true;
-#+end_src
-
-****** COMMENT per-interface declarations
-When using systemd-networkd it's
-still possible to use this option, but it's recommended to use it in conjunction
-with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-#+begin_src nix :tangle ./configuration.nix
-  interfaces.wlp1s0.useDHCP = lib.mkDefault true;
-#+end_src
-
-***** END
-#+begin_src nix :tangle ./configuration.nix
-  };
 #+end_src
 
 **** Host platform and firmware
