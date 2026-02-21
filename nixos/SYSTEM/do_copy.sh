@@ -8,5 +8,6 @@ C () {
 
 C 'configuration.nix'
 C 'hardware-configuration.nix'
+C 'kernel_config.nix'
 C 'rebuild_boot.sh'
 C 'rebuild_switch.sh'
