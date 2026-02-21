@@ -11,4 +11,6 @@
   boot.initrd.kernelModules = [];
   boot.kernelModules = ["kvm-amd" "amdgpu"];
   boot.extraModulePackages = [];
+  boot.tmp.useTmpfs = true;
+  boot.tmp.tmpfsSize = "60%";
 }
