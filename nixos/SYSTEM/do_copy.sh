@@ -6,9 +6,8 @@ C () {
     sudo -A cp -vf -- "./${1}" "/etc/nixos/${1}"
 }
 
-C './rebuild_boot.sh'
-C './rebuild_switch.sh'
-
+C 'rebuild_boot.sh'
 C 'hardware-configuration.nix'
+C 'rebuild_switch.sh'
 
 C 'configuration.nix'
