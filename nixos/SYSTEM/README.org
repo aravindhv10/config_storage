@@ -51,8 +51,9 @@
 
 ** Script to copy the files to the destination
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  C 'rebuild_boot.sh'
+  C 'configuration.nix'
   C 'hardware-configuration.nix'
+  C 'rebuild_boot.sh'
   C 'rebuild_switch.sh'
 #+end_src
 
@@ -63,56 +64,32 @@ to /etc/nixos/configuration.nix instead.
 
 ** inputs used
 #+begin_src nix :tangle ./hardware-configuration.nix
-{ config, lib, pkgs, modulesPath, ... }: 
-#+end_src
-
-** Start the main function
-#+begin_src nix :tangle ./hardware-configuration.nix
   {
-#+end_src
+    config,
+    lib,
+    pkgs,
+    modulesPath,
+    ...
+  }: {
+    imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 
-*** Import important stuff
-#+begin_src nix :tangle ./hardware-configuration.nix
-  imports = [(modulesPath + "/installer/scan/not-detected.nix")];
-#+end_src
+    fileSystems."/" = {
+      device = "/dev/disk/by-partlabel/linux";
+      fsType = "btrfs";
+      options = ["subvol=@" "compress=zstd:3"];
+    };
 
-*** List of fiesystems
+    fileSystems."/boot" = {
+      device = "/dev/disk/by-partlabel/efi";
+      fsType = "vfat";
+      options = ["fmask=0077" "dmask=0077"];
+    };
 
-**** Main root filesystem
-#+begin_src nix :tangle ./hardware-configuration.nix
-  fileSystems."/" = {
-    device = "/dev/disk/by-partlabel/linux";
-    fsType = "btrfs";
-    options = [ "subvol=@" "compress=zstd:3" ];
-  };
-#+end_src
-
-**** EFI boot partition
-#+begin_src nix :tangle ./hardware-configuration.nix
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-partlabel/efi";
-    fsType = "vfat";
-    options = [ "fmask=0077" "dmask=0077" ];
-  };
-#+end_src
-
-*** Swap stuff
-#+begin_src nix :tangle ./hardware-configuration.nix
-  swapDevices = [{device = "/dev/disk/by-partlabel/swap0";}];
-#+end_src
-
-** Done with hardware configuration
-#+begin_src nix :tangle ./hardware-configuration.nix
+    swapDevices = [{device = "/dev/disk/by-partlabel/swap0";}];
   }
 #+end_src
 
 * Main config
-
-** Script to copy the files to the destination
-#+begin_src sh :shebang #!/bin/sh :results output :tangle ./do_copy.sh
-  C 'configuration.nix'
-#+end_src
-
 Edit this configuration file to define what should be installed on
 your system.  Help is available in the configuration.nix(5) man page
 and in the NixOS manual (accessible by running ‘nixos-help’).
