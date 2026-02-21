@@ -1069,6 +1069,7 @@ You can disable this if you're only using the Wayland session.
   einops
   fastapi
   flask
+  gnumake
   h5py
   inotify-simple
   ipython
