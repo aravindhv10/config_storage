@@ -146,7 +146,8 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
 
 **** Import hardware configuration
 #+begin_src nix :tangle ./configuration.nix
-  imports = [./hardware-configuration.nix, ./kernel_config.nix];
+  imports = [./hardware-configuration.nix];
+  imports = [./kernel_config.nix];
 #+end_src
 
 **** Bootloader.
