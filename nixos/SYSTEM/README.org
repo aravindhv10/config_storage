@@ -77,7 +77,7 @@ to /etc/nixos/configuration.nix instead.
     fileSystems."/" = {
       device = "/dev/disk/by-partlabel/linux";
       fsType = "btrfs";
-      options = ["subvol=@" "compress=zstd:3"];
+      options = ["subvol=@" "compress=zstd:3" "autodefrag"];
     };
 
     fileSystems."/boot" = {
@@ -101,24 +101,24 @@ to /etc/nixos/configuration.nix instead.
   }: {
     boot = {
       loader = {
-          efi.canTouchEfiVariables = true;
-          efi.efiSysMountPoint = "/boot/efi";
-          grub.device = "/dev/nvme0n1";
-          grub.efiInstallAsRemovable = false;
-          grub.efiSupport = true;
-          systemd-boot.enable = false;
-      } ;
+        efi.canTouchEfiVariables = true;
+        efi.efiSysMountPoint = "/boot/efi";
+        grub.device = "/dev/nvme0n1";
+        grub.efiInstallAsRemovable = false;
+        grub.efiSupport = true;
+        systemd-boot.enable = false;
+      };
 
       tmp = {
-          tmpfsSize = "60%";
-          useTmpfs = true;
-      } ;
+        tmpfsSize = "60%";
+        useTmpfs = true;
+      };
 
       initrd = {
-          availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
-          kernelModules = [];
-      } ;
-      
+        availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
+        kernelModules = [];
+      };
+
       extraModulePackages = [];
       kernelModules = ["kvm-amd" "amdgpu"];
       kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;

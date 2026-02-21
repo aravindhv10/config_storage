@@ -10,7 +10,7 @@
   fileSystems."/" = {
     device = "/dev/disk/by-partlabel/linux";
     fsType = "btrfs";
-    options = ["subvol=@" "compress=zstd:3"];
+    options = ["subvol=@" "compress=zstd:3" "autodefrag"];
   };
 
   fileSystems."/boot" = {
