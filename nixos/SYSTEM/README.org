@@ -6,13 +6,15 @@
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
-  alejandra 'configuration.nix'
-  alejandra 'hardware-configuration.nix'
-  alejandra 'kernel_config.nix'
+  NIXADD () {
+      alejandra "./${1}"
+      GITADD "${1}"
+  }
 
-  GITADD 'configuration.nix'
-  GITADD 'hardware-configuration.nix'
-  GITADD 'kernel_config.nix'
+  NIXADD 'configuration.nix'
+  NIXADD 'hardware-configuration.nix'
+  NIXADD 'kernel_config.nix'
+  NIXADD 'network_config.nix'
 
   GITADD 'do_copy.sh'
   GITADD 'README.org'
@@ -113,6 +115,33 @@ to /etc/nixos/configuration.nix instead.
   }
 #+end_src
 
+* Network config
+#+begin_src nix :tangle ./network_config.nix
+  {
+    config,
+    lib,
+    pkgs,
+    modulesPath,
+    ...
+  }: {
+    networking = {
+      hosts = {
+        "192.168.122.2" = ["vm"];
+      };
+
+      timeServers = ["ntp.example.com" "time.google.com"];
+
+      networkmanager.enable = true;
+
+      nftables.enable = true;
+
+      firewall.enable = false;
+
+      useDHCP = lib.mkDefault true;
+    };
+  }
+#+end_src
+
 * Main config
 Edit this configuration file to define what should be installed on
 your system.  Help is available in the configuration.nix(5) man page
@@ -158,7 +187,7 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
 
 **** Import hardware configuration
 #+begin_src nix :tangle ./configuration.nix
-  imports = [./hardware-configuration.nix ./kernel_config.nix];
+  imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix];
 #+end_src
 
 **** COMMENT Bootloader.
