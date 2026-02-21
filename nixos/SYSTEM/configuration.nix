@@ -41,11 +41,6 @@ in {
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  boot.initrd.availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
-  boot.initrd.kernelModules = [];
-  # boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-  boot.extraModulePackages = [];
-
   environment.variables = {
     ROC_ENABLE_PRE_VEGA = "1";
 
@@ -53,10 +48,6 @@ in {
 
     QT_SCALE_FACTOR = "1.25";
   };
-
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-
-  boot.kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
   boot.tmp = {
     useTmpfs = true;

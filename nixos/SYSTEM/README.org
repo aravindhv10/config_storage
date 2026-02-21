@@ -8,10 +8,13 @@
 
   alejandra 'configuration.nix'
   alejandra 'hardware-configuration.nix'
+  alejandra 'kernel_config.nix'
 
   GITADD 'configuration.nix'
-  GITADD 'do_copy.sh'
   GITADD 'hardware-configuration.nix'
+  GITADD 'kernel_config.nix'
+
+  GITADD 'do_copy.sh'
   GITADD 'README.org'
   GITADD 'rebuild_boot.sh'
   GITADD 'rebuild_switch.sh'
@@ -97,7 +100,12 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
+    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
+    boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
+    boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
+    boot.initrd.kernelModules = [];
     boot.kernelModules = [ "kvm-amd" "amdgpu" ];
+    boot.extraModulePackages = [];
   }
 #+end_src
 
@@ -337,14 +345,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 #+end_src
 
-**** Initrd and kernel modules
-#+begin_src nix :tangle ./configuration.nix
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "uas" "sd_mod" ];
-  boot.initrd.kernelModules = [];
-  # boot.kernelModules = [ "kvm-amd" "amdgpu" ];
-  boot.extraModulePackages = [];
-#+end_src
-
 **** Env vars
 
 ***** BEGIN
@@ -416,16 +416,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
 
 ***** Xanmod
 
-****** Latest
-#+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-#+end_src
-
-****** COMMENT Stable
-#+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_stable;
-#+end_src
-
 ***** COMMENT Custom build
 
 ****** COMMENT 2
@@ -447,16 +437,6 @@ with explicit per-interface declarations with `networking.interfaces.<interface>
       linux_sgx = pkgs.callPackage linux_sgx_pkg{};
   in 
       pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-#+end_src
-
-**** Kernel command line
-#+begin_src nix :tangle ./configuration.nix
-  boot.kernelParams = [ "zswap.enabled=1" "zswap.max_pool_percent=80" ];
-#+end_src
-
-**** COMMENT Replace kwin with wayfire
-#+begin_src nix :tangle ./configuration.nix
-  fileSystems."/run/wrappers/bin/kwin_wayland" = {device = "/run/current-system/sw/bin/wayfire"; fsType = "none"; options = ["bind"];};
 #+end_src
 
 **** Mount tmpfs on /tmp
