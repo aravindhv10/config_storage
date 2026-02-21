@@ -41,6 +41,7 @@
   C 'configuration.nix'
   C 'hardware-configuration.nix'
   C 'kernel_config.nix'
+  C 'network_config.nix'
 #+end_src
 
 * Script to rebuild and switch
