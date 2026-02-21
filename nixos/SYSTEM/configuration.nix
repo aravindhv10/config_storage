@@ -7,8 +7,7 @@
 }: let
   unstable = import <nixos-unstable> {};
 in {
-  imports = [./hardware-configuration.nix];
-  imports = [./kernel_config.nix];
+  imports = [./hardware-configuration.nix ./kernel_config.nix];
 
   boot.loader = {
     efi = {
