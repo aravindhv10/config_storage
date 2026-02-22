@@ -53,7 +53,7 @@ in {
 
     fish = {
       enable = true;
-      package = pkgs.fish;
+      package = unstable.fish;
     };
 
     zsh = {
@@ -91,7 +91,7 @@ in {
   users = {
     users.asd = {
       isNormalUser = true;
-      shell = pkgs.fish;
+      shell = unstable.fish;
       description = "asd";
       extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
       packages = with pkgs; [
