@@ -10,6 +10,7 @@ C 'rebuild_boot.sh'
 C 'rebuild_switch.sh'
 
 C 'configuration.nix'
+C 'environment.nix'
 C 'hardware-configuration.nix'
 C 'i18n.nix'
 C 'kernel_config.nix'

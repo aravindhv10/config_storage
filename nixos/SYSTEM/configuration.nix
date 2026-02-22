@@ -13,26 +13,13 @@ in {
     ./network_config.nix
     ./i18n.nix
     ./services.nix
+    ./environment.nix
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  environment.variables = {
-    ROC_ENABLE_PRE_VEGA = "1";
-
-    EDITOR = "hx";
-
-    QT_SCALE_FACTOR = "1.25";
-  };
-
   time.timeZone = "Asia/Kolkata";
-
-  environment.etc."greetd/environments".text = ''
-    wayfire
-    fish
-    bash
-  '';
 
   programs.niri.enable = true;
   programs.niri.package = unstable.niri;
@@ -56,24 +43,6 @@ in {
     # withUWSM = false; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
   };
-
-  environment.gnome.excludePackages = with pkgs; [
-    atomix # puzzle game
-    cheese # webcam tool
-    epiphany # web browser
-    geary # email reader
-    gedit # text editor
-    gnome-characters
-    gnome-music
-    gnome-photos
-    gnome-terminal
-    gnome-tour
-    hitori # sudoku game
-    iagno # go game
-    tali # poker game
-    totem # video player
-    seahorse
-  ];
 
   services.xserver.xkb = {
     layout = "us";

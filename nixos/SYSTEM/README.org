@@ -16,6 +16,7 @@
   CLEAN 'README.org~'
 
   NIXADD 'configuration.nix'
+  NIXADD 'environment.nix'
   NIXADD 'hardware-configuration.nix'
   NIXADD 'i18n.nix'
   NIXADD 'kernel_config.nix'
@@ -45,6 +46,7 @@
   C 'rebuild_switch.sh'
 
   C 'configuration.nix'
+  C 'environment.nix'
   C 'hardware-configuration.nix'
   C 'i18n.nix'
   C 'kernel_config.nix'
@@ -311,50 +313,1200 @@ to /etc/nixos/configuration.nix instead.
   }
 #+end_src
 
+* Environment variables
+#+begin_src nix :tangle ./environment.nix
+  {
+    config,
+    lib,
+    pkgs,
+    modulesPath,
+    ...
+  }: {
+    environment = {
+
+      etc."greetd/environments".text = ''
+        wayfire
+        fish
+        bash
+      '';
+
+      variables = {
+          ROC_ENABLE_PRE_VEGA = "1";
+          EDITOR = "hx";
+          QT_SCALE_FACTOR = "1.25";
+      };
+
+      gnome.excludePackages = with pkgs; [
+        atomix # puzzle game
+        cheese # webcam tool
+        epiphany # web browser
+        geary # email reader
+        gedit # text editor
+        gnome-characters
+        gnome-music
+        gnome-photos
+        gnome-terminal
+        gnome-tour
+        hitori # sudoku game
+        iagno # go game
+        tali # poker game
+        totem # video player
+        seahorse
+      ];
+
+    } ;
+
+  }
+#+end_src
+
 * Main config
+
+** NEW
+#+begin_src nix :tangle ./configuration.nix
+  {
+    config,
+    lib,
+    pkgs,
+    modulesPath,
+    ...
+  }: let
+    unstable = import <nixos-unstable> {};
+  in {
+    imports = [
+      ./hardware-configuration.nix
+      ./kernel_config.nix
+      ./network_config.nix
+      ./i18n.nix
+      ./services.nix
+      ./environment.nix
+    ];
+
+    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+    hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+    time.timeZone = "Asia/Kolkata";
+
+
+    programs.niri.enable = true;
+    programs.niri.package = unstable.niri;
+
+    programs.wayfire = {
+      enable = true;
+      # package = unstable.wayfire;
+      plugins = [
+        pkgs.wayfirePlugins.wayfire-plugins-extra
+        pkgs.wayfirePlugins.wcm
+        pkgs.wayfirePlugins.wf-shell
+      ];
+    };
+
+    services.displayManager.sessionPackages = [unstable.wayfire];
+
+    programs.hyprland = {
+      enable = true;
+      package = unstable.hyprland;
+      withUWSM = true; # recommended for most users
+      # withUWSM = false; # recommended for most users
+      xwayland.enable = true; # Xwayland can be disabled.
+    };
+
+
+    services.xserver.xkb = {
+      layout = "us";
+      variant = "";
+    };
+
+    services.printing.enable = true;
+
+    documentation = {
+      enable = true;
+      man.enable = true;
+      dev.enable = true;
+    };
+
+    security.rtkit.enable = true;
+
+    services.pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      # If you want to use JACK applications, uncomment this
+      #jack.enable = true;
+
+      # use the example session manager (no others are packaged yet so this is enabled by default,
+      # no need to redefine it in your config for now)
+      #media-session.enable = true;
+    };
+
+    services.libinput.enable = true;
+
+    users.users.asd = {
+      isNormalUser = true;
+      shell = pkgs.fish;
+      description = "asd";
+      extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
+      packages = with pkgs; [
+        kdePackages.kate
+        # thunderbird
+      ];
+    };
+
+    users.defaultUserShell = unstable.zsh;
+
+    programs.zsh = {
+      enable = true;
+
+      ohMyZsh = {
+        enable = true;
+        plugins = ["git" "starship" "zoxide" "procs" "systemd" "fzf" "eza"];
+        theme = "robbyrussell";
+      };
+    };
+
+    programs.fish = {
+      enable = true;
+      package = pkgs.fish;
+    };
+
+    services.thermald.enable = true;
+
+    programs.firefox.enable = true;
+
+    nixpkgs.config.allowUnfree = true;
+
+    programs.virt-manager.enable = true;
+
+    users.groups.libvirtd.members = ["asd"];
+
+    virtualisation = {
+      libvirtd.enable = true;
+
+      spiceUSBRedirection.enable = true;
+
+      containers.enable = true;
+
+      incus.enable = true;
+
+      podman = {
+        enable = true;
+
+        # Create a `docker` alias for podman, to use it as a drop-in replacement
+        dockerCompat = true;
+
+        # Required for containers under podman-compose to be able to talk to each other.
+        defaultNetwork.settings.dns_enabled = true;
+      };
+    };
+
+    environment.systemPackages = with pkgs; [
+      acpi
+      alsa-utils
+      appstream
+      azure-cli
+      blend2d
+      brave
+      bridge-utils
+      buildah
+      cargo
+      cargo-info
+      catppuccin-kde
+      clinfo
+      cmake
+      conky
+      curl
+      dig
+      distrobox
+      dive
+      dmidecode
+      dnsmasq
+      docker-compose
+      ffmpeg
+      ffmpeg.dev
+      file
+      foot
+      fuse3
+      gcc
+      gcc14Stdenv
+      gdk-pixbuf
+      gdm
+      git
+      git-lfs
+      glib
+      gpgme
+      graphicsmagick-imagemagick-compat
+      grc
+      grim
+      grub2
+      grub2_efi
+      gsettings-desktop-schemas
+      jq
+      json-glib
+      kdePackages.kolourpaint
+      kitty
+      libarchive
+      libcap
+      libgcc
+      libinput
+      librsvg
+      libseccomp
+      libxml2
+      lldb
+      llvmPackages_20.clang
+      llvmPackages_20.clang-tools
+      lxc
+      man-pages
+      man-pages-posix
+      meson
+      mpv
+      networkmanagerapplet
+      networkmanager-openconnect
+      nh
+      nix-index
+      nix-ld
+      openconnect
+      openssl
+      parted
+      pavucontrol
+      pciutils
+      pkg-config
+      podman
+      podman-compose
+      podman-tui
+      poppler-utils
+      qbittorrent-enhanced
+      qpdf
+      rust-analyzer
+      rust-bindgen
+      rustc
+      rustfmt
+      shellcheck
+      swayosd
+      texliveFull
+      thunderbird
+      tree
+      unzip
+      uwsm
+      vim
+      virt-viewer
+      vscode-fhs
+      waybar
+      wayland
+      wayland-protocols
+      wf-recorder
+      wget
+      wl-clipboard
+      wlogout
+      zip
+      zstd
+
+      (unstable.python313.withPackages (ps:
+        with ps; [
+          albumentations
+          datafusion
+          einops
+          fastapi
+          flask
+          gnumake
+          h5py
+          inotify-simple
+          ipython
+          jax
+          lightning
+          matplotlib
+          multiprocess
+          numpy
+          onnx
+          onnxruntime
+          opencv-python
+          pillow
+          protobuf
+          python-multipart
+          requests
+          safetensors
+          tensorboard
+          tensorboardx
+          timm
+          torch
+          torchmetrics
+          torchvision
+          transformers
+          uvicorn
+          yt-dlp
+        ]))
+
+      unstable.ags
+      unstable.alacritty
+      unstable.alejandra
+      unstable.aria2
+      unstable.atuin
+      unstable.bat
+      unstable.bottom
+      unstable.brightnessctl
+      unstable.byobu
+      unstable.clapboard
+      unstable.difftastic
+      unstable.dust
+      unstable.emacs30
+      unstable.eza
+      unstable.fd
+      unstable.fzf
+      unstable.gitui
+      unstable.helix
+      unstable.inkscape
+      unstable.ironbar
+      unstable.kickoff
+      unstable.lapce
+      unstable.lsd
+      unstable.lyx
+      unstable.mako
+      unstable.miniserve
+      unstable.mpvpaper
+      unstable.neovim
+      unstable.nixfmt
+      unstable.nushell
+      unstable.openblas
+      unstable.openblas.dev
+      unstable.opencv4
+      unstable.pdf2svg
+      unstable.procs
+      unstable.quickshell
+      unstable.rclone
+      unstable.ripgrep
+      unstable.ruff
+      unstable.rustlings
+      unstable.skim
+      unstable.spice-gtk
+      unstable.squashfsTools
+      unstable.starship
+      unstable.swww
+      unstable.television
+      unstable.tmux
+      unstable.tofi
+      unstable.uv
+      unstable.wezterm
+      unstable.wine
+      unstable.wldash
+      unstable.wlsunset
+      unstable.wluma
+      unstable.yazi
+      unstable.ydotool
+      unstable.yofi
+      unstable.zed-editor
+      unstable.zoxide
+      unstable.emacs-lsp-booster
+
+      (callPackage /root/debMirror.nix {})
+
+      (writeCBin "YDOTOOL_DAEMON" ''
+
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <string.h>
+        #include <unistd.h>
+
+        #define SIZE_BUFFER (1 << 20)
+
+        static char BUFFER[SIZE_BUFFER];
+        static int BUFFER_CURRENT;
+        static char SUDO_ASKPASS[] = "/SUDO_ASKPASS";
+
+        static char sudo[] = "sudo";
+        static char minus_b[] = "-b";
+        static char minus_E[] = "-E";
+        static char minus_A[] = "-A";
+        static char prog[] = "ydotoold";
+        static char *args[7];
+
+        static inline size_t align(size_t const val) {
+          size_t const newval = val & (~7);
+          return newval == val ? val : newval + 8;
+        }
+
+        static inline char *myalloc(size_t const insize) {
+          BUFFER_CURRENT = align(BUFFER_CURRENT);
+          char *ret = BUFFER + BUFFER_CURRENT;
+          BUFFER_CURRENT += align(insize);
+          return ret;
+        }
+
+        static inline char *get_sudo_askpass() {
+          char *HOME = getenv("HOME");
+          size_t len_HOME = strlen(/*const char *s =*/HOME);
+          char *ret = myalloc(/*size_t const insize =*/len_HOME + sizeof(SUDO_ASKPASS));
+
+          /*void **/ memcpy(/*void dest[restrict .n] =*/ret,
+                            /*const void src[restrict .n] =*/HOME,
+                            /*size_t n =*/len_HOME);
+
+          /*void **/ memcpy(/*void dest[restrict .n] =*/ret + len_HOME,
+                            /*const void src[restrict .n] =*/SUDO_ASKPASS,
+                            /*size_t n =*/sizeof(SUDO_ASKPASS));
+
+          return ret;
+        }
+
+        static inline char *get_ydotool_args() {
+          uid_t const uid = getuid();
+          gid_t const gid = getgid();
+          /*static inline*/ char *buf = myalloc(/*size_t const insize =*/128);
+          sprintf(buf, "--socket-own=%d:%d", uid, gid);
+          return buf;
+        }
+
+        int main() {
+          char *final_sudo_askpass = get_sudo_askpass();
+          /*int*/ setenv(/*const char *name =*/"SUDO_ASKPASS",
+                         /*const char *value =*/final_sudo_askpass,
+                         /*int overwrite =*/1);
+
+          unsigned char i = 0;
+          args[i] = sudo;
+          ++i;
+          // args[i] = minus_b;
+          // ++i;
+          args[i] = minus_E;
+          ++i;
+          args[i] = minus_A;
+          ++i;
+          args[i] = prog;
+          ++i;
+          args[i] = get_ydotool_args();
+          ++i;
+          args[i] = NULL;
+          ++i;
+
+          /*int*/ execvp(args[0], args);
+
+          return 0;
+        }
+
+      '')
+
+      (writeCBin "M_PLUS" ''
+
+        #include <unistd.h>
+
+        static char *const args[] = {"ydotool", "mousemove", "-w", "--",
+                                     "0",       "2",         NULL};
+
+        int main() {
+          int ret = execvp(args[0], args);
+          return ret;
+        }
+
+      '')
+
+      (writeCBin "M_MINUS" ''
+
+        #include <unistd.h>
+
+        static char *const args[] = {"ydotool", "mousemove", "-w", "--",
+                                     "0",       "-2",         NULL};
+
+        int main() {
+          int ret = execvp(args[0], args);
+          return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_PLUS" ''
+
+        #include <unistd.h>
+
+        static char *const args[] = {"swayosd-client", "--brightness=raise", NULL};
+
+        int main() {
+          int ret = execvp(args[0], args);
+          return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_MINUS" ''
+
+        #include <unistd.h>
+
+        static char *const args[] = {"swayosd-client", "--brightness=lower", NULL};
+
+        int main() {
+          int ret = execvp(args[0], args);
+          return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_LEFTBRACE" ''
+
+        #include <unistd.h>
+
+        static char *const args[] = {"swayosd-client", "--max-volume=255", "--output-volume=-10", NULL};
+
+        int main() {
+          int ret = execvp(args[0], args);
+          return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_RIGHTBRACE" ''
+
+        #include <unistd.h>
+
+        static char *const args[] = {"swayosd-client", "--max-volume=255", "--output-volume=+10", NULL};
+
+        int main() {
+          int ret = execvp(args[0], args);
+          return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_ESC" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"wlogout", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_F1" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"alacritty", "msg", "create-window", "-e", "byobu-tmux", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_F2" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"alacritty", "msg", "create-window", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_F3" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"emacsclient", "-c", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_1" ''
+
+        #include <unistd.h>
+        #include <sys/wait.h>
+
+        int start (char * const * argv) {
+            int ret = execvp(argv[0], argv);
+            return ret;
+        }
+
+        int do_start (char * const * argv) {
+            pid_t p_start;
+            int ret_start;
+            p_start = fork();
+            if(p_start == 0){
+                ret_start = start (argv);
+                return ret_start;
+            }
+            waitpid(p_start, NULL, 0);
+            return 0;
+        }
+
+        static char * const args[] = {"emacs", NULL};
+
+        int main () {
+            do_start(args);
+            return 0;
+        }
+
+      '')
+
+      (writeCBin "M_C_2" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"emacsclient", "-c", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "TY" ''
+
+        #include <unistd.h>
+        #include <sys/wait.h>
+
+        int start (char * const * argv) {
+            int ret = execvp(argv[0], argv);
+            return ret;
+        }
+
+        int do_start (char * const * argv) {
+            pid_t p_start;
+            int ret_start;
+            p_start = fork();
+            if(p_start == 0){
+                ret_start = start (argv);
+                return ret_start;
+            }
+            waitpid(p_start, NULL, 0);
+            return 0;
+        }
+
+        static char * const args[] = {"byobu-tmux", NULL};
+
+        int main () {
+            do_start(args);
+            return 0;
+        }
+
+      '')
+
+      (writeCBin "enter_emacs_flatpak" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"flatpak", "run", "--command=bash", "org.gnu.emacs", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_Q" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"wezterm", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_W" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "byobu-tmux" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_E" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"alacritty" , "msg" , "create-window" , "-e" , "enter_emacs_flatpak" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_R" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"footclient" , "-e" , "enter_emacs_flatpak" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_T" ''
+
+        #include <unistd.h>
+        #include <sys/wait.h>
+
+        int foot_server () {
+            static char * const args[] = {"foot" , "-s" , NULL};
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+        int alacritty_server () {
+            static char * const args[] = {"alacritty" , "-e" , "TY" , NULL};
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+        int both () {
+            pid_t p_foot;
+            pid_t p_alacritty;
+            int ret_foot;
+            int ret_alacritty;
+
+            p_foot = fork();
+            if(p_foot == 0){
+                ret_foot = foot_server ();
+                return ret_foot;
+            }
+
+            p_alacritty = fork();
+            if(p_alacritty == 0){
+                ret_alacritty = alacritty_server ();
+                return ret_alacritty;
+            }
+
+            waitpid(p_foot, NULL, 0);
+            waitpid(p_alacritty, NULL, 0);
+
+            return 0;
+        }
+
+        int main () {
+            both();
+            return 0;
+        }
+
+      '')
+
+      (writeCBin "M_C_A" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"firefox" ,  NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_S" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"brave" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_D" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"dolphin" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_F" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"pavucontrol" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_C_G" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"footclient", "nmtui" , NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_Q" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "0%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_W" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "11%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_E" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "22%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_R" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "33%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_T" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "44%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_Y" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "55%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_U" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "66%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_I" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "77%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_O" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "88%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_P" ''
+
+        #include <unistd.h>
+
+        static char * const args[] = {"amixer", "set", "Master,0", "100%", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_GRAVE" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "0%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=0", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_1" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "10%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=10", NULL};
+
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_2" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "20%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=20", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_3" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "30%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=30", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_4" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "40%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=40", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_5" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "50%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=50", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_6" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "60%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=60", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_7" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "70%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=70", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_8" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "80%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=80", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_9" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "90%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=90", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+
+      (writeCBin "M_A_0" ''
+
+        #include <unistd.h>
+
+        // static char * const args[] = {"brightnessctl", "set", "100%", NULL};
+        static char * const args[] = {"swayosd-client", "--brightness=100", NULL};
+
+        int main () {
+            int ret = execvp(args[0], args);
+            return ret;
+        }
+
+      '')
+    ];
+
+    services.flatpak = {
+      enable = true;
+      package = unstable.flatpak;
+    };
+
+    system.stateVersion = "24.11";
+  }
+#+end_src
+
+** COMMENT OLD
 Edit this configuration file to define what should be installed on
 your system.  Help is available in the configuration.nix(5) man page
 and in the NixOS manual (accessible by running ‘nixos-help’).
 
-** Header
+*** Header
 #+begin_src nix :tangle ./configuration.nix
   { config, lib, pkgs, modulesPath, ... }:
 #+end_src
 
-** Additional definitions
+*** Additional definitions
 
-*** BEGIN
+**** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   let
 #+end_src
 
-*** DEFINE
+**** DEFINE
 
-**** importing unstable
+***** importing unstable
 #+begin_src nix :tangle ./configuration.nix
   unstable = import <nixos-unstable> {} ;
 #+end_src
 
-**** COMMENT Import my changes
+***** COMMENT Import my changes
 #+begin_src nix :tangle ./configuration.nix
   custom = import /home/asd/GITHUB/NixOS/nixpkgs {} ;
 #+end_src
 
-*** END
+**** END
 #+begin_src nix :tangle ./configuration.nix
   in
 #+end_src
 
-** Main part of the config
+*** Main part of the config
 
-*** BEGIN
+**** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   {
 #+end_src
 
-*** DEFINE
+**** DEFINE
 
-**** Import hardware configuration
+***** Import hardware configuration
 #+begin_src nix :tangle ./configuration.nix
   imports = [
     ./hardware-configuration.nix
@@ -365,97 +1517,97 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
   ];
 #+end_src
 
-**** Fonts
+***** Fonts
 
-***** COMMENT Global options
+****** COMMENT Global options
 #+begin_src nix :tangle ./configuration.nix
   fonts.fontconfig.localConf = ''
   ''
 #+end_src
 
-***** COMMENT Nerd Fonts
+****** COMMENT Nerd Fonts
 #+begin_src nix :tangle ./configuration.nix
 fonts.packages = with pkgs; [ nerdfonts ];
 #+end_src
 
-**** Host platform and firmware
+***** Host platform and firmware
 #+begin_src nix :tangle ./configuration.nix
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 #+end_src
 
-**** Env vars
+***** Env vars
 
-***** BEGIN
+****** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   environment.variables = {
 #+end_src
 
-***** MAIN
+****** MAIN
 
-****** ROCM
+******* ROCM
 #+begin_src nix :tangle ./configuration.nix
   ROC_ENABLE_PRE_VEGA = "1";
 #+end_src
 
-****** EDITOR
+******* EDITOR
 #+begin_src nix :tangle ./configuration.nix
   EDITOR = "hx";
 #+end_src
 
-****** QT Scaling factor
+******* QT Scaling factor
 #+begin_src nix :tangle ./configuration.nix
   QT_SCALE_FACTOR = "1.25";
 #+end_src
 
-***** END
+****** END
 #+begin_src nix :tangle ./configuration.nix
   };
 #+end_src
 
-**** COMMENT GPU drivers related
+***** COMMENT GPU drivers related
 #+begin_src nix :tangle ./configuration.nix
   hardware.graphics.extraPackages = [pkgs.amdvlk pkgs.rocmPackages.clr.icd];
 #+end_src
 
-***** Some config for ROCM drivers
+****** Some config for ROCM drivers
 #+begin_src nix :tangle ./configuration.nix
     systemd.tmpfiles.rules = [
       "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
     ];
 #+end_src
 
-***** For 32 bit applications 
+****** For 32 bit applications 
 #+begin_src nix :tangle ./configuration.nix
   hardware.graphics.enable32Bit = true;
   hardware.graphics.extraPackages32 = [pkgs.driversi686Linux.amdvlk];
 #+end_src
 
-**** COMMENT Kernel Package
+***** COMMENT Kernel Package
 
-***** COMMENT 6.14
+****** COMMENT 6.14
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
 
-***** COMMENT 6.15
+****** COMMENT 6.15
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
 
 
-***** COMMENT 6.16
+****** COMMENT 6.16
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
 
-***** COMMENT 6.17
+****** COMMENT 6.17
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
 
-**** Set your time zone.
+***** Set your time zone.
 #+begin_src nix :tangle ./configuration.nix
   time.timeZone = "Asia/Kolkata";
 #+end_src
 
-**** Display manager
+***** Display manager
 #+begin_src nix :tangle ./configuration.nix
   environment.etc."greetd/environments".text = ''
   wayfire
@@ -464,15 +1616,15 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '';
 #+end_src
 
-**** Desktop environment
+***** Desktop environment
 
-***** Niri
+****** Niri
 #+begin_src nix :tangle ./configuration.nix
   programs.niri.enable = true;
   programs.niri.package = unstable.niri;
 #+end_src
 
-***** Wayfire
+****** Wayfire
 #+begin_src nix :tangle ./configuration.nix
   programs.wayfire = {
       enable = true;
@@ -485,12 +1637,12 @@ fonts.packages = with pkgs; [ nerdfonts ];
   } ;
 #+end_src
 
-****** add Wayfire to the display manager entries
+******* add Wayfire to the display manager entries
 #+begin_src nix :tangle ./configuration.nix
   services.displayManager.sessionPackages = [ unstable.wayfire ];
 #+end_src
 
-***** Hyprland
+****** Hyprland
 #+begin_src nix :tangle ./configuration.nix
   programs.hyprland = {
       enable = true;
@@ -501,7 +1653,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-****** Exclude packages in gnome
+******* COMMENT Exclude packages in gnome
 #+begin_src nix :tangle ./configuration.nix
   environment.gnome.excludePackages = (with pkgs; [
     atomix # puzzle game
@@ -522,17 +1674,17 @@ fonts.packages = with pkgs; [ nerdfonts ];
   ]);
 #+end_src
 
-**** COMMENT Editors
+***** COMMENT Editors
 
-***** COMMENT Helix
+****** COMMENT Helix
 
-****** COMMENT Simple
+******* COMMENT Simple
 #+begin_src nix :tangle ./configuration.nix
   programs.helix.enable = true;
   programs.helix.package = unstable.helix;
 #+end_src
 
-****** COMMENT Lots of config
+******* COMMENT Lots of config
 #+begin_src nix :tangle ./configuration.nix
   programs.helix = {
     enable = true;
@@ -553,7 +1705,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-**** Configure keymap in X11
+***** Configure keymap in X11
 #+begin_src nix :tangle ./configuration.nix
   services.xserver.xkb = {
     layout = "us";
@@ -561,12 +1713,12 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-**** Enable CUPS to print documents.
+***** Enable CUPS to print documents.
 #+begin_src nix :tangle ./configuration.nix
   services.printing.enable = true;
 #+end_src
 
-**** Enable Man pages
+***** Enable Man pages
 #+begin_src nix :tangle ./configuration.nix
   documentation = {
       enable = true;
@@ -575,19 +1727,19 @@ fonts.packages = with pkgs; [ nerdfonts ];
   } ;
 #+end_src
 
-**** rtkit
+***** rtkit
 #+begin_src nix :tangle ./configuration.nix
   security.rtkit.enable = true;
 #+end_src
 
-**** Sound related configs
+***** Sound related configs
 
-***** COMMENT pulseaudio
+****** COMMENT pulseaudio
 #+begin_src nix :tangle ./configuration.nix
   hardware.pulseaudio.enable = false;
 #+end_src
 
-***** pipewire
+****** pipewire
 #+begin_src nix :tangle ./configuration.nix
   services.pipewire = {
     enable = true;
@@ -603,12 +1755,12 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-**** Enable touchpad support (enabled default in most desktopManager).
+***** Enable touchpad support (enabled default in most desktopManager).
 #+begin_src nix :tangle ./configuration.nix
   services.libinput.enable = true;
 #+end_src
 
-**** Define a user account. Don't forget to set a password with ‘passwd’.
+***** Define a user account. Don't forget to set a password with ‘passwd’.
 #+begin_src nix :tangle ./configuration.nix
   users.users.asd = {
     isNormalUser = true;
@@ -622,31 +1774,31 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-***** COMMENT keep user services running
+****** COMMENT keep user services running
 #+begin_src nix :tangle ./configuration.nix
   users.users.asd.linger = true; 
 #+end_src
 
-**** zsh
+***** zsh
 
-***** Set default shell to zsh
+****** Set default shell to zsh
 #+begin_src nix :tangle ./configuration.nix
   users.defaultUserShell = unstable.zsh;
 #+end_src
 
-***** BEGIN
+****** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   programs.zsh = {
 #+end_src
 
-***** MAIN
+****** MAIN
 
-****** ENABLE
+******* ENABLE
 #+begin_src nix :tangle ./configuration.nix
   enable = true;
 #+end_src
 
-****** COMMENT With Zplug:
+******* COMMENT With Zplug:
 #+begin_src nix :tangle ./configuration.nix
   zplug = {
     enable = true;
@@ -660,7 +1812,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-****** With Oh-My-Zsh:
+******* With Oh-My-Zsh:
 #+begin_src nix :tangle ./configuration.nix
   ohMyZsh = {
     enable = true;
@@ -669,7 +1821,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-****** COMMENT With Antidote:
+******* COMMENT With Antidote:
 #+begin_src nix :tangle ./configuration.nix
   antidote = {
     enable = true;
@@ -679,7 +1831,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
     '']; # explanation of "path:..." and other options explained in Antidote README.
 #+end_src
 
-****** COMMENT Manual
+******* COMMENT Manual
 #+begin_src nix :tangle ./configuration.nix
     plugins = [
       {
@@ -713,12 +1865,12 @@ fonts.packages = with pkgs; [ nerdfonts ];
     ];
 #+end_src
 
-***** END
+****** END
 #+begin_src nix :tangle ./configuration.nix
   };
 #+end_src
 
-**** Fish
+***** Fish
 #+begin_src nix :tangle ./configuration.nix
   programs.fish = {
       enable = true;
@@ -726,19 +1878,19 @@ fonts.packages = with pkgs; [ nerdfonts ];
   } ;
 #+end_src
 
-***** COMMENT Set default shell to fish
+****** COMMENT Set default shell to fish
 #+begin_src nix :tangle ./configuration.nix
   users.defaultUserShell = pkgs.fish;
 #+end_src
 
-**** Laptop power management
+***** Laptop power management
 
-***** thermald
+****** thermald
 #+begin_src nix :tangle ./configuration.nix
   services.thermald.enable = true;
 #+end_src
 
-***** COMMENT auto cpufreq
+****** COMMENT auto cpufreq
 #+begin_src nix :tangle ./configuration.nix
   services.auto-cpufreq = {
       enable = true;
@@ -756,56 +1908,56 @@ fonts.packages = with pkgs; [ nerdfonts ];
 #+end_src
 
 
-**** firefox.
+***** firefox.
 #+begin_src nix :tangle ./configuration.nix
   programs.firefox.enable = true;
 #+end_src
 
-**** Allow unfree packages
+***** Allow unfree packages
 #+begin_src nix :tangle ./configuration.nix
   nixpkgs.config.allowUnfree = true;
 #+end_src
 
-**** ENABLE virt-manager
+***** ENABLE virt-manager
 #+begin_src nix :tangle ./configuration.nix
   programs.virt-manager.enable = true;
 #+end_src
 
-**** Add asd to libvirtd groups
+***** Add asd to libvirtd groups
 #+begin_src nix :tangle ./configuration.nix
   users.groups.libvirtd.members = ["asd"];
 #+end_src
 
-**** Containers and virtualizating
+***** Containers and virtualizating
 
-***** BEGIB
+****** BEGIB
 #+begin_src nix :tangle ./configuration.nix
   virtualisation = {
 #+end_src
 
-***** MAIN
+****** MAIN
 
-****** ENABLE VIRT-MANAGER
+******* ENABLE VIRT-MANAGER
 #+begin_src nix :tangle ./configuration.nix
   libvirtd.enable = true;
 #+end_src
 
-****** spice
+******* spice
 #+begin_src nix :tangle ./configuration.nix
   spiceUSBRedirection.enable = true;
 #+end_src
 
-****** ENABLE CONTAINERS
+******* ENABLE CONTAINERS
 #+begin_src nix :tangle ./configuration.nix
   containers.enable = true;
 #+end_src
 
-****** INCUS
+******* INCUS
 #+begin_src nix :tangle ./configuration.nix
   incus.enable = true;
 #+end_src
 
-****** PODMAN
+******* PODMAN
 #+begin_src nix :tangle ./configuration.nix
   podman = {
       enable = true;
@@ -818,29 +1970,29 @@ fonts.packages = with pkgs; [ nerdfonts ];
   };
 #+end_src
 
-***** ED
+****** ED
 #+begin_src nix :tangle ./configuration.nix
   };
 #+end_src
 
-**** List packages installed in system profile
+***** List packages installed in system profile
 
-***** To search, run:
+****** To search, run:
 
 #+begin_src sh :shebang #!/bin/sh :results output
   nix search wget
 #+end_src
 
-***** full list
+****** full list
 
-****** BEGIN
+******* BEGIN
 #+begin_src nix :tangle ./configuration.nix
   environment.systemPackages = with pkgs; [
 #+end_src
 
-****** FULL LIST
+******* FULL LIST
 
-******* MAIN PACKAGES
+******** MAIN PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   acpi
   alsa-utils
@@ -943,14 +2095,14 @@ fonts.packages = with pkgs; [ nerdfonts ];
   zstd
 #+end_src
 
-******* python stuff
+******** python stuff
 
-******** begin
+********* begin
 #+begin_src nix :tangle ./configuration.nix
   (unstable.python313.withPackages (ps: with ps; [
 #+end_src
 
-******** main
+********* main
 #+begin_src nix :tangle ./configuration.nix
   albumentations
   datafusion
@@ -985,18 +2137,18 @@ fonts.packages = with pkgs; [ nerdfonts ];
   yt-dlp
 #+end_src
 
-******** end
+********* end
 #+begin_src nix :tangle ./configuration.nix
   ]))
 #+end_src
 
-******* ROCM stuff
+******** ROCM stuff
 
-******** Enabled
+********* Enabled
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
 
-******** COMMENT Disabled
+********* COMMENT Disabled
 #+begin_src nix :tangle ./configuration.nix
   rocmPackages.hipblas
   rocmPackages.hipcc
@@ -1009,9 +2161,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   rocmPackages.rocrand
 #+end_src
 
-******* OBS related
+******** OBS related
 
-******** COMMENT All possible
+********* COMMENT All possible
 #+begin_src nix :tangle ./configuration.nix
   unstable.obs-cli
   unstable.obs-cmd
@@ -1021,7 +2173,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   unstable.evil-helix
 #+end_src
 
-******* MIX STABLE-UNSTABLE PACKAGES
+******** MIX STABLE-UNSTABLE PACKAGES
 #+begin_src nix :tangle ./configuration.nix
   unstable.ags
   unstable.alacritty
@@ -1085,14 +2237,14 @@ fonts.packages = with pkgs; [ nerdfonts ];
   unstable.emacs-lsp-booster
 #+end_src
 
-******* CUSTOM SOURCES
+******** CUSTOM SOURCES
 #+begin_src nix :tangle ./configuration.nix
   (callPackage /root/debMirror.nix {})
 #+end_src
 
-******* Wrapper scripts
+******** Wrapper scripts
 
-******** YDOTOOL_DAEMON
+********* YDOTOOL_DAEMON
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "YDOTOOL_DAEMON" ''
 
@@ -1180,7 +2332,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_PLUS
+********* M_PLUS
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_PLUS" ''
 
@@ -1197,7 +2349,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_MINUS
+********* M_MINUS
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_MINUS" ''
 
@@ -1215,7 +2367,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
 #+end_src
 
 
-******** M_C_PLUS
+********* M_C_PLUS
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_PLUS" ''
 
@@ -1231,7 +2383,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_C_MINUS
+********* M_C_MINUS
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_MINUS" ''
 
@@ -1247,7 +2399,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_C_LEFTBRACE
+********* M_C_LEFTBRACE
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_LEFTBRACE" ''
 
@@ -1263,7 +2415,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_C_RIGHTBRACE
+********* M_C_RIGHTBRACE
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_RIGHTBRACE" ''
 
@@ -1279,7 +2431,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_C_ESC
+********* M_C_ESC
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_ESC" ''
 
@@ -1295,7 +2447,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_F1
+********* M_F1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_F1" ''
 
@@ -1311,7 +2463,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_F2
+********* M_F2
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_F2" ''
 
@@ -1327,7 +2479,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** M_F3
+********* M_F3
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_F3" ''
 
@@ -1343,9 +2495,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Numerical programs parts
+********* Numerical programs parts
 
-********* M_C_1
+********** M_C_1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_1" ''
 
@@ -1379,7 +2531,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_C_2
+********** M_C_2
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_2" ''
 
@@ -1395,7 +2547,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** TY
+********* TY
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "TY" ''
 
@@ -1429,7 +2581,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** enter emacs flatpak
+********* enter emacs flatpak
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "enter_emacs_flatpak" ''
 
@@ -1445,9 +2597,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Terminal parts
+********* Terminal parts
 
-********* M_C_Q
+********** M_C_Q
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_Q" ''
 
@@ -1463,7 +2615,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_C_W
+********** M_C_W
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_W" ''
 
@@ -1479,7 +2631,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_C_E
+********** M_C_E
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_E" ''
 
@@ -1495,7 +2647,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_C_R
+********** M_C_R
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_R" ''
 
@@ -1511,9 +2663,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_C_T
+********** M_C_T
 
-********** COMMENT New
+*********** COMMENT New
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
 
@@ -1549,7 +2701,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********** old
+*********** old
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_T" ''
 
@@ -1600,9 +2752,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Browser and remote parts
+********* Browser and remote parts
 
-********* M_C_A
+********** M_C_A
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_A" ''
 
@@ -1618,7 +2770,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_C_S
+********** M_C_S
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_S" ''
 
@@ -1634,9 +2786,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** File browser
+********* File browser
 
-********* M_C_D
+********** M_C_D
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_D" ''
 
@@ -1652,9 +2804,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Audio volume
+********* Audio volume
 
-********* M_C_F
+********** M_C_F
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_F" ''
 
@@ -1670,9 +2822,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Network
+********* Network
 
-********* M_C_G
+********** M_C_G
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_C_G" ''
 
@@ -1688,9 +2840,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Sound volume
+********* Sound volume
 
-********* M_A_Q
+********** M_A_Q
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_Q" ''
 
@@ -1706,7 +2858,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_W
+********** M_A_W
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_W" ''
 
@@ -1722,7 +2874,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_E
+********** M_A_E
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_E" ''
 
@@ -1738,7 +2890,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_R
+********** M_A_R
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_R" ''
 
@@ -1754,7 +2906,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_T
+********** M_A_T
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_T" ''
 
@@ -1770,7 +2922,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_Y
+********** M_A_Y
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_Y" ''
 
@@ -1786,7 +2938,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_U
+********** M_A_U
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_U" ''
 
@@ -1802,7 +2954,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_I
+********** M_A_I
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_I" ''
 
@@ -1818,7 +2970,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_O
+********** M_A_O
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_O" ''
 
@@ -1834,7 +2986,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_P
+********** M_A_P
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_P" ''
 
@@ -1850,9 +3002,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** Screen brightness
+********* Screen brightness
 
-********* M_A_GRAVE
+********** M_A_GRAVE
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_GRAVE" ''
 
@@ -1869,7 +3021,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_1
+********** M_A_1
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_1" ''
 
@@ -1887,7 +3039,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_2
+********** M_A_2
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_2" ''
 
@@ -1904,7 +3056,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_3
+********** M_A_3
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_3" ''
 
@@ -1921,7 +3073,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_4
+********** M_A_4
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_4" ''
 
@@ -1938,7 +3090,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_5
+********** M_A_5
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_5" ''
 
@@ -1955,7 +3107,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_6
+********** M_A_6
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_6" ''
 
@@ -1972,7 +3124,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_7
+********** M_A_7
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_7" ''
 
@@ -1989,7 +3141,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_8
+********** M_A_8
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_8" ''
 
@@ -2006,7 +3158,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_9
+********** M_A_9
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_9" ''
 
@@ -2023,7 +3175,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-********* M_A_0
+********** M_A_0
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "M_A_0" ''
 
@@ -2040,7 +3192,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-******** COMMENT Replace kwin with wayfire
+********* COMMENT Replace kwin with wayfire
 #+begin_src nix :tangle ./configuration.nix
   (writeCBin "kwin_wayland" ''
 
@@ -2056,26 +3208,26 @@ fonts.packages = with pkgs; [ nerdfonts ];
   '')
 #+end_src
 
-****** END
+******* END
 #+begin_src nix :tangle ./configuration.nix
   ];
 #+end_src
 
-**** Get details about manufacturer
+***** Get details about manufacturer
 #+begin_src sh :shebang #!/bin/sh :results output
   dmidecode -t system
 #+end_src
 
-**** COMMENT SUID wrappers
+***** COMMENT SUID wrappers
 Some programs need SUID wrappers, can be configured further or are
 started in user sessions.
 
-***** MTR
+****** MTR
 #+begin_src nix :tangle ./configuration.nix
   programs.mtr.enable = true;
 #+end_src
 
-***** GPG
+****** GPG
 #+begin_src nix :tangle ./configuration.nix
   programs.gnupg.agent = {
       enable = true;
@@ -2083,9 +3235,9 @@ started in user sessions.
   };
 #+end_src
 
-**** List services that you want to enable:
+***** List services that you want to enable:
 
-***** Enable flatpak.
+****** Enable flatpak.
 #+begin_src nix :tangle ./configuration.nix
   services.flatpak = {
       enable = true;
@@ -2093,43 +3245,43 @@ started in user sessions.
   } ;
 #+end_src
 
-**** COMMENT Configure DNSMASQ
+***** COMMENT Configure DNSMASQ
 
-***** BEGIN
+****** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   services.dnsmasq = {
 #+end_src
 
-***** enable
+****** enable
 #+begin_src nix :tangle ./configuration.nix
   enable = true;
 #+end_src
 
-***** alwaysKeepRunning
+****** alwaysKeepRunning
 #+begin_src nix :tangle ./configuration.nix
   alwaysKeepRunning = true;
 #+end_src
 
-***** resolveLocalQueries
+****** resolveLocalQueries
 #+begin_src nix :tangle ./configuration.nix
   resolveLocalQueries = true;
 #+end_src
 
-***** settings
+****** settings
 
-****** begin
+******* begin
 #+begin_src nix :tangle ./configuration.nix
   settings = {
 #+end_src
 
-****** server list
+******* server list
 
-******* BEGIN
+******** BEGIN
 #+begin_src nix :tangle ./configuration.nix
   server = [
 #+end_src
 
-******* MAIN
+******** MAIN
 #+begin_src nix :tangle ./configuration.nix
   "1.0.0.1"
   "1.1.1.1"
@@ -2152,12 +3304,12 @@ started in user sessions.
   "9.9.9.9"
 #+end_src
 
-******* END
+******** END
 #+begin_src nix :tangle ./configuration.nix
   ] ;
 #+end_src
 
-****** other settings
+******* other settings
 #+begin_src nix :tangle ./configuration.nix
   local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
   log-queries = true; # Log results of all DNS queries
@@ -2170,17 +3322,17 @@ started in user sessions.
   dhcp-range = ["192.168.122.101,192.168.122.200"];
 #+end_src
 
+******* end
+#+begin_src nix :tangle ./configuration.nix
+  };
+#+end_src
+
 ****** end
 #+begin_src nix :tangle ./configuration.nix
   };
 #+end_src
 
-***** end
-#+begin_src nix :tangle ./configuration.nix
-  };
-#+end_src
-
-**** NixOS release (DONOT CHANGE THIS!!!)
+***** NixOS release (DONOT CHANGE THIS!!!)
 This value determines the NixOS release from which the default
 settings for stateful data, like file locations and database versions
 on your system were taken. It‘s perfectly fine and recommended to leave
@@ -2188,12 +3340,12 @@ this value at the release version of the first install of this system.
 Before changing this value read the documentation for this option
 (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
 
-***** Did you read the comment?
+****** Did you read the comment?
 #+begin_src nix :tangle ./configuration.nix
   system.stateVersion = "24.11";
 #+end_src
 
-*** END
+**** END
 #+begin_src nix :tangle ./configuration.nix
   }
 #+end_src
