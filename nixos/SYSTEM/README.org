@@ -227,7 +227,7 @@ to /etc/nixos/configuration.nix instead.
           };
           default_session = initial_session;
           };
-      }
+      } ;
     } ;
   }
 #+end_src
