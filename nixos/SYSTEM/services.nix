@@ -3,7 +3,6 @@
   lib,
   pkgs,
   modulesPath,
-  unstable,
   ...
 }: {
   services = {
@@ -26,7 +25,7 @@
     #       settings.General.DisplayServer = "wayland";
     # }
 
-    displayManager.sessionPackages = [unstable.wayfire];
+    # displayManager.sessionPackages = [ unstable.wayfire ];
 
     greetd = {
       enable = true;

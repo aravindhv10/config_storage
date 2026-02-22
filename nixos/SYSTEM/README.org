@@ -197,7 +197,6 @@ to /etc/nixos/configuration.nix instead.
     lib,
     pkgs,
     modulesPath,
-    unstable,
     ...
   }: {
     services = {
@@ -221,7 +220,7 @@ to /etc/nixos/configuration.nix instead.
       #       settings.General.DisplayServer = "wayland";
       # }
 
-      displayManager.sessionPackages = [ unstable.wayfire ];
+      # displayManager.sessionPackages = [ unstable.wayfire ];
 
       greetd = {
           enable = true;
