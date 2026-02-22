@@ -197,6 +197,7 @@ to /etc/nixos/configuration.nix instead.
     lib,
     pkgs,
     modulesPath,
+    unstable,
     ...
   }: {
     services = {
