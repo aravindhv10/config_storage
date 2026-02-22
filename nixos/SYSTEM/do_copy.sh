@@ -11,5 +11,6 @@ C 'rebuild_switch.sh'
 
 C 'configuration.nix'
 C 'hardware-configuration.nix'
+C 'i18n.nix'
 C 'kernel_config.nix'
 C 'network_config.nix'

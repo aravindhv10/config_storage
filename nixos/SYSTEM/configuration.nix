@@ -7,7 +7,7 @@
 }: let
   unstable = import <nixos-unstable> {};
 in {
-  imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix];
+  imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix ./i18n.nix];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -23,20 +23,6 @@ in {
   networking.hostName = "nixos";
 
   time.timeZone = "Asia/Kolkata";
-
-  i18n.defaultLocale = "en_IN";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_IN";
-    LC_IDENTIFICATION = "en_IN";
-    LC_MEASUREMENT = "en_IN";
-    LC_MONETARY = "en_IN";
-    LC_NAME = "en_IN";
-    LC_NUMERIC = "en_IN";
-    LC_PAPER = "en_IN";
-    LC_TELEPHONE = "en_IN";
-    LC_TIME = "en_IN";
-  };
 
   services.xserver = {
     enable = true;

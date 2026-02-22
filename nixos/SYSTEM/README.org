@@ -13,6 +13,7 @@
 
   NIXADD 'configuration.nix'
   NIXADD 'hardware-configuration.nix'
+  NIXADD 'i18n.nix'
   NIXADD 'kernel_config.nix'
   NIXADD 'network_config.nix'
 
@@ -40,6 +41,7 @@
 
   C 'configuration.nix'
   C 'hardware-configuration.nix'
+  C 'i18n.nix'
   C 'kernel_config.nix'
   C 'network_config.nix'
 #+end_src
@@ -158,6 +160,26 @@ to /etc/nixos/configuration.nix instead.
   }
 #+end_src
 
+* Language and locale
+#+begin_src nix :tangle ./i18n.nix
+  { config, lib, pkgs, modulesPath, ... }: {
+    i18n = {
+      defaultLocale = "en_IN";
+      extraLocaleSettings = {
+          LC_ADDRESS = "en_IN";
+          LC_IDENTIFICATION = "en_IN";
+          LC_MEASUREMENT = "en_IN";
+          LC_MONETARY = "en_IN";
+          LC_NAME = "en_IN";
+          LC_NUMERIC = "en_IN";
+          LC_PAPER = "en_IN";
+          LC_TELEPHONE = "en_IN";
+          LC_TIME = "en_IN";
+      };
+    } ;
+  }
+#+end_src
+
 * Main config
 Edit this configuration file to define what should be installed on
 your system.  Help is available in the configuration.nix(5) man page
@@ -203,7 +225,7 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
 
 **** Import hardware configuration
 #+begin_src nix :tangle ./configuration.nix
-  imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix];
+  imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix ./i18n.nix];
 #+end_src
 
 **** Fonts
@@ -330,7 +352,7 @@ Define your hostname.
   time.timeZone = "Asia/Kolkata";
 #+end_src
 
-**** Select internationalisation properties.
+**** COMMENT Select internationalisation properties.
 #+begin_src nix :tangle ./configuration.nix
   i18n.defaultLocale = "en_IN";
 
