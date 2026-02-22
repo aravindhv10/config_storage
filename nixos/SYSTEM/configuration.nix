@@ -59,7 +59,7 @@ in {
 
     zsh = {
       enable = true;
-      package = pkgs.zsh;
+      # package = pkgs.zsh;
       ohMyZsh = {
         enable = true;
         plugins = [
