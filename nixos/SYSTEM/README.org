@@ -199,6 +199,7 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
+    services.xserver.desktopManager.gnome.enable = true;
     services = {
 
       # Enable the X11 windowing system.
@@ -210,7 +211,7 @@ to /etc/nixos/configuration.nix instead.
 
       displayManager = {
           gdm.enable = false ;
-          gnome.enable = true ;
+          # gnome.enable = true ;
           plasma6.enable = true;
       } ;
 

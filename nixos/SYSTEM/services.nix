@@ -5,6 +5,7 @@
   modulesPath,
   ...
 }: {
+  services.xserver.desktopManager.gnome.enable = true;
   services = {
     # Enable the X11 windowing system.
     # You can disable this if you're only using the Wayland session.
@@ -15,7 +16,7 @@
 
     displayManager = {
       gdm.enable = false;
-      gnome.enable = true;
+      # gnome.enable = true ;
       plasma6.enable = true;
     };
 
