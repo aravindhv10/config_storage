@@ -199,6 +199,8 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
+    # Enable the X11 windowing system.
+    # You can disable this if you're only using the Wayland session.
     services.xserver = {
       enable = true;
       videoDrivers = ["amdgpu"];
@@ -377,8 +379,6 @@ fonts.packages = with pkgs; [ nerdfonts ];
 #+end_src
 
 **** XServer / Wayland + drivers
-Enable the X11 windowing system.
-You can disable this if you're only using the Wayland session.
 #+begin_src nix :tangle ./configuration.nix
   services.xserver = {
       enable = true;
