@@ -5,6 +5,7 @@
   modulesPath,
   ...
 }: {
+  services.desktopManager.plasma6.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
   services = {
     # Enable the X11 windowing system.
@@ -17,7 +18,7 @@
     displayManager = {
       gdm.enable = false;
       # gnome.enable = true ;
-      plasma6.enable = true;
+      # plasma6.enable = true;
     };
 
     # displayManager.sddm = {

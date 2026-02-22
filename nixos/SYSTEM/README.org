@@ -199,6 +199,7 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
+    services.desktopManager.plasma6.enable = true;
     services.xserver.desktopManager.gnome.enable = true;
     services = {
 
@@ -212,7 +213,7 @@ to /etc/nixos/configuration.nix instead.
       displayManager = {
           gdm.enable = false ;
           # gnome.enable = true ;
-          plasma6.enable = true;
+          # plasma6.enable = true;
       } ;
 
       # displayManager.sddm = {
