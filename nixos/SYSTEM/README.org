@@ -2078,16 +2078,6 @@ started in user sessions.
 
 **** List services that you want to enable:
 
-***** chrony for time
-#+begin_src nix :tangle ./configuration.nix
-  services.chrony.enable = true;
-#+end_src
-
-***** Enable the OpenSSH daemon.
-#+begin_src nix :tangle ./configuration.nix
-  services.openssh.enable = true;
-#+end_src
-
 ***** Enable flatpak.
 #+begin_src nix :tangle ./configuration.nix
   services.flatpak = {

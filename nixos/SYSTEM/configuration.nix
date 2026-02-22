@@ -1118,10 +1118,6 @@ in {
     '')
   ];
 
-  services.chrony.enable = true;
-
-  services.openssh.enable = true;
-
   services.flatpak = {
     enable = true;
     package = unstable.flatpak;
