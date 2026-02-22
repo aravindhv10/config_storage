@@ -75,7 +75,13 @@ in {
     };
   };
 
-  services.displayManager.sessionPackages = [unstable.wayfire];
+  services = {
+    displayManager.sessionPackages = [unstable.wayfire];
+    flatpak = {
+      enable = true;
+      package = unstable.flatpak;
+    };
+  };
 
   documentation = {
     enable = true;
@@ -1068,11 +1074,6 @@ in {
 
     '')
   ];
-
-  services.flatpak = {
-    enable = true;
-    package = unstable.flatpak;
-  };
 
   system.stateVersion = "24.11";
 }

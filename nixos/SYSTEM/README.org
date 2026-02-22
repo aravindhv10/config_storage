@@ -441,7 +441,7 @@ to /etc/nixos/configuration.nix instead.
       fish = {
           enable = true;
           package = pkgs.fish;
-      };
+      } ;
 
       zsh = {
           enable = true;
@@ -457,18 +457,24 @@ to /etc/nixos/configuration.nix instead.
                   "zoxide"
               ];
               theme = "robbyrussell";
-          };
-      };
-
+          } ;
+      } ;
     } ;
 
-    services.displayManager.sessionPackages = [unstable.wayfire];
+
+    services = {
+      displayManager.sessionPackages = [unstable.wayfire];
+      flatpak = {
+          enable = true;
+          package = unstable.flatpak;
+      };
+    } ;
 
     documentation = {
       enable = true;
       man.enable = true;
       dev.enable = true;
-    };
+    } ;
 
     users = {
       users.asd = {
@@ -485,7 +491,6 @@ to /etc/nixos/configuration.nix instead.
       defaultUserShell = pkgs.zsh;
       groups.libvirtd.members = ["asd"];
     } ;
-
 
     virtualisation = {
       libvirtd.enable = true;
@@ -1456,11 +1461,6 @@ to /etc/nixos/configuration.nix instead.
 
       '')
     ];
-
-    services.flatpak = {
-      enable = true;
-      package = unstable.flatpak;
-    };
 
     system.stateVersion = "24.11";
   }
