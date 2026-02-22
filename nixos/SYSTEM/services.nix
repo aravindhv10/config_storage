@@ -6,6 +6,8 @@
   unstable,
   ...
 }: {
+  services.displayManager.sessionPackages = [unstable.wayfire];
+
   services = {
     desktopManager = {
       plasma6.enable = true;

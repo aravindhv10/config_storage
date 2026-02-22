@@ -235,6 +235,9 @@ to /etc/nixos/configuration.nix instead.
     unstable,
     ...
   }: {
+
+    services.displayManager.sessionPackages = [ unstable.wayfire ];
+
     services = {
       desktopManager = {
         plasma6.enable = true;
