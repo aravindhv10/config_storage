@@ -132,6 +132,11 @@ to /etc/nixos/configuration.nix instead.
       kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
       kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
+      # kernelPackages = pkgs.linuxPackages_6_14; 
+      # kernelPackages = pkgs.linuxPackages_6_15; 
+      # kernelPackages = pkgs.linuxPackages_6_16; 
+      # kernelPackages = pkgs.linuxPackages_6_17; 
+
       # kernelPackages =
       # let
       #     linux_sgx_pkg = { fetchurl, buildLinux, ... } @ args:
@@ -151,6 +156,8 @@ to /etc/nixos/configuration.nix instead.
       #     pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 
     };
+
+
 
 
   }
@@ -424,27 +431,18 @@ fonts.packages = with pkgs; [ nerdfonts ];
 
 ***** COMMENT 6.14
 #+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxPackages_6_14; 
 #+end_src
 
 ***** COMMENT 6.15
 #+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxPackages_6_15; 
 #+end_src
+
 
 ***** COMMENT 6.16
 #+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxPackages_6_16; 
 #+end_src
 
 ***** COMMENT 6.17
-#+begin_src nix :tangle ./configuration.nix
-    boot.kernelPackages = pkgs.linuxPackages_6_17; 
-#+end_src
-
-***** COMMENT Custom build
-
-****** COMMENT 2
 #+begin_src nix :tangle ./configuration.nix
 #+end_src
 
