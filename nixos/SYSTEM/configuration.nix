@@ -16,14 +16,13 @@ in {
     ./environment.nix
   ];
 
+  security.rtkit.enable = true;
+  time.timeZone = "Asia/Kolkata";
+
   nixpkgs = {
     hostPlatform = lib.mkDefault "x86_64-linux";
     config.allowUnfree = true;
   };
-
-  security.rtkit.enable = true;
-
-  time.timeZone = "Asia/Kolkata";
 
   programs = {
     firefox.enable = true;
