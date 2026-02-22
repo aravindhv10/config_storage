@@ -392,29 +392,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
   time.timeZone = "Asia/Kolkata";
 #+end_src
 
-**** XServer / Wayland + drivers
-#+begin_src nix :tangle ./configuration.nix
-  services.xserver = {
-      enable = true;
-      videoDrivers = [ "amdgpu" ];
-  } ;
-#+end_src
-
 **** Display manager
-
-***** COMMENT SDDM
-#+begin_src nix :tangle ./configuration.nix
-  services.displayManager.sddm = {
-      enable = true;
-      wayland.enable = true;
-      settings.General.DisplayServer = "wayland";
-  } ;
-#+end_src
-
-***** COMMENT GDM
-#+begin_src nix :tangle ./configuration.nix
-  services.xserver.displayManager.gdm.enable = true;
-#+end_src
 
 ***** greetd
 

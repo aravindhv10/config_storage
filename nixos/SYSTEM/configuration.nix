@@ -28,11 +28,6 @@ in {
 
   time.timeZone = "Asia/Kolkata";
 
-  services.xserver = {
-    enable = true;
-    videoDrivers = ["amdgpu"];
-  };
-
   services.greetd = {
     enable = true;
     settings = rec {
