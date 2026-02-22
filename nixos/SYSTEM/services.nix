@@ -5,15 +5,15 @@
   modulesPath,
   ...
 }: {
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
 
   services = {
-    xserver = {
-      enable = true;
-      videoDrivers = ["amdgpu"];
-      displayManager.gdm.enable = false;
-    };
+
+    # Enable the X11 windowing system.
+    # You can disable this if you're only using the Wayland session.
+    # xserver = {
+    #     enable = true;
+    #     videoDrivers = ["amdgpu"];
+    # };
 
     # displayManager.sddm = {
     #       enable = true;
@@ -21,6 +21,18 @@
     #       settings.General.DisplayServer = "wayland";
     # }
 
-    desktopManager.gnome.enable = true;
-  };
+    displayManager.gdm.enable = false ;
+    desktopManager.gnome.enable = true ;
+    greetd = {
+        enable = true;
+        settings = rec {
+        initial_session = {
+            command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
+
+            user = "asd";
+        };
+        default_session = initial_session;
+        };
+    }
+  } ;
 }
