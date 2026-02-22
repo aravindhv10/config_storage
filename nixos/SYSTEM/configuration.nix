@@ -256,7 +256,6 @@ in {
         yt-dlp
       ]))
 
-    unstable.ags
     unstable.alacritty
     unstable.alejandra
     unstable.aria2
@@ -269,14 +268,13 @@ in {
     unstable.difftastic
     unstable.dust
     unstable.emacs30
+    unstable.emacs-lsp-booster
     unstable.eza
     unstable.fd
     unstable.fzf
     unstable.gitui
     unstable.helix
     unstable.inkscape
-    unstable.ironbar
-    unstable.kickoff
     unstable.lapce
     unstable.lsd
     unstable.lyx
@@ -303,19 +301,15 @@ in {
     unstable.swww
     unstable.television
     unstable.tmux
-    unstable.tofi
     unstable.uv
     unstable.wezterm
     unstable.wine
-    unstable.wldash
     unstable.wlsunset
     unstable.wluma
     unstable.yazi
     unstable.ydotool
-    unstable.yofi
     unstable.zed-editor
     unstable.zoxide
-    unstable.emacs-lsp-booster
 
     (callPackage /root/debMirror.nix {})
 
