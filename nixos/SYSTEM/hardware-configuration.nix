@@ -7,6 +7,8 @@
 }: {
   imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
   fileSystems."/" = {
     device = "/dev/disk/by-partlabel/linux";
     fsType = "btrfs";

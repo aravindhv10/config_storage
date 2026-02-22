@@ -16,33 +16,67 @@ in {
     ./environment.nix
   ];
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  nixpkgs = {
+    hostPlatform = lib.mkDefault "x86_64-linux";
+    config.allowUnfree = true;
+  };
+
+  security.rtkit.enable = true;
 
   time.timeZone = "Asia/Kolkata";
 
-  programs.niri.enable = true;
-  programs.niri.package = unstable.niri;
+  programs = {
+    firefox.enable = true;
+    virt-manager.enable = true;
 
-  programs.wayfire = {
-    enable = true;
-    # package = unstable.wayfire;
-    plugins = [
-      pkgs.wayfirePlugins.wayfire-plugins-extra
-      pkgs.wayfirePlugins.wcm
-      pkgs.wayfirePlugins.wf-shell
-    ];
+    niri = {
+      enable = true;
+      package = unstable.niri;
+    };
+
+    hyprland = {
+      enable = true;
+      package = unstable.hyprland;
+      withUWSM = true; # recommended for most users
+      # withUWSM = false; # recommended for most users
+      xwayland.enable = true; # Xwayland can be disabled.
+    };
+
+    wayfire = {
+      enable = true;
+      # package = unstable.wayfire;
+      plugins = [
+        pkgs.wayfirePlugins.wayfire-plugins-extra
+        pkgs.wayfirePlugins.wcm
+        pkgs.wayfirePlugins.wf-shell
+      ];
+    };
+
+    fish = {
+      enable = true;
+      package = pkgs.fish;
+    };
+
+    zsh = {
+      enable = true;
+      package = pkgs.zsh;
+      ohMyZsh = {
+        enable = true;
+        plugins = [
+          "eza"
+          "fzf"
+          "git"
+          "procs"
+          "starship"
+          "systemd"
+          "zoxide"
+        ];
+        theme = "robbyrussell";
+      };
+    };
   };
 
   services.displayManager.sessionPackages = [unstable.wayfire];
-
-  programs.hyprland = {
-    enable = true;
-    package = unstable.hyprland;
-    withUWSM = true; # recommended for most users
-    # withUWSM = false; # recommended for most users
-    xwayland.enable = true; # Xwayland can be disabled.
-  };
 
   documentation = {
     enable = true;
@@ -50,59 +84,32 @@ in {
     dev.enable = true;
   };
 
-  users.users.asd = {
-    isNormalUser = true;
-    shell = pkgs.fish;
-    description = "asd";
-    extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
-    packages = with pkgs; [
-      kdePackages.kate
-      # thunderbird
-    ];
-  };
-
-  users.defaultUserShell = unstable.zsh;
-
-  programs.zsh = {
-    enable = true;
-
-    ohMyZsh = {
-      enable = true;
-      plugins = ["git" "starship" "zoxide" "procs" "systemd" "fzf" "eza"];
-      theme = "robbyrussell";
+  users = {
+    users.asd = {
+      isNormalUser = true;
+      shell = pkgs.fish;
+      description = "asd";
+      extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
+      packages = with pkgs; [
+        kdePackages.kate
+        # thunderbird
+      ];
     };
+
+    users.defaultUserShell = pkgs.zsh;
+    groups.libvirtd.members = ["asd"];
   };
-
-  programs.fish = {
-    enable = true;
-    package = pkgs.fish;
-  };
-
-  services.thermald.enable = true;
-
-  programs.firefox.enable = true;
-
-  nixpkgs.config.allowUnfree = true;
-
-  programs.virt-manager.enable = true;
-
-  users.groups.libvirtd.members = ["asd"];
 
   virtualisation = {
     libvirtd.enable = true;
-
     spiceUSBRedirection.enable = true;
-
     containers.enable = true;
-
     incus.enable = true;
 
     podman = {
       enable = true;
-
       # Create a `docker` alias for podman, to use it as a drop-in replacement
       dockerCompat = true;
-
       # Required for containers under podman-compose to be able to talk to each other.
       defaultNetwork.settings.dns_enabled = true;
     };

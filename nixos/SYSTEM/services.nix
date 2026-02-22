@@ -9,6 +9,7 @@
     chrony.enable = true;
     openssh.enable = true;
     printing.enable = true;
+    thermald.enable = true;
 
     desktopManager = {
       plasma6.enable = true;
