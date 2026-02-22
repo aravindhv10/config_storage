@@ -95,7 +95,7 @@ in {
       ];
     };
 
-    users.defaultUserShell = pkgs.fish;
+    defaultUserShell = pkgs.zsh;
     groups.libvirtd.members = ["asd"];
   };
 

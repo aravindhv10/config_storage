@@ -482,7 +482,7 @@ to /etc/nixos/configuration.nix instead.
           ];
       };
 
-      users.defaultUserShell = pkgs.fish;
+      defaultUserShell = pkgs.zsh;
       groups.libvirtd.members = ["asd"];
     } ;
 
