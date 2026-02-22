@@ -59,7 +59,6 @@ in {
 
     zsh = {
       enable = true;
-      # package = pkgs.zsh;
       ohMyZsh = {
         enable = true;
         plugins = [
@@ -96,7 +95,7 @@ in {
       ];
     };
 
-    users.defaultUserShell = pkgs.zsh;
+    users.defaultUserShell = pkgs.fish;
     groups.libvirtd.members = ["asd"];
   };
 
