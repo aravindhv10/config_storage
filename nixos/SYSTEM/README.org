@@ -197,6 +197,7 @@ to /etc/nixos/configuration.nix instead.
     lib,
     pkgs,
     modulesPath,
+    unstable,
     ...
   }: {
     services = {
@@ -222,19 +223,19 @@ to /etc/nixos/configuration.nix instead.
           } ;
       } ;
 
-      # displayManager.sessionPackages = [ unstable.wayfire ];
+      displayManager.sessionPackages = [ unstable.wayfire ];
 
       greetd = {
           enable = true;
           settings = rec {
           initial_session = {
               command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-
               user = "asd";
           };
           default_session = initial_session;
           };
       } ;
+
     } ;
   }
 #+end_src
@@ -441,7 +442,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
 
 ****** add Wayfire to the display manager entries
 #+begin_src nix :tangle ./configuration.nix
-  services.displayManager.sessionPackages = [ unstable.wayfire ];
+  # services.displayManager.sessionPackages = [ unstable.wayfire ];
 #+end_src
 
 ***** Hyprland

@@ -3,6 +3,7 @@
   lib,
   pkgs,
   modulesPath,
+  unstable,
   ...
 }: {
   services = {
@@ -27,14 +28,13 @@
       };
     };
 
-    # displayManager.sessionPackages = [ unstable.wayfire ];
+    displayManager.sessionPackages = [unstable.wayfire];
 
     greetd = {
       enable = true;
       settings = rec {
         initial_session = {
           command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-
           user = "asd";
         };
         default_session = initial_session;
