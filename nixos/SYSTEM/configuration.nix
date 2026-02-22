@@ -47,7 +47,7 @@ in {
     ];
   };
 
-  # services.displayManager.sessionPackages = [ unstable.wayfire ];
+  services.displayManager.sessionPackages = [unstable.wayfire];
 
   programs.hyprland = {
     enable = true;

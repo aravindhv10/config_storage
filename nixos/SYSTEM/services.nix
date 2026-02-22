@@ -27,8 +27,6 @@
       };
     };
 
-    displayManager.sessionPackages = [unstable.wayfire];
-
     greetd = {
       enable = true;
       settings = rec {

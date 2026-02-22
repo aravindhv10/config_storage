@@ -224,8 +224,6 @@ to /etc/nixos/configuration.nix instead.
           } ;
       } ;
 
-      displayManager.sessionPackages = [ unstable.wayfire ];
-
       greetd = {
           enable = true;
           settings = rec {
@@ -482,7 +480,7 @@ fonts.packages = with pkgs; [ nerdfonts ];
 
 ****** add Wayfire to the display manager entries
 #+begin_src nix :tangle ./configuration.nix
-  # services.displayManager.sessionPackages = [ unstable.wayfire ];
+  services.displayManager.sessionPackages = [ unstable.wayfire ];
 #+end_src
 
 ***** Hyprland
