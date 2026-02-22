@@ -90,7 +90,7 @@ to /etc/nixos/configuration.nix instead.
   }
 #+end_src
 
-* Boot configs
+* Kernel configs
 #+begin_src nix :tangle ./kernel_config.nix
   {
     config,
@@ -141,12 +141,13 @@ to /etc/nixos/configuration.nix instead.
         "192.168.122.2" = ["vm"];
       };
 
-      timeServers = ["ntp.example.com" "time.google.com"];
-
+      firewall.enable = false;
+      hostName = "nixos";
       networkmanager.enable = true;
       nftables.enable = true;
-      firewall.enable = false;
+      timeServers = ["ntp.example.com" "time.google.com"];
       useDHCP = lib.mkDefault true;
+
       # interfaces.wlp1s0.useDHCP = lib.mkDefault true;
       # wireless.enable = true;
       # proxy.default = "http://user:password@proxy:port/";
@@ -203,94 +204,6 @@ and in the NixOS manual (accessible by running ‘nixos-help’).
 **** Import hardware configuration
 #+begin_src nix :tangle ./configuration.nix
   imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix];
-#+end_src
-
-**** COMMENT Bootloader.
-
-***** BEGIN
-#+begin_src nix :tangle ./configuration.nix
-  boot.loader = {
-#+end_src
-
-
-***** MAIN
-
-****** COMMENT systemd boot
-#+begin_src nix :tangle ./configuration.nix
-  systemd-boot.enable = true;
-#+end_src
-
-****** EFI Related
-#+begin_src nix :tangle ./configuration.nix
-  efi = {
-    canTouchEfiVariables = true;
-    efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
-  };
-#+end_src
-
-****** GRUB Related
-
-******* BEGIN
-#+begin_src nix :tangle ./configuration.nix
-  grub = {
-#+end_src
-
-******* MAIN
-
-******** EFI support
-#+begin_src nix :tangle ./configuration.nix
-  efiSupport = true;
-#+end_src
-
-******** Device
-#+begin_src nix :tangle ./configuration.nix
-  device = "/dev/nvme0n1";
-#+end_src
-
-******** COMMENT efiInstallAsRemovable
-in case =canTouchEfiVariables= doesn't work for your system
-#+begin_src nix :tangle ./configuration.nix
-  efiInstallAsRemovable = true; 
-#+end_src
-
-******** COMMENT Extra entries
-
-********* BEGIN
-#+begin_src nix :tangle ./configuration.nix
-      extraEntries = ''
-#+end_src
-
-********* MAIN
-
-********** Debian
-#+begin_src nix :tangle ./configuration.nix
-  menuentry "debian" {
-      linux /k root=/dev/disk/by-partlabel/linux rootflags=subvolid=904 dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-      initrd /i
-  }
-#+end_src
-
-********** COMMENT Nixos with debian kernel
-#+begin_src nix :tangle ./configuration.nix
-  menuentry "nixos_debian_kernel" {
-      linux /k root=/dev/disk/by-partlabel/linux rootflags=subvol=@ init=/nix/store/jyx1xdiw44nwkmimnbrp76njniaphya3-nixos-system-nixos-24.11.715908.7105ae395770/init dolvm zswap.enabled=1 zswap.max_pool_percent=80 zswap.zpool=zsmalloc
-      initrd /i
-  }
-#+end_src
-
-********* END
-#+begin_src nix :tangle ./configuration.nix
-  '' ;
-#+end_src
-
-******* END
-#+begin_src nix :tangle ./configuration.nix
-  };
-#+end_src
-
-***** END
-#+begin_src nix :tangle ./configuration.nix
-   };
 #+end_src
 
 **** Fonts

@@ -10,12 +10,13 @@
       "192.168.122.2" = ["vm"];
     };
 
-    timeServers = ["ntp.example.com" "time.google.com"];
-
+    firewall.enable = false;
+    hostName = "nixos";
     networkmanager.enable = true;
     nftables.enable = true;
-    firewall.enable = false;
+    timeServers = ["ntp.example.com" "time.google.com"];
     useDHCP = lib.mkDefault true;
+
     # interfaces.wlp1s0.useDHCP = lib.mkDefault true;
     # wireless.enable = true;
     # proxy.default = "http://user:password@proxy:port/";
