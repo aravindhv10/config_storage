@@ -44,11 +44,6 @@ in {
     xwayland.enable = true; # Xwayland can be disabled.
   };
 
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
   services.printing.enable = true;
 
   documentation = {

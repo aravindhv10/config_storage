@@ -245,11 +245,17 @@ to /etc/nixos/configuration.nix instead.
         gnome.enable = true;
       };
 
+
+
       # Enable the X11 windowing system.
       # You can disable this if you're only using the Wayland session.
       # xserver = {
       #     enable = true;
       #     videoDrivers = ["amdgpu"];
+      #     xkb = {
+      #         layout = "us";
+      #         variant = "";
+      #     };
       # };
 
       displayManager = {
@@ -323,7 +329,6 @@ to /etc/nixos/configuration.nix instead.
     ...
   }: {
     environment = {
-
       etc."greetd/environments".text = ''
         wayfire
         fish
@@ -331,9 +336,9 @@ to /etc/nixos/configuration.nix instead.
       '';
 
       variables = {
-          ROC_ENABLE_PRE_VEGA = "1";
-          EDITOR = "hx";
-          QT_SCALE_FACTOR = "1.25";
+        ROC_ENABLE_PRE_VEGA = "1";
+        EDITOR = "hx";
+        QT_SCALE_FACTOR = "1.25";
       };
 
       gnome.excludePackages = with pkgs; [
@@ -353,9 +358,7 @@ to /etc/nixos/configuration.nix instead.
         totem # video player
         seahorse
       ];
-
-    } ;
-
+    };
   }
 #+end_src
 
@@ -386,7 +389,6 @@ to /etc/nixos/configuration.nix instead.
 
     time.timeZone = "Asia/Kolkata";
 
-
     programs.niri.enable = true;
     programs.niri.package = unstable.niri;
 
@@ -410,11 +412,6 @@ to /etc/nixos/configuration.nix instead.
       xwayland.enable = true; # Xwayland can be disabled.
     };
 
-
-    services.xserver.xkb = {
-      layout = "us";
-      variant = "";
-    };
 
     services.printing.enable = true;
 
