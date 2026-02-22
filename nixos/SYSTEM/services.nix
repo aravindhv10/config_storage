@@ -20,13 +20,12 @@
 
     displayManager = {
       gdm.enable = false;
+      sddm = {
+        enable = false;
+        wayland.enable = false;
+        settings.General.DisplayServer = "wayland";
+      };
     };
-
-    # displayManager.sddm = {
-    #       enable = true;
-    #       wayland.enable = true;
-    #       settings.General.DisplayServer = "wayland";
-    # }
 
     # displayManager.sessionPackages = [ unstable.wayfire ];
 
