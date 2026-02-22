@@ -199,7 +199,6 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
-
     services = {
 
       # Enable the X11 windowing system.
@@ -209,14 +208,20 @@ to /etc/nixos/configuration.nix instead.
       #     videoDrivers = ["amdgpu"];
       # };
 
+      displayManager = {
+          gdm.enable = false ;
+          gnome.enable = true ;
+          plasma6.enable = true;
+      } ;
+
       # displayManager.sddm = {
       #       enable = true;
       #       wayland.enable = true;
       #       settings.General.DisplayServer = "wayland";
       # }
 
-      displayManager.gdm.enable = false ;
-      desktopManager.gnome.enable = true ;
+      displayManager.sessionPackages = [ unstable.wayfire ];
+
       greetd = {
           enable = true;
           settings = rec {
@@ -403,37 +408,6 @@ fonts.packages = with pkgs; [ nerdfonts ];
 #+end_src
 
 **** Display manager
-
-***** greetd
-
-****** START
-#+begin_src nix :tangle ./configuration.nix
-  services.greetd = {
-      enable = true;
-      settings = rec {
-          initial_session = {
-#+end_src
-
-****** COMMENT hyprland
-#+begin_src nix :tangle ./configuration.nix
-  command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.hyprland}/bin/hyprland";
-#+end_src
-
-****** wayfire
-#+begin_src nix :tangle ./configuration.nix
-  command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-#+end_src
-
-****** END
-#+begin_src nix :tangle ./configuration.nix
-              user = "asd";
-          };
-          default_session = initial_session;
-      };
-  };
-#+end_src
-
-***** List
 #+begin_src nix :tangle ./configuration.nix
   environment.etc."greetd/environments".text = ''
   wayfire
@@ -468,11 +442,6 @@ fonts.packages = with pkgs; [ nerdfonts ];
   services.displayManager.sessionPackages = [ unstable.wayfire ];
 #+end_src
 
-***** Enable the KDE Plasma Desktop Environment.
-#+begin_src nix :tangle ./configuration.nix
-  services.desktopManager.plasma6.enable = true;
-#+end_src
-
 ***** Hyprland
 #+begin_src nix :tangle ./configuration.nix
   programs.hyprland = {
@@ -482,11 +451,6 @@ fonts.packages = with pkgs; [ nerdfonts ];
       # withUWSM = false; # recommended for most users
       xwayland.enable = true; # Xwayland can be disabled.
   };
-#+end_src
-
-***** Enable the Gnome Desktop Environment.
-#+begin_src nix :tangle ./configuration.nix
-  services.xserver.desktopManager.gnome.enable = true;
 #+end_src
 
 ****** Exclude packages in gnome

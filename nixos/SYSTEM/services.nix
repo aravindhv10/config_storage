@@ -13,14 +13,20 @@
     #     videoDrivers = ["amdgpu"];
     # };
 
+    displayManager = {
+      gdm.enable = false;
+      gnome.enable = true;
+      plasma6.enable = true;
+    };
+
     # displayManager.sddm = {
     #       enable = true;
     #       wayland.enable = true;
     #       settings.General.DisplayServer = "wayland";
     # }
 
-    displayManager.gdm.enable = false;
-    desktopManager.gnome.enable = true;
+    displayManager.sessionPackages = [unstable.wayfire];
+
     greetd = {
       enable = true;
       settings = rec {

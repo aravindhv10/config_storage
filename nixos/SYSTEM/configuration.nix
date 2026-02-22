@@ -28,18 +28,6 @@ in {
 
   time.timeZone = "Asia/Kolkata";
 
-  services.greetd = {
-    enable = true;
-    settings = rec {
-      initial_session = {
-        command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-
-        user = "asd";
-      };
-      default_session = initial_session;
-    };
-  };
-
   environment.etc."greetd/environments".text = ''
     wayfire
     fish
@@ -61,8 +49,6 @@ in {
 
   services.displayManager.sessionPackages = [unstable.wayfire];
 
-  services.desktopManager.plasma6.enable = true;
-
   programs.hyprland = {
     enable = true;
     package = unstable.hyprland;
@@ -70,8 +56,6 @@ in {
     # withUWSM = false; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
   };
-
-  services.xserver.desktopManager.gnome.enable = true;
 
   environment.gnome.excludePackages = with pkgs; [
     atomix # puzzle game
