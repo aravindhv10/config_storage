@@ -6,12 +6,14 @@
   ...
 }: {
   networking = {
+    # Define your hostname.
+    hostName = "nixos";
+
     hosts = {
       "192.168.122.2" = ["vm"];
     };
 
     firewall.enable = false;
-    hostName = "nixos";
     networkmanager.enable = true;
     nftables.enable = true;
     timeServers = ["ntp.example.com" "time.google.com"];

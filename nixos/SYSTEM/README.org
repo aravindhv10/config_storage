@@ -139,12 +139,14 @@ to /etc/nixos/configuration.nix instead.
     ...
   }: {
     networking = {
+      # Define your hostname.
+      hostName = "nixos";
+
       hosts = {
         "192.168.122.2" = ["vm"];
       };
 
       firewall.enable = false;
-      hostName = "nixos";
       networkmanager.enable = true;
       nftables.enable = true;
       timeServers = ["ntp.example.com" "time.google.com"];
@@ -341,32 +343,9 @@ fonts.packages = with pkgs; [ nerdfonts ];
       pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 #+end_src
 
-**** Hostname
-Define your hostname.
-#+begin_src nix :tangle ./configuration.nix
-  networking.hostName = "nixos";
-#+end_src
-
 **** Set your time zone.
 #+begin_src nix :tangle ./configuration.nix
   time.timeZone = "Asia/Kolkata";
-#+end_src
-
-**** COMMENT Select internationalisation properties.
-#+begin_src nix :tangle ./configuration.nix
-  i18n.defaultLocale = "en_IN";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_IN";
-    LC_IDENTIFICATION = "en_IN";
-    LC_MEASUREMENT = "en_IN";
-    LC_MONETARY = "en_IN";
-    LC_NAME = "en_IN";
-    LC_NUMERIC = "en_IN";
-    LC_PAPER = "en_IN";
-    LC_TELEPHONE = "en_IN";
-    LC_TIME = "en_IN";
-  };
 #+end_src
 
 **** XServer / Wayland + drivers

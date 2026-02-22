@@ -20,8 +20,6 @@ in {
     QT_SCALE_FACTOR = "1.25";
   };
 
-  networking.hostName = "nixos";
-
   time.timeZone = "Asia/Kolkata";
 
   services.xserver = {
