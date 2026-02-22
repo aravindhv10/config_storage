@@ -234,9 +234,7 @@ to /etc/nixos/configuration.nix instead.
     modulesPath,
     ...
   }: {
-
     services = {
-
       chrony.enable = true;
       openssh.enable = true;
 
@@ -309,9 +307,7 @@ to /etc/nixos/configuration.nix instead.
           dhcp-range = ["192.168.122.101,192.168.122.200"];
         };
       };
-
-    } ;
-
+    };
   }
 #+end_src
 
