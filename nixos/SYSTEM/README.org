@@ -109,11 +109,17 @@ to /etc/nixos/configuration.nix instead.
   }: {
     boot = {
       loader = {
-        efi.canTouchEfiVariables = true;
-        efi.efiSysMountPoint = "/boot/efi";
-        grub.device = "/dev/nvme0n1";
-        grub.efiInstallAsRemovable = false;
-        grub.efiSupport = true;
+        efi = {
+          canTouchEfiVariables = true;
+          efiSysMountPoint = "/boot/efi";
+        } ;
+
+        grub = {
+          device = "/dev/nvme0n1";
+          efiInstallAsRemovable = false;
+          efiSupport = true;
+        } ;
+
         systemd-boot.enable = false;
       };
 
@@ -156,9 +162,6 @@ to /etc/nixos/configuration.nix instead.
       #     pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
 
     };
-
-
-
 
   }
 #+end_src
@@ -229,6 +232,7 @@ to /etc/nixos/configuration.nix instead.
     lib,
     pkgs,
     modulesPath,
+    unstable,
     ...
   }: {
     services = {

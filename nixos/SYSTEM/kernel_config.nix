@@ -7,11 +7,17 @@
 }: {
   boot = {
     loader = {
-      efi.canTouchEfiVariables = true;
-      efi.efiSysMountPoint = "/boot/efi";
-      grub.device = "/dev/nvme0n1";
-      grub.efiInstallAsRemovable = false;
-      grub.efiSupport = true;
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot/efi";
+      };
+
+      grub = {
+        device = "/dev/nvme0n1";
+        efiInstallAsRemovable = false;
+        efiSupport = true;
+      };
+
       systemd-boot.enable = false;
     };
 
