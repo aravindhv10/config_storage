@@ -348,7 +348,7 @@ in {
     unstable.miniserve
     unstable.mpvpaper
     unstable.neovim
-    unstable.nixfmt-rfc-style
+    unstable.nixfmt
     unstable.nushell
     unstable.openblas
     unstable.openblas.dev
