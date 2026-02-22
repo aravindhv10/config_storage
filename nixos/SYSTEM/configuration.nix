@@ -131,6 +131,7 @@ in {
     cargo
     cargo-info
     catppuccin-kde
+    chromium
     clinfo
     cmake
     conky

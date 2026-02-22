@@ -517,6 +517,7 @@ to /etc/nixos/configuration.nix instead.
       cargo
       cargo-info
       catppuccin-kde
+      chromium
       clinfo
       cmake
       conky
