@@ -7,7 +7,13 @@
 }: let
   unstable = import <nixos-unstable> {};
 in {
-  imports = [./hardware-configuration.nix ./kernel_config.nix ./network_config.nix ./i18n.nix];
+  imports = [
+    ./hardware-configuration.nix
+    ./kernel_config.nix
+    ./network_config.nix
+    ./i18n.nix
+    ./services.nix
+  ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
