@@ -232,13 +232,14 @@ to /etc/nixos/configuration.nix instead.
     lib,
     pkgs,
     modulesPath,
-    unstable,
     ...
   }: {
 
-    services.displayManager.sessionPackages = [ unstable.wayfire ];
-
     services = {
+
+      chrony.enable = true;
+      openssh.enable = true;
+
       desktopManager = {
         plasma6.enable = true;
         gnome.enable = true;
@@ -271,8 +272,6 @@ to /etc/nixos/configuration.nix instead.
         };
       };
 
-      chrony.enable = true;
-      openssh.enable = true;
       dnsmasq = {
         enable = true;
         alwaysKeepRunning = true;
@@ -310,7 +309,9 @@ to /etc/nixos/configuration.nix instead.
           dhcp-range = ["192.168.122.101,192.168.122.200"];
         };
       };
-    };
+
+    } ;
+
   }
 #+end_src
 

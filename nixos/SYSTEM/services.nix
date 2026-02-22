@@ -3,12 +3,12 @@
   lib,
   pkgs,
   modulesPath,
-  unstable,
   ...
 }: {
-  services.displayManager.sessionPackages = [unstable.wayfire];
-
   services = {
+    chrony.enable = true;
+    openssh.enable = true;
+
     desktopManager = {
       plasma6.enable = true;
       gnome.enable = true;
@@ -41,8 +41,6 @@
       };
     };
 
-    chrony.enable = true;
-    openssh.enable = true;
     dnsmasq = {
       enable = true;
       alwaysKeepRunning = true;
