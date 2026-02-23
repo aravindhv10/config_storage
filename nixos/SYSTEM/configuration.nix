@@ -274,7 +274,6 @@ in {
     unstable.fd
     unstable.fzf
     unstable.gitui
-    unstable.gnuplot
     unstable.helix
     unstable.inkscape
     unstable.lapce
@@ -312,6 +311,11 @@ in {
     unstable.ydotool
     unstable.zed-editor
     unstable.zoxide
+
+    (unstable.gnuplot.override {
+      withLua = true;
+      withTeXLive = true; # This provides the necessary TikZ support
+    })
 
     (callPackage /root/debMirror.nix {})
 
