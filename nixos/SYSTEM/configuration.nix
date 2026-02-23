@@ -301,6 +301,7 @@ in {
     unstable.starship
     unstable.swww
     unstable.television
+    unstable.texlab
     unstable.tmux
     unstable.uv
     unstable.wezterm
