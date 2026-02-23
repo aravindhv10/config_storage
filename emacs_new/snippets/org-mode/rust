@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: src_rust
-# key: <rust>
+# key: <rs>
 # --
 #+begin_src rust :mkdirp yes :tangle ./${0:tmp}.rs
   $1

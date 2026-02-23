@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_sql
+# key: <sql>
+# --
+#+begin_src sql :mkdirp yes :tangle ./${0:tmp}.sql
+  $1
+#+end_src

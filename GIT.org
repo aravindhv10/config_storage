@@ -50,6 +50,7 @@
   emacs_new/snippets/org-mode/py
   emacs_new/snippets/org-mode/rust
   emacs_new/snippets/org-mode/sh
+  emacs_new/snippets/org-mode/sql
   emacs_new/variables.el
   emacs_new/variables_post.el
   home_config/Cargo.toml
@@ -126,6 +127,7 @@
   emacs.d/snippets/org-mode/sh~
   emacs_new/README.org~
   emacs_new/snippets/org-mode/rust~
+  emacs_new/snippets/org-mode/sql~
   fish_config/#README.org#
   fish_config/.#README.org
   fish_config/.README.org.~undo-tree~
