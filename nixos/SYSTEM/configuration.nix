@@ -274,6 +274,7 @@ in {
     unstable.fd
     unstable.fzf
     unstable.gitui
+    unstable.gnuplot
     unstable.helix
     unstable.inkscape
     unstable.lapce
