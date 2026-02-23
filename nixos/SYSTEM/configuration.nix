@@ -265,6 +265,7 @@ in {
     unstable.brightnessctl
     unstable.byobu
     unstable.clapboard
+    unstable.delta
     unstable.difftastic
     unstable.dust
     unstable.emacs30
