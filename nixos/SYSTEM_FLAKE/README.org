@@ -1392,6 +1392,20 @@
   }
 #+end_src
 
+* Script to rebuild and switch
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_switch.sh
+  export TMPDIR='/var/tmp'
+  nixos-rebuild switch
+  echo '#### DONE ####'
+#+end_src
+
+* Script to rebuild and boot
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_boot.sh
+  export TMPDIR='/var/tmp'
+  nixos-rebuild boot
+  echo '#### DONE ####'
+#+end_src
+
 * Script to push this config to etc
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./setup.sh
   cd "$(dirname -- "${0}")"
