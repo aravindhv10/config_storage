@@ -178,7 +178,9 @@ in {
     lxc
     man-pages
     man-pages-posix
-    mate
+    mate.mate-panel
+    mate.mate-panel-with-applets
+    mate.mate-session-manager
     meson
     mpv
     networkmanagerapplet
