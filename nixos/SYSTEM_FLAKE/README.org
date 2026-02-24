@@ -1440,9 +1440,8 @@ to /etc/nixos/configuration.nix instead.
   GITADD 'nixos/services.nix'
   GITADD 'README.org'
 
-  git commit -m 'Started converting to flake'
-  git status
-  git push
+  git status ; git commit -m 'Started converting to flake'
+  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh" ; git push
 #+end_src
 
 * COMMENT WORK SPACE
