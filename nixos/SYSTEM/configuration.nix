@@ -178,6 +178,7 @@ in {
     lxc
     man-pages
     man-pages-posix
+    mate
     meson
     mpv
     networkmanagerapplet
