@@ -1423,14 +1423,32 @@
 #+end_src
 
 * Script to rebuild and switch
+
+** On tmp
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_switch.sh
+  export TMPDIR='/tmp'
+  nixos-rebuild switch --flake '.#nixos'
+  echo '#### DONE ####'
+#+end_src
+
+** On var/tmp
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_switch_safe.sh
   export TMPDIR='/var/tmp'
   nixos-rebuild switch --flake '.#nixos'
   echo '#### DONE ####'
 #+end_src
 
 * Script to rebuild and boot
+
+** On /tmp
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_boot.sh
+  export TMPDIR='/tmp'
+  nixos-rebuild boot --flake '.#nixos'
+  echo '#### DONE ####'
+#+end_src
+
+** On /var/tmp
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_boot_safe.sh
   export TMPDIR='/var/tmp'
   nixos-rebuild boot --flake '.#nixos'
   echo '#### DONE ####'

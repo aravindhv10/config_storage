@@ -1,4 +1,4 @@
 #!/bin/sh
-export TMPDIR='/var/tmp'
+export TMPDIR='/tmp'
 nixos-rebuild boot --flake '.#nixos'
 echo '#### DONE ####'
