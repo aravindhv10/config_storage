@@ -1424,6 +1424,8 @@
   GITADD 'nixos/hardware-configuration.nix'
   GITADD 'nixos/i18n.nix'
   GITADD 'nixos/network_config.nix'
+  GITADD 'nixos/rebuild_boot.sh'
+  GITADD 'nixos/rebuild_switch.sh'
   GITADD 'nixos/services.nix'
   GITADD 'README.org'
   GITADD 'setup.sh'
@@ -1433,6 +1435,8 @@
 #+end_src
 
 * COMMENT WORK SPACE
+
+** git management
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
@@ -1441,8 +1445,10 @@
   " "log" "err")
 #+end_src
 
+** Push to system
 #+begin_src emacs-lisp :results silent
   (async-shell-command "
     sudo -A './setup.sh'
   " "log" "err")
 #+end_src
+
