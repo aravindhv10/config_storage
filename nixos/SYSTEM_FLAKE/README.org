@@ -1392,6 +1392,39 @@
   }
 #+end_src
 
+* Flake
+#+begin_src nix :mkdirp yes :tangle ./nixos/flake.nix
+  {
+    description = "NixOS Flake Configuration";
+
+    inputs = {
+      # Standard NixOS stable channel
+      nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+      # Unstable channel for bleeding edge packages
+      nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    };
+
+    outputs = { self, nixpkgs, nixpkgs-unstable, ... }@inputs:
+      let
+        system = "x86_64-linux";
+        # Define unstable for use in modules
+        unstable = import nixpkgs-unstable {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      in {
+        nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+          inherit system;
+          # specialArgs allows you to pass variables to all imported modules
+          specialArgs = { inherit inputs unstable; };
+          modules = [
+            ./configuration.nix
+          ];
+        };
+      };
+  }
+#+end_src
+
 * Script to rebuild and switch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_switch.sh
   export TMPDIR='/var/tmp'
@@ -1416,17 +1449,25 @@
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . "${HOME}/important_functions.sh"
 
+  NIXADD () {
+      alejandra "./nixos/${1}"
+      GITADD "nixos/${1}"
+  }
+
   CLEAN '.git.sh'
 
-  GITADD 'nixos/boot_config.nix'
-  GITADD 'nixos/configuration.nix'
-  GITADD 'nixos/environment.nix'
-  GITADD 'nixos/hardware-configuration.nix'
-  GITADD 'nixos/i18n.nix'
-  GITADD 'nixos/network_config.nix'
+  NIXADD 'nixos/boot_config.nix'
+  NIXADD 'nixos/configuration.nix'
+  NIXADD 'nixos/environment.nix'
+  NIXADD 'nixos/flake.nix'
+  NIXADD 'nixos/hardware-configuration.nix'
+  NIXADD 'nixos/i18n.nix'
+  NIXADD 'nixos/network_config.nix'
+  NIXADD 'nixos/services.nix'
+
   GITADD 'nixos/rebuild_boot.sh'
   GITADD 'nixos/rebuild_switch.sh'
-  GITADD 'nixos/services.nix'
+
   GITADD 'README.org'
   GITADD 'setup.sh'
 
