@@ -320,8 +320,6 @@
       withTeXLive = true; # This provides the necessary TikZ support
     })
 
-    (callPackage /root/debMirror.nix {})
-
     (writeCBin "YDOTOOL_DAEMON" ''
 
       #include <stdio.h>
