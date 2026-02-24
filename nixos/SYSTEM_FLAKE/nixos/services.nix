@@ -5,7 +5,6 @@
   modulesPath,
   ...
 }: {
-
   services = {
     chrony.enable = true;
     openssh.enable = true;

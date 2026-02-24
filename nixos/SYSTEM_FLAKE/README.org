@@ -1456,14 +1456,14 @@
 
   CLEAN '.git.sh'
 
-  NIXADD 'nixos/boot_config.nix'
-  NIXADD 'nixos/configuration.nix'
-  NIXADD 'nixos/environment.nix'
-  NIXADD 'nixos/flake.nix'
-  NIXADD 'nixos/hardware-configuration.nix'
-  NIXADD 'nixos/i18n.nix'
-  NIXADD 'nixos/network_config.nix'
-  NIXADD 'nixos/services.nix'
+  NIXADD 'boot_config.nix'
+  NIXADD 'configuration.nix'
+  NIXADD 'environment.nix'
+  NIXADD 'flake.nix'
+  NIXADD 'hardware-configuration.nix'
+  NIXADD 'i18n.nix'
+  NIXADD 'network_config.nix'
+  NIXADD 'services.nix'
 
   GITADD 'nixos/rebuild_boot.sh'
   GITADD 'nixos/rebuild_switch.sh'

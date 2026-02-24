@@ -316,9 +316,9 @@ in {
     unstable.zed-editor
     unstable.zoxide
 
-    (unstable.gnuplot.override { 
-        withLua = true; 
-        withTeXLive = true; # This provides the necessary TikZ support
+    (unstable.gnuplot.override {
+      withLua = true;
+      withTeXLive = true; # This provides the necessary TikZ support
     })
 
     (callPackage /root/debMirror.nix {})

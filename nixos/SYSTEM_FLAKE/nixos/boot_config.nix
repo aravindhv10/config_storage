@@ -10,13 +10,13 @@
       efi = {
         canTouchEfiVariables = true;
         efiSysMountPoint = "/boot/efi";
-      } ;
+      };
 
       grub = {
         device = "/dev/nvme0n1";
         efiInstallAsRemovable = false;
         efiSupport = true;
-      } ;
+      };
 
       systemd-boot.enable = false;
     };
@@ -36,10 +36,10 @@
     kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
     kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
-    # kernelPackages = pkgs.linuxPackages_6_14; 
-    # kernelPackages = pkgs.linuxPackages_6_15; 
-    # kernelPackages = pkgs.linuxPackages_6_16; 
-    # kernelPackages = pkgs.linuxPackages_6_17; 
+    # kernelPackages = pkgs.linuxPackages_6_14;
+    # kernelPackages = pkgs.linuxPackages_6_15;
+    # kernelPackages = pkgs.linuxPackages_6_16;
+    # kernelPackages = pkgs.linuxPackages_6_17;
 
     # kernelPackages =
     # let
@@ -56,9 +56,7 @@
     #             } // (args.argsOverride or {})
     #         );
     #     linux_sgx = pkgs.callPackage linux_sgx_pkg{};
-    # in 
+    # in
     #     pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-
   };
-
 }
