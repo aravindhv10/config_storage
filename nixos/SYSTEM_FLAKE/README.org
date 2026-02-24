@@ -1480,9 +1480,10 @@
   NIXADD 'network_config.nix'
   NIXADD 'services.nix'
 
+  GITADD 'nixos/rebuild_boot_safe.sh'
   GITADD 'nixos/rebuild_boot.sh'
+  GITADD 'nixos/rebuild_switch_safe.sh'
   GITADD 'nixos/rebuild_switch.sh'
-
   GITADD 'README.org'
   GITADD 'setup.sh'
 
@@ -1507,3 +1508,4 @@
     sudo -A './setup.sh'
   " "log" "err")
 #+end_src
+
