@@ -73,13 +73,13 @@
     };
   };
 
-  services = {
-    displayManager.sessionPackages = [unstable.wayfire];
-    flatpak = {
-      enable = true;
-      package = unstable.flatpak;
-    };
-  };
+  # services = {
+  #   displayManager.sessionPackages = [unstable.wayfire];
+  #   flatpak = {
+  #     enable = true;
+  #     package = unstable.flatpak;
+  #   };
+  # };
 
   documentation = {
     enable = true;

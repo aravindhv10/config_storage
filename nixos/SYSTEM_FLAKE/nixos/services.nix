@@ -7,10 +7,17 @@
   ...
 }: {
   services = {
+    displayManager.sessionPackages = [unstable.wayfire];
     chrony.enable = true;
     openssh.enable = true;
     printing.enable = true;
     thermald.enable = true;
+    libinput.enable = true;
+
+    flatpak = {
+      enable = true;
+      package = unstable.flatpak;
+    };
 
     desktopManager = {
       plasma6.enable = true;
@@ -29,8 +36,6 @@
       # no need to redefine it in your config for now)
       #media-session.enable = true;
     };
-
-    libinput.enable = true;
 
     # Enable the X11 windowing system.
     # You can disable this if you're only using the Wayland session.
