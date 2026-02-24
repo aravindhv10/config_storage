@@ -3,6 +3,7 @@
   lib,
   pkgs,
   modulesPath,
+  unstable,
   ...
 }: {
   imports = [(modulesPath + "/installer/scan/not-detected.nix")];

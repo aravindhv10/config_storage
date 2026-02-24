@@ -3,6 +3,7 @@
   lib,
   pkgs,
   modulesPath,
+  unstable,
   ...
 }: {
   i18n = {

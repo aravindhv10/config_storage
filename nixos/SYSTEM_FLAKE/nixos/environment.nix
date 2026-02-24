@@ -3,6 +3,7 @@
   lib,
   pkgs,
   modulesPath,
+  unstable,
   ...
 }: {
   environment = {
