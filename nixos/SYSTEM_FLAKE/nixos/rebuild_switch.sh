@@ -1,4 +1,4 @@
 #!/bin/sh
 export TMPDIR='/var/tmp'
-nixos-rebuild switch '.#nixos'
+nixos-rebuild switch --flake '.#nixos'
 echo '#### DONE ####'

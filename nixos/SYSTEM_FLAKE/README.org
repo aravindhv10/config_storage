@@ -1427,14 +1427,14 @@
 * Script to rebuild and switch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_switch.sh
   export TMPDIR='/var/tmp'
-  nixos-rebuild switch '.#nixos'
+  nixos-rebuild switch --flake '.#nixos'
   echo '#### DONE ####'
 #+end_src
 
 * Script to rebuild and boot
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_boot.sh
   export TMPDIR='/var/tmp'
-  nixos-rebuild boot '.#nixos'
+  nixos-rebuild boot --flake '.#nixos'
   echo '#### DONE ####'
 #+end_src
 
@@ -1491,4 +1491,3 @@
     sudo -A './setup.sh'
   " "log" "err")
 #+end_src
-
