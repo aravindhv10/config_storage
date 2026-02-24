@@ -312,10 +312,9 @@
     lib,
     pkgs,
     modulesPath,
+    unstable,
     ...
-  }: let
-    unstable = import <nixos-unstable> {};
-  in {
+  }: {
     imports = [
       ./hardware-configuration.nix
       ./boot_config.nix
@@ -1428,14 +1427,14 @@
 * Script to rebuild and switch
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_switch.sh
   export TMPDIR='/var/tmp'
-  nixos-rebuild switch
+  nixos-rebuild switch '.#nixos'
   echo '#### DONE ####'
 #+end_src
 
 * Script to rebuild and boot
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./nixos/rebuild_boot.sh
   export TMPDIR='/var/tmp'
-  nixos-rebuild boot
+  nixos-rebuild boot '.#nixos'
   echo '#### DONE ####'
 #+end_src
 

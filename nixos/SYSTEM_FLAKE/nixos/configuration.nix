@@ -3,10 +3,9 @@
   lib,
   pkgs,
   modulesPath,
+  unstable,
   ...
-}: let
-  unstable = import <nixos-unstable> {};
-in {
+}: {
   imports = [
     ./hardware-configuration.nix
     ./boot_config.nix
