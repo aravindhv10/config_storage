@@ -1398,7 +1398,7 @@
 
     inputs = {
       # Standard NixOS stable channel
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+      nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
       # Unstable channel for bleeding edge packages
       nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     };
