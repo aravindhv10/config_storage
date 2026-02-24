@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src_nix
+# key: <nix>
+# --
+#+begin_src nix :mkdirp yes :tangle ./${0:tmp}.nix
+  $1
+#+end_src

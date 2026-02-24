@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Updated emacs config
+  Updated emacs snippets
 #+end_src
 
 ** Add git stuff
@@ -31,72 +31,60 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
-  .gitignore
-  GIT.org
+  emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
-  emacs_new/README.org
-  emacs_new/bindings.el
   emacs_new/functions.el
   emacs_new/get_packages.sh
   emacs_new/hooks.el
   emacs_new/main.el
   emacs_new/modes.el
   emacs_new/paths.el
+  emacs_new/README.org
   emacs_new/requires.el
   emacs_new/setup.sh
   emacs_new/snippets/org-mode/conf
   emacs_new/snippets/org-mode/myelisp
+  emacs_new/snippets/org-mode/nix
   emacs_new/snippets/org-mode/py
   emacs_new/snippets/org-mode/rust
   emacs_new/snippets/org-mode/sh
   emacs_new/snippets/org-mode/sql
   emacs_new/variables.el
   emacs_new/variables_post.el
+  .gitignore
+  GIT.org
   home_config/Cargo.toml
   home_config/src/helix_config.toml
   home_config/src/main.rs
   home_config/src/mysync.rs
-  nixos/SYSTEM/README.org
   nixos/SYSTEM/configuration.nix
   nixos/SYSTEM/hardware-configuration.nix
+  nixos/SYSTEM/README.org
 #+end_src
 
 ** rm
 #+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
-  #main.org#
-  .#main.org
-  ..gitmodules.~undo-tree~
-  .main.org.~undo-tree~
-  BitNet/main.org~
-  GIT.org~
-  README.org~
-  RUST/#compile.org#
-  RUST/.#compile.org
-  RUST/.compile.org.~undo-tree~
-  RUST/compile.org~
-  TMUX/tmux.dir/#configopts#
-  TMUX/tmux.dir/.#configopts
-  TMUX/tmux.dir/.main.org.~undo-tree~
-  TMUX/tmux.dir/main.org~
   application_shortcut_scripts/README.org~
+  BitNet/main.org~
   cargo/README.org~
   debootstrap/#README.org#
   debootstrap/README.org~
   dnsmasq/README.org~
-  emacs.d/#init.el#
-  emacs.d/#init.org#
-  emacs.d/.#init.el
-  emacs.d/.#init.org
-  emacs.d/.#projectile-bookmarks.eld
-  emacs.d/.early-init.el.~undo-tree~
-  emacs.d/.init.el.~undo-tree~
-  emacs.d/.init.org.~undo-tree~
   emacs.d/early-init.el~
+  emacs.d/.early-init.el.~undo-tree~
+  emacs.d/#init.el#
+  emacs.d/.#init.el
   emacs.d/init.el~
+  emacs.d/.init.el.~undo-tree~
+  emacs.d/#init.org#
+  emacs.d/.#init.org
   emacs.d/init.org~
-  emacs.d/snippets/c++-mode/.mycl.~undo-tree~
+  emacs.d/.init.org.~undo-tree~
+  emacs.d/.#projectile-bookmarks.eld
   emacs.d/snippets/c++-mode/mycl~
+  emacs.d/snippets/c++-mode/.mycl.~undo-tree~
+  emacs.d/snippets/org-mode/conf~
   emacs.d/snippets/org-mode/.conf.~undo-tree~
   emacs.d/snippets/org-mode/.figure.~undo-tree~
   emacs.d/snippets/org-mode/.html.~undo-tree~
@@ -108,65 +96,79 @@
   emacs.d/snippets/org-mode/.language.~undo-tree~
   emacs.d/snippets/org-mode/.link.~undo-tree~
   emacs.d/snippets/org-mode/.matrix.~undo-tree~
+  emacs.d/snippets/org-mode/nu~
   emacs.d/snippets/org-mode/.options.~undo-tree~
-  emacs.d/snippets/org-mode/.py.~undo-tree~
+  emacs.d/snippets/org-mode/py~
+  emacs.d/snippets/org-mode/python~
   emacs.d/snippets/org-mode/.python.~undo-tree~
+  emacs.d/snippets/org-mode/.py.~undo-tree~
   emacs.d/snippets/org-mode/.quote.~undo-tree~
   emacs.d/snippets/org-mode/.rv_background.~undo-tree~
   emacs.d/snippets/org-mode/.rv_image_background.~undo-tree~
   emacs.d/snippets/org-mode/.setup.~undo-tree~
+  emacs.d/snippets/org-mode/sh~
   emacs.d/snippets/org-mode/.sh.~undo-tree~
   emacs.d/snippets/org-mode/.src.~undo-tree~
   emacs.d/snippets/org-mode/.style.~undo-tree~
   emacs.d/snippets/org-mode/.verse.~undo-tree~
   emacs.d/snippets/org-mode/.video.~undo-tree~
-  emacs.d/snippets/org-mode/conf~
-  emacs.d/snippets/org-mode/nu~
-  emacs.d/snippets/org-mode/python~
-  emacs.d/snippets/org-mode/py~
-  emacs.d/snippets/org-mode/sh~
   emacs_new/README.org~
+  emacs_new/snippets/org-mode/nix~
   emacs_new/snippets/org-mode/rust~
   emacs_new/snippets/org-mode/sql~
+  fish_config/.config.fish.~undo-tree~
   fish_config/#README.org#
   fish_config/.#README.org
-  fish_config/.README.org.~undo-tree~
-  fish_config/.config.fish.~undo-tree~
   fish_config/README.org~
+  fish_config/.README.org.~undo-tree~
   flatpak_emacs/.README.org.~undo-tree~
   foot/foot.org~
+  ..gitmodules.~undo-tree~
+  GIT.org~
   helix/README.org~
-  wayfire_config/.#wayfire.ini
-  wayfire_config/README.org~
+  #main.org#
+  .#main.org
+  .main.org.~undo-tree~
+  README.org~
+  RUST/#compile.org#
+  RUST/.#compile.org
+  RUST/compile.org~
+  RUST/.compile.org.~undo-tree~
+  TMUX/tmux.dir/#configopts#
+  TMUX/tmux.dir/.#configopts
+  TMUX/tmux.dir/main.org~
+  TMUX/tmux.dir/.main.org.~undo-tree~
   wayfire_config/do_copy.sh~
+  wayfire_config/README.org~
   wayfire_config/tmp.ini
   wayfire_config/tmp.sh
   wayfire_config/tmux-client-7519.log
+  wayfire_config/.#wayfire.ini
   wezterm/README.org~
   wireguard_scripts/README.org~
-  wrapper_code/#mysync.c#
-  wrapper_code/#mysync.org#
-  wrapper_code/#wrapper.org#
-  wrapper_code/.#mysync.org
-  wrapper_code/.#wrapper.org
-  wrapper_code/.wrapper.c.~undo-tree~
   wrapper_code/a.out
+  wrapper_code/cc/cc.org~
   wrapper_code/cc/#main.org#
   wrapper_code/cc/.#main.org
-  wrapper_code/cc/cc.org~
+  wrapper_code/cxx/cc.org~
   wrapper_code/cxx/#main.org#
   wrapper_code/cxx/.#main.org
-  wrapper_code/cxx/cc.org~
   wrapper_code/cxx/main.org~
   wrapper_code/default.nix~
-  wrapper_code/emacs_server/main.cc~
   wrapper_code/emacs_server/main.c~
+  wrapper_code/emacs_server/main.cc~
   wrapper_code/emacs_server/main.org~
-  wrapper_code/foot_server/main.cc~
   wrapper_code/foot_server/main.c~
+  wrapper_code/foot_server/main.cc~
   wrapper_code/foot_server/main.org~
+  wrapper_code/#mysync.c#
+  wrapper_code/#mysync.org#
+  wrapper_code/.#mysync.org
   wrapper_code/mysync.org~
+  wrapper_code/.wrapper.c.~undo-tree~
   wrapper_code/wrapper.exe
+  wrapper_code/#wrapper.org#
+  wrapper_code/.#wrapper.org
   wrapper_code/wrapper.org~
   zellij_flatpak_wrapper/#main.org#
   zellij_flatpak_wrapper/main.org~
