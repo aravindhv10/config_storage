@@ -742,7 +742,7 @@ in {
 
       #include <unistd.h>
 
-      static char * const args[] = {"brave" , NULL};
+      static char * const args[] = {"chromium", NULL};
 
       int main () {
           int ret = execvp(args[0], args);
