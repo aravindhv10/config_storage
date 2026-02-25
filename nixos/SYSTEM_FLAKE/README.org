@@ -43,13 +43,13 @@
         efi = {
           canTouchEfiVariables = true;
           efiSysMountPoint = "/boot/efi";
-        } ;
+        };
 
         grub = {
           device = "/dev/nvme0n1";
           efiInstallAsRemovable = false;
           efiSupport = true;
-        } ;
+        };
 
         systemd-boot.enable = false;
       };
@@ -69,10 +69,10 @@
       kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
       kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
-      # kernelPackages = pkgs.linuxPackages_6_14; 
-      # kernelPackages = pkgs.linuxPackages_6_15; 
-      # kernelPackages = pkgs.linuxPackages_6_16; 
-      # kernelPackages = pkgs.linuxPackages_6_17; 
+      # kernelPackages = pkgs.linuxPackages_6_14;
+      # kernelPackages = pkgs.linuxPackages_6_15;
+      # kernelPackages = pkgs.linuxPackages_6_16;
+      # kernelPackages = pkgs.linuxPackages_6_17;
 
       # kernelPackages =
       # let
@@ -89,11 +89,9 @@
       #             } // (args.argsOverride or {})
       #         );
       #     linux_sgx = pkgs.callPackage linux_sgx_pkg{};
-      # in 
+      # in
       #     pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_sgx);
-
     };
-
   }
 #+end_src
 
@@ -168,7 +166,6 @@
     unstable,
     ...
   }: {
-
     services = {
       displayManager.sessionPackages = [unstable.wayfire];
       chrony.enable = true;
@@ -199,7 +196,6 @@
         # no need to redefine it in your config for now)
         #media-session.enable = true;
       };
-
 
       # Enable the X11 windowing system.
       # You can disable this if you're only using the Wayland session.
@@ -315,208 +311,208 @@
       ];
 
       systemPackages = with pkgs; [
-          acpi
-          alsa-utils
-          appstream
-          azure-cli
-          blend2d
-          brave
-          bridge-utils
-          buildah
-          cargo
-          cargo-info
-          catppuccin-kde
-          chromium
-          clinfo
-          cmake
-          conky
-          curl
-          dig
-          distrobox
-          dive
-          dmidecode
-          dnsmasq
-          docker-compose
-          ffmpeg
-          ffmpeg.dev
-          file
-          foot
-          fuse3
-          gcc
-          gcc14Stdenv
-          gdk-pixbuf
-          gdm
-          git
-          git-lfs
-          glib
-          gpgme
-          graphicsmagick-imagemagick-compat
-          grc
-          grim
-          grub2
-          grub2_efi
-          gsettings-desktop-schemas
-          jq
-          json-glib
-          kdePackages.kolourpaint
-          kitty
-          libarchive
-          libcap
-          libgcc
-          libinput
-          librsvg
-          libseccomp
-          libxml2
-          lldb
-          llvmPackages_20.clang
-          llvmPackages_20.clang-tools
-          lxc
-          man-pages
-          man-pages-posix
-          mate.mate-panel
-          mate.mate-panel-with-applets
-          mate.mate-session-manager
-          meson
-          mpv
-          networkmanagerapplet
-          networkmanager-openconnect
-          nh
-          nix-index
-          nix-ld
-          openconnect
-          openssl
-          parted
-          pavucontrol
-          pciutils
-          pkg-config
-          podman
-          podman-compose
-          podman-tui
-          poppler-utils
-          qbittorrent-enhanced
-          qpdf
-          rust-analyzer
-          rust-bindgen
-          rustc
-          rustfmt
-          shellcheck
-          swayosd
-          texliveFull
-          thunderbird
-          tree
-          unzip
-          uwsm
-          vim
-          virt-viewer
-          vscode-fhs
-          waybar
-          wayland
-          wayland-protocols
-          wf-recorder
-          wget
-          wl-clipboard
-          wlogout
-          zip
-          zstd
+        acpi
+        alsa-utils
+        appstream
+        azure-cli
+        blend2d
+        brave
+        bridge-utils
+        buildah
+        cargo
+        cargo-info
+        catppuccin-kde
+        chromium
+        clinfo
+        cmake
+        conky
+        curl
+        dig
+        distrobox
+        dive
+        dmidecode
+        dnsmasq
+        docker-compose
+        ffmpeg
+        ffmpeg.dev
+        file
+        foot
+        fuse3
+        gcc
+        gcc14Stdenv
+        gdk-pixbuf
+        gdm
+        git
+        git-lfs
+        glib
+        gpgme
+        graphicsmagick-imagemagick-compat
+        grc
+        grim
+        grub2
+        grub2_efi
+        gsettings-desktop-schemas
+        jq
+        json-glib
+        kdePackages.kolourpaint
+        kitty
+        libarchive
+        libcap
+        libgcc
+        libinput
+        librsvg
+        libseccomp
+        libxml2
+        lldb
+        llvmPackages_20.clang
+        llvmPackages_20.clang-tools
+        lxc
+        man-pages
+        man-pages-posix
+        mate.mate-panel
+        mate.mate-panel-with-applets
+        mate.mate-session-manager
+        meson
+        mpv
+        networkmanagerapplet
+        networkmanager-openconnect
+        nh
+        nix-index
+        nix-ld
+        openconnect
+        openssl
+        parted
+        pavucontrol
+        pciutils
+        pkg-config
+        podman
+        podman-compose
+        podman-tui
+        poppler-utils
+        qbittorrent-enhanced
+        qpdf
+        rust-analyzer
+        rust-bindgen
+        rustc
+        rustfmt
+        shellcheck
+        swayosd
+        texliveFull
+        thunderbird
+        tree
+        unzip
+        uwsm
+        vim
+        virt-viewer
+        vscode-fhs
+        waybar
+        wayland
+        wayland-protocols
+        wf-recorder
+        wget
+        wl-clipboard
+        wlogout
+        zip
+        zstd
 
-          (unstable.python313.withPackages (ps:
+        (unstable.python313.withPackages (ps:
           with ps; [
-              albumentations
-              datafusion
-              einops
-              fastapi
-              flask
-              gnumake
-              h5py
-              inotify-simple
-              ipython
-              jax
-              lightning
-              matplotlib
-              multiprocess
-              numpy
-              onnx
-              onnxruntime
-              opencv-python
-              pillow
-              protobuf
-              python-multipart
-              requests
-              safetensors
-              tensorboard
-              tensorboardx
-              timm
-              torch
-              torchmetrics
-              torchvision
-              transformers
-              uvicorn
-              yt-dlp
+            albumentations
+            datafusion
+            einops
+            fastapi
+            flask
+            gnumake
+            h5py
+            inotify-simple
+            ipython
+            jax
+            lightning
+            matplotlib
+            multiprocess
+            numpy
+            onnx
+            onnxruntime
+            opencv-python
+            pillow
+            protobuf
+            python-multipart
+            requests
+            safetensors
+            tensorboard
+            tensorboardx
+            timm
+            torch
+            torchmetrics
+            torchvision
+            transformers
+            uvicorn
+            yt-dlp
           ]))
 
-          unstable.alacritty
-          unstable.alejandra
-          unstable.aria2
-          unstable.atuin
-          unstable.bat
-          unstable.bottom
-          unstable.brightnessctl
-          unstable.byobu
-          unstable.clapboard
-          unstable.delta
-          unstable.difftastic
-          unstable.dust
-          unstable.emacs30
-          unstable.emacs-lsp-booster
-          unstable.eza
-          unstable.fd
-          unstable.fzf
-          unstable.gitui
-          unstable.helix
-          unstable.inkscape
-          unstable.lapce
-          unstable.lsd
-          unstable.lyx
-          unstable.mako
-          unstable.miniserve
-          unstable.mpvpaper
-          unstable.neovim
-          unstable.nixfmt
-          unstable.nushell
-          unstable.openblas
-          unstable.openblas.dev
-          unstable.opencv4
-          unstable.pdf2svg
-          unstable.procs
-          unstable.quickshell
-          unstable.rclone
-          unstable.ripgrep
-          unstable.ruff
-          unstable.rustlings
-          unstable.skim
-          unstable.spice-gtk
-          unstable.squashfsTools
-          unstable.starship
-          unstable.swww
-          unstable.television
-          unstable.texlab
-          unstable.tmux
-          unstable.uv
-          unstable.wezterm
-          unstable.wine
-          unstable.wlsunset
-          unstable.wluma
-          unstable.yazi
-          unstable.ydotool
-          unstable.zed-editor
-          unstable.zoxide
+        unstable.alacritty
+        unstable.alejandra
+        unstable.aria2
+        unstable.atuin
+        unstable.bat
+        unstable.bottom
+        unstable.brightnessctl
+        unstable.byobu
+        unstable.clapboard
+        unstable.delta
+        unstable.difftastic
+        unstable.dust
+        unstable.emacs30
+        unstable.emacs-lsp-booster
+        unstable.eza
+        unstable.fd
+        unstable.fzf
+        unstable.gitui
+        unstable.helix
+        unstable.inkscape
+        unstable.lapce
+        unstable.lsd
+        unstable.lyx
+        unstable.mako
+        unstable.miniserve
+        unstable.mpvpaper
+        unstable.neovim
+        unstable.nixfmt
+        unstable.nushell
+        unstable.openblas
+        unstable.openblas.dev
+        unstable.opencv4
+        unstable.pdf2svg
+        unstable.procs
+        unstable.quickshell
+        unstable.rclone
+        unstable.ripgrep
+        unstable.ruff
+        unstable.rustlings
+        unstable.skim
+        unstable.spice-gtk
+        unstable.squashfsTools
+        unstable.starship
+        unstable.swww
+        unstable.television
+        unstable.texlab
+        unstable.tmux
+        unstable.uv
+        unstable.wezterm
+        unstable.wine
+        unstable.wlsunset
+        unstable.wluma
+        unstable.yazi
+        unstable.ydotool
+        unstable.zed-editor
+        unstable.zoxide
 
-          (unstable.gnuplot.override { 
-              withLua = true; 
-              withTeXLive = true; # This provides the necessary TikZ support
-          })
+        (unstable.gnuplot.override {
+          withLua = true;
+          withTeXLive = true; # This provides the necessary TikZ support
+        })
 
-          (writeCBin "YDOTOOL_DAEMON" ''
+        (writeCBin "YDOTOOL_DAEMON" ''
 
           #include <stdio.h>
           #include <stdlib.h>
@@ -599,9 +595,9 @@
               return 0;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_PLUS" ''
+        (writeCBin "M_PLUS" ''
 
           #include <unistd.h>
 
@@ -613,9 +609,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_MINUS" ''
+        (writeCBin "M_MINUS" ''
 
           #include <unistd.h>
 
@@ -627,9 +623,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_PLUS" ''
+        (writeCBin "M_C_PLUS" ''
 
           #include <unistd.h>
 
@@ -640,9 +636,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_MINUS" ''
+        (writeCBin "M_C_MINUS" ''
 
           #include <unistd.h>
 
@@ -653,9 +649,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_LEFTBRACE" ''
+        (writeCBin "M_C_LEFTBRACE" ''
 
           #include <unistd.h>
 
@@ -666,9 +662,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_RIGHTBRACE" ''
+        (writeCBin "M_C_RIGHTBRACE" ''
 
           #include <unistd.h>
 
@@ -679,9 +675,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_ESC" ''
+        (writeCBin "M_C_ESC" ''
 
           #include <unistd.h>
 
@@ -692,9 +688,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_F1" ''
+        (writeCBin "M_F1" ''
 
           #include <unistd.h>
 
@@ -705,9 +701,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_F2" ''
+        (writeCBin "M_F2" ''
 
           #include <unistd.h>
 
@@ -718,9 +714,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_F3" ''
+        (writeCBin "M_F3" ''
 
           #include <unistd.h>
 
@@ -731,9 +727,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_1" ''
+        (writeCBin "M_C_1" ''
 
           #include <unistd.h>
           #include <sys/wait.h>
@@ -762,9 +758,9 @@
               return 0;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_2" ''
+        (writeCBin "M_C_2" ''
 
           #include <unistd.h>
 
@@ -775,9 +771,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "TY" ''
+        (writeCBin "TY" ''
 
           #include <unistd.h>
           #include <sys/wait.h>
@@ -806,9 +802,9 @@
               return 0;
           }
 
-          '')
+        '')
 
-          (writeCBin "enter_emacs_flatpak" ''
+        (writeCBin "enter_emacs_flatpak" ''
 
           #include <unistd.h>
 
@@ -819,9 +815,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_Q" ''
+        (writeCBin "M_C_Q" ''
 
           #include <unistd.h>
 
@@ -832,9 +828,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_W" ''
+        (writeCBin "M_C_W" ''
 
           #include <unistd.h>
 
@@ -845,9 +841,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_E" ''
+        (writeCBin "M_C_E" ''
 
           #include <unistd.h>
 
@@ -858,9 +854,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_R" ''
+        (writeCBin "M_C_R" ''
 
           #include <unistd.h>
 
@@ -871,9 +867,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_T" ''
+        (writeCBin "M_C_T" ''
 
           #include <unistd.h>
           #include <sys/wait.h>
@@ -919,9 +915,9 @@
               return 0;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_A" ''
+        (writeCBin "M_C_A" ''
 
           #include <unistd.h>
 
@@ -932,9 +928,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_S" ''
+        (writeCBin "M_C_S" ''
 
           #include <unistd.h>
 
@@ -945,9 +941,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_D" ''
+        (writeCBin "M_C_D" ''
 
           #include <unistd.h>
 
@@ -958,9 +954,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_F" ''
+        (writeCBin "M_C_F" ''
 
           #include <unistd.h>
 
@@ -971,9 +967,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_C_G" ''
+        (writeCBin "M_C_G" ''
 
           #include <unistd.h>
 
@@ -984,9 +980,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_Q" ''
+        (writeCBin "M_A_Q" ''
 
           #include <unistd.h>
 
@@ -997,9 +993,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_W" ''
+        (writeCBin "M_A_W" ''
 
           #include <unistd.h>
 
@@ -1010,9 +1006,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_E" ''
+        (writeCBin "M_A_E" ''
 
           #include <unistd.h>
 
@@ -1023,9 +1019,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_R" ''
+        (writeCBin "M_A_R" ''
 
           #include <unistd.h>
 
@@ -1036,9 +1032,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_T" ''
+        (writeCBin "M_A_T" ''
 
           #include <unistd.h>
 
@@ -1049,9 +1045,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_Y" ''
+        (writeCBin "M_A_Y" ''
 
           #include <unistd.h>
 
@@ -1062,9 +1058,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_U" ''
+        (writeCBin "M_A_U" ''
 
           #include <unistd.h>
 
@@ -1075,9 +1071,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_I" ''
+        (writeCBin "M_A_I" ''
 
           #include <unistd.h>
 
@@ -1088,9 +1084,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_O" ''
+        (writeCBin "M_A_O" ''
 
           #include <unistd.h>
 
@@ -1101,9 +1097,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_P" ''
+        (writeCBin "M_A_P" ''
 
           #include <unistd.h>
 
@@ -1114,9 +1110,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_GRAVE" ''
+        (writeCBin "M_A_GRAVE" ''
 
           #include <unistd.h>
 
@@ -1128,9 +1124,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_1" ''
+        (writeCBin "M_A_1" ''
 
           #include <unistd.h>
 
@@ -1143,9 +1139,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_2" ''
+        (writeCBin "M_A_2" ''
 
           #include <unistd.h>
 
@@ -1157,9 +1153,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_3" ''
+        (writeCBin "M_A_3" ''
 
           #include <unistd.h>
 
@@ -1171,9 +1167,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_4" ''
+        (writeCBin "M_A_4" ''
 
           #include <unistd.h>
 
@@ -1185,9 +1181,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_5" ''
+        (writeCBin "M_A_5" ''
 
           #include <unistd.h>
 
@@ -1199,9 +1195,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_6" ''
+        (writeCBin "M_A_6" ''
 
           #include <unistd.h>
 
@@ -1213,9 +1209,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_7" ''
+        (writeCBin "M_A_7" ''
 
           #include <unistd.h>
 
@@ -1227,9 +1223,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_8" ''
+        (writeCBin "M_A_8" ''
 
           #include <unistd.h>
 
@@ -1241,9 +1237,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_9" ''
+        (writeCBin "M_A_9" ''
 
           #include <unistd.h>
 
@@ -1255,9 +1251,9 @@
               return ret;
           }
 
-          '')
+        '')
 
-          (writeCBin "M_A_0" ''
+        (writeCBin "M_A_0" ''
 
           #include <unistd.h>
 
@@ -1269,7 +1265,7 @@
               return ret;
           }
 
-          '')
+        '')
       ];
     };
   }
