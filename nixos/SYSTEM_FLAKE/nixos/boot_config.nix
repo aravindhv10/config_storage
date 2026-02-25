@@ -34,9 +34,9 @@
 
     extraModulePackages = [];
     kernelModules = ["kvm-amd" "amdgpu"];
+    kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
     kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
 
-    kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
     # kernelPackages = pkgs.linuxPackages_6_14;
     # kernelPackages = pkgs.linuxPackages_6_15;
     # kernelPackages = pkgs.linuxPackages_6_16;
