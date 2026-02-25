@@ -73,14 +73,6 @@
     };
   };
 
-  # services = {
-  #   displayManager.sessionPackages = [unstable.wayfire];
-  #   flatpak = {
-  #     enable = true;
-  #     package = unstable.flatpak;
-  #   };
-  # };
-
   documentation = {
     enable = true;
     man.enable = true;
@@ -88,6 +80,8 @@
   };
 
   users = {
+    defaultUserShell = pkgs.zsh;
+
     users.asd = {
       isNormalUser = true;
       shell = unstable.fish;
@@ -95,11 +89,9 @@
       extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
       packages = with pkgs; [
         kdePackages.kate
-        # thunderbird
       ];
     };
 
-    defaultUserShell = pkgs.zsh;
     groups.libvirtd.members = ["asd"];
   };
 

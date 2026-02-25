@@ -394,14 +394,6 @@
       };
     };
 
-    # services = {
-    #   displayManager.sessionPackages = [unstable.wayfire];
-    #   flatpak = {
-    #     enable = true;
-    #     package = unstable.flatpak;
-    #   };
-    # };
-
     documentation = {
       enable = true;
       man.enable = true;
@@ -409,6 +401,8 @@
     };
 
     users = {
+      defaultUserShell = pkgs.zsh;
+
       users.asd = {
         isNormalUser = true;
         shell = unstable.fish;
@@ -416,11 +410,9 @@
         extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
         packages = with pkgs; [
           kdePackages.kate
-          # thunderbird
         ];
       };
 
-      defaultUserShell = pkgs.zsh;
       groups.libvirtd.members = ["asd"];
     };
 
@@ -1499,7 +1491,7 @@
   GITADD 'README.org'
   GITADD 'setup.sh'
 
-  git status ; git commit -m 'Started converting to flake'
+  git status ; git commit -m 'Mostly done converting to flakes with stable and unstable packages'
   "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh" ; git push
 #+end_src
 
@@ -1520,4 +1512,3 @@
     sudo -A './setup.sh'
   " "log" "err")
 #+end_src
-
