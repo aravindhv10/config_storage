@@ -236,20 +236,7 @@
       unstable.zoxide
 
       # Add deb_mirror build here
-      (rustPlatform.buildRustPackage {
-        pname = "deb_mirror";
-        version = "0.1.0";
-
-        # Use the source from the flake inputs
-        src = inputs.deb_mirror;
-
-        # You will need to replace this with the actual cargoHash.
-        # Run the rebuild once, let it fail, and copy the 'got' hash.
-        cargoHash = "sha256-HX9zzpz9XTOvgjSk97kBIs3lLQsXBJKQwbVS5prbKGI=";
-
-        nativeBuildInputs = [pkg-config];
-        buildInputs = [openssl];
-      })
+      inputs.deb_mirror.packages.${pkgs.system}.default
 
       (unstable.gnuplot.override {
         withLua = true;
