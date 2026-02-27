@@ -13,6 +13,10 @@
     printing.enable = true;
     thermald.enable = true;
     libinput.enable = true;
+    nfs.server.enable = true;
+    nfs.server.exports = ''
+      /home/vm 192.168.122.0/24(rw,sync,no_subtree_check,fsid=0)
+    '';
 
     flatpak = {
       enable = true;
