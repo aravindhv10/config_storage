@@ -6,6 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     # Unstable channel for bleeding edge packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    deb_mirror.url = "github:aravindhv10/deb_mirror";
   };
 
   outputs = {
