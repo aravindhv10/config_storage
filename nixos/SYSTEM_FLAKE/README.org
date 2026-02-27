@@ -1507,6 +1507,7 @@
   NIXADD 'network_config.nix'
   NIXADD 'services.nix'
 
+  GITADD 'nixos/flake_update.sh'
   GITADD 'nixos/rebuild_boot_safe.sh'
   GITADD 'nixos/rebuild_boot.sh'
   GITADD 'nixos/rebuild_switch_safe.sh'
