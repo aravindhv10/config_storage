@@ -941,7 +941,7 @@
 
           #include <unistd.h>
 
-          static char * const args[] = {"chromium", NULL};
+          static char * const args[] = {"thorium", NULL};
 
           int main () {
               int ret = execvp(args[0], args);
