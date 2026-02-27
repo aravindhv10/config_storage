@@ -511,6 +511,9 @@
         # Add deb_mirror build here
         inputs.deb_mirror.packages.${pkgs.system}.default
 
+        # Thorium
+        inputs.thorium.packages.${pkgs.system}.thorium-avx2    # change avx2 for the version you want to install
+
         (unstable.gnuplot.override {
           withLua = true;
           withTeXLive = true; # This provides the necessary TikZ support
@@ -1404,6 +1407,9 @@
       # Unstable channel for bleeding edge packages
       nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
       deb_mirror.url = "github:aravindhv10/deb_mirror";
+
+      # Thorium browser
+      thorium.url = "github:Rishabh5321/thorium_flake";
     };
 
     outputs = {

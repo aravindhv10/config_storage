@@ -238,6 +238,9 @@
       # Add deb_mirror build here
       inputs.deb_mirror.packages.${pkgs.system}.default
 
+      # Thorium
+      inputs.thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
+
       (unstable.gnuplot.override {
         withLua = true;
         withTeXLive = true; # This provides the necessary TikZ support

@@ -7,6 +7,9 @@
     # Unstable channel for bleeding edge packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     deb_mirror.url = "github:aravindhv10/deb_mirror";
+
+    # Thorium browser
+    thorium.url = "github:Rishabh5321/thorium_flake";
   };
 
   outputs = {
