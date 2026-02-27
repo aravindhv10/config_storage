@@ -174,9 +174,7 @@
       thermald.enable = true;
       libinput.enable = true;
       nfs.server.enable = true;
-      nfs.server.exports = ''
-      /home/vm 192.168.122.0/24(rw,sync,no_subtree_check,fsid=0)
-      '';
+      nfs.server.exports = "/home/vm 192.168.122.2(rw,no_root_squash,no_subtree_check)" ;
 
 
 
