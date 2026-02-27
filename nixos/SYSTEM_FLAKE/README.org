@@ -1469,6 +1469,17 @@
   echo '#### DONE ####'
 #+end_src
 
+* Script for flake update
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nixos/flake_update.sh
+  cd "$('dirname' -- "${0}")"
+  nix \
+      '--extra-experimental-features' 'flakes' \
+      '--extra-experimental-features' 'nix-command' \
+      flake update \
+  ;
+  exit '0'
+#+end_src
+
 * Script to push this config to etc
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./setup.sh
   cd "$(dirname -- "${0}")"
@@ -1503,9 +1514,8 @@
   GITADD 'README.org'
   GITADD 'setup.sh'
 
-  git status ; git commit -m 'Added deb_mirror flake'
+  git status ; git commit -m 'Added thorium flake'
   "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh" ; git push
-
 #+end_src
 
 * COMMENT WORK SPACE
