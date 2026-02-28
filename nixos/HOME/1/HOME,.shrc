@@ -1,8 +1,4 @@
 #!/bin/sh
 export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 
-alias ls=lsd
-alias cat=bat
-alias du=dust
-
 . "${HOME}/important_functions.sh"

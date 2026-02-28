@@ -28,8 +28,6 @@ C './HOME,.wezterm.lua' "${HOME}/.wezterm.lua"
 
 C './HOME,.config,foot,foot.ini' "${HOME}/.config/foot/foot.ini"
 
-C './HOME,important_functions.sh' "${HOME}/important_functions.sh"
-
 C './HOME,.shrc' "${HOME}/.shrc"
 
 C './HOME,.bashrc' "${HOME}/.bashrc"
