@@ -9,4 +9,4 @@ C(){
 
 C 'HOME,.config,wayfire.ini' "${HOME}/.config/wayfire.ini"
 
-C './HOME,.config,waybar,config.jsonc' "${HOME}/.config/waybar/config.jsonc"
+C 'HOME/.config/waybar/config.jsonc' "${HOME}/.config/waybar/config.jsonc"
