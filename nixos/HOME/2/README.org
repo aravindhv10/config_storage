@@ -135,8 +135,8 @@
   xwayland = true
 
   # Workspaces arranged into a grid: 3 × 3.
-  vwidth = 5
-  vheight = 4
+  vwidth = 20
+  vheight = 2
 
   # Prefer client-side decoration or server-side decoration
   preferred_decoration_mode = server
