@@ -259,6 +259,20 @@ async fn get_content_alacritty_config() -> std::string::String {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+async fn get_path_mako_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
+    let path_str = HOME + "/.config/mako";
+    let path = std::path::Path::new(path_str.as_str());
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/config")
+}
+
+async fn get_content_mako_config() -> std::string::String {
+    std::string::String::from(include_str!("mako.config"))
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 async fn get_path_foot_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/foot";
     let path = std::path::Path::new(path_str.as_str());
@@ -298,6 +312,7 @@ struct configurator {
     path_alacritty_config: std::string::String,
     path_foot_config: std::string::String,
     path_wezterm_config: std::string::String,
+    path_mako_config: std::string::String,
 }
 
 impl configurator {
@@ -315,6 +330,7 @@ impl configurator {
             path_alacritty_config,
             path_foot_config,
             path_wezterm_config,
+            path_mako_config,
         ) = tokio::join!(
             get_path_shrc(path_home.clone()),
             get_path_zshrc(path_home.clone()),
@@ -325,6 +341,7 @@ impl configurator {
             get_path_alacritty_config(path_home.clone()),
             get_path_foot_config(path_home.clone()),
             get_path_wezterm_config(path_home.clone()),
+            get_path_mako_config(path_home.clone()),
         );
 
         Ok(configurator {
@@ -339,6 +356,7 @@ impl configurator {
             path_alacritty_config: path_alacritty_config?,
             path_foot_config: path_foot_config?,
             path_wezterm_config: path_wezterm_config,
+            path_mako_config: path_mako_config?,
         })
     }
 
@@ -454,6 +472,7 @@ impl configurator {
             tokio::fs::write(&self.path_bashrc, get_content_bashrc().await),
             tokio::fs::write(&self.path_helix_config, get_content_helix_config().await),
             tokio::fs::write(&self.path_fish_config, get_content_fish_config().await),
+            tokio::fs::write(&self.path_mako_config, get_content_mako_config().await),
             tokio::fs::write(
                 &self.path_alacritty_config,
                 get_content_alacritty_config().await
@@ -474,6 +493,7 @@ impl configurator {
         status.5?;
         status.6?;
         status.7?;
+        status.8?;
         Ok(())
     }
 }
