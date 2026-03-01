@@ -37,36 +37,18 @@
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   [core]
   plugins = \
-      autorotate-iio \
+      core \
+      zoom \
       autostart \
-      blur \
       command \
-      decoration \
-      expo \
-      fast-switcher \
-      firedecor \
-      foreign-toplevel \
-      grid \
-      gtk-shell \
-      idle \
-      input-method-v1 \
-      invert \
-      ipc \
-      move \
-      place \
-      scale \
-      scale-title-filter \
-      session-lock \
-      shortcuts-inhibit \
-      switcher \
-      vswitch \
-      wayfire-shell \
-      windecor \
-      window-rules \
-      winshadows \
       wm-actions \
-      xdg-activation \
-      zoom 
+      grid \
+      switcher \
+      fast-switcher \
+      vswitch \
+      expo \
+      invert \
+      scale
 #+end_src
 
 *** Basic configs
