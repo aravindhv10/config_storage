@@ -35,57 +35,7 @@
 
 *** Starting parts
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Default config for Wayfire
-  #
-  # Copy this to ~/.config/wayfire.ini and edit it to your liking.
-  #
-  # Take the tutorial to get started.
-  # https://github.com/WayfireWM/wayfire/wiki/Tutorial
-  #
-  # Read the Configuration document for a complete reference.
-  # https://github.com/WayfireWM/wayfire/wiki/Configuration
-
-  # Input configuration ──────────────────────────────────────────────────────────
-
-  # Example configuration:
-  #
-  # [input]
-  # xkb_layout = us,fr
-  # xkb_variant = dvorak,bepo
-  # xkb_options = grp:win_space_toggle
-  #
-  # See Input options for a complete reference.
-  # https://github.com/WayfireWM/wayfire/wiki/Configuration#input
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Output configuration ─────────────────────────────────────────────────────────
-
-  # Example configuration:
-  #
-  # [output:eDP-1]
-  # mode = 1920x1080@60000
-  # position = 0,0
-  # transform = normal
-  # scale = 1.000000
-  #
-  # You can get the names of your outputs with wlr-randr.
-  # https://github.com/emersion/wlr-randr
-  #
-  # See also kanshi for configuring your outputs automatically.
-  # https://wayland.emersion.fr/kanshi/
-  #
-  # See Output options for a complete reference.
-  # https://github.com/WayfireWM/wayfire/wiki/Configuration#output
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Core options ─────────────────────────────────────────────────────────────────
-
   [core]
-
-  # List of plugins to be enabled.
-  # See the Configuration document for a complete list.
   plugins = \
       autorotate-iio \
       autostart \
@@ -117,244 +67,50 @@
       wm-actions \
       xdg-activation \
       zoom 
-
-
-  # firedecor \
-  # decoration \
-
-  # Note: [blur] is not enabled by default, because it can be resource-intensive.
-  # Feel free to add it to the list if you want it.
-  # You can find its documentation here:
-  # https://github.com/WayfireWM/wayfire/wiki/Configuration#blur
 #+end_src
 
-
+*** Basic configs
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Close focused window.
   close_top_view = <super> KEY_F4 | <super> KEY_C
   xwayland = true
-
-  # Workspaces arranged into a grid: 3 × 3.
   vwidth = 20
   vheight = 2
-
-  # Prefer client-side decoration or server-side decoration
-  preferred_decoration_mode = server
-  # preferred_decoration_mode = client
 #+end_src
 
+*** For zoom
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  [alpha]
-  min_value = 0.100000
-  modifier = <alt> <super> 
-
-  [autorotate-iio]
-  lock_rotation = false
-  rotate_down = <ctrl> <super> KEY_DOWN
-  rotate_left = <ctrl> <super> KEY_LEFT
-  rotate_right = <ctrl> <super> KEY_RIGHT
-  rotate_up = <ctrl> <super> KEY_UP
-
-  [animate]
-  close_animation = zoom
-  duration = 400ms circle
-  enabled_for = (type equals "toplevel" | (type equals "x-or" & focusable equals true))
-  fade_duration = 400ms circle
-  fade_enabled_for = type equals "overlay"
-  fire_color = \#B22303FF
-  fire_duration = 300ms linear
-  fire_enabled_for = none
-  fire_particle_size = 16.000000
-  fire_particles = 2000
-  open_animation = zoom
-  random_fire_color = false
-  startup_duration = 600ms linear
-  zoom_duration = 500ms circle
-  zoom_enabled_for = none
-
-  [decoration]
-  active_color = \#222222AA
-  border_size = 4
-  button_order = minimize maximize close
-  font = sans-serif
-  ignore_views = none
-  inactive_color = \#333333DD
-  title_height = 30
-
-  [firedecor]
-  active_accent = \#F5F5F5FF
-  active_border = \#1D1F21E6
-  active_outline = \#000000FF
-  active_title = \#1D1F21FF
-  border_size = 35 10
-  button_size = 18
-  button_style = simple
-  corner_radius = 15
-  debug_mode = false
-  extra_themes = 
-  font = sans-serif
-  font_size = 21
-  hovered_close = \#FF6572FF
-  hovered_max = \#60FC79FF
-  hovered_min = \#FFE450FF
-  icon_size = 20
-  icon_theme = hicolor
-  ignore_views = none
-  inactive_accent = \#E1DFFEFF
-  inactive_border = \#1D1F21E6
-  inactive_buttons = false
-  inactive_outline = \#000000FF
-  inactive_title = \#1D1F21FF
-  layout = a | icon P4 title | minimize p maximize p close p | Atrtl -
-  max_title_size = 750
-  normal_close = \#C24045FF
-  normal_max = \#2EBB3AFF
-  normal_min = \#C89E2BFF
-  outline_size = 0
-  padding_size = 8
-  round_on = all
-
-  [windecor]
-  active_color = \#222222AA
-  attn_color = \#3CB371AA
-  border_color = \#87CEEBFF
-  border_size = 4
-  button_always_colored = false
-  button_order = minimize maximize close
-  close_color = \#CC000077
-  dynamic_border_color = true
-  font = sans-serif
-  font_color = \#FFFFFFFF
-  font_size = 18
-  icon_theme = breeze
-  ignore_views = none
-  inactive_color = \#333333DD
-  maximize_color = \#09FF0077
-  minimize_color = \#EDD40077
-  sticky_color = \#1C71D877
-  title_align = 0
-  title_height = 24
-  title_position = 2
-  work_hard = false
-
-  [winshadows]
-  clip_shadow_inside = true
-  enabled_views = type is "toplevel" & floating is true
-  glow_color = \#1C71D8FF
-  glow_emissivity = 1.000000
-  glow_enabled = false
-  glow_intensity = 0.600000
-  glow_radius_limit = 100
-  glow_spread = 10.000000
-  glow_threshold = 0.030000
-  horizontal_offset = 0
-  include_undecorated_views = false
-  light_type = gaussian
-  overscale = 1.000000
-  shadow_color = \#00000070
-  shadow_radius = 40
-  vertical_offset = 5
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Mouse bindings ───────────────────────────────────────────────────────────────
-
-  # Zoom in the desktop by scrolling + Super.
   [zoom]
   modifier = <super>
 #+end_src
 
+*** Programs to start at the beginning
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  [move]
-  activate = <super> BTN_LEFT  
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Startup commands ─────────────────────────────────────────────────────────────
-
   [autostart]
-  #Gtk+3 applications slow startup or .desktop files not opening
-  #https://github.com/WayfireWM/wayfire/wiki/Tips-&-Tricks#gtk3-applications-slow-startup-or-desktop-files-not-opening
   0_env = dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XAUTHORITY
-
-  # Automatically start background and panel.
-  # Set to false if you want to override the default clients.
   autostart_wf_shell = false
-
-  # Set the wallpaper, start a panel and dock if you want one.
-  # https://github.com/WayfireWM/wf-shell
-  #
-  # These are started by the autostart_wf_shell option above.
-  #
-  # background = wf-background
-  # panel = wf-panel
-  #
-  # You may also use wf-dock,
-  # which is included in wf-shell but is not enabled by default.
-  #
-  # dock = wf-dock
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Output configuration
-  # https://wayland.emersion.fr/kanshi/
   outputs = kanshi
-
-  # Notifications
-  # https://wayland.emersion.fr/mako/
   notifications = mako
   wallpaper = swww-daemon
-  # wallpaper = "${HOME}/.config/wallpaper.sh"
-
   ydotooldaenon = YDOTOOL_DAEMON
   osdserver = swayosd-server
-
-  # Screen color temperature
-  # https://sr.ht/~kennylevinsen/wlsunset/
   gamma = wlsunset -l 13 -L 77.6
-
-  # Idle configuration
-  # https://github.com/swaywm/swayidle
-  # https://github.com/swaywm/swaylock
-  # idle = swayidle before-sleep swaylock
-
-  # XDG desktop portal
-  # Needed by some GTK applications
   portal = /run/current-system/sw/libexec/xdg-desktop-portal
-  # bar = waybar
-  # shell = plasmashell
   bar = waybar
-  # shell = startplasma-wayland
   networkmanager = nm-applet
 #+end_src
 
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Example configuration:
-  #
-  # [idle]
-  # toggle = <super> KEY_Z
-  # screensaver_timeout = 300
-  # dpms_timeout = 600
-  #
-  # Disables the compositor going idle with Super + z.
-  # This will lock your screen after 300 seconds of inactivity, then turn off
-  # your displays after another 300 seconds.
-
-  # Applications ─────────────────────────────────────────────────────────────────
-#+end_src
-
-** Keyboard shortcuts
+*** Keyboard shortcuts
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   [command]
 #+end_src
 
-*** ESC
+**** ESC
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_mc_esc = <super> <ctrl> KEY_ESC
   command_mc_esc = M_C_ESC
 #+end_src
 
-*** Zooms
+**** Zooms
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_equal = <super> KEY_EQUAL
   command_equal = M_PLUS
@@ -363,7 +119,7 @@
   command_minux = M_MINUS
 #+end_src
 
-*** relative brightness
+**** relative brightness
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_mcequal = <super> <ctrl> KEY_EQUAL
   command_mcequal = M_C_PLUS
@@ -372,7 +128,7 @@
   command_mcminux = M_C_MINUS
 #+end_src
 
-*** relative sound
+**** relative sound
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_mcleftbrace = <super> <ctrl> KEY_LEFTBRACE
   command_mcleftbrace = M_C_LEFTBRACE
@@ -381,7 +137,7 @@
   command_mcrightbrace = M_C_RIGHTBRACE
 #+end_src
 
-*** F
+**** F
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_f1 = <super> KEY_F1
   command_f1 = M_F1
@@ -393,7 +149,7 @@
   command_f3 = M_F3
 #+end_src
 
-*** CTRL
+**** CTRL
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_mcq = <super> <ctrl> KEY_Q
   command_mcq = M_C_Q
@@ -459,9 +215,9 @@
   command_mcspace = kickoff
 #+end_src
 
-** ALT
+*** ALT
 
-*** Main
+**** Main
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
   binding_maQ = <super> <alt> KEY_Q
   command_maQ = M_A_Q
@@ -557,94 +313,43 @@
   command_maP = M_A_P
 #+end_src
 
-** misc
+*** Window actions
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Screenshots
-  # https://wayland.emersion.fr/grim/
-  # https://wayland.emersion.fr/slurp/
-  binding_screenshot = KEY_PRINT
-  command_screenshot = grim $(date '+%F_%T').webp
-  binding_screenshot_interactive = <shift> KEY_PRINT
-  command_screenshot_interactive = slurp | grim -g - $(date '+%F_%T').webp
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Volume controls
-  # https://alsa-project.org
-  repeatable_binding_volume_up = KEY_VOLUMEUP
-  command_volume_up = amixer set Master 5%+
-  repeatable_binding_volume_down = KEY_VOLUMEDOWN
-  command_volume_down = amixer set Master 5%-
-  binding_mute = KEY_MUTE
-  command_mute = amixer set Master toggle
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Screen brightness
-  # https://haikarainen.github.io/light/
-  repeatable_binding_light_up = KEY_BRIGHTNESSUP
-  command_light_up = light -A 5
-  repeatable_binding_light_down = KEY_BRIGHTNESSDOWN
-  command_light_down = light -U 5
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Windows ──────────────────────────────────────────────────────────────────────
-
-  # Actions related to window management functionalities.
-  #
-  # Example configuration:
-  #
   [wm-actions]
   toggle_fullscreen = <super> KEY_Z
   toggle_always_on_top = <super> KEY_B
   toggle_sticky = <super> KEY_Y
 #+end_src
 
+*** Tile window to a side
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Position the windows in certain regions of the output.
   [grid]
-  #
-  # ⇱ ↑ ⇲   │ 7 8 9
-  # ← f →   │ 4 5 6
-  # ⇱ ↓ ⇲ d │ 1 2 3 0
-  # ‾   ‾
-
   slot_l = <super> KEY_H
   slot_t = <super> KEY_K
   slot_r = <super> KEY_L
   slot_b = <super> KEY_J
-
   slot_c = <super> KEY_X
-
   slot_tl = <super> KEY_U
   slot_tr = <super> KEY_I
   slot_br = <super> KEY_M
   slot_bl = <super> KEY_N
-
-  # Restore default.
-  restore = <super> KEY_KP0
 #+end_src
 
+*** Switch between open windows
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Change active window with an animation.
   [switcher]
   next_view = <super> KEY_DOT
   prev_view = <super> KEY_COMMA
   speed = 0
 #+end_src
 
+*** Dumb window switch
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Simple active window switcher.
   [fast-switcher]
   activate = <super> KEY_TAB
-  activate_backward = <super> <alt> KEY_TAB
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Workspaces ───────────────────────────────────────────────────────────────────
-
-  # Switch to workspace.
   [vswitch]
 
   duration = 0
