@@ -668,7 +668,7 @@
 
         #include <unistd.h>
 
-        static char * const args[] = {"thorium", NULL};
+        static char * const args[] = {"thorium", "--enable-features=UseOzonePlatform", "--ozone-platform=wayland", NULL};
 
         int main () {
             int ret = execvp(args[0], args);
