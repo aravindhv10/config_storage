@@ -651,9 +651,9 @@
   gap = 0
   wraparound = false
   binding_left = <super> KEY_LEFT
-  binding_down = <super> KEY_DOWN
-  binding_up = <super> KEY_UP | <super> KEY_LEFTBRACE
-  binding_right = <super> KEY_RIGHT | <super> KEY_RIGHTBRACE
+  binding_down = <super> KEY_DOWN | <super> KEY_LEFTBRACE
+  binding_up = <super> KEY_UP | <super> KEY_RIGHTBRACE
+  binding_right = <super> KEY_RIGHT
   # Move the focused window with the same key-bindings, but add Shift.
   with_win_left = <super> <shift> KEY_LEFT
   with_win_down = <super> <shift> KEY_DOWN
