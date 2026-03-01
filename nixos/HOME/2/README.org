@@ -597,8 +597,8 @@
   #
   [wm-actions]
   toggle_fullscreen = <super> KEY_Z
-  toggle_always_on_top = <super> KEY_B | <super> <ctrl> KEY_Z
-  toggle_sticky = <super> KEY_Y | <super> <shift> KEY_Z
+  toggle_always_on_top = <super> KEY_B
+  toggle_sticky = <super> KEY_Y
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
