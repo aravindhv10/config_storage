@@ -1,7 +1,8 @@
 use std::os::unix::process::CommandExt;
 use std::process::Command;
 
-fn main() {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     // Get the first argument, which is the path used to invoke the binary
     let path = std::env::args().next().expect("No executable path found");
 
@@ -19,7 +20,20 @@ fn main() {
         "M_C_W" => {}
         "M_C_E" => {}
         "M_C_R" => {}
-        "M_C_T" => {}
+        "M_C_T" => {
+            let mut res1 = tokio::process::Command::new("foot").arg("-s").spawn()?;
+            let mut res2 = tokio::process::Command::new("emacs")
+                .arg("--fg-daemon")
+                .spawn()?;
+            let mut res3 = tokio::process::Command::new("alacritty")
+                .args(["-e", "byobu-tmux"])
+                .spawn()?;
+
+            let ret1 = res1.wait().await?;
+            let ret2 = res2.wait().await?;
+            let ret3 = res3.wait().await?;
+            println!("Exit status: {}, {} and {}", ret1, ret2, ret3);
+        }
         "M_C_A" => {
             let err = Command::new("firefox").exec();
         }
@@ -42,4 +56,6 @@ fn main() {
             println!("Unknown command: {}. Defaulting to help.", binary_name);
         }
     }
+
+    return Ok(());
 }
