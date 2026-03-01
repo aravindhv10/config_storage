@@ -7,12 +7,13 @@
   ...
 }: {
   imports = [
-    ./hardware-configuration.nix
     ./boot_config.nix
-    ./network_config.nix
-    ./i18n.nix
-    ./services.nix
     ./environment.nix
+    ./hardware-configuration.nix
+    ./i18n.nix
+    ./network_config.nix
+    ./programs.nix
+    ./services.nix
   ];
 
   security.rtkit.enable = true;
@@ -21,56 +22,6 @@
   nixpkgs = {
     hostPlatform = lib.mkDefault "x86_64-linux";
     config.allowUnfree = true;
-  };
-
-  programs = {
-    firefox.enable = true;
-    virt-manager.enable = true;
-
-    niri = {
-      enable = true;
-      package = unstable.niri;
-    };
-
-    hyprland = {
-      enable = true;
-      package = unstable.hyprland;
-      withUWSM = true; # recommended for most users
-      # withUWSM = false; # recommended for most users
-      xwayland.enable = true; # Xwayland can be disabled.
-    };
-
-    wayfire = {
-      enable = true;
-      # package = unstable.wayfire;
-      plugins = [
-        pkgs.wayfirePlugins.wayfire-plugins-extra
-        pkgs.wayfirePlugins.wcm
-        pkgs.wayfirePlugins.wf-shell
-      ];
-    };
-
-    fish = {
-      enable = true;
-      package = unstable.fish;
-    };
-
-    zsh = {
-      enable = true;
-      ohMyZsh = {
-        enable = true;
-        plugins = [
-          "eza"
-          "fzf"
-          "git"
-          "procs"
-          "starship"
-          "systemd"
-          "zoxide"
-        ];
-        theme = "robbyrussell";
-      };
-    };
   };
 
   documentation = {
@@ -108,6 +59,14 @@
       # Required for containers under podman-compose to be able to talk to each other.
       defaultNetwork.settings.dns_enabled = true;
     };
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-wlr
+      pkgs.xdg-desktop-portal-gtk
+    ];
   };
 
   system.stateVersion = "24.11";

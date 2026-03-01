@@ -193,8 +193,8 @@
         alsa.enable = true;
         alsa.support32Bit = true;
         pulse.enable = true;
-        # If you want to use JACK applications, uncomment this
-        #jack.enable = true;
+        jack.enable = true;
+        wireplumber.enable = true;
 
         # use the example session manager (no others are packaged yet so this is enabled by default,
         # no need to redefine it in your config for now)
@@ -1282,8 +1282,8 @@
   }
 #+end_src
 
-* Main config
-#+begin_src nix :mkdirp yes :tangle ./nixos/configuration.nix
+* Programs
+#+begin_src nix :mkdirp yes :tangle ./nixos/programs.nix
   {
     config,
     lib,
@@ -1292,23 +1292,6 @@
     unstable,
     ...
   }: {
-    imports = [
-      ./hardware-configuration.nix
-      ./boot_config.nix
-      ./network_config.nix
-      ./i18n.nix
-      ./services.nix
-      ./environment.nix
-    ];
-
-    security.rtkit.enable = true;
-    time.timeZone = "Asia/Kolkata";
-
-    nixpkgs = {
-      hostPlatform = lib.mkDefault "x86_64-linux";
-      config.allowUnfree = true;
-    };
-
     programs = {
       firefox.enable = true;
       virt-manager.enable = true;
@@ -1358,6 +1341,36 @@
         };
       };
     };
+  }
+#+end_src
+
+* Main config
+#+begin_src nix :mkdirp yes :tangle ./nixos/configuration.nix
+  {
+    config,
+    lib,
+    pkgs,
+    modulesPath,
+    unstable,
+    ...
+  }: {
+    imports = [
+      ./boot_config.nix
+      ./environment.nix
+      ./hardware-configuration.nix
+      ./i18n.nix
+      ./network_config.nix
+      ./programs.nix
+      ./services.nix
+    ];
+
+    security.rtkit.enable = true;
+    time.timeZone = "Asia/Kolkata";
+
+    nixpkgs = {
+      hostPlatform = lib.mkDefault "x86_64-linux";
+      config.allowUnfree = true;
+    };
 
     documentation = {
       enable = true;
@@ -1396,6 +1409,14 @@
       };
     };
 
+    xdg.portal = {
+      enable = true;
+      extraPortals = [
+        pkgs.xdg-desktop-portal-wlr
+        pkgs.xdg-desktop-portal-gtk
+      ];
+    };
+
     system.stateVersion = "24.11";
   }
 #+end_src
@@ -1406,13 +1427,9 @@
     description = "NixOS Flake Configuration";
 
     inputs = {
-      # Standard NixOS stable channel
       nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
-      # Unstable channel for bleeding edge packages
       nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
       deb_mirror.url = "github:aravindhv10/deb_mirror";
-
-      # Thorium browser
       thorium.url = "github:Rishabh5321/thorium_flake";
     };
 
@@ -1423,7 +1440,6 @@
       ...
     } @ inputs: let
       system = "x86_64-linux";
-      # Define unstable for use in modules
       unstable = import nixpkgs-unstable {
         inherit system;
         config.allowUnfree = true;
@@ -1431,7 +1447,6 @@
     in {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
-        # specialArgs allows you to pass variables to all imported modules
         specialArgs = {inherit inputs unstable;};
         modules = [
           ./configuration.nix
@@ -1509,6 +1524,7 @@
   NIXADD 'hardware-configuration.nix'
   NIXADD 'i18n.nix'
   NIXADD 'network_config.nix'
+  NIXADD 'programs.nix'
   NIXADD 'services.nix'
 
   GITADD 'nixos/flake_update.sh'
