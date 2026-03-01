@@ -361,7 +361,6 @@
   binding_up = <super> KEY_UP | <super> KEY_RIGHTBRACE
   binding_right = <super> KEY_RIGHT
 
-  # Move the focused window with the same key-bindings, but add Shift.
   with_win_left = <super> <shift> KEY_LEFT
   with_win_down = <super> <shift> KEY_DOWN | <super> <shift> KEY_LEFTBRACE
   with_win_up = <super> <shift> KEY_UP | <super> <shift> KEY_RIGHTBRACE
@@ -411,20 +410,11 @@
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Show an overview of all workspaces.
   [expo]
   toggle = <super> KEY_ESC
   duration = 0
   inactive_brightness = 0.5
-  # Select a workspace.
-  # Workspaces are arranged into a grid of 3 × 3.
-  # The numbering is left to right, line by line.
-  #
-  # ⇱ k ⇲
-  # h ⏎ l
-  # ⇱ j ⇲
-  # ‾   ‾
-  # See core.vwidth and core.vheight for configuring the grid.
+
   select_workspace_1 = KEY_1
   select_workspace_2 = KEY_2
   select_workspace_3 = KEY_3
@@ -448,26 +438,8 @@
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Invert the colors of the whole output.
   [invert]
   toggle = <super> KEY_V
-  # preserve_hue = true
-  # Send toggle menu event.
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # Rules ────────────────────────────────────────────────────────────────────────
-
-  # Example configuration:
-  #
-  # [window-rules]
-  # maximize_alacritty = on created if app_id is "Alacritty" then maximize
-  #
-  # You can get the properties of your applications with the following command:
-  # $ WAYLAND_DEBUG=1 alacritty 2>&1 | kak
-  #
-  # See Window rules for a complete reference.
-  # https://github.com/WayfireWM/wayfire/wiki/Configuration#window-rules
 #+end_src
 
 #+begin_src conf :tangle ./HOME,.config,wayfire.ini
@@ -483,25 +455,6 @@
   title_font_size = 24
   title_overlay = all
   title_position = center
-#+end_src
-
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  # [decoration]
-  # border_size = 4
-  # active_color = #0099FF
-  # inactive_color = #FF9900
-#+end_src
-
-** winzoom
-#+begin_src conf :tangle ./HOME,.config,wayfire.ini
-  [winzoom]
-  dec_x_binding = <super> <alt> KEY_H
-  dec_y_binding = <super> <alt> KEY_K
-  inc_x_binding = <super> <alt> KEY_L
-  inc_y_binding = <super> <alt> KEY_J
-  nearest_filtering = false
-  preserve_aspect = true
-  zoom_step = 0.100000
 #+end_src
 
 * waybar
