@@ -14,6 +14,26 @@ async fn main() -> anyhow::Result<()> {
 
     // Dispatch based on the name
     match binary_name {
+        "M_ESC" => {}
+        "M_F1" => {}
+        "M_F2" => {}
+        "M_F3" => {}
+        "M_F4" => {}
+
+        "M_C_ESC" => {}
+        "M_C_F1" => {}
+        "M_C_F2" => {}
+        "M_C_F3" => {}
+        "M_C_F4" => {}
+
+        "M_A_ESC" => {}
+        "M_A_F1" => {}
+        "M_A_F2" => {}
+        "M_A_F3" => {}
+        "M_A_F4" => {}
+
+        "M_C_GRAVE" => {}
+        "M_C_1" => {}
         "M_C_Q" => {
             let err = Command::new("wezterm").exec();
         }
