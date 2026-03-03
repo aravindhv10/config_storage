@@ -48,17 +48,6 @@
       #media-session.enable = true;
     };
 
-    # Enable the X11 windowing system.
-    # You can disable this if you're only using the Wayland session.
-    # xserver = {
-    #     enable = true;
-    #     videoDrivers = ["amdgpu"];
-    #     xkb = {
-    #         layout = "us";
-    #         variant = "";
-    #     };
-    # };
-
     displayManager = {
       gdm.enable = false;
       sddm = {

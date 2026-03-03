@@ -208,17 +208,6 @@
         #media-session.enable = true;
       };
 
-      # Enable the X11 windowing system.
-      # You can disable this if you're only using the Wayland session.
-      # xserver = {
-      #     enable = true;
-      #     videoDrivers = ["amdgpu"];
-      #     xkb = {
-      #         layout = "us";
-      #         variant = "";
-      #     };
-      # };
-
       displayManager = {
         gdm.enable = false;
         sddm = {
@@ -1215,10 +1204,10 @@
 
       '')
     ];
-    extraPackages = with inputs;  [
-          deb_mirror.packages.${pkgs.system}.default
-          thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
-    ] ;
+    extraPackages = with inputs; [
+      deb_mirror.packages.${pkgs.system}.default
+      thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
+    ];
   in {
     environment = {
       etc."greetd/environments".text = ''
@@ -1251,7 +1240,12 @@
         seahorse
       ];
 
-      systemPackages = systemPackagesStable ++ systemPackagesUnstable ++ customCBins ++ extraPackages ++ [
+      systemPackages =
+        systemPackagesStable
+        ++ systemPackagesUnstable
+        ++ customCBins
+        ++ extraPackages
+        ++ [
           (unstable.python313.withPackages (ps:
             with ps; [
               albumentations
@@ -1285,7 +1279,7 @@
               uvicorn
               yt-dlp
             ]))
-        ] ;
+        ];
     };
   }
 #+end_src
