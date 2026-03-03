@@ -32,10 +32,7 @@
 
 ** Actual minimal
 #+begin_src nix :mkdirp yes :tangle ./nixos/boot_config.nix
-  {
-    pkgs,
-    ...
-  }: {
+  {pkgs, ...}: {
     boot = {
       loader = {
         efi = {
@@ -141,10 +138,7 @@
 
 ** Actual minimal
 #+begin_src nix :mkdirp yes :tangle ./nixos/network_config.nix
-  {
-    lib,
-    ...
-  }: {
+  {lib, ...}: {
     networking = {
       hostName = "nixos";
 
@@ -196,6 +190,31 @@
 #+end_src
 
 * Language and locale
+
+** Actual minimal
+#+begin_src nix :mkdirp yes :tangle ./nixos/i18n.nix
+  {
+    ...
+  }: {
+    i18n = {
+      defaultLocale = "en_IN";
+      extraLocaleSettings = {
+        LC_ADDRESS = "en_IN";
+        LC_IDENTIFICATION = "en_IN";
+        LC_MEASUREMENT = "en_IN";
+        LC_MONETARY = "en_IN";
+        LC_NAME = "en_IN";
+        LC_NUMERIC = "en_IN";
+        LC_PAPER = "en_IN";
+        LC_TELEPHONE = "en_IN";
+        LC_TIME = "en_IN";
+      };
+    };
+  }
+#+end_src
+
+** COMMENT Full
+
 #+begin_src nix :mkdirp yes :tangle ./nixos/i18n.nix
   {
     config,

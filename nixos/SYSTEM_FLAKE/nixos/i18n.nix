@@ -1,11 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  modulesPath,
-  unstable,
-  ...
-}: {
+{...}: {
   i18n = {
     defaultLocale = "en_IN";
     extraLocaleSettings = {
