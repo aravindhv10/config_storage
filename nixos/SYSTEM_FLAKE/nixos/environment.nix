@@ -1006,6 +1006,6 @@ in {
         # Thorium
         inputs.thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
       ]
-      ++ systemPackagesStable ++ systemPackagesUnstable;
+      ++ systemPackagesStable ++ systemPackagesUnstable ++ customCBins;
   };
 }
