@@ -13,8 +13,13 @@
     printing.enable = true;
     thermald.enable = true;
     libinput.enable = true;
-    nfs.server.enable = true;
-    nfs.server.exports = "/home/vm 192.168.122.2(rw,no_root_squash,no_subtree_check)";
+
+    nfs = {
+      server = {
+        enable = true;
+        exports = "/home/vm 192.168.122.2(rw,no_root_squash,no_subtree_check)";
+      };
+    };
 
     flatpak = {
       enable = true;
@@ -28,8 +33,12 @@
 
     pipewire = {
       enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
+
+      alsa = {
+        enable = true;
+        support32Bit = true;
+      };
+
       pulse.enable = true;
       jack.enable = true;
       wireplumber.enable = true;
