@@ -931,6 +931,10 @@
 
     '')
   ];
+  extraPackages = with inputs; [
+    deb_mirror.packages.${pkgs.system}.default
+    thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
+  ];
 in {
   environment = {
     etc."greetd/environments".text = ''
@@ -964,7 +968,11 @@ in {
     ];
 
     systemPackages =
-      [
+      systemPackagesStable
+      ++ systemPackagesUnstable
+      ++ customCBins
+      ++ extraPackages
+      ++ [
         (unstable.python313.withPackages (ps:
           with ps; [
             albumentations
@@ -998,13 +1006,6 @@ in {
             uvicorn
             yt-dlp
           ]))
-
-        # Add deb_mirror build here
-        inputs.deb_mirror.packages.${pkgs.system}.default
-
-        # Thorium
-        inputs.thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
-      ]
-      ++ systemPackagesStable ++ systemPackagesUnstable ++ customCBins;
+      ];
   };
 }
