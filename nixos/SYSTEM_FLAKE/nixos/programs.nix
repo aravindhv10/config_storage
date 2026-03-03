@@ -1,8 +1,5 @@
 {
-  config,
-  lib,
   pkgs,
-  modulesPath,
   unstable,
   ...
 }: {
@@ -18,9 +15,9 @@
     hyprland = {
       enable = true;
       package = unstable.hyprland;
-      withUWSM = true; # recommended for most users
-      # withUWSM = false; # recommended for most users
-      xwayland.enable = true; # Xwayland can be disabled.
+      withUWSM = true;
+      # withUWSM = false;
+      xwayland.enable = true;
     };
 
     wayfire = {
