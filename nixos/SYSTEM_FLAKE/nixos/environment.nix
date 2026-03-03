@@ -972,7 +972,6 @@ in {
             einops
             fastapi
             flask
-            gnumake
             h5py
             inotify-simple
             ipython
