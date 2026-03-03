@@ -322,7 +322,7 @@
         seahorse
       ];
 
-      systemPackages = with pkgs; [
+      systemPackagesStable = with pkgs; [
         acpi
         alsa-utils
         appstream
@@ -426,6 +426,69 @@
         wlogout
         zip
         zstd
+      ] ;
+
+      systemPackagesUnstable = [
+        unstable.alacritty
+        unstable.alejandra
+        unstable.aria2
+        unstable.atuin
+        unstable.bat
+        unstable.bottom
+        unstable.brightnessctl
+        unstable.byobu
+        unstable.clapboard
+        unstable.delta
+        unstable.difftastic
+        unstable.dust
+        unstable.emacs30
+        unstable.emacs-lsp-booster
+        unstable.eza
+        unstable.fd
+        unstable.fzf
+        unstable.gitui
+        unstable.helix
+        unstable.inkscape
+        unstable.lapce
+        unstable.lsd
+        unstable.lyx
+        unstable.mako
+        unstable.miniserve
+        unstable.mpvpaper
+        unstable.neovim
+        unstable.nixfmt
+        unstable.nushell
+        unstable.openblas
+        unstable.openblas.dev
+        unstable.opencv4
+        unstable.pdf2svg
+        unstable.procs
+        unstable.quickshell
+        unstable.rclone
+        unstable.ripgrep
+        unstable.ruff
+        unstable.rustlings
+        unstable.skim
+        unstable.spice-gtk
+        unstable.squashfsTools
+        unstable.starship
+        unstable.swww
+        unstable.television
+        unstable.texlab
+        unstable.tmux
+        unstable.uv
+        unstable.wezterm
+        unstable.wine
+        unstable.wlsunset
+        unstable.wluma
+        unstable.yazi
+        unstable.ydotool
+        unstable.zed-editor
+        unstable.zoxide
+
+      ] ;
+
+      systemPackages = with pkgs; [
 
         (unstable.python313.withPackages (ps:
           with ps; [
@@ -1228,67 +1291,8 @@
           }
 
         '')
-      ];
+      ] ++ systemPackagesStable ++ systemPackagesUnstable ;
 
-      systemPackages = systemPackages ++ [
-        unstable.alacritty
-        unstable.alejandra
-        unstable.aria2
-        unstable.atuin
-        unstable.bat
-        unstable.bottom
-        unstable.brightnessctl
-        unstable.byobu
-        unstable.clapboard
-        unstable.delta
-        unstable.difftastic
-        unstable.dust
-        unstable.emacs30
-        unstable.emacs-lsp-booster
-        unstable.eza
-        unstable.fd
-        unstable.fzf
-        unstable.gitui
-        unstable.helix
-        unstable.inkscape
-        unstable.lapce
-        unstable.lsd
-        unstable.lyx
-        unstable.mako
-        unstable.miniserve
-        unstable.mpvpaper
-        unstable.neovim
-        unstable.nixfmt
-        unstable.nushell
-        unstable.openblas
-        unstable.openblas.dev
-        unstable.opencv4
-        unstable.pdf2svg
-        unstable.procs
-        unstable.quickshell
-        unstable.rclone
-        unstable.ripgrep
-        unstable.ruff
-        unstable.rustlings
-        unstable.skim
-        unstable.spice-gtk
-        unstable.squashfsTools
-        unstable.starship
-        unstable.swww
-        unstable.television
-        unstable.texlab
-        unstable.tmux
-        unstable.uv
-        unstable.wezterm
-        unstable.wine
-        unstable.wlsunset
-        unstable.wluma
-        unstable.yazi
-        unstable.ydotool
-        unstable.zed-editor
-        unstable.zoxide
-
-      ]
     };
   }
 #+end_src
