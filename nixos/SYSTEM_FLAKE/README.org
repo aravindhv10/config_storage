@@ -242,7 +242,11 @@
 
 ** Actual minimal
 #+begin_src nix :mkdirp yes :tangle ./nixos/services.nix
-  {pkgs, unstable, ...}: {
+  {
+    pkgs,
+    unstable,
+    ...
+  }: {
     services = {
       displayManager.sessionPackages = [unstable.wayfire];
       chrony.enable = true;
@@ -254,9 +258,9 @@
       nfs = {
         server = {
           enable = true;
-          exports = "/home/vm 192.168.122.2(rw,no_root_squash,no_subtree_check)" ;
-        } ;
-      } ;
+          exports = "/home/vm 192.168.122.2(rw,no_root_squash,no_subtree_check)";
+        };
+      };
 
       flatpak = {
         enable = true;
@@ -274,12 +278,11 @@
         alsa = {
           enable = true;
           support32Bit = true;
-        } ;
+        };
 
         pulse.enable = true;
         jack.enable = true;
         wireplumber.enable = true;
-
       };
 
       displayManager = {
@@ -328,13 +331,12 @@
             "94.140.15.15"
             "9.9.9.9"
           ];
-          local-service = true; # Accept DNS queries only from hosts whose address is on a local subnet
-          log-queries = true; # Log results of all DNS queries
-          bogus-priv = true; # Don't forward requests for the local address ranges (192.168.x.x etc) to upstream nameservers
-          domain-needed = true; # Don't forward requests without dots or domain parts to upstream nameservers
+          local-service = true;
+          log-queries = true;
+          bogus-priv = true;
+          domain-needed = true;
           all-servers = true;
-          dnssec = true; # Enable DNSSEC
-          # DNSSEC trust anchor. Source: https://data.iana.org/root-anchors/root-anchors.xml
+          dnssec = true;
           trust-anchor = ".,20326,8,2,E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D";
           dhcp-range = ["192.168.122.101,192.168.122.200"];
         };
