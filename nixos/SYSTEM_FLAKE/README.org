@@ -396,146 +396,71 @@
         zip
         zstd
       ] ;
-      systemPackagesUnstable = [
-        unstable.alacritty
-        unstable.alejandra
-        unstable.aria2
-        unstable.atuin
-        unstable.bat
-        unstable.bottom
-        unstable.brightnessctl
-        unstable.byobu
-        unstable.clapboard
-        unstable.delta
-        unstable.difftastic
-        unstable.dust
-        unstable.emacs30
-        unstable.emacs-lsp-booster
-        unstable.eza
-        unstable.fd
-        unstable.fzf
-        unstable.gitui
-        unstable.helix
-        unstable.inkscape
-        unstable.lapce
-        unstable.lsd
-        unstable.lyx
-        unstable.mako
-        unstable.miniserve
-        unstable.mpvpaper
-        unstable.neovim
-        unstable.nixfmt
-        unstable.nushell
-        unstable.openblas
-        unstable.openblas.dev
-        unstable.opencv4
-        unstable.pdf2svg
-        unstable.procs
-        unstable.quickshell
-        unstable.rclone
-        unstable.ripgrep
-        unstable.ruff
-        unstable.rustlings
-        unstable.skim
-        unstable.spice-gtk
-        unstable.squashfsTools
-        unstable.starship
-        unstable.swww
-        unstable.television
-        unstable.texlab
-        unstable.tmux
-        unstable.uv
-        unstable.wezterm
-        unstable.wine
-        unstable.wlsunset
-        unstable.wluma
-        unstable.yazi
-        unstable.ydotool
-        unstable.zed-editor
-        unstable.zoxide
+      systemPackagesUnstable = with unstable; [
+        alacritty
+        alejandra
+        aria2
+        atuin
+        bat
+        bottom
+        brightnessctl
+        byobu
+        clapboard
+        delta
+        difftastic
+        dust
+        emacs30
+        emacs-lsp-booster
+        eza
+        fd
+        fzf
+        gitui
+        helix
+        inkscape
+        lapce
+        lsd
+        lyx
+        mako
+        miniserve
+        mpvpaper
+        neovim
+        nixfmt
+        nushell
+        openblas
+        openblas.dev
+        opencv4
+        pdf2svg
+        procs
+        quickshell
+        rclone
+        ripgrep
+        ruff
+        rustlings
+        skim
+        spice-gtk
+        squashfsTools
+        starship
+        swww
+        television
+        texlab
+        tmux
+        uv
+        wezterm
+        wine
+        wlsunset
+        wluma
+        yazi
+        ydotool
+        zed-editor
+        zoxide
 
-      ] ;
-  in {
-    environment = {
-      etc."greetd/environments".text = ''
-        wayfire
-        fish
-        bash
-      '';
-
-      variables = {
-        ROC_ENABLE_PRE_VEGA = "1";
-        EDITOR = "hx";
-        QT_SCALE_FACTOR = "1.25";
-      };
-
-      gnome.excludePackages = with pkgs; [
-        atomix # puzzle game
-        cheese # webcam tool
-        epiphany # web browser
-        geary # email reader
-        gedit # text editor
-        gnome-characters
-        gnome-music
-        gnome-photos
-        gnome-terminal
-        gnome-tour
-        hitori # sudoku game
-        iagno # go game
-        tali # poker game
-        totem # video player
-        seahorse
-      ];
-
-      systemPackages = with pkgs; [
-
-        (unstable.python313.withPackages (ps:
-          with ps; [
-            albumentations
-            datafusion
-            einops
-            fastapi
-            flask
-            gnumake
-            h5py
-            inotify-simple
-            ipython
-            jax
-            lightning
-            matplotlib
-            multiprocess
-            numpy
-            onnx
-            onnxruntime
-            opencv-python
-            pillow
-            protobuf
-            python-multipart
-            requests
-            safetensors
-            tensorboard
-            tensorboardx
-            timm
-            torch
-            torchmetrics
-            torchvision
-            transformers
-            uvicorn
-            yt-dlp
-          ]))
-
-
-        # Add deb_mirror build here
-        inputs.deb_mirror.packages.${pkgs.system}.default
-
-        # Thorium
-        inputs.thorium.packages.${pkgs.system}.thorium-avx2    # change avx2 for the version you want to install
-
-        (unstable.gnuplot.override {
+        (gnuplot.override {
           withLua = true;
           withTeXLive = true; # This provides the necessary TikZ support
         })
 
+      ] ;
+      customCBins = with pkgs; [
         (writeCBin "YDOTOOL_DAEMON" ''
 
           #include <stdio.h>
@@ -1290,6 +1215,84 @@
           }
 
         '')
+      ] ;
+  in {
+    environment = {
+      etc."greetd/environments".text = ''
+        wayfire
+        fish
+        bash
+      '';
+
+      variables = {
+        ROC_ENABLE_PRE_VEGA = "1";
+        EDITOR = "hx";
+        QT_SCALE_FACTOR = "1.25";
+      };
+
+      gnome.excludePackages = with pkgs; [
+        atomix # puzzle game
+        cheese # webcam tool
+        epiphany # web browser
+        geary # email reader
+        gedit # text editor
+        gnome-characters
+        gnome-music
+        gnome-photos
+        gnome-terminal
+        gnome-tour
+        hitori # sudoku game
+        iagno # go game
+        tali # poker game
+        totem # video player
+        seahorse
+      ];
+
+      systemPackages = [
+
+        (unstable.python313.withPackages (ps:
+          with ps; [
+            albumentations
+            datafusion
+            einops
+            fastapi
+            flask
+            gnumake
+            h5py
+            inotify-simple
+            ipython
+            jax
+            lightning
+            matplotlib
+            multiprocess
+            numpy
+            onnx
+            onnxruntime
+            opencv-python
+            pillow
+            protobuf
+            python-multipart
+            requests
+            safetensors
+            tensorboard
+            tensorboardx
+            timm
+            torch
+            torchmetrics
+            torchvision
+            transformers
+            uvicorn
+            yt-dlp
+          ]))
+
+
+        # Add deb_mirror build here
+        inputs.deb_mirror.packages.${pkgs.system}.default
+
+        # Thorium
+        inputs.thorium.packages.${pkgs.system}.thorium-avx2    # change avx2 for the version you want to install
+
+
       ] ++ systemPackagesStable ++ systemPackagesUnstable ;
 
     };
