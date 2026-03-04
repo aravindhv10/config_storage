@@ -356,10 +356,13 @@ emacs-gnuplot/gnuplot
     ("c" hydra-counsel/body "hydra-counsel" :color blue)
     ("t" hydra-format-and-save/body "hydra-format-and-save" :color blue)
     ("w" myfun/switch_window "hydra-window" :color blue)
-    ("e" counsel-switch-buffer "counsel-switch-buffer" :color blue)
+
+    ("a" counsel-switch-buffer "counsel-switch-buffer" :color blue)
     ("s" swiper "swiper" :color blue)
     ("d" counsel-dired "counsel-dired" :color blue)
     ("f" counsel-find-file "counsel-find-file" :color blue)
+    ("g" counsel-rg "counsel-rg" :color blue)
+
     ("<escape>" nil "cancel" :color blue))
 
   ;; |----------------------------------------------------------------------------------------------------------------------------------|
