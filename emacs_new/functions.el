@@ -102,6 +102,7 @@
   ("b" kill-buffer "kill_buffer" :color blue)
 
   ("w" other-window "other" :color red)
+
   ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
