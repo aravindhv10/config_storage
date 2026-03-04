@@ -6,6 +6,8 @@
 (global-set-key (kbd "C-h v") #'helpful-variable)
 (global-set-key (kbd "C-h x") #'helpful-command)
 (global-set-key (kbd "C-M-/") #'dabbrev-complete)
+(global-set-key (kbd "M-SPC") #'hydra-all/body)
+
 (key-chord-define-global "6u" 'vundo)
 (key-chord-define-global "7u" 'vundo)
 (key-chord-define-global "8u" 'vundo)

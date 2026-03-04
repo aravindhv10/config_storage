@@ -53,7 +53,8 @@
 
 (defhydra
   hydra-format-and-save (:color blue)
-  "org"
+  "format-and-save"
+  ("a" hydra-all/body "hydra-all" :color blue)
   ("p" myfun/save_and_format_py "save and format python" :color blue)
   ("l" myfun/save_and_format_latex "save and format latex" :color blue)
   ("<escape>" nil "cancel" :color blue))
@@ -61,7 +62,7 @@
 (defhydra
   hydra-org (:color blue)
   "org"
-  ("a" org-edit-src-abort "abort" :color blue)
+  ("a" hydra-all/body "hydra-all" :color blue)
   ("b" org-table-align "org-table-align" :color red)
   ("c" myfun/copy-org-src-block "copy" :color red)
   ("e" org-edit-src-code "edit" :color blue)
@@ -74,7 +75,8 @@
 
 (defhydra
   hydra-counsel (:color blue)
-  "zoom"
+  "counsel"
+  ("a" hydra-all/body "hydra-all" :color blue)
   ("s" swiper "swiper")
   ("f" counsel-fzf "counsel-fzf")
   ("b" counsel-switch-buffer "counsel-switch-buffer")
@@ -84,6 +86,7 @@
 
 (defhydra hydra-window (:color red)
   "window"
+  ("a" hydra-all/body "hydra-all" :color blue)
   ("w" other-window "other" :color red)
   ("s" save-buffer "save" :color red)
   ("t" tear-off-window "tear" :color red)
@@ -98,6 +101,7 @@
 
 (defhydra hydra-projectile (:color blue)
   "window"
+  ("a" hydra-all/body "hydra-all" :color blue)
   ("d" projectile-dired "projectile-dired" :color blue)
   ("e" projectile-run-eshell "eshell" :color blue)
   ("f" projectile-find-file "projectile-find-file" :color blue)
@@ -105,6 +109,18 @@
   ("m" magit "magit" :color blue)
   ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
   ("<escape>" nil "cancel" :color blue))
+
+
+(defhydra hydra-all (:color blue)
+  "global hydra menu"
+  ("o" hydra-org/body "hydra-org" :color blue)
+  ("p" hydra-projectile/body "hydra-projectile" :color blue)
+  ("w" myfun/switch_window "hydra-window" :color blue)
+  ("e" counsel-switch-buffer "counsel-switch-buffer" :color blue)
+  ("c" hydra-counsel/body "hydra-counsel" :color blue)
+  ("t" hydra-format-and-save/body "hydra-format-and-save" :color blue)
+  ("<escape>" nil "cancel" :color blue))
+
 
 ;; |----------------------------------------------------------------------------------------------------------------------------------|
 ;; | End hydra definitions                                                                                                            |
