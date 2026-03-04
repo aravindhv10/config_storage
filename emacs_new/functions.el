@@ -56,7 +56,7 @@
   "format-and-save"
   ("p" myfun/save_and_format_py "save and format python" :color blue)
   ("l" myfun/save_and_format_latex "save and format latex" :color blue)
-  ("a" hydra-all/body "hydra-all" :color blue)
+  ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra
@@ -70,7 +70,7 @@
   (";" org-toggle-comment "comment" :color red)
   ("t" org-babel-tangle "tangle" :color red)
   ("x" org-babel-execute-src-block "exec" :color red)
-  ("a" hydra-all/body "hydra-all" :color blue)
+  ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra
@@ -81,7 +81,7 @@
   ("b" counsel-switch-buffer "counsel-switch-buffer")
   ("r" counsel-rg "counsel-rg")
   ("d" counsel-dired "counsel-dired")
-  ("a" hydra-all/body "hydra-all" :color blue)
+  ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra hydra-window (:color red)
@@ -96,7 +96,7 @@
   ("h" evil-window-split "horizontal split" :color red)
   ("b" counsel-switch-buffer "switch_buffer" :color blue)
   ("k" kill-buffer "kill_buffer" :color blue)
-  ("a" hydra-all/body "hydra-all" :color blue)
+  ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra hydra-projectile (:color blue)
@@ -107,7 +107,7 @@
   ("g" projectile-find-dir "projectile-find-dir" :color blue)
   ("m" magit "magit" :color blue)
   ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
-  ("a" hydra-all/body "hydra-all" :color blue)
+  ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra hydra-all (:color blue)
