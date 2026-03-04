@@ -317,12 +317,10 @@ emacs-gnuplot/gnuplot
 
     ("z" evil-window-vsplit "vertical split" :color red)
     ("x" evil-window-split "horizontal split" :color red)
-    ("c" delete-window "delete-window" :color blue)
-    ("b" kill-buffer "kill_buffer" :color blue)
-
-    ("a" tear-off-window "tear" :color red)
-    ("s" counsel-switch-buffer "switch_buffer" :color blue)
-    ("d" toggle-frame-fullscreen "fullscreen" :color red)
+    ("b" delete-window "delete-window" :color blue)
+    ("n" tear-off-window "tear" :color red)
+    ("/" counsel-switch-buffer "counsel-switch-buffer")
+    ("." toggle-frame-fullscreen "fullscreen" :color red)
     ("f" save-buffer "save" :color red)
 
     ("h" evil-window-left "evil-window-left" :color red)
@@ -357,8 +355,10 @@ emacs-gnuplot/gnuplot
     ("x" evil-window-split "horizontal split" :color red)
     ("c" counsel-company "counsel-company" :color blue)
     ("v" vundo "undo-tree" :color blue)
-    ("b" counsel-switch-buffer "counsel-switch-buffer")
+    ("b" delete-window "delete-window" :color blue)
+    ("n" tear-off-window "tear" :color red)
     ("m" magit "magit" :color blue)
+    ("." toggle-frame-fullscreen "fullscreen" :color red)
     ("/" counsel-switch-buffer "counsel-switch-buffer" :color blue)
 
     ("a" swiper "swiper" :color blue)
