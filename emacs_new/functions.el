@@ -87,6 +87,10 @@
 (defhydra hydra-window (:color red)
   "window"
 
+  ("z" evil-window-vsplit "vertical split" :color red)
+  ("x" evil-window-split "horizontal split" :color red)
+  ("b" kill-buffer "kill_buffer" :color blue)
+
   ("a" tear-off-window "tear" :color red)
   ("s" counsel-switch-buffer "switch_buffer" :color blue)
   ("d" toggle-frame-fullscreen "fullscreen" :color red)
@@ -97,23 +101,24 @@
   ("k" evil-window-up "evil-window-up" :color red)
   ("l" evil-window-right "evil-window-right" :color red)
 
-  ("z" evil-window-vsplit "vertical split" :color red)
-  ("x" evil-window-split "horizontal split" :color red)
-  ("b" kill-buffer "kill_buffer" :color blue)
-
+  ("o" hydra-org/body "hydra-org" :color blue)
   ("w" other-window "other" :color red)
-
   ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 (defhydra hydra-projectile (:color blue)
   "window"
-  ("d" projectile-dired "projectile-dired" :color blue)
-  ("e" projectile-run-eshell "eshell" :color blue)
-  ("f" projectile-find-file "projectile-find-file" :color blue)
-  ("g" projectile-find-dir "projectile-find-dir" :color blue)
+  ("/" projectile-switch-to-buffer "projectile-switch-to-buffer" :color blue)
   ("m" magit "magit" :color blue)
-  ("r" projectile-ripgrep "projectile-ripgrep" :color blue)
+
+  ("s" projectile-dired "projectile-dired" :color blue)
+
+  ("d" projectile-find-dir "projectile-find-dir" :color blue)
+  ("f" projectile-find-file "projectile-find-file" :color blue)
+  ("g" projectile-ripgrep "projectile-ripgrep" :color blue)
+
+
+  ("e" projectile-run-eshell "eshell" :color blue)
   ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
