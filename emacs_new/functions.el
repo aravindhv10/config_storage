@@ -112,17 +112,40 @@
 
 (defhydra hydra-all (:color blue)
   "global hydra menu"
-  ("o" hydra-org/body "hydra-org" :color blue)
-  ("p" hydra-projectile/body "hydra-projectile" :color blue)
-  ("c" hydra-counsel/body "hydra-counsel" :color blue)
-  ("t" hydra-format-and-save/body "hydra-format-and-save" :color blue)
-  ("w" myfun/switch_window "hydra-window" :color blue)
 
-  ("a" counsel-switch-buffer "counsel-switch-buffer" :color blue)
+  ("z" vundo "undo-tree" :color blue)
+  ("x" counsel-dired "counsel-dired" :color blue)
+  ("c" counsel-company "counsel-company" :color blue)
+  ("v" counsel-find-file "counsel-find-file" :color blue)
+  ("b" counsel-rg "counsel-rg" :color blue)
+
+  ("n" counsel-rg "counsel-rg" :color blue)
+  ("m" magit "magit" :color blue)
+  ("/" counsel-switch-buffer "counsel-switch-buffer" :color blue)
+
+  ("a" swiper "swiper" :color blue)
   ("s" swiper "swiper" :color blue)
   ("d" counsel-dired "counsel-dired" :color blue)
   ("f" counsel-find-file "counsel-find-file" :color blue)
   ("g" counsel-rg "counsel-rg" :color blue)
+
+  ("h" counsel-rg "counsel-rg" :color blue)
+  ("j" counsel-rg "counsel-rg" :color blue)
+  ("k" counsel-rg "counsel-rg" :color blue)
+  ("l" counsel-rg "counsel-rg" :color blue)
+
+  ("q" hydra-all/body "hydra-counsel" :color blue)
+  ("w" myfun/switch_window "hydra-window" :color blue)
+  ("e" hydra-counsel/body "hydra-counsel" :color blue)
+  ("r" hydra-counsel/body "hydra-counsel" :color blue)
+  ("t" hydra-format-and-save/body "hydra-format-and-save" :color blue)
+
+  ("y" hydra-org/body "hydra-org" :color blue)
+  ("u" hydra-org/body "hydra-org" :color blue)
+  ("i" hydra-org/body "hydra-org" :color blue)
+  ("o" hydra-org/body "hydra-org" :color blue)
+  ("p" hydra-projectile/body "hydra-projectile" :color blue)
+
 
   ("<escape>" nil "cancel" :color blue))
 
