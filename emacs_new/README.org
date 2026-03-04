@@ -280,7 +280,7 @@ emacs-gnuplot/gnuplot
   (defun myfun/switch_window ()
     (interactive)
     (other-window 1)
-    (hydra-window/body))
+    (hydra-all/body))
 
   ;; |----------------------------------------------------------------------------------------------------------------------------------|
   ;; | End functions to format and save code                                                                                            |
@@ -312,39 +312,30 @@ emacs-gnuplot/gnuplot
     ("q" hydra-all/body "hydra-all" :color blue)
     ("<escape>" nil "cancel" :color blue))
 
-  (defhydra hydra-window (:color red)
+  (defhydra hydra-projectile (:color blue)
     "window"
-
     ("z" evil-window-vsplit "vertical split" :color red)
     ("x" evil-window-split "horizontal split" :color red)
+    ("c" counsel-company "counsel-company" :color blue)
+    ("v" vundo "undo-tree" :color blue)
     ("b" delete-window "delete-window" :color blue)
     ("n" tear-off-window "tear" :color red)
-    ("/" counsel-switch-buffer "counsel-switch-buffer")
+    ("m" magit "magit" :color blue)
     ("." toggle-frame-fullscreen "fullscreen" :color red)
-    ("f" save-buffer "save" :color red)
+    ("/" projectile-switch-to-buffer "projectile-switch-to-buffer" :color blue)
+
+    ("a" swiper "swiper" :color blue)
+    ("s" projectile-dired "projectile-dired" :color blue)
+    ("d" projectile-find-dir "projectile-find-dir" :color blue)
+    ("f" projectile-find-file "projectile-find-file" :color blue)
+    ("g" projectile-ripgrep "projectile-ripgrep" :color blue)
 
     ("h" evil-window-left "evil-window-left" :color red)
     ("j" evil-window-down "evil-window-down" :color red)
     ("k" evil-window-up "evil-window-up" :color red)
     ("l" evil-window-right "evil-window-right" :color red)
 
-    ("o" hydra-org/body "hydra-org" :color blue)
-    ("w" other-window "other" :color red)
-    ("q" hydra-all/body "hydra-all" :color blue)
-    ("<escape>" nil "cancel" :color blue))
-
-  (defhydra hydra-projectile (:color blue)
-    "window"
-    ("/" projectile-switch-to-buffer "projectile-switch-to-buffer" :color blue)
-    ("m" magit "magit" :color blue)
-
-    ("s" projectile-dired "projectile-dired" :color blue)
-
-    ("d" projectile-find-dir "projectile-find-dir" :color blue)
-    ("f" projectile-find-file "projectile-find-file" :color blue)
-    ("g" projectile-ripgrep "projectile-ripgrep" :color blue)
-
-    ("e" projectile-run-eshell "eshell" :color blue)
+    (";" projectile-run-eshell "eshell" :color blue)
     ("q" hydra-all/body "hydra-all" :color blue)
     ("<escape>" nil "cancel" :color blue))
 
@@ -373,7 +364,6 @@ emacs-gnuplot/gnuplot
     ("l" evil-window-right "evil-window-right" :color red)
 
     ("q" hydra-all/body "hydra-counsel" :color blue)
-    ("w" myfun/switch_window "hydra-window" :color blue)
     ("t" hydra-format-and-save/body "hydra-format-and-save" :color blue)
 
     ("y" hydra-org/body "hydra-org" :color blue)
