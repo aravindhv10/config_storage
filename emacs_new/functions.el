@@ -89,6 +89,7 @@
 
   ("z" evil-window-vsplit "vertical split" :color red)
   ("x" evil-window-split "horizontal split" :color red)
+  ("c" delete-window "delete-window" :color blue)
   ("b" kill-buffer "kill_buffer" :color blue)
 
   ("a" tear-off-window "tear" :color red)
@@ -125,26 +126,23 @@
 (defhydra hydra-all (:color blue)
   "global hydra menu"
 
-  ("z" vundo "undo-tree" :color blue)
-  ("x" counsel-dired "counsel-dired" :color blue)
+  ("z" evil-window-vsplit "vertical split" :color red)
+  ("x" evil-window-split "horizontal split" :color red)
   ("c" counsel-company "counsel-company" :color blue)
-  ("v" counsel-find-file "counsel-find-file" :color blue)
-  ("b" counsel-rg "counsel-rg" :color blue)
-
-  ("n" counsel-rg "counsel-rg" :color blue)
+  ("v" vundo "undo-tree" :color blue)
   ("m" magit "magit" :color blue)
   ("/" counsel-switch-buffer "counsel-switch-buffer" :color blue)
 
   ("a" swiper "swiper" :color blue)
-  ("s" swiper "swiper" :color blue)
+  ("s" counsel-fzf "swiper" :color blue)
   ("d" counsel-dired "counsel-dired" :color blue)
   ("f" counsel-find-file "counsel-find-file" :color blue)
   ("g" counsel-rg "counsel-rg" :color blue)
 
-  ("h" counsel-rg "counsel-rg" :color blue)
-  ("j" counsel-rg "counsel-rg" :color blue)
-  ("k" counsel-rg "counsel-rg" :color blue)
-  ("l" counsel-rg "counsel-rg" :color blue)
+  ("h" evil-window-left "evil-window-left" :color red)
+  ("j" evil-window-down "evil-window-down" :color red)
+  ("k" evil-window-up "evil-window-up" :color red)
+  ("l" evil-window-right "evil-window-right" :color red)
 
   ("q" hydra-all/body "hydra-counsel" :color blue)
   ("w" myfun/switch_window "hydra-window" :color blue)
