@@ -86,16 +86,22 @@
 
 (defhydra hydra-window (:color red)
   "window"
+
+  ("a" tear-off-window "tear" :color red)
+  ("s" counsel-switch-buffer "switch_buffer" :color blue)
+  ("d" toggle-frame-fullscreen "fullscreen" :color red)
+  ("f" save-buffer "save" :color red)
+
+  ("h" evil-window-left "evil-window-left" :color red)
+  ("j" evil-window-down "evil-window-down" :color red)
+  ("k" evil-window-up "evil-window-up" :color red)
+  ("l" evil-window-right "evil-window-right" :color red)
+
+  ("z" evil-window-vsplit "vertical split" :color red)
+  ("x" evil-window-split "horizontal split" :color red)
+  ("b" kill-buffer "kill_buffer" :color blue)
+
   ("w" other-window "other" :color red)
-  ("s" save-buffer "save" :color red)
-  ("t" tear-off-window "tear" :color red)
-  ("r" toggle-frame-fullscreen "fullscreen" :color red)
-  ("d" delete-window "delete_window" :color red)
-  ("f" delete-frame "delete_frame" :color red)
-  ("v" evil-window-vsplit "vertical split" :color red)
-  ("h" evil-window-split "horizontal split" :color red)
-  ("b" counsel-switch-buffer "switch_buffer" :color blue)
-  ("k" kill-buffer "kill_buffer" :color blue)
   ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
