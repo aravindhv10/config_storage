@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Updated emacs snippets
+  Updated code to use new convention of SSH keys
 #+end_src
 
 ** Add git stuff
@@ -17,7 +17,7 @@
 
 ** Pull
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/pull.sh
-  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB//setup.sh"
+  "${HOME}/SSH/K/P/setup.sh"
   git pull
   git status
 #+end_src
@@ -25,7 +25,7 @@
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
   git commit -m "$(cat './GIT/message.txt')"
-  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB//setup.sh"
+  "${HOME}/SSH/K/P/setup.sh"
   git push
 #+end_src
 
