@@ -6,7 +6,7 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     deb_mirror.url = "github:aravindhv10/deb_mirror";
     thorium.url = "github:Rishabh5321/thorium_flake";
-    helixgit.url = "github:helix-editor/helix";
+    # helixgit.url = "github:helix-editor/helix";
   };
 
   outputs = {

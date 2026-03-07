@@ -931,7 +931,6 @@
   extraPackages = with inputs; [
     deb_mirror.packages.${pkgs.system}.default
     thorium.packages.${pkgs.system}.thorium-avx2
-    helixgit.packages.${pkgs.system}.helix
   ];
 in {
   environment = {
