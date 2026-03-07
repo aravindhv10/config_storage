@@ -930,7 +930,8 @@
   ];
   extraPackages = with inputs; [
     deb_mirror.packages.${pkgs.system}.default
-    thorium.packages.${pkgs.system}.thorium-avx2 # change avx2 for the version you want to install
+    thorium.packages.${pkgs.system}.thorium-avx2
+    helixgit.packages.${pkgs.system}.helix
   ];
 in {
   environment = {
