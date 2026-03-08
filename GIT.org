@@ -54,6 +54,7 @@
   emacs_new/variables_post.el
   .gitignore
   GIT.org
+  GIT/pull.sh
   home_config/Cargo.toml
   home_config/src/helix_config.toml
   home_config/src/main.rs
@@ -124,11 +125,14 @@
   flatpak_emacs/.README.org.~undo-tree~
   foot/foot.org~
   ..gitmodules.~undo-tree~
+  .#GIT.org
   GIT.org~
   helix/README.org~
   #main.org#
   .#main.org
   .main.org.~undo-tree~
+  nixos/HOME/2/#main.org#
+  nixos/HOME/2/README.org~
   README.org~
   RUST/#compile.org#
   RUST/.#compile.org
@@ -261,3 +265,16 @@
           './GIT/commit_and_push.sh'
       " "log" "err")
 #+end_src
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	#GIT.org#
+	nixos/HOME/1/4_HOME_,.config,eww,eww.scss
+	nixos/HOME/1/4_HOME_,.config,eww,eww.yuck
+	nixos/HOME/1/HOME,.config,ironbar,config.corn
+

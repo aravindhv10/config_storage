@@ -1,4 +1,4 @@
 #!/bin/sh
-"${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB//setup.sh"
+"${HOME}/SSH/K/P/setup.sh"
 git pull
 git status
