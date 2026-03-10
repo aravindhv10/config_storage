@@ -2879,7 +2879,7 @@
   GITADD 'setup.sh'
 
   git status ; git commit -m 'Added thorium flake'
-  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh" ; git push
+  "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
 * COMMENT WORK SPACE
