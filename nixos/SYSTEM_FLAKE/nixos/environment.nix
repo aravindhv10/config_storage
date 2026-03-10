@@ -128,6 +128,7 @@
     fd
     fzf
     gitui
+    gptfdisk
     helix
     inkscape
     lapce
