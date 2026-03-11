@@ -21,7 +21,7 @@ RUN \
     && uv pip install -U \
         '--index-url' 'https://download.pytorch.org/whl/cpu' \
             'torch' \
-            'torchcodec' \
+            'torchcodec==0.9' \
             'torchvision' \
     && echo 'DONE pip' ;
 
