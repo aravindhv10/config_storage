@@ -1,18 +1,7 @@
 use std::os::unix::process::CommandExt;
 use std::process::Command;
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    // Get the first argument, which is the path used to invoke the binary
-    let path = std::env::args().next().expect("No executable path found");
-
-    // Extract the filename (basename) from the path
-    let binary_name = std::path::Path::new(&path)
-        .file_name()
-        .and_then(|s| s.to_str())
-        .unwrap_or("");
-
-    // Dispatch based on the name
+async fn get_cmd(binary_name: &str) -> anyhow::Result<()> {
     match binary_name {
         "M_ESC" => {}
         "M_F1" => {}
@@ -35,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
         "M_C_GRAVE" => {}
         "M_C_1" => {}
         "M_C_Q" => {
-            let err = Command::new("wezterm").exec();
+            let _err = Command::new("wezterm").exec();
         }
         "M_C_W" => {}
         "M_C_E" => {}
@@ -76,6 +65,22 @@ async fn main() -> anyhow::Result<()> {
             println!("Unknown command: {}. Defaulting to help.", binary_name);
         }
     }
+
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // Get the first argument, which is the path used to invoke the binary
+    let path = std::env::args().next().expect("No executable path found");
+
+    // Extract the filename (basename) from the path
+    let binary_name = std::path::Path::new(&path)
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("");
+
+    get_cmd(binary_name).await?;
 
     return Ok(());
 }

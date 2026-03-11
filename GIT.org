@@ -265,16 +265,3 @@
           './GIT/commit_and_push.sh'
       " "log" "err")
 #+end_src
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	#GIT.org#
-	nixos/HOME/1/4_HOME_,.config,eww,eww.scss
-	nixos/HOME/1/4_HOME_,.config,eww,eww.yuck
-	nixos/HOME/1/HOME,.config,ironbar,config.corn
-
