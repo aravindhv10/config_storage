@@ -21,13 +21,28 @@
     };
 
     initrd = {
-      availableKernelModules = ["nvme" "xhci_pci" "ahci" "uas" "sd_mod"];
       kernelModules = [];
+
+      availableKernelModules = [
+        "nvme"
+        "xhci_pci"
+        "ahci"
+        "uas"
+        "sd_mod"
+      ];
     };
 
     extraModulePackages = [];
-    kernelModules = ["kvm-amd" "amdgpu"];
     kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-    kernelParams = ["zswap.enabled=1" "zswap.max_pool_percent=80"];
+
+    kernelModules = [
+      "kvm-amd"
+      "amdgpu"
+    ];
+
+    kernelParams = [
+      "zswap.enabled=1"
+      "zswap.max_pool_percent=80"
+    ];
   };
 }

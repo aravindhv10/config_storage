@@ -1,4 +1,30 @@
 {
+  pkgs,
+  unstable,
+  ...
+}:
+{
+  users = {
+    defaultUserShell = pkgs.zsh;
+    groups.libvirtd.members = ["asd"];
+
+    users.asd = {
+      description = "asd";
+      isNormalUser = true;
+      shell = unstable.fish;
+      packages = [pkgs.kdePackages.kate];
+
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+        "audio"
+        "incus-admin"
+        "libvirtd"
+      ];
+    };
+  };
+}
+{
   config,
   lib,
   pkgs,
@@ -7,6 +33,7 @@
 }: {
   imports = [
     ./boot_config.nix
+    ./configuration.nix
     ./environment.nix
     ./hardware-configuration.nix
     ./i18n.nix
@@ -27,22 +54,6 @@
     enable = true;
     man.enable = true;
     dev.enable = true;
-  };
-
-  users = {
-    defaultUserShell = pkgs.zsh;
-
-    users.asd = {
-      isNormalUser = true;
-      shell = unstable.fish;
-      description = "asd";
-      extraGroups = ["networkmanager" "wheel" "audio" "incus-admin" "libvirtd"];
-      packages = with pkgs; [
-        kdePackages.kate
-      ];
-    };
-
-    groups.libvirtd.members = ["asd"];
   };
 
   virtualisation = {

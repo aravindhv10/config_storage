@@ -7,17 +7,25 @@
   imports = [(modulesPath + "/installer/scan/not-detected.nix")];
 
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
   fileSystems = {
     "/" = {
       device = "/dev/disk/by-partlabel/linux";
       fsType = "btrfs";
-      options = ["subvol=@" "compress=zstd:3" "autodefrag"];
+      options = [
+        "subvol=@"
+        "compress=zstd:3"
+        "autodefrag"
+      ];
     };
 
     "/boot" = {
       device = "/dev/disk/by-partlabel/efi";
       fsType = "vfat";
-      options = ["fmask=0077" "dmask=0077"];
+      options = [
+        "fmask=0077"
+        "dmask=0077"
+      ];
     };
   };
 
