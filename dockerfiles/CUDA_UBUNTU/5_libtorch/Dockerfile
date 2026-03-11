@@ -22,8 +22,9 @@ RUN \
         '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
             'tensorrt' \
             'torch' \
-            'torch-tensorrt' \
             'torchao' \
+            'torchcodec' \
+            'torch-tensorrt' \
             'torchvision' \
             'xformers' \
     && echo 'DONE pytorch' ;
