@@ -998,6 +998,7 @@ in {
             tensorboardx
             timm
             torch
+            torchcodec
             torchmetrics
             torchvision
             transformers
