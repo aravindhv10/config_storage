@@ -18,10 +18,10 @@ RUN \
 RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
-    && uv pip install -U \
+    && uv pip install \
         '--index-url' 'https://download.pytorch.org/whl/cpu' \
             'torch' \
-            'torchcodec==0.9' \
+            'torchcodec==0.10' \
             'torchvision' \
     && echo 'DONE pip' ;
 

@@ -1,4 +1,4 @@
-FROM rocm/pytorch:rocm7.1_ubuntu24.04_py3.13_pytorch_release_2.9.1
+FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.13_pytorch_release_2.10.0
 
 RUN ln -vfs -- '../opt/venv' '/root/venv'
 

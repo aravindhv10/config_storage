@@ -57,7 +57,7 @@
 
 **** Main base image
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
-  FROM rocm/pytorch:rocm7.1_ubuntu24.04_py3.13_pytorch_release_2.9.1
+  FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.13_pytorch_release_2.10.0
 #+end_src
 
 **** provide default python venv for use later
@@ -261,10 +261,10 @@
   RUN \
       echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
+      && uv pip install \
           '--index-url' 'https://download.pytorch.org/whl/cpu' \
               'torch' \
-              'torchcodec==0.9' \
+              'torchcodec==0.10' \
               'torchvision' \
       && echo 'DONE pip' ;
 
@@ -300,7 +300,7 @@
               'tensorrt' \
               'torch' \
               'torchao' \
-              'torchcodec==0.9' \
+              'torchcodec==0.10' \
               'torch-tensorrt' \
               'torchvision' \
               'xformers' \

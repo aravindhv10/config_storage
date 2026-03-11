@@ -23,7 +23,7 @@ RUN \
             'tensorrt' \
             'torch' \
             'torchao' \
-            'torchcodec==0.9' \
+            'torchcodec==0.10' \
             'torch-tensorrt' \
             'torchvision' \
             'xformers' \
