@@ -1622,7 +1622,7 @@
 #+end_src
 
 * Users
-#+begin_src nix :mkdirp yes :tangle ./nixos/configuration.nix
+#+begin_src nix :mkdirp yes :tangle ./nixos/users.nix
   {
     pkgs,
     unstable,
@@ -1663,13 +1663,13 @@
   }: {
     imports = [
       ./boot_config.nix
-      ./configuration.nix
       ./environment.nix
       ./hardware-configuration.nix
       ./i18n.nix
       ./network_config.nix
       ./programs.nix
       ./services.nix
+      ./users.nix
     ];
 
     security.rtkit.enable = true;

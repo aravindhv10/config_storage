@@ -1,30 +1,4 @@
 {
-  pkgs,
-  unstable,
-  ...
-}:
-{
-  users = {
-    defaultUserShell = pkgs.zsh;
-    groups.libvirtd.members = ["asd"];
-
-    users.asd = {
-      description = "asd";
-      isNormalUser = true;
-      shell = unstable.fish;
-      packages = [pkgs.kdePackages.kate];
-
-      extraGroups = [
-        "networkmanager"
-        "wheel"
-        "audio"
-        "incus-admin"
-        "libvirtd"
-      ];
-    };
-  };
-}
-{
   config,
   lib,
   pkgs,
@@ -33,13 +7,13 @@
 }: {
   imports = [
     ./boot_config.nix
-    ./configuration.nix
     ./environment.nix
     ./hardware-configuration.nix
     ./i18n.nix
     ./network_config.nix
     ./programs.nix
     ./services.nix
+    ./users.nix
   ];
 
   security.rtkit.enable = true;
