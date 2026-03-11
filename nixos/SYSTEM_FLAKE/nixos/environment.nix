@@ -989,6 +989,7 @@ in {
             onnx
             onnxruntime
             opencv-python
+            pandas
             pillow
             protobuf
             python-multipart
