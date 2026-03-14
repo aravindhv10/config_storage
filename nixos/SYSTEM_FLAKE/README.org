@@ -614,6 +614,7 @@
       emacs-lsp-booster
       eza
       fd
+      ffmpeg_8-full
       fzf
       gitui
       gptfdisk
@@ -1637,7 +1638,7 @@
         description = "asd";
         isNormalUser = true;
         shell = unstable.fish;
-        packages = [pkgs.kdePackages.kate];
+        packages = [];
 
         extraGroups = [
           "networkmanager"

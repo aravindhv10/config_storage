@@ -126,6 +126,7 @@
     emacs-lsp-booster
     eza
     fd
+    ffmpeg_8-full
     fzf
     gitui
     gptfdisk
