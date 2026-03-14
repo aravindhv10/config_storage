@@ -13,7 +13,7 @@
 
     pkgs = import nixpkgs {inherit system;};
 
-    mylist = with pkgs; [
+    basepkglist = with pkgs; [
       bc
       bison
       blend2d
@@ -26,10 +26,13 @@
       openssl
       openssl.dev
       pkg-config
-      python313
       udev
       zsh
       zstd
+    ];
+
+    pythonpkglist = with pkgs; [
+      python313
 
       (python313.withPackages (ps:
         with ps; [
@@ -61,6 +64,8 @@
           yt-dlp
         ]))
     ];
+
+    mylist = basepkglist ++ pythonpkglist;
 
     fhs = pkgs.buildFHSEnv {
       name = "simple-x11-env";
