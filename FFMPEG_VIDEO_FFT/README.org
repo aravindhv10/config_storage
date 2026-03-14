@@ -132,7 +132,7 @@
   # libswresample
   # libssl
 
-  'gcc' \
+  'g++' \
       $('pkg-config' '--libs' 'libavcodec,libavutil,libavdevice,libavformat,libavcodec,libavfilter') \
       './main.c' \
   ;
