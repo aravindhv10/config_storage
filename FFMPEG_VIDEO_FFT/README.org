@@ -123,6 +123,21 @@
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
+* Script to compile
+#+begin_src sh :shebang #!/usr/bin/env bash :results output :mkdirp yes :tangle ./compile.sh
+  # libswscale
+  # openssl
+  # libcrypto
+  # opencv4
+  # libswresample
+  # libssl
+
+  'gcc' \
+      $('pkg-config' '--libs' 'libavcodec,libavutil,libavdevice,libavformat,libavcodec,libavfilter') \
+      './main.c' \
+  ;
+#+end_src
+
 * COMMENT WORK SPACE
 #+begin_src emacs-lisp :results silent
   (save-buffer)
