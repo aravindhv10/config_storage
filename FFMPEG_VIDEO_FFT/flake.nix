@@ -13,23 +13,38 @@
 
     pkgs = import nixpkgs {inherit system;};
 
-    mylist = with pkgs; [
+    basepkglist = with pkgs; [
       bc
       bison
       blend2d
+      cargo
+      cargo-info
       ffmpeg
       ffmpeg.dev
       fish
       flex
       gnumake
+      helix
       libelf
       openssl
       openssl.dev
       pkg-config
-      python313Full
+      rust-analyzer
+      rust-bindgen
+      rustc
+      rustfmt
       udev
       zsh
       zstd
+      gcc
+      gcc14Stdenv
+      libgcc
+      llvmPackages_20.clang
+      llvmPackages_20.clang-tools
+    ];
+
+    pythonpkglist = with pkgs; [
+      python313
 
       (python313.withPackages (ps:
         with ps; [
@@ -61,6 +76,8 @@
           yt-dlp
         ]))
     ];
+
+    mylist = basepkglist ++ pythonpkglist;
 
     fhs = pkgs.buildFHSEnv {
       name = "simple-x11-env";

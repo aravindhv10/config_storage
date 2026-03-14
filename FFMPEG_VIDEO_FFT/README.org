@@ -7,32 +7,49 @@
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
-    outputs = { self, nixpkgs }:
-      let
+    outputs = {
+      self,
+      nixpkgs,
+    }: let
+      system = "x86_64-linux"; # Adjust this to "aarch64-linux" if on ARM
 
-        system = "x86_64-linux"; # Adjust this to "aarch64-linux" if on ARM
+      pkgs = import nixpkgs {inherit system;};
 
-        pkgs = import nixpkgs { inherit system; };
+      basepkglist = with pkgs; [
+        bc
+        bison
+        blend2d
+        cargo
+        cargo-info
+        ffmpeg
+        ffmpeg.dev
+        fish
+        flex
+        gnumake
+        helix
+        libelf
+        openssl
+        openssl.dev
+        pkg-config
+        rust-analyzer
+        rust-bindgen
+        rustc
+        rustfmt
+        udev
+        zsh
+        zstd
+        gcc
+        gcc14Stdenv
+        libgcc
+        llvmPackages_20.clang
+        llvmPackages_20.clang-tools
+      ];
 
-        mylist = with pkgs; [
-          bc
-          bison
-          blend2d
-          ffmpeg
-          ffmpeg.dev
-          fish
-          flex
-          gnumake
-          libelf
-          openssl
-          openssl.dev
-          pkg-config
-          python313Full
-          udev
-          zsh
-          zstd
+      pythonpkglist = with pkgs; [
+        python313
 
-          (python313.withPackages (ps: with ps; [
+        (python313.withPackages (ps:
+          with ps; [
             albumentations
             einops
             fastapi
@@ -60,20 +77,26 @@
             uvicorn
             yt-dlp
           ]))
-        ];
+      ];
 
-        fhs = pkgs.buildFHSEnv {
-          name = "simple-x11-env";
-          targetPkgs = pkgs: mylist;
-          multiPkgs = pkgs: mylist;
-          runScript = "fish";
-        };
+      mylist = basepkglist ++ pythonpkglist;
 
-      in
-      {
-        devShells.${system}.default = fhs.env;
+      fhs = pkgs.buildFHSEnv {
+        name = "simple-x11-env";
+        targetPkgs = pkgs: mylist;
+        multiPkgs = pkgs: mylist;
+        runScript = "fish";
       };
+    in {
+      devShells.${system}.default = fhs.env;
+    };
   }
+#+end_src
+
+* Script to start the shell
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nix_develop.sh
+  cd "$('dirname' '--' "${0}")"
+  exec 'nix' 'develop'
 #+end_src
 
 * git management scripts
@@ -93,6 +116,7 @@
   NIXADD 'flake'
 
   GITADD 'flake.lock'
+  GITADD 'nix_develop.sh'
   GITADD 'README.org'
 
   git status ; git commit -m 'Started flake version of FHS shell'
@@ -100,8 +124,6 @@
 #+end_src
 
 * COMMENT WORK SPACE
-
-** ELISP
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
