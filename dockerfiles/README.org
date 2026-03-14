@@ -138,7 +138,7 @@
       && adown \
           'https://sh.rustup.rs' \
           'rustup.rs' \
-          'b44833a5cc74448c8ace263bea5499b9dccd0b3b5ad08bbd6c5aafcefe7f421a77d04cdf0e24f1e19de0bf4ff93e170d035665ea10afd3eb228a1633ad13dfaa' \
+          'cd9fd64eabc989f19a6a16e9cd2caabe935082e2715b9308150f86d3839c99eb9a7e42a7ef6730c6d956d870638ee89a04dd9e7e14fe243cc165967b7f2918da' \
           "${HOME}/rustup-init.sh" \
       && cd "${HOME}" \
       && chmod +x 'rustup-init.sh' \
@@ -557,7 +557,7 @@
       --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
       -v "$(realpath .):/data/source" \
       -v "${HOME}/BUILD:/data/build" \
-      # -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+      -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
       -v "CACHE:/usr/local/cargo/registry" \
       -v "CACHE:/root/.cache" \
       "${IMAGE_NAME}" "${IMAGE_CMD}" \

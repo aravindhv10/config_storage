@@ -18,7 +18,7 @@ podman run \
     --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
     -v "$(realpath .):/data/source" \
     -v "${HOME}/BUILD:/data/build" \
-    # -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+    -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
     -v "CACHE:/usr/local/cargo/registry" \
     -v "CACHE:/root/.cache" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
