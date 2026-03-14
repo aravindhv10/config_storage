@@ -26,7 +26,7 @@
       openssl
       openssl.dev
       pkg-config
-      python313Full
+      python313
       udev
       zsh
       zstd
