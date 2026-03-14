@@ -87,6 +87,8 @@
 
   CLEAN '.git.sh'
   CLEAN '.#README.org'
+  CLEAN 'README.org~'
+  CLEAN 'shell.nix'
 
   NIXADD 'flake'
 
