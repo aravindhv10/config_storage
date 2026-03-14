@@ -19,18 +19,30 @@
         bc
         bison
         blend2d
+        cargo
+        cargo-info
         ffmpeg
         ffmpeg.dev
         fish
         flex
         gnumake
+        helix
         libelf
         openssl
         openssl.dev
         pkg-config
+        rust-analyzer
+        rust-bindgen
+        rustc
+        rustfmt
         udev
         zsh
         zstd
+        gcc
+        gcc14Stdenv
+        libgcc
+        llvmPackages_20.clang
+        llvmPackages_20.clang-tools
       ];
 
       pythonpkglist = with pkgs; [
