@@ -1814,22 +1814,23 @@
   . "${HOME}/important_functions.sh"
 
   NIXADD () {
-      alejandra "./nixos/${1}"
-      GITADD "nixos/${1}"
+      alejandra "./nixos/${1}.nix"
+      GITADD "nixos/${1}.nix"
   }
 
   CLEAN '.git.sh'
   CLEAN '.#README.org'
 
-  NIXADD 'boot_config.nix'
-  NIXADD 'configuration.nix'
-  NIXADD 'environment.nix'
-  NIXADD 'flake.nix'
-  NIXADD 'hardware-configuration.nix'
-  NIXADD 'i18n.nix'
-  NIXADD 'network_config.nix'
-  NIXADD 'programs.nix'
-  NIXADD 'services.nix'
+  NIXADD 'boot_config'
+  NIXADD 'configuration'
+  NIXADD 'environment'
+  NIXADD 'flake'
+  NIXADD 'hardware-configuration'
+  NIXADD 'i18n'
+  NIXADD 'network_config'
+  NIXADD 'programs'
+  NIXADD 'services'
+  NIXADD 'virtualization'
 
   GITADD 'nixos/flake_update.sh'
   GITADD 'nixos/rebuild_boot_safe.sh'
