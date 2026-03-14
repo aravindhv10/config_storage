@@ -115,12 +115,12 @@
 
   NIXADD 'flake'
 
+  GITADD 'nix_develop.sh'
   GITADD 'README.org'
 
   git status ; git commit -m 'Started flake version of FHS shell'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
-
 
 * COMMENT WORK SPACE
 #+begin_src emacs-lisp :results silent
