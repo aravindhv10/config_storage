@@ -11,6 +11,7 @@
     ./hardware-configuration.nix
     ./i18n.nix
     ./network_config.nix
+    ./nixos/virtualization.nix
     ./programs.nix
     ./services.nix
     ./users.nix
@@ -18,6 +19,11 @@
 
   security.rtkit.enable = true;
   time.timeZone = "Asia/Kolkata";
+
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   nixpkgs = {
     hostPlatform = lib.mkDefault "x86_64-linux";
@@ -28,19 +34,6 @@
     enable = true;
     man.enable = true;
     dev.enable = true;
-  };
-
-  virtualisation = {
-    libvirtd.enable = true;
-    spiceUSBRedirection.enable = true;
-    containers.enable = true;
-    incus.enable = true;
-
-    podman = {
-      enable = true;
-      dockerCompat = true;
-      defaultNetwork.settings.dns_enabled = true;
-    };
   };
 
   xdg.portal = {

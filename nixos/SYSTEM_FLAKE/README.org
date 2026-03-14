@@ -1652,6 +1652,24 @@
   }
 #+end_src
 
+* virtualization
+#+begin_src nix :mkdirp yes :tangle ./nixos/virtualization.nix
+  {...}: {
+    virtualisation = {
+      libvirtd.enable = true;
+      spiceUSBRedirection.enable = true;
+      containers.enable = true;
+      incus.enable = true;
+
+      podman = {
+        enable = true;
+        dockerCompat = true;
+        defaultNetwork.settings.dns_enabled = true;
+      };
+    };
+  }
+#+end_src
+
 * Main config
 
 ** Actual minimal
@@ -1669,6 +1687,7 @@
       ./hardware-configuration.nix
       ./i18n.nix
       ./network_config.nix
+      ./nixos/virtualization.nix
       ./programs.nix
       ./services.nix
       ./users.nix
@@ -1676,6 +1695,11 @@
 
     security.rtkit.enable = true;
     time.timeZone = "Asia/Kolkata";
+
+    nix.settings.experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
 
     nixpkgs = {
       hostPlatform = lib.mkDefault "x86_64-linux";
@@ -1686,19 +1710,6 @@
       enable = true;
       man.enable = true;
       dev.enable = true;
-    };
-
-    virtualisation = {
-      libvirtd.enable = true;
-      spiceUSBRedirection.enable = true;
-      containers.enable = true;
-      incus.enable = true;
-
-      podman = {
-        enable = true;
-        dockerCompat = true;
-        defaultNetwork.settings.dns_enabled = true;
-      };
     };
 
     xdg.portal = {
