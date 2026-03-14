@@ -93,6 +93,12 @@
   }
 #+end_src
 
+* Script to start the shell
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nix_develop.sh
+  cd "$('dirname' '--' "${0}")"
+  exec 'nix' 'develop'
+#+end_src
+
 * git management scripts
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . "${HOME}/important_functions.sh"
@@ -114,6 +120,7 @@
   git status ; git commit -m 'Started flake version of FHS shell'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
+
 
 * COMMENT WORK SPACE
 #+begin_src emacs-lisp :results silent
