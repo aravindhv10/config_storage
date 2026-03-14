@@ -1,0 +1,108 @@
+* Main shell code
+#+begin_src nix :mkdirp yes :tangle ./flake.nix
+  {
+    description = "FHS development environment";
+
+    inputs = {
+      nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    };
+
+    outputs = { self, nixpkgs }:
+      let
+
+        system = "x86_64-linux"; # Adjust this to "aarch64-linux" if on ARM
+
+        pkgs = import nixpkgs { inherit system; };
+
+        mylist = with pkgs; [
+          bc
+          bison
+          blend2d
+          ffmpeg
+          ffmpeg.dev
+          fish
+          flex
+          gnumake
+          libelf
+          openssl
+          openssl.dev
+          pkg-config
+          python313Full
+          udev
+          zsh
+          zstd
+
+          (python313.withPackages (ps: with ps; [
+            albumentations
+            einops
+            fastapi
+            flask
+            inotify-simple
+            ipython
+            jax
+            lightning
+            matplotlib
+            multiprocess
+            numpy
+            onnxruntime
+            opencv-python
+            pillow
+            python-multipart
+            requests
+            safetensors
+            tensorboard
+            tensorboardx
+            timm
+            torch
+            torchmetrics
+            torchvision
+            transformers
+            uvicorn
+            yt-dlp
+          ]))
+        ];
+
+        fhs = pkgs.buildFHSEnv {
+          name = "simple-x11-env";
+          targetPkgs = pkgs: mylist;
+          multiPkgs = pkgs: mylist;
+          runScript = "fish";
+        };
+
+      in
+      {
+        devShells.${system}.default = fhs.env;
+      };
+  }
+#+end_src
+
+* git management scripts
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  NIXADD () {
+      alejandra "./${1}.nix"
+      GITADD "${1}.nix"
+  }
+
+  CLEAN '.git.sh'
+  CLEAN '.#README.org'
+
+  NIXADD 'flake'
+
+  GITADD 'README.org'
+
+  git status ; git commit -m 'Started flake version of FHS shell'
+  "${HOME}/SSH/K/P/setup.sh" ; git push
+#+end_src
+
+* COMMENT WORK SPACE
+
+** ELISP
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+        './.git.sh'
+      " "log" "err")
+#+end_src
