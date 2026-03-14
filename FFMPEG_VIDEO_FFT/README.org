@@ -119,6 +119,7 @@
   GITADD 'flake.lock'
   GITADD 'nix_develop.sh'
   GITADD 'README.org'
+  GITADD 'main.c'
 
   git status ; git commit -m 'Started flake version of FHS shell'
   "${HOME}/SSH/K/P/setup.sh" ; git push
