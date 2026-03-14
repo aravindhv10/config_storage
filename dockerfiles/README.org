@@ -4,9 +4,11 @@
   /CPU/0_base/important_functions.sh
   /CPU/1_install_packages/build/
   /CPU/1_install_packages/important_functions.sh
+  CPU/1_install_packages/run_rocm.sh
   /CPU/1_rust_builder/
   /CPU/2_install_rust/build/
   /CPU/2_install_rust/important_functions.sh
+  CPU/2_install_rust/run_rocm.sh
   /CPU/2_zsh/
   /CPU/3_good_setup/build/
   /CPU/3_good_setup/important_functions.sh
@@ -619,6 +621,7 @@
 
   CLEAN '.git.sh'
   CLEAN 'README.org~'
+  CLEAN 'CUDA_UBUNTU/5_libtorch/#Dockerfile#'
 
   GITADD 'AMDGPU_PYT/0_base/Dockerfile'
   GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
@@ -642,9 +645,8 @@
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
 
-  git commit -m 'Updated docker stuff'
-  "${HOME}/SSH/K/P/setup.sh"
-  git push
+  git commit -m 'Updated rustup install script hash' ; git status
+  "${HOME}/SSH/K/P/setup.sh" ; git push
 
   exit '0'
 #+end_src
