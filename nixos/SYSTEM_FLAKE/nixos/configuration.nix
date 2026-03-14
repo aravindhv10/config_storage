@@ -11,10 +11,10 @@
     ./hardware-configuration.nix
     ./i18n.nix
     ./network_config.nix
-    ./nixos/virtualization.nix
     ./programs.nix
     ./services.nix
     ./users.nix
+    ./virtualization.nix
   ];
 
   security.rtkit.enable = true;
