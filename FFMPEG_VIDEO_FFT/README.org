@@ -115,6 +115,7 @@
 
   NIXADD 'flake'
 
+  GITADD 'compile.sh'
   GITADD 'flake.lock'
   GITADD 'nix_develop.sh'
   GITADD 'README.org'
@@ -132,7 +133,7 @@
   # libswresample
   # libssl
 
-  'g++' \
+  'gcc' \
       $('pkg-config' '--libs' 'libavcodec,libavutil,libavdevice,libavformat,libavcodec,libavfilter') \
       './main.c' \
   ;
