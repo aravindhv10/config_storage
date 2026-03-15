@@ -40,6 +40,7 @@
       rustfmt
       udev
       wezterm
+      zellij
       zsh
       zstd
     ];
