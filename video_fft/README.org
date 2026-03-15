@@ -53,7 +53,7 @@
         name = "simple-x11-env";
         targetPkgs = pkgs: mylist;
         multiPkgs = pkgs: mylist;
-        runScript = "fish";
+        runScript = "alacritty -e zellij";
       };
     in {
       devShells.${system}.default = fhs.env;
@@ -105,8 +105,6 @@
 
   git status ; git commit -m 'Started work on video fft'
   "${HOME}/SSH/K/P/setup.sh" ; git push
-
-
 #+end_src
 
 ** COMMENT Run the script

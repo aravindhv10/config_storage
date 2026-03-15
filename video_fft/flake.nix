@@ -51,7 +51,7 @@
       name = "simple-x11-env";
       targetPkgs = pkgs: mylist;
       multiPkgs = pkgs: mylist;
-      runScript = "fish";
+      runScript = "alacritty -e zellij";
     };
   in {
     devShells.${system}.default = fhs.env;
