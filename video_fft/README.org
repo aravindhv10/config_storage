@@ -68,6 +68,8 @@
 #+end_src
 
 * Cargo.toml
+
+** Main
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [package]
   name = "video_fft"
@@ -80,9 +82,12 @@
   ndarray = "0.17.2"
   tokio = { version = "1.50.0", features = ["full"] }
   walkdir = "2.5.0"
+#+end_src
 
-  # ffmpeg-the-third = "4.1.0"
-  # video-rs = { version = "0.11.0", features = ["ndarray"] }
+** Extra
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  ffmpeg-the-third = "4.1.0"
+  video-rs = { version = "0.11.0", features = ["ndarray"] }
 #+end_src
 
 * gitignore
