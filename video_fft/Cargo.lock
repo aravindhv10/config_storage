@@ -755,6 +755,8 @@ name = "video_fft"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "ffmpeg-next",
+ "ndarray",
  "tokio",
  "video-rs",
 ]
