@@ -23,9 +23,14 @@
       ffmpeg.dev
       fish
       flex
+      gcc
+      gcc14Stdenv
       gnumake
       helix
       libelf
+      libgcc
+      llvmPackages_20.clang
+      llvmPackages_20.clang-tools
       openssl
       openssl.dev
       pkg-config
@@ -34,50 +39,12 @@
       rustc
       rustfmt
       udev
+      wezterm
       zsh
       zstd
-      gcc
-      gcc14Stdenv
-      libgcc
-      llvmPackages_20.clang
-      llvmPackages_20.clang-tools
     ];
 
-    pythonpkglist = with pkgs; [
-      python313
-
-      (python313.withPackages (ps:
-        with ps; [
-          albumentations
-          einops
-          fastapi
-          flask
-          inotify-simple
-          ipython
-          jax
-          lightning
-          matplotlib
-          multiprocess
-          numpy
-          onnxruntime
-          opencv-python
-          pillow
-          python-multipart
-          requests
-          safetensors
-          tensorboard
-          tensorboardx
-          timm
-          torch
-          torchmetrics
-          torchvision
-          transformers
-          uvicorn
-          yt-dlp
-        ]))
-    ];
-
-    mylist = basepkglist ++ pythonpkglist;
+    mylist = basepkglist;
 
     fhs = pkgs.buildFHSEnv {
       name = "simple-x11-env";
