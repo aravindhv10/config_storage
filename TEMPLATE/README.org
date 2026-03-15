@@ -1,0 +1,128 @@
+* Main script to manage git stuff
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+
+  CLEAN '.git.sh'
+
+  PREPARE_PYTHON_FILE 'endpoint'
+  PREPARE_PYTHON_FILE 'infer'
+  PREPARE_PYTHON_FILE 'main'
+  PREPARE_PYTHON_FILE 'worker'
+
+  cp './main.py' '__init__.py'
+
+  GITADD 'README.org'
+  GITADD '__init__.py'
+
+  git status ; git commit -m 'Added template dir to the repo'
+  "${HOME}/SSH/K/P/setup.sh" ; git push
+#+end_src
+
+* infer
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.execute.py
+#+end_src
+
+* main
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.execute.py
+#+end_src
+
+* endpoint
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.execute.py
+#+end_src
+
+* worker
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.execute.py
+#+end_src
+
+* Main python code
+
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import sys
+
+  sys.path.append(basepath)
+#+end_src
+
+*** Import common utils
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from important_common_utils import *
+#+end_src
+
+** Import torch and numpy once globally
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import numpy as np
+  import torch
+#+end_src
+
+* COMMENT WORK SPACE
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src
