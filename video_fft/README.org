@@ -103,6 +103,7 @@
 
   GITADD 'Cargo.lock'
   GITADD 'Cargo.toml'
+  GITADD 'demux_decode.c'
   GITADD 'flake.lock'
   GITADD 'flake.nix'
   GITADD '.gitignore'
