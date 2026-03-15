@@ -127,13 +127,17 @@
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
+  GITADD 'Cargo.lock'
   GITADD 'Cargo.toml'
   GITADD 'flake.nix'
+  GITADD '.gitignore'
+  GITADD 'nix_develop.sh'
   GITADD 'README.org'
   GITADD 'src/main.rs'
 
   git status ; git commit -m 'Started work on video fft'
   "${HOME}/SSH/K/P/setup.sh" ; git push
+
 #+end_src
 
 ** COMMENT Run the script
