@@ -14,12 +14,12 @@ async fn read_video(path_file_video_input: String) -> anyhow::Result<()> {
         .spawn();
 
     for entry in
-        glob(path_dir_images_output.clone() + "/out-*.bmp").expect("Failed to read glob pattern")
+        glob::glob((path_dir_images_output.clone() + "/out-*.bmp").as_str()).expect("Failed to read glob pattern")
     {
         match entry {
             Ok(path) => {
                 println!("{:?}", path.display())
-                tokio::fs::remove_file(path.display());
+                tokio::fs::remove_file(path.as_path());
             }
             Err(e) => println!("{:?}", e),
         }
