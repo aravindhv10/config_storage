@@ -5,6 +5,7 @@
   cd "$(dirname -- "${0}")"
 
   CLEAN '.git.sh'
+  CLEAN 'README.org~'
 
   GITADD 'Cargo.toml'
   GITADD 'README.org'
