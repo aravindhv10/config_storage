@@ -1,9 +1,4 @@
-use ffmpeg_the_third as ffmpeg;
-
 async fn read_video(path_file_video_input: String) -> anyhow::Result<()> {
-    let buffer = tokio::fs::read(path_file_video_input).await?;
-    let reader = std::io::Cursor::new(buffer);
-
     Ok(())
 }
 
