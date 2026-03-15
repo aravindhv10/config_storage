@@ -23,9 +23,14 @@
       ffmpeg.dev
       fish
       flex
+      gcc
+      gcc14Stdenv
       gnumake
       helix
       libelf
+      libgcc
+      llvmPackages_20.clang
+      llvmPackages_20.clang-tools
       openssl
       openssl.dev
       pkg-config
@@ -34,13 +39,10 @@
       rustc
       rustfmt
       udev
+      wezterm
+      zellij
       zsh
       zstd
-      gcc
-      gcc14Stdenv
-      libgcc
-      llvmPackages_20.clang
-      llvmPackages_20.clang-tools
     ];
 
     pythonpkglist = with pkgs; [
@@ -83,7 +85,7 @@
       name = "simple-x11-env";
       targetPkgs = pkgs: mylist;
       multiPkgs = pkgs: mylist;
-      runScript = "fish";
+      runScript = "alacritty -e zellij";
     };
   in {
     devShells.${system}.default = fhs.env;
