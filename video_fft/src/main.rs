@@ -1,3 +1,5 @@
+use tch::IndexOp;
+
 async fn convert_encoded_video_to_raw(
     path_file_video_input: &str,
     path_file_video_output: &str,
@@ -52,6 +54,7 @@ async fn read_video_to_raw(
     size_x: u32,
     size_y: u32,
 ) -> anyhow::Result<()> {
+    let size_c: u32 = 3;
     let path_file_video_output = path_file_video_input.clone() + ".raw";
 
     convert_encoded_video_to_raw(
@@ -83,7 +86,9 @@ async fn read_video_to_raw(
 
         let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
 
-        println!("Final data {:?}", video_data_permuted.size());
+        let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
+
+        println!("Final data {:?}", sliced_tensor.size());
 
         Ok(())
     } else {
