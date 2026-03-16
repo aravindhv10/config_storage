@@ -78,7 +78,7 @@ async fn read_video_to_torch(
             tch::Tensor::from_blob(
                 mmap.as_ptr(),
                 &[num_frames as i64, size_y as i64, size_x as i64, 3 as i64 ],
-                &[ (size_x * size_x * 3) as i64, size_x * 3 as i64, 3 as i64, 1 as i64 ] ,
+                &[ (size_x * size_x * 3) as i64, (size_x * 3) as i64, 3 as i64, 1 as i64 ] ,
                 tch::Kind::Uint8,
                 tch::Device::Cpu,
             )
