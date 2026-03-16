@@ -101,6 +101,7 @@ async fn read_video_to_torch(
         let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
 
         println!("Final data {:?}", sliced_tensor.size());
+
         return Ok(video_data);
     } else {
         return Err(anyhow::format_err!("The video blob seems too small"));
