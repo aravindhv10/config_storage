@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.102"
 glob = "0.3.3"
+gpu-fft = { version = "1.1.1", features = ["wgpu"] }
 image = "0.25.10"
 memmap2 = "0.9.10"
 ndarray = "0.17.2"
