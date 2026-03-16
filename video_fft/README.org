@@ -220,12 +220,22 @@ LIBTORCH_USE_PYTORCH=1
       if num_frames >= 1 {
           print!("Num frames = {:?}", num_frames);
 
-          let video_array = ndarray::ArrayView4::from_shape(
-              (num_frames, size_y as usize, size_x as usize, 3),
-              &mmap[..num_frames * frame_size],
-          )?;
+          // let video_array = ndarray::ArrayView4::from_shape(
+          //     (num_frames, size_y as usize, size_x as usize, 3),
+          //     &mmap[..num_frames * frame_size],
+          // )?;
+          // println!("Array shape: {:?}", video_array.shape());
 
-          println!("Array shape: {:?}", video_array.shape());
+          let tensor_data = tch::Tensor::from_slice(&mmap[..num_frames * frame_size]);
+          let video_data = tensor_data.reshape(vec![
+              num_frames as i64,
+              size_y as i64,
+              size_x as i64,
+              3 as i64,
+          ]);
+
+          println!("Final data {:?}", video_data);
+
           Ok(())
       } else {
           return Err(anyhow::format_err!("The video blob seems too small"));
