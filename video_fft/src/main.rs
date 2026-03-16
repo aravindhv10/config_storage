@@ -70,7 +70,7 @@ async fn read_video_to_raw(
     let num_frames = total_bytes / frame_size;
 
     if num_frames >= 1 {
-        print!("Num frames = {:?}", num_frames);
+        println!("Num frames = {:?}", num_frames);
 
         // let video_array = ndarray::ArrayView4::from_shape(
         //     (num_frames, size_y as usize, size_x as usize, 3),
@@ -86,7 +86,13 @@ async fn read_video_to_raw(
             3 as i64,
         ]);
 
-        println!("Final data {:?}", video_data);
+        // let video_data = video_data[0..160, 0..size_y, 0..size_x, 3];
+
+        tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
+
+        // video_data.fft_rfftn(s, dim, norm)
+
+        println!("Final data {:?}", video_data.size());
 
         Ok(())
     } else {
