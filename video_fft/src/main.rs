@@ -1,15 +1,15 @@
 async fn convert_encoded_video_to_raw(
-    path_file_video_input: String,
-    path_file_video_output: String,
+    path_file_video_input: &str,
+    path_file_video_output: &str,
     fps: f32,
     size_x: u32,
     size_y: u32,
 ) -> anyhow::Result<()> {
-    if !tokio::fs::try_exists(path_file_video_output.as_str()).await? {
+    if !tokio::fs::try_exists(path_file_video_output).await? {
         let res = tokio::process::Command::new("ffmpeg")
             .args([
                 "-i",
-                path_file_video_input.as_str(),
+                path_file_video_input,
                 "-r",
                 fps.to_string().as_str(),
                 "-nostdin",
@@ -23,7 +23,7 @@ async fn convert_encoded_video_to_raw(
                     + ":"
                     + size_y.to_string().as_str())
                 .as_str(),
-                path_file_video_output.as_str(),
+                path_file_video_output,
             ])
             .status()
             .await?;
@@ -55,8 +55,8 @@ async fn read_video_to_raw(
     let path_file_video_output = path_file_video_input.clone() + ".raw";
 
     convert_encoded_video_to_raw(
-        path_file_video_input,
-        path_file_video_output,
+        path_file_video_input.as_str(),
+        path_file_video_output.as_str(),
         fps,
         size_x,
         size_y,
