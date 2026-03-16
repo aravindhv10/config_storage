@@ -54,7 +54,6 @@ async fn read_video_to_raw(
     size_x: u32,
     size_y: u32,
 ) -> anyhow::Result<()> {
-    let size_c: u32 = 3;
     let path_file_video_output = path_file_video_input.clone() + ".raw";
 
     convert_encoded_video_to_raw(
@@ -75,7 +74,15 @@ async fn read_video_to_raw(
     if num_frames >= 1 {
         println!("Num frames = {:?}", num_frames);
 
-        let tensor_data = tch::Tensor::from_slice(&mmap[..num_frames * frame_size]);
+        let tensor_data = unsafe {
+            tch::Tensor::from_blob(
+                mmap.as_ptr(),
+                &[(total_bytes) as i64],
+                &[1],
+                tch::Kind::Uint8,
+                tch::Device::Cpu,
+            )
+        };
 
         let video_data = tensor_data.reshape(vec![
             num_frames as i64,
@@ -84,11 +91,11 @@ async fn read_video_to_raw(
             3 as i64,
         ]);
 
-        let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
+        // let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
 
-        let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
+        // let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
 
-        println!("Final data {:?}", sliced_tensor.size());
+        println!("Final data {:?}", video_data.size());
 
         Ok(())
     } else {
