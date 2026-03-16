@@ -14,17 +14,22 @@
     pkgs = import nixpkgs {inherit system;};
 
     basepkglist = with pkgs; [
+      atuin
       bc
       bison
       blend2d
       cargo
       cargo-info
+      eza
+      fd
       ffmpeg
       ffmpeg.dev
       fish
       flex
+      fzf
       gcc
       gcc14Stdenv
+      git
       gnumake
       helix
       libelf
@@ -38,6 +43,7 @@
       rust-bindgen
       rustc
       rustfmt
+      starship
       udev
       wezterm
       zellij
@@ -90,7 +96,7 @@
         LIBTORCH_USE_PYTORCH = "1";
       };
 
-      runScript = "alacritty -e zellij";
+      runScript = "zsh";
     };
   in {
     devShells.${system}.default = fhs.env;
