@@ -47,7 +47,41 @@
         zstd
       ];
 
-      mylist = basepkglist;
+      pythonpkglist = with pkgs; [
+        python313
+
+        (python313.withPackages (ps:
+          with ps; [
+            albumentations
+            einops
+            fastapi
+            flask
+            inotify-simple
+            ipython
+            jax
+            lightning
+            matplotlib
+            multiprocess
+            numpy
+            onnxruntime
+            opencv-python
+            pillow
+            python-multipart
+            requests
+            safetensors
+            tensorboard
+            tensorboardx
+            timm
+            torch
+            torchmetrics
+            torchvision
+            transformers
+            uvicorn
+            yt-dlp
+          ]))
+      ];
+
+      mylist = basepkglist ++ pythonpkglist;
 
       fhs = pkgs.buildFHSEnv {
         name = "simple-x11-env";
