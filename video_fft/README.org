@@ -143,6 +143,13 @@
   cargo run
 #+end_src
 
+** Script to watch
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_watch.sh
+  cd "$(dirname -- "${0}")"
+  export LIBTORCH_USE_PYTORCH=1
+  cargo watch -x run
+#+end_src
+
 * Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
   use tch::IndexOp;
@@ -284,6 +291,7 @@
   GITADD 'Cargo.lock'
   GITADD 'cargo_run.sh'
   GITADD 'Cargo.toml'
+  GITADD 'cargo_watch.sh'
   GITADD 'demux_decode.c'
   GITADD 'flake.lock'
   GITADD 'flake.nix'
