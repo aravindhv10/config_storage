@@ -20,6 +20,7 @@
       blend2d
       cargo
       cargo-info
+      cargo-watch
       cmake
       eza
       fd
