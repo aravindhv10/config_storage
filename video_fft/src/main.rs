@@ -89,14 +89,14 @@ async fn read_video_to_torch(
             )
         };
 
-        let video_data = tensor_data.reshape(vec![
-            num_frames as i64,
-            size_y as i64,
-            size_x as i64,
-            3 as i64,
-        ]);
+        // let video_data = tensor_data.reshape(vec![
+        //     num_frames as i64,
+        //     size_y as i64,
+        //     size_x as i64,
+        //     3 as i64,
+        // ]);
 
-        let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
+        let video_data_permuted = tch::Tensor::permute(&tensor_data, vec![3, 1, 2, 0]);
 
         let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
 
