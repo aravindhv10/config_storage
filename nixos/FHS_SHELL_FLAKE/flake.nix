@@ -44,8 +44,6 @@
     ];
 
     pythonpkglist = with pkgs; [
-      python313
-
       (python313.withPackages (ps:
         with ps; [
           albumentations
