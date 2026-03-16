@@ -143,8 +143,6 @@
   cargo run
 #+end_src
 
-LIBTORCH_USE_PYTORCH=1
-
 * Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
   async fn convert_encoded_video_to_raw(
@@ -221,21 +219,14 @@ LIBTORCH_USE_PYTORCH=1
       if num_frames >= 1 {
           println!("Num frames = {:?}", num_frames);
 
-          // let video_array = ndarray::ArrayView4::from_shape(
-          //     (num_frames, size_y as usize, size_x as usize, 3),
-          //     &mmap[..num_frames * frame_size],
-          // )?;
-          // println!("Array shape: {:?}", video_array.shape());
-
           let tensor_data = tch::Tensor::from_slice(&mmap[..num_frames * frame_size]);
+
           let video_data = tensor_data.reshape(vec![
               num_frames as i64,
               size_y as i64,
               size_x as i64,
               3 as i64,
           ]);
-
-          // let video_data = video_data[0..160, 0..size_y, 0..size_x, 3];
 
           let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
 
