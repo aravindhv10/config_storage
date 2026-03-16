@@ -92,6 +92,63 @@
   video-rs = { version = "0.11.0", features = ["ndarray"] }
 #+end_src
 
+* Main rust code
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  async fn read_video_to_raw(
+      path_file_video_input: String,
+      fps: f32,
+      size_x: u32,
+      size_y: u32,
+  ) -> anyhow::Result<()> {
+      let path_file_video_output = path_file_video_input.clone() + ".raw";
+      let res = tokio::process::Command::new("ffmpeg")
+          .args([
+              "-i",
+              path_file_video_input.as_str(),
+              "-r",
+              fps.to_string().as_str(),
+              "-f",
+              "rawvideo",
+              "-pix_fmt",
+              "rgb24",
+              "-vf",
+              ("scale=".to_string()
+                  + size_x.to_string().as_str()
+                  + ":"
+                  + size_y.to_string().as_str())
+              .as_str(),
+              path_file_video_output.as_str(),
+          ])
+          .status()
+          .await?;
+
+      let file =
+          std::fs::File::open(path_file_video_output.as_str()).expect("failed to open the file");
+
+      let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+
+      let frame_size = (size_x * size_y * 3) as usize;
+      let total_bytes = mmap.len();
+      let num_frames = total_bytes / frame_size;
+      print!("Num frames = {:?}", num_frames);
+
+      let video_array = ndarray::ArrayView4::from_shape(
+          (num_frames, size_y as usize, size_x as usize, 3),
+          &mmap[..num_frames * frame_size],
+      )?;
+
+      println!("Array shape: {:?}", video_array.shape());
+
+      Ok(())
+  }
+
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
+      read_video_to_raw("./video.mp4".to_string(), 8 as f32, 1280, 720).await?;
+      Ok(())
+  }
+#+end_src
+
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
   /video.mp4

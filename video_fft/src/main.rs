@@ -1,44 +1,3 @@
-use std::num::IntErrorKind;
-
-async fn video_2_images(path_file_video_input: String) -> Vec<String> {
-    Vec![]
-}
-
-async fn read_video_to_images(path_file_video_input: String) -> anyhow::Result<()> {
-    let path_dir_images_output = path_file_video_input.clone() + ".dir";
-    tokio::fs::create_dir_all(path_dir_images_output.as_str()).await?;
-    let res = tokio::process::Command::new("ffmpeg")
-        .args([
-            "-i",
-            path_file_video_input.as_str(),
-            "-r",
-            "8",
-            "-vf",
-            "scale=1280:720",
-            (path_dir_images_output.clone() + "/out-%6d.bmp").as_str(),
-        ])
-        .status()
-        .await;
-
-    println!(" #### Return status {:?} ####", res);
-
-    for entry in glob::glob((path_dir_images_output.clone() + "/out-*.bmp").as_str())
-        .expect("Failed to read glob pattern")
-    {
-        match entry {
-            Ok(path) => {
-                println!("{:?}", path.display());
-                tokio::fs::remove_file(path.as_path()).await?;
-            }
-            Err(e) => println!("{:?}", e),
-        }
-    }
-
-    tokio::fs::remove_dir_all((path_dir_images_output.clone() + "/out-*.bmp").as_str()).await;
-
-    Ok(())
-}
-
 async fn read_video_to_raw(
     path_file_video_input: String,
     fps: f32,
@@ -65,13 +24,30 @@ async fn read_video_to_raw(
             path_file_video_output.as_str(),
         ])
         .status()
-        .await;
+        .await?;
+
+    let file =
+        std::fs::File::open(path_file_video_output.as_str()).expect("failed to open the file");
+
+    let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+
+    let frame_size = (size_x * size_y * 3) as usize;
+    let total_bytes = mmap.len();
+    let num_frames = total_bytes / frame_size;
+    print!("Num frames = {:?}", num_frames);
+
+    let video_array = ndarray::ArrayView4::from_shape(
+        (num_frames, size_y as usize, size_x as usize, 3),
+        &mmap[..num_frames * frame_size],
+    )?;
+
+    println!("Array shape: {:?}", video_array.shape());
 
     Ok(())
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let _ = read_video_to_raw("./video.mp4".to_string()).await;
+    read_video_to_raw("./video.mp4".to_string(), 8 as f32, 1280, 720).await?;
     Ok(())
 }
