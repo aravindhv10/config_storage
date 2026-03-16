@@ -63,24 +63,24 @@ async fn read_video_to_raw(
     )
     .await?;
 
-    let file =
-        std::fs::File::open(path_file_video_output.as_str()).expect("failed to open the file");
-
+    let file = std::fs::File::open(path_file_video_output.as_str())?;
     let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-
     let frame_size = (size_x * size_y * 3) as usize;
     let total_bytes = mmap.len();
     let num_frames = total_bytes / frame_size;
-    print!("Num frames = {:?}", num_frames);
+    if num_frames >= 1 {
+        print!("Num frames = {:?}", num_frames);
 
-    let video_array = ndarray::ArrayView4::from_shape(
-        (num_frames, size_y as usize, size_x as usize, 3),
-        &mmap[..num_frames * frame_size],
-    )?;
+        let video_array = ndarray::ArrayView4::from_shape(
+            (num_frames, size_y as usize, size_x as usize, 3),
+            &mmap[..num_frames * frame_size],
+        )?;
 
-    println!("Array shape: {:?}", video_array.shape());
-
-    Ok(())
+        println!("Array shape: {:?}", video_array.shape());
+        Ok(())
+    } else {
+        return Err(anyhow::format_err!("The video blob seems too small"));
+    }
 }
 
 #[tokio::main]
