@@ -48,12 +48,12 @@ async fn convert_encoded_video_to_raw(
     }
 }
 
-async fn read_video_to_raw(
+async fn read_video_to_torch(
     path_file_video_input: String,
     fps: f32,
     size_x: u32,
     size_y: u32,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<tch::Tensor> {
     let path_file_video_output = path_file_video_input.clone() + ".raw";
 
     convert_encoded_video_to_raw(
@@ -91,13 +91,12 @@ async fn read_video_to_raw(
             3 as i64,
         ]);
 
-        // let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
+        let video_data_permuted = tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
 
-        // let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
+        let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
 
-        println!("Final data {:?}", video_data.size());
-
-        Ok(())
+        println!("Final data {:?}", sliced_tensor.size());
+        return Ok(video_data);
     } else {
         return Err(anyhow::format_err!("The video blob seems too small"));
     }
@@ -105,6 +104,6 @@ async fn read_video_to_raw(
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    read_video_to_raw("./video.mp4".to_string(), 8 as f32, 1280, 720).await?;
+    read_video_to_torch("./video.mp4".to_string(), 8 as f32, 1280, 720).await?;
     Ok(())
 }
