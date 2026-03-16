@@ -60,7 +60,8 @@ async fn read_video_to_raw(
         fps,
         size_x,
         size_y,
-    ).await?
+    )
+    .await?;
 
     let file =
         std::fs::File::open(path_file_video_output.as_str()).expect("failed to open the file");
