@@ -68,6 +68,7 @@ async fn read_video_to_raw(
     let frame_size = (size_x * size_y * 3) as usize;
     let total_bytes = mmap.len();
     let num_frames = total_bytes / frame_size;
+
     if num_frames >= 1 {
         print!("Num frames = {:?}", num_frames);
 
