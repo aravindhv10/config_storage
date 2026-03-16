@@ -102,7 +102,7 @@ async fn read_video_to_torch(
 
         println!("Final data {:?}", sliced_tensor.size());
 
-        return Ok(video_data);
+        return Ok(sliced_tensor);
     } else {
         return Err(anyhow::format_err!("The video blob seems too small"));
     }
