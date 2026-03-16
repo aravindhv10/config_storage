@@ -146,6 +146,54 @@ LIBTORCH_USE_PYTORCH=1
 
 * Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  async fn convert_video_to_blob(
+      path_file_video_input: String,
+      path_file_video_output: String,
+      fps: f32,
+      size_x: u32,
+      size_y: u32,
+  ) -> anyhow::Result<()> {
+      if !tokio::fs::try_exists(path_file_video_output.as_str()).await? {
+          let res = tokio::process::Command::new("ffmpeg")
+              .args([
+                  "-i",
+                  path_file_video_input.as_str(),
+                  "-r",
+                  fps.to_string().as_str(),
+                  "-nostdin",
+                  "-f",
+                  "rawvideo",
+                  "-pix_fmt",
+                  "rgb24",
+                  "-vf",
+                  ("scale=".to_string()
+                      + size_x.to_string().as_str()
+                      + ":"
+                      + size_y.to_string().as_str())
+                  .as_str(),
+                  path_file_video_output.as_str(),
+              ])
+              .status()
+              .await?;
+
+          match res.code() {
+              None => {
+                  return Err(anyhow::format_err!("FFmpeg failed with unknown error"));
+              }
+              Some(e) => {
+                  if e == 0 {
+                      return Ok(());
+                  } else {
+                      return Err(anyhow::format_err!("FFmpeg failed with error code {}", e));
+                  }
+              }
+          };
+      } else {
+          eprintln!("Not running ffmpeg, output file already exists.");
+          return Ok(());
+      }
+  }
+
   async fn read_video_to_raw(
       path_file_video_input: String,
       fps: f32,
