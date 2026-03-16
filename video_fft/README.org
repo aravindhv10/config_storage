@@ -89,7 +89,7 @@
         multiPkgs = pkgs: mylist;
 
         env = {
-          LIBTORCH_USE_PYTORCH = "1" ;
+          LIBTORCH_USE_PYTORCH = "1";
         };
 
         runScript = "alacritty -e zellij";
