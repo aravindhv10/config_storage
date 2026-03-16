@@ -51,13 +51,17 @@ async fn read_video_to_raw(
             "-i",
             path_file_video_input.as_str(),
             "-r",
-            "{fps}",
+            fps.to_string().as_str(),
             "-f",
             "rawvideo",
             "-pix_fmt",
             "rgb24",
             "-vf",
-            "scale=1280:720",
+            ("scale=".to_string()
+                + size_x.to_string().as_str()
+                + ":"
+                + size_y.to_string().as_str())
+            .as_str(),
             path_file_video_output.as_str(),
         ])
         .status()
