@@ -159,6 +159,7 @@ LIBTORCH_USE_PYTORCH=1
               path_file_video_input.as_str(),
               "-r",
               fps.to_string().as_str(),
+              "-nostdin",
               "-f",
               "rawvideo",
               "-pix_fmt",

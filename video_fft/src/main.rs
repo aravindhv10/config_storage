@@ -11,6 +11,7 @@ async fn read_video_to_raw(
             path_file_video_input.as_str(),
             "-r",
             fps.to_string().as_str(),
+            "-nostdin",
             "-f",
             "rawvideo",
             "-pix_fmt",
