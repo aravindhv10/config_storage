@@ -20,6 +20,7 @@
       blend2d
       cargo
       cargo-info
+      cmake
       eza
       fd
       ffmpeg
