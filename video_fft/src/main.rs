@@ -88,11 +88,9 @@ async fn read_video_to_raw(
 
         // let video_data = video_data[0..160, 0..size_y, 0..size_x, 3];
 
-        tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
+        let video_data_permuted =tch::Tensor::permute(&video_data, vec![3, 1, 2, 0]);
 
-        // video_data.fft_rfftn(s, dim, norm)
-
-        println!("Final data {:?}", video_data.size());
+        println!("Final data {:?}",  video_data_permuted.size());
 
         Ok(())
     } else {
