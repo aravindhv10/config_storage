@@ -93,7 +93,7 @@
       name = "simple-x11-env";
       targetPkgs = pkgs: mylist;
       multiPkgs = pkgs: mylist;
-      runScript = "zsh";
+      runScript = "export LIBTORCH_USE_PYTORCH=1 ; zsh";
     };
   in {
     devShells.${system}.default = fhs.env;
