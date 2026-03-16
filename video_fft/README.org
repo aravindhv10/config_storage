@@ -87,6 +87,11 @@
         name = "simple-x11-env";
         targetPkgs = pkgs: mylist;
         multiPkgs = pkgs: mylist;
+
+        env = {
+          LIBTORCH_USE_PYTORCH = "1" ;
+        };
+
         runScript = "alacritty -e zellij";
       };
     in {
@@ -198,6 +203,8 @@
   . "${HOME}/important_functions.sh"
 
   cd "$(dirname -- "${0}")"
+
+  alejandra 'flake.nix'
 
   CLEAN '.git.sh'
   CLEAN 'README.org~'

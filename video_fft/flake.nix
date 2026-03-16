@@ -85,6 +85,11 @@
       name = "simple-x11-env";
       targetPkgs = pkgs: mylist;
       multiPkgs = pkgs: mylist;
+
+      env = {
+        LIBTORCH_USE_PYTORCH = "1";
+      };
+
       runScript = "alacritty -e zellij";
     };
   in {
