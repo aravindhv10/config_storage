@@ -226,12 +226,13 @@
       size_x: u16,
       size_y: u16,
       size_c: u8,
+      size_f: u32,
       mmap: memmap2::Mmap,
   }
 
   impl Drop for video_slicer {
       fn drop(&mut self) {
-          std::fs::remove_file(self.path_file_rawvideo_output.as_str());
+          let _ = std::fs::remove_file(self.path_file_rawvideo_output.as_str());
       }
   }
 
@@ -270,6 +271,7 @@
               size_x: size_x,
               size_y: size_y,
               size_c: size_c,
+              size_f: (size_x as u32) * (size_y as u32) * (size_c as u32),
               mmap: mmap,
           });
       }
