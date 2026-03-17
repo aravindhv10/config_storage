@@ -250,8 +250,6 @@
           }
 
           let path_file_rawvideo_output = path_file_rawvideo_output.unwrap();
-          let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
-          let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
 
           convert_encoded_video_to_raw(
               path_file_video_input.as_str(),
@@ -260,6 +258,9 @@
               size_x,
               size_y,
           )?;
+
+          let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
+          let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
 
           return Ok(Self {
               path_file_video_input: path_file_video_input,
