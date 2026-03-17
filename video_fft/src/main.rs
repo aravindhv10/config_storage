@@ -67,6 +67,12 @@ struct video_slicer {
     size_y: u16,
     size_c: u8,
     size_t: u16,
+
+    dist_x: usize,
+    dist_y: usize,
+    dist_c: usize,
+    dist_t: usize,
+
     mmap: memmap2::Mmap,
 }
 
@@ -106,14 +112,28 @@ impl video_slicer {
         let size_t =
             (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
+        let dist_c = 1;
+
+        let dist_c: usize = 1;
+        let dist_x: usize = size_c as usize;
+        let dist_y: usize = (dist_x as usize) * (size_x as usize);
+        let dist_t: usize = (dist_y as usize) * (size_y as usize);
+
         return Ok(Self {
             path_file_video_input: path_file_video_input,
             path_file_rawvideo_output: path_file_rawvideo_output,
             fps: fps,
+
             size_x: size_x,
             size_y: size_y,
             size_c: size_c,
             size_t: size_t,
+
+            dist_x: dist_x,
+            dist_y: dist_y,
+            dist_c: dist_c,
+            dist_t: dist_t,
+
             mmap: mmap,
         });
     }
@@ -131,7 +151,13 @@ impl video_slicer {
 
     #[inline(always)]
     fn get_dist(&self, i: u8) -> usize {
-        (0..i).map(|idx| self.get_size(idx)).product()
+        match i {
+            0 => self.dist_c,
+            1 => self.dist_x,
+            2 => self.dist_y,
+            3 => self.dist_t,
+            _ => self.mmap.len(),
+        }
     }
 
     fn get_video_tensor(&self) -> anyhow::Result<tch::Tensor> {
@@ -146,9 +172,13 @@ impl video_slicer {
             self.get_size(0) as i64,
         ];
 
-        let mut dists: [i64; 4] = [sizes[2], sizes[1], sizes[0], 1];
-        dists[2] *= dists[1];
-        dists[3] *= dists[2];
+        let mut dists: [i64; 4] = [
+            self.get_dist(3) as i64,
+            self.get_dist(2) as i64,
+            self.get_dist(1) as i64,
+            self.get_dist(0) as i64,
+        ];
+
         println!("{:?}", dists);
 
         let tensor_data = unsafe {
