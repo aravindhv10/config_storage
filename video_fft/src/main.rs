@@ -62,6 +62,12 @@ struct video_slicer {
     mmap: memmap2::Mmap,
 }
 
+impl Drop for video_slicer {
+    fn drop(&mut self) {
+        std::fs::remove_file(self.path_file_rawvideo_output.as_str());
+    }
+}
+
 impl video_slicer {
     fn new(
         path_file_video_input: String,
