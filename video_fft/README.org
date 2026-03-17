@@ -168,44 +168,73 @@
       size_x: u32,
       size_y: u32,
   ) -> anyhow::Result<()> {
-      if !tokio::fs::try_exists(path_file_video_output).await? {
-          let res = tokio::process::Command::new("ffmpeg")
-              .args([
-                  "-i",
-                  path_file_video_input,
-                  "-r",
-                  fps.to_string().as_str(),
-                  "-nostdin",
-                  "-f",
-                  "rawvideo",
-                  "-pix_fmt",
-                  "rgb24",
-                  "-vf",
-                  ("scale=".to_string()
-                      + size_x.to_string().as_str()
-                      + ":"
-                      + size_y.to_string().as_str())
-                  .as_str(),
-                  path_file_video_output,
-              ])
-              .status()
-              .await?;
-
-          match res.code() {
-              None => {
-                  return Err(anyhow::format_err!("FFmpeg failed with unknown error"));
-              }
-              Some(e) => {
-                  if e == 0 {
-                      return Ok(());
-                  } else {
-                      return Err(anyhow::format_err!("FFmpeg failed with error code {}", e));
-                  }
-              }
-          };
-      } else {
+      if tokio::fs::try_exists(path_file_video_output).await? {
           eprintln!("Not running ffmpeg, output file already exists.");
           return Ok(());
+      }
+
+      let res = tokio::process::Command::new("ffmpeg")
+          .args([
+              "-i",
+              path_file_video_input,
+              "-r",
+              fps.to_string().as_str(),
+              "-nostdin",
+              "-f",
+              "rawvideo",
+              "-pix_fmt",
+              "rgb24",
+              "-vf",
+              ("scale=".to_string()
+                  + size_x.to_string().as_str()
+                  + ":"
+                  + size_y.to_string().as_str())
+              .as_str(),
+              path_file_video_output,
+          ])
+          .status()
+          .await?;
+
+      match res.code() {
+          None => {
+              return Err(anyhow::format_err!("FFmpeg failed with unknown error"));
+          }
+          Some(e) => {
+              if e == 0 {
+                  return Ok(());
+              } else {
+                  return Err(anyhow::format_err!("FFmpeg failed with error code {}", e));
+              }
+          }
+      };
+  }
+
+  struct video_slicer {
+      path_file_video_input: String,
+      path_file_rawvideo_output: String,
+      fps: f32,
+      size_x: u32,
+      size_y: u32,
+  }
+
+  impl video_slicer {
+      fn new(
+          path_file_video_input: String,
+          path_file_rawvideo_output: Option<String>,
+          fps: f32,
+          size_x: u32,
+          size_y: u32,
+      ) -> Self {
+          match path_file_rawvideo_output {
+              Some(e) => Self {
+                  path_file_video_input: path_file_video_input,
+                  path_file_rawvideo_output: e,
+                  fps: fps,
+                  size_x: size_x,
+                  size_y: size_y,
+              },
+              None => {}
+          };
       }
   }
 
