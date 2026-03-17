@@ -48,12 +48,19 @@ async fn convert_encoded_video_to_raw(
     };
 }
 
+fn get_file_hash(path_file_input: String) -> anyhow::Result<u64> {
+    let file = std::fs::File::open(path_file_input.as_str())?;
+    let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+    Ok(gxhash::gxhash64(&mmap, 12345))
+}
+
 struct video_slicer {
     path_file_video_input: String,
     path_file_rawvideo_output: String,
     fps: f32,
     size_x: u32,
     size_y: u32,
+    mmap: memmap2::Mmap,
 }
 
 impl video_slicer {
@@ -66,18 +73,26 @@ impl video_slicer {
     ) -> anyhow::Result<Self> {
         match path_file_rawvideo_output {
             Some(e) => {
+                let file = std::fs::File::open(e.as_str())?;
+                let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+
                 return Ok(Self {
                     path_file_video_input: path_file_video_input,
                     path_file_rawvideo_output: e,
                     fps: fps,
                     size_x: size_x,
                     size_y: size_y,
+                    mmap: mmap,
                 });
             }
             None => {
-                let file = std::fs::File::open(path_file_video_input.as_str())?;
+                let path_file_rawvideo_output: String = path_file_video_input.clone()
+                    + "."
+                    + get_file_hash(path_file_video_input)?.to_string().as_str()
+                    + ".raw";
+
+                let file = std::fs::File::open(e.as_str())?;
                 let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-                let res = gxhash::gxhash64(&mmap, 12345);
 
                 return Ok(Self {
                     path_file_video_input: path_file_video_input.clone(),
