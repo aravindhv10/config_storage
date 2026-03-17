@@ -59,6 +59,93 @@ fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
     Ok(gxhash::gxhash64(&mmap, 12345))
 }
 
+fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
+    // Input: [B, H, W, C]
+    let size = tensor_video.size();
+    let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
+
+    let padded = if h < w {
+        tensor_video.f_pad(&[0, 0, 0, 0, 0, w - h], "constant", 0.0)?
+    } else if w < h {
+        tensor_video.f_pad(&[0, 0, 0, h - w, 0, 0], "constant", 0.0)?
+    } else {
+        tensor_video.shallow_clone()
+    };
+
+    Ok(padded)
+}
+
+fn rfftfreq(n: i64, d: f64, device: tch::Device) -> anyhow::Result<tch::Tensor> {
+    // Number of values is (n/2) + 1
+    let val_count = (n / 2) + 1;
+
+    // Create [0, 1, 2, ..., val_count - 1]
+    let arange = tch::Tensor::arange(val_count, (tch::Kind::Float, device));
+
+    // Divide by (n * d)
+    let res = arange.f_div_scalar((n as f64) * d)?;
+
+    return Ok(res);
+}
+
+pub fn compress_video_tensor(tensor_video: &tch::Tensor, fps: f64) -> anyhow::Result<tch::Tensor> {
+    // 1. Padding
+    let tensor_video_pad = do_pad_video(tensor_video)?;
+
+    // 2. Permute: (B, H, W, C) -> (C, H, W, B)
+    let tensor_video_permuted = tensor_video_pad.permute(&[3, 1, 2, 0]);
+
+    // 3. FFT Logic
+    // PyTorch rfftfreq equivalent:
+    // freq = [0, 1, ..., n/2] / (n * d)
+    let n_dim3 = tensor_video_permuted.size()[3];
+    let d = 1.0 / fps;
+    let freq_step = fps / (n_dim3 as f64);
+
+    // Calculate 'n' based on FREQ_LIMIT
+    let mut n: i64 = 0;
+    for i in 0..=(n_dim3 / 2) {
+        if (i as f64 * freq_step) < FREQ_LIMIT {
+            n += 1;
+        } else {
+            break;
+        }
+    }
+
+    // 4. Real FFT (n-dimensional)
+    // rfftn corresponds to fft_rfftn in tch
+    let tensor_video_fft = tensor_video_permuted.fft_rfftn(&[0, 1, 2, 3], "backward", false);
+
+    // 5. Slicing and Shift
+    // Slice the last dimension to n
+    let tensor_video_fft = tensor_video_fft.narrow(3, 0, n);
+
+    // fftshift over dims (0, 1, 2)
+    let tensor_video_fft = tensor_video_fft.fft_fftshift(&[0, 1, 2]);
+
+    // 6. Spatial Truncation
+    let compressed_fft = tensor_video_fft.i((.., SIZE_START..SIZE_END, SIZE_START..SIZE_END, ..));
+
+    // 7. Magnitude and Phase Concatenation
+    let abs = compressed_fft.abs();
+    let angle = compressed_fft.angle();
+    let cat_fft = Tensor::cat(&[abs, angle], 0);
+
+    // 8. Trilinear Interpolation
+    // interpolate expects (Batch, Channels, Depth, Height, Width)
+    // We add a batch dimension with unsqueeze(0)
+    let input_for_interp = cat_fft.unsqueeze(0);
+    let interpolated = input_for_interp
+        .f_interpolate_size(
+            &[SIZE_TRUNCATED, SIZE_TRUNCATED, N_FFT_MODES_T as i64],
+            false, // align_corners
+            Some("trilinear"),
+        )
+        .unwrap();
+
+    interpolated.squeeze()
+}
+
 struct video_slicer {
     path_file_video_input: String,
     path_file_rawvideo_output: String,
