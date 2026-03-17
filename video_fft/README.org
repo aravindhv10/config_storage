@@ -127,17 +127,18 @@
 
   [dependencies]
   anyhow = "1.0.102"
-  glob = "0.3.3"
-  image = "0.25.10"
+  gxhash = "3.5.0"
   memmap2 = "0.9.10"
-  ndarray = "0.17.2"
   tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
   tokio = { version = "1.50.0", features = ["full"] }
-  walkdir = "2.5.0"
 #+end_src
 
 ** COMMENT Extra
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  glob = "0.3.3"
+  walkdir = "2.5.0"
+  ndarray = "0.17.2"
+  image = "0.25.10"
   ffmpeg-the-third = "4.1.0"
   gpu-fft = { version = "1.1.1", features = ["wgpu"] }
   video-rs = { version = "0.11.0", features = ["ndarray"] }
