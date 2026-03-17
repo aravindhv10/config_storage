@@ -60,7 +60,6 @@ fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
 }
 
 fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
-    // Input: [B, H, W, C]
     let size = tensor_video.size();
     let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
 
@@ -103,17 +102,21 @@ pub fn compress_video_tensor(
         }
     }
 
+    // Perform the FFT
     let tensor_video_fft = tensor_video_permuted.fft_rfftn(
         /*s =*/ tensor_video_permuted.size(),
         /*dim =*/ tensor_video_permuted.size(),
         /*norm =*/ "forward",
     );
 
+    // Truncate the time axis
     let tensor_video_fft: tch::Tensor =
         tensor_video_fft.narrow(/*dim =*/ 3, /*start =*/ 0, /*length =*/ n);
 
+    // Shift the space fft
     let tensor_video_fft: tch::Tensor = tensor_video_fft.fft_fftshift(/*dim =*/ vec![0, 1, 2]);
 
+    // Calculate truncating of spacial indices
     let space_length: i64 = tensor_video_permuted.size()[2];
     let truncated_size: i64 = space_length >> 3;
     let size_start: i64 = (space_length - truncated_size) >> 1;
@@ -135,6 +138,7 @@ pub fn compress_video_tensor(
     // We add a batch dimension with unsqueeze(0)
     let input_for_interp = cat_fft.unsqueeze(0);
 
+    // Interpolate the tensor to fixed size
     let interpolated = input_for_interp.f_upsample_trilinear3d(
         &[truncated_size, truncated_size, 60 as i64],
         false, // align_corners
