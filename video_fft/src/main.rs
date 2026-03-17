@@ -342,6 +342,15 @@ async fn read_video_to_torch(
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
-    let _ = res.get_video_tensor();
+    let full_tensor = res.get_video_tensor()?;
+
+    let compressed_tensor = compress_video_tensor(
+        /*tensor_video: &tch::Tensor =*/ &full_tensor,
+        /*fps: f64 =*/ 8.0,
+        /*freq_limit: f64 =*/ 3.0,
+    )?;
+
+    println!("{:?}", compressed_tensor);
+
     Ok(())
 }
