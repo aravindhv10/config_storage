@@ -173,6 +173,11 @@
       size_y: u16,
       size_c: u8,
   ) -> anyhow::Result<()> {
+      assert!(
+          size_c == 3,
+          "Currently only implemented for 3 channel color videos..."
+      );
+
       if std::fs::exists(path_file_video_output)? {
           eprintln!("Not running ffmpeg, output file already exists.");
           return Ok(());
@@ -226,7 +231,7 @@
       size_x: u16,
       size_y: u16,
       size_c: u8,
-      size_f: u32,
+      size_t: u16,
       mmap: memmap2::Mmap,
   }
 
@@ -263,6 +268,8 @@
 
           let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
           let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+          let size_t =
+              (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
           return Ok(Self {
               path_file_video_input: path_file_video_input,
@@ -271,9 +278,37 @@
               size_x: size_x,
               size_y: size_y,
               size_c: size_c,
-              size_f: (size_x as u32) * (size_y as u32) * (size_c as u32),
+              size_t: size_t,
               mmap: mmap,
           });
+      }
+
+      fn get_video_tensor(&mut self) -> anyhow::Result<tch::Tensor> {
+          if self.size_t < 2 {
+              return Err(anyhow::format_err!("The video blob seems too small"));
+          }
+
+          let tensor_data = unsafe {
+              tch::Tensor::from_blob(
+                  self.mmap.as_ptr(),
+                  &[
+                      self.size_t as i64,
+                      self.size_y as i64,
+                      self.size_x as i64,
+                      self.size_c as i64,
+                  ],
+                  &[
+                      ((self.size_y as i64) * (self.size_x as i64) * (self.size_c as i64)),
+                      ((self.size_x as i64) * (self.size_c as i64)),
+                      (self.size_c as i64),
+                      1 as i64,
+                  ],
+                  tch::Kind::Uint8,
+                  tch::Device::Cpu,
+              )
+          };
+
+          return Ok(tensor_data);
       }
   }
 
