@@ -1,18 +1,18 @@
 use tch::IndexOp;
 
-async fn convert_encoded_video_to_raw(
+fn convert_encoded_video_to_raw(
     path_file_video_input: &str,
     path_file_video_output: &str,
     fps: f32,
     size_x: u32,
     size_y: u32,
 ) -> anyhow::Result<()> {
-    if tokio::fs::try_exists(path_file_video_output).await? {
+    if std::fs::exists(path_file_video_output)? {
         eprintln!("Not running ffmpeg, output file already exists.");
         return Ok(());
     }
 
-    let res = tokio::process::Command::new("ffmpeg")
+    let res = std::process::Command::new("ffmpeg")
         .args([
             "-i",
             path_file_video_input,
@@ -31,8 +31,7 @@ async fn convert_encoded_video_to_raw(
             .as_str(),
             path_file_video_output,
         ])
-        .status()
-        .await?;
+        .status()?;
 
     match res.code() {
         None => {
@@ -64,7 +63,7 @@ struct video_slicer {
 }
 
 impl video_slicer {
-    async fn new(
+    fn new(
         path_file_video_input: String,
         path_file_rawvideo_output: Option<String>,
         fps: f32,
@@ -75,6 +74,14 @@ impl video_slicer {
             Some(e) => {
                 let file = std::fs::File::open(e.as_str())?;
                 let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+
+                convert_encoded_video_to_raw(
+                    path_file_video_input.as_str(),
+                    e.as_str(),
+                    fps,
+                    size_x,
+                    size_y,
+                )?;
 
                 return Ok(Self {
                     path_file_video_input: path_file_video_input,
@@ -93,11 +100,19 @@ impl video_slicer {
                         .as_str()
                     + ".raw";
 
+                convert_encoded_video_to_raw(
+                    path_file_video_input.as_str(),
+                    path_file_rawvideo_output.as_str(),
+                    fps,
+                    size_x,
+                    size_y,
+                )?;
+
                 let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
                 let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
 
                 return Ok(Self {
-                    path_file_video_input: path_file_video_input.clone(),
+                    path_file_video_input: path_file_video_input,
                     path_file_rawvideo_output: path_file_rawvideo_output,
                     fps: fps,
                     size_x: size_x,
@@ -123,8 +138,7 @@ async fn read_video_to_torch(
         fps,
         size_x,
         size_y,
-    )
-    .await?;
+    )?;
 
     let file = std::fs::File::open(path_file_video_output.as_str())?;
     let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
@@ -164,6 +178,6 @@ async fn read_video_to_torch(
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    read_video_to_torch("./video.mp4".to_string(), 8 as f32, 1280, 720).await?;
+    let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720)?;
     Ok(())
 }
