@@ -57,7 +57,7 @@ struct video_slicer {
 }
 
 impl video_slicer {
-    fn new(
+    async fn new(
         path_file_video_input: String,
         path_file_rawvideo_output: Option<String>,
         fps: f32,
@@ -72,7 +72,22 @@ impl video_slicer {
                 size_x: size_x,
                 size_y: size_y,
             },
-            None => {}
+            None => {
+                let file = std::fs::File::open(path_file_video_input.as_str())?;
+                let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+                let res = gxhash::gxhash64(&mmap);
+
+                Self {
+                    path_file_video_input: path_file_video_input,
+                    path_file_rawvideo_output: path_file_video_input
+                        + "."
+                        + res.to_string().as_str()
+                        + ".raw",
+                    fps: fps,
+                    size_x: size_x,
+                    size_y: size_y,
+                }
+            }
         };
     }
 }
