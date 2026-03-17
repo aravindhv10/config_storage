@@ -151,23 +151,24 @@ pub fn compress_video_tensor(
     let compressed_fft = tensor_video_fft.i((.., size_start..size_end, size_start..size_end, ..));
 
     // 7. Magnitude and Phase Concatenation
-    // let abs = compressed_fft.abs();
-    // let angle = compressed_fft.angle();
-    // let cat_fft = Tensor::cat(&[abs, angle], 0);
+    let abs = compressed_fft.abs();
+    let angle = compressed_fft.angle();
+    let cat_fft = tch::Tensor::cat(&[abs, angle], 0);
 
     // 8. Trilinear Interpolation
     // interpolate expects (Batch, Channels, Depth, Height, Width)
     // We add a batch dimension with unsqueeze(0)
-    // let input_for_interp = cat_fft.unsqueeze(0);
-    // let interpolated = input_for_interp
-    // .f_interpolate_size(
-    // &[SIZE_TRUNCATED, SIZE_TRUNCATED, N_FFT_MODES_T as i64],
-    // false, // align_corners
-    // Some("trilinear"),
-    // )
-    // .unwrap();
+    let input_for_interp = cat_fft.unsqueeze(0);
 
-    // interpolated.squeeze()
+    let interpolated = input_for_interp.f_upsample_trilinear3d(
+        &[truncated_size, truncated_size, 60 as i64],
+        false, // align_corners
+        None,  // scale_h (optional)
+        None,  // scale_w (optional)
+        None,  // scale_d (optional)
+    )?;
+
+    return Ok(interpolated.squeeze());
 }
 
 struct video_slicer {
