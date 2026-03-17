@@ -303,10 +303,17 @@
       let tensor_video_fft = tensor_video_fft.narrow(3, 0, n);
 
       // fftshift over dims (0, 1, 2)
-      // let tensor_video_fft = tensor_video_fft.fft_fftshift(&[0, 1, 2]);
+      let tensor_video_fft = tensor_video_fft.fft_fftshift(vec![0, 1, 2]);
+
+      // return Ok(tensor_video_fft);
+
+      let space_length = tensor_video_permuted.size()[2];
+      let truncated_size = space_length >> 3;
+      let size_start = (space_length - truncated_size) >> 1;
+      let size_end = size_start + truncated_size;
 
       // 6. Spatial Truncation
-      // let compressed_fft = tensor_video_fft.i((.., SIZE_START..SIZE_END, SIZE_START..SIZE_END, ..));
+      let compressed_fft = tensor_video_fft.i((.., size_start..size_end, size_start..size_end, ..));
 
       // 7. Magnitude and Phase Concatenation
       // let abs = compressed_fft.abs();
