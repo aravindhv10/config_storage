@@ -65,62 +65,45 @@ struct video_slicer {
 impl video_slicer {
     fn new(
         path_file_video_input: String,
-        path_file_rawvideo_output: Option<String>,
+        mut path_file_rawvideo_output: Option<String>,
         fps: f32,
         size_x: u32,
         size_y: u32,
     ) -> anyhow::Result<Self> {
         match path_file_rawvideo_output {
-            Some(e) => {
-                let file = std::fs::File::open(e.as_str())?;
-                let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-
-                convert_encoded_video_to_raw(
-                    path_file_video_input.as_str(),
-                    e.as_str(),
-                    fps,
-                    size_x,
-                    size_y,
-                )?;
-
-                return Ok(Self {
-                    path_file_video_input: path_file_video_input,
-                    path_file_rawvideo_output: e,
-                    fps: fps,
-                    size_x: size_x,
-                    size_y: size_y,
-                    mmap: mmap,
-                });
-            }
+            Some(ref e) => {}
             None => {
-                let path_file_rawvideo_output: String = path_file_video_input.clone()
-                    + "."
-                    + get_file_hash(path_file_video_input.as_str())?
-                        .to_string()
-                        .as_str()
-                    + ".raw";
-
-                convert_encoded_video_to_raw(
-                    path_file_video_input.as_str(),
-                    path_file_rawvideo_output.as_str(),
-                    fps,
-                    size_x,
-                    size_y,
-                )?;
-
-                let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
-                let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-
-                return Ok(Self {
-                    path_file_video_input: path_file_video_input,
-                    path_file_rawvideo_output: path_file_rawvideo_output,
-                    fps: fps,
-                    size_x: size_x,
-                    size_y: size_y,
-                    mmap: mmap,
-                });
+                path_file_rawvideo_output = Some(
+                    path_file_video_input.clone()
+                        + "."
+                        + get_file_hash(path_file_video_input.as_str())?
+                            .to_string()
+                            .as_str()
+                        + ".raw",
+                );
             }
-        };
+        }
+
+        let path_file_rawvideo_output = path_file_rawvideo_output.unwrap();
+        let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
+        let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+
+        convert_encoded_video_to_raw(
+            path_file_video_input.as_str(),
+            path_file_rawvideo_output.as_str(),
+            fps,
+            size_x,
+            size_y,
+        )?;
+
+        return Ok(Self {
+            path_file_video_input: path_file_video_input,
+            path_file_rawvideo_output: path_file_rawvideo_output,
+            fps: fps,
+            size_x: size_x,
+            size_y: size_y,
+            mmap: mmap,
+        });
     }
 }
 
