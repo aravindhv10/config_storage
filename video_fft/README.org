@@ -356,6 +356,7 @@
   GITADD 'flake.lock'
   GITADD 'flake.nix'
   GITADD '.gitignore'
+  GITADD 'init.sh'
   GITADD 'nix_develop.sh'
   GITADD 'README.org'
   GITADD 'src/main.rs'
