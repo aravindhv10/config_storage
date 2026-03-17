@@ -118,6 +118,22 @@ impl video_slicer {
         });
     }
 
+    #[inline(always)]
+    fn get_size(&self, i: u8) -> usize {
+        match i {
+            0 => self.size_c as usize,
+            1 => self.size_x as usize,
+            2 => self.size_y as usize,
+            3 => self.size_t as usize,
+            _ => 1 as usize,
+        }
+    }
+
+    #[inline(always)]
+    fn get_dist(&self, i: u8) -> usize {
+        (0..i).map(|idx| self.get_size(idx)).product()
+    }
+
     fn get_video_tensor(&mut self) -> anyhow::Result<tch::Tensor> {
         if self.size_t < 2 {
             return Err(anyhow::format_err!("The video blob seems too small"));
@@ -127,16 +143,16 @@ impl video_slicer {
             tch::Tensor::from_blob(
                 self.mmap.as_ptr(),
                 &[
-                    self.size_t as i64,
-                    self.size_y as i64,
-                    self.size_x as i64,
-                    self.size_c as i64,
+                    self.get_size(3) as i64,
+                    self.get_size(2) as i64,
+                    self.get_size(1) as i64,
+                    self.get_size(0) as i64,
                 ],
                 &[
-                    ((self.size_y as i64) * (self.size_x as i64) * (self.size_c as i64)),
-                    ((self.size_x as i64) * (self.size_c as i64)),
-                    (self.size_c as i64),
-                    1 as i64,
+                    self.get_dist(3) as i64,
+                    self.get_dist(2) as i64,
+                    self.get_dist(1) as i64,
+                    self.get_dist(0) as i64,
                 ],
                 tch::Kind::Uint8,
                 tch::Device::Cpu,
