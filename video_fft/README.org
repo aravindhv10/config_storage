@@ -299,26 +299,28 @@
           (0..i).map(|idx| self.get_size(idx)).product()
       }
 
-      fn get_video_tensor(&mut self) -> anyhow::Result<tch::Tensor> {
+      fn get_video_tensor(&self) -> anyhow::Result<tch::Tensor> {
           if self.size_t < 2 {
               return Err(anyhow::format_err!("The video blob seems too small"));
           }
 
+          let sizes: [i64; 4] = [
+              self.get_size(3) as i64,
+              self.get_size(2) as i64,
+              self.get_size(1) as i64,
+              self.get_size(0) as i64,
+          ];
+
+          let mut dists: [i64; 4] = [sizes[2], sizes[1], sizes[0], 1];
+          dists[2] *= dists[1];
+          dists[3] *= dists[2];
+          println!("{:?}", dists);
+
           let tensor_data = unsafe {
               tch::Tensor::from_blob(
                   self.mmap.as_ptr(),
-                  &[
-                      self.get_size(3) as i64,
-                      self.get_size(2) as i64,
-                      self.get_size(1) as i64,
-                      self.get_size(0) as i64,
-                  ],
-                  &[
-                      self.get_dist(3) as i64,
-                      self.get_dist(2) as i64,
-                      self.get_dist(1) as i64,
-                      self.get_dist(0) as i64,
-                  ],
+                  &sizes,
+                  &dists,
                   tch::Kind::Uint8,
                   tch::Device::Cpu,
               )
@@ -384,6 +386,7 @@
   #[tokio::main]
   async fn main() -> anyhow::Result<()> {
       let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
+      let _ = res.get_video_tensor();
       Ok(())
   }
 #+end_src
