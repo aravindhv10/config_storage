@@ -82,6 +82,8 @@ pub fn compress_video_tensor(
     // 1. Padding
     let tensor_video_pad: tch::Tensor = do_pad_video(tensor_video)?;
 
+    println!("Done padding {:?}", tensor_video_pad.size());
+
     // 2. Permute: (B, H, W, C) -> (C, H, W, B)
     let tensor_video_permuted: tch::Tensor =
         tensor_video_pad.permute(/*dims =*/ &[3, 1, 2, 0]);
@@ -344,7 +346,7 @@ async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
-    let sliced_tensor = full_tensor.i((.., .., .., 0..80));
+    let sliced_tensor = full_tensor.i((0..80, .., .., ..));
 
     let compressed_tensor = compress_video_tensor(
         /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
