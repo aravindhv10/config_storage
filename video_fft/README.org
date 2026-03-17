@@ -253,7 +253,11 @@
       return Ok(res);
   }
 
-  pub fn compress_video_tensor(tensor_video: &tch::Tensor, fps: f64) -> anyhow::Result<tch::Tensor> {
+  pub fn compress_video_tensor(
+      tensor_video: &tch::Tensor,
+      fps: f64,
+      freq_limit: f64,
+  ) -> anyhow::Result<tch::Tensor> {
       // 1. Padding
       let tensor_video_pad = do_pad_video(tensor_video)?;
 
@@ -270,45 +274,47 @@
       // Calculate 'n' based on FREQ_LIMIT
       let mut n: i64 = 0;
       for i in 0..=(n_dim3 / 2) {
-          if (i as f64 * freq_step) < FREQ_LIMIT {
+          if ((i as f64) * freq_step) < freq_limit {
               n += 1;
           } else {
               break;
           }
       }
 
+      return Ok(tensor_video_permuted);
+
       // 4. Real FFT (n-dimensional)
       // rfftn corresponds to fft_rfftn in tch
-      let tensor_video_fft = tensor_video_permuted.fft_rfftn(&[0, 1, 2, 3], "backward", false);
+      // let tensor_video_fft = tensor_video_permuted.fft_rfftn(&[0, 1, 2, 3], "backward", false);
 
       // 5. Slicing and Shift
       // Slice the last dimension to n
-      let tensor_video_fft = tensor_video_fft.narrow(3, 0, n);
+      // let tensor_video_fft = tensor_video_fft.narrow(3, 0, n);
 
       // fftshift over dims (0, 1, 2)
-      let tensor_video_fft = tensor_video_fft.fft_fftshift(&[0, 1, 2]);
+      // let tensor_video_fft = tensor_video_fft.fft_fftshift(&[0, 1, 2]);
 
       // 6. Spatial Truncation
-      let compressed_fft = tensor_video_fft.i((.., SIZE_START..SIZE_END, SIZE_START..SIZE_END, ..));
+      // let compressed_fft = tensor_video_fft.i((.., SIZE_START..SIZE_END, SIZE_START..SIZE_END, ..));
 
       // 7. Magnitude and Phase Concatenation
-      let abs = compressed_fft.abs();
-      let angle = compressed_fft.angle();
-      let cat_fft = Tensor::cat(&[abs, angle], 0);
+      // let abs = compressed_fft.abs();
+      // let angle = compressed_fft.angle();
+      // let cat_fft = Tensor::cat(&[abs, angle], 0);
 
       // 8. Trilinear Interpolation
       // interpolate expects (Batch, Channels, Depth, Height, Width)
       // We add a batch dimension with unsqueeze(0)
-      let input_for_interp = cat_fft.unsqueeze(0);
-      let interpolated = input_for_interp
-          .f_interpolate_size(
-              &[SIZE_TRUNCATED, SIZE_TRUNCATED, N_FFT_MODES_T as i64],
-              false, // align_corners
-              Some("trilinear"),
-          )
-          .unwrap();
+      // let input_for_interp = cat_fft.unsqueeze(0);
+      // let interpolated = input_for_interp
+      // .f_interpolate_size(
+      // &[SIZE_TRUNCATED, SIZE_TRUNCATED, N_FFT_MODES_T as i64],
+      // false, // align_corners
+      // Some("trilinear"),
+      // )
+      // .unwrap();
 
-      interpolated.squeeze()
+      // interpolated.squeeze()
   }
 
   struct video_slicer {
