@@ -93,7 +93,7 @@ impl video_slicer {
     ) -> anyhow::Result<Self> {
         if path_file_rawvideo_output.is_none() {
             let hash = get_file_hash(&path_file_video_input)?;
-            path_file_rawvideo_output = Some(format!("{}.{}.raw", path_file_video_input, hash));
+            path_file_rawvideo_output = Some(format!("{}.{:x}.raw", path_file_video_input, hash));
         }
 
         let path_file_rawvideo_output = path_file_rawvideo_output.unwrap();
