@@ -4,8 +4,9 @@ fn convert_encoded_video_to_raw(
     path_file_video_input: &str,
     path_file_video_output: &str,
     fps: f32,
-    size_x: u32,
-    size_y: u32,
+    size_x: u16,
+    size_y: u16,
+    size_c: u8,
 ) -> anyhow::Result<()> {
     if std::fs::exists(path_file_video_output)? {
         eprintln!("Not running ffmpeg, output file already exists.");
@@ -57,8 +58,9 @@ struct video_slicer {
     path_file_video_input: String,
     path_file_rawvideo_output: String,
     fps: f32,
-    size_x: u32,
-    size_y: u32,
+    size_x: u16,
+    size_y: u16,
+    size_c: u8,
     mmap: memmap2::Mmap,
 }
 
@@ -73,8 +75,9 @@ impl video_slicer {
         path_file_video_input: String,
         mut path_file_rawvideo_output: Option<String>,
         fps: f32,
-        size_x: u32,
-        size_y: u32,
+        size_x: u16,
+        size_y: u16,
+        size_c: u8,
     ) -> anyhow::Result<Self> {
         if path_file_rawvideo_output.is_none() {
             let hash = get_file_hash(&path_file_video_input)?;
@@ -89,6 +92,7 @@ impl video_slicer {
             fps,
             size_x,
             size_y,
+            size_c,
         )?;
 
         let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
@@ -100,6 +104,7 @@ impl video_slicer {
             fps: fps,
             size_x: size_x,
             size_y: size_y,
+            size_c: size_c,
             mmap: mmap,
         });
     }
@@ -117,8 +122,9 @@ async fn read_video_to_torch(
         path_file_video_input.as_str(),
         path_file_video_output.as_str(),
         fps,
-        size_x,
-        size_y,
+        size_x as u16,
+        size_y as u16,
+        3,
     )?;
 
     let file = std::fs::File::open(path_file_video_output.as_str())?;
@@ -159,6 +165,6 @@ async fn read_video_to_torch(
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720)?;
+    let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     Ok(())
 }
