@@ -63,22 +63,24 @@ impl video_slicer {
         fps: f32,
         size_x: u32,
         size_y: u32,
-    ) -> Self {
+    ) -> anyhow::Result<Self> {
         match path_file_rawvideo_output {
-            Some(e) => Self {
-                path_file_video_input: path_file_video_input,
-                path_file_rawvideo_output: e,
-                fps: fps,
-                size_x: size_x,
-                size_y: size_y,
-            },
+            Some(e) => {
+                return Ok(Self {
+                    path_file_video_input: path_file_video_input,
+                    path_file_rawvideo_output: e,
+                    fps: fps,
+                    size_x: size_x,
+                    size_y: size_y,
+                });
+            }
             None => {
                 let file = std::fs::File::open(path_file_video_input.as_str())?;
                 let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-                let res = gxhash::gxhash64(&mmap);
+                let res = gxhash::gxhash64(&mmap, 12345);
 
-                Self {
-                    path_file_video_input: path_file_video_input,
+                return Ok(Self {
+                    path_file_video_input: path_file_video_input.clone(),
                     path_file_rawvideo_output: path_file_video_input
                         + "."
                         + res.to_string().as_str()
@@ -86,7 +88,7 @@ impl video_slicer {
                     fps: fps,
                     size_x: size_x,
                     size_y: size_y,
-                }
+                });
             }
         };
     }
