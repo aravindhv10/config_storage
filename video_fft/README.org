@@ -281,15 +281,26 @@
           }
       }
 
-      return Ok(tensor_video_permuted);
+      // return Ok(tensor_video_permuted);
 
       // 4. Real FFT (n-dimensional)
       // rfftn corresponds to fft_rfftn in tch
       // let tensor_video_fft = tensor_video_permuted.fft_rfftn(&[0, 1, 2, 3], "backward", false);
+      // torch_video_permu
+      // let tensor_video_fft =
+      //     tensor_video_permuted.fft_rfftn(Some(&[0i64, 1, 2, 3]), "backward", false);
+
+      let tensor_video_fft = tensor_video_permuted.fft_rfftn(
+          /*s =*/ tensor_video_permuted.size(),
+          /*dim =*/ tensor_video_permuted.size(),
+          /*norm =*/ "forward",
+      );
+
+      // return Ok(tensor_video_fft);
 
       // 5. Slicing and Shift
       // Slice the last dimension to n
-      // let tensor_video_fft = tensor_video_fft.narrow(3, 0, n);
+      let tensor_video_fft = tensor_video_fft.narrow(3, 0, n);
 
       // fftshift over dims (0, 1, 2)
       // let tensor_video_fft = tensor_video_fft.fft_fftshift(&[0, 1, 2]);
