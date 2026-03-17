@@ -241,18 +241,9 @@
           size_x: u32,
           size_y: u32,
       ) -> anyhow::Result<Self> {
-          match path_file_rawvideo_output {
-              Some(ref e) => {}
-              None => {
-                  path_file_rawvideo_output = Some(
-                      path_file_video_input.clone()
-                          + "."
-                          + get_file_hash(path_file_video_input.as_str())?
-                              .to_string()
-                              .as_str()
-                          + ".raw",
-                  );
-              }
+          if path_file_rawvideo_output.is_none() {
+              let hash = get_file_hash(&path_file_video_input)?;
+              path_file_rawvideo_output = Some(format!("{}.{}.raw", path_file_video_input, hash));
           }
 
           let path_file_rawvideo_output = path_file_rawvideo_output.unwrap();
