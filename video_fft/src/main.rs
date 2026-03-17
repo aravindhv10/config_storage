@@ -88,6 +88,8 @@ pub fn compress_video_tensor(
     let tensor_video_permuted: tch::Tensor =
         tensor_video_pad.permute(/*dims =*/ &[3, 1, 2, 0]);
 
+    println!("Done permute {:?}", tensor_video_permuted.size());
+
     // 3. FFT Logic
     // PyTorch rfftfreq equivalent:
     // freq = [0, 1, ..., n/2] / (n * d)
@@ -104,12 +106,16 @@ pub fn compress_video_tensor(
         }
     }
 
+    println!("Done calculating n {:?}", n);
+
     // Perform the FFT
     let tensor_video_fft = tensor_video_permuted.fft_rfftn(
         /*s =*/ tensor_video_permuted.size(),
-        /*dim =*/ tensor_video_permuted.size(),
+        /*dim =*/ vec![0, 1, 2, 3],
         /*norm =*/ "forward",
     );
+
+    println!("Done permuting {:?}", tensor_video_fft.size());
 
     // Truncate the time axis
     let tensor_video_fft: tch::Tensor =
