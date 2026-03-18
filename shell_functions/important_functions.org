@@ -897,7 +897,7 @@
   GITADD 'important_functions.org'
   GITADD 'important_functions.sh'
 
-  git commit -m 'Updated home_config' ; status
+  git commit -m 'Updated home_config' ; git status
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
