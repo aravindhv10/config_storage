@@ -125,11 +125,11 @@ pub fn compress_video_tensor(
     let input_for_interp: tch::Tensor = cat_fft.unsqueeze(0);
 
     let interpolated: tch::Tensor = input_for_interp.f_upsample_trilinear3d(
-        &[truncated_size, truncated_size, 60 as i64],
-        false, // align_corners
-        None,  // scale_h (optional)
-        None,  // scale_w (optional)
-        None,  // scale_d (optional)
+        /* output_size = */ &[truncated_size, truncated_size, 60 as i64],
+        /* align_corners = */ false,
+        /* scales_d = */ None,
+        /* scales_h = */ None,
+        /* scales_w = */ None,
     )?;
 
     return Ok(interpolated.squeeze());
@@ -265,9 +265,9 @@ impl video_slicer {
 
         let tensor_data: tch::Tensor = unsafe {
             tch::Tensor::from_blob(
-                self.mmap.as_ptr(),
-                &sizes,
-                &dists,
+                /* data = */ self.mmap.as_ptr(),
+                /* size = */ &sizes,
+                /* strides = */ &dists,
                 tch::Kind::Uint8,
                 tch::Device::Cpu,
             )
@@ -305,46 +305,54 @@ impl a_p {
     fn from_torch_fft_tensor(
         tensor_fft_input: &tch::Tensor,
     ) -> anyhow::Result<std::sync::Arc<Self>> {
-        if tensor_fft_input.kind() != tch::Kind::Float {
-            anyhow::bail!(
-                "Input tensor must be Kind::Float, found {:?}",
-                tensor_fft_input.kind()
-            );
-        }
-
-        const expected_size: usize = 6 * 160 * 160 * 60;
-        let actual_size = tensor_fft_input.numel();
-        if actual_size != expected_size {
-            anyhow::bail!(
-                "Tensor size mismatch: expected {} elements, found {}",
-                expected_size,
-                actual_size
-            );
+        /* Do the check */
+        {
+            if tensor_fft_input.kind() != tch::Kind::Float {
+                anyhow::bail!(
+                    "Input tensor must be Kind::Float, found {:?}",
+                    tensor_fft_input.kind()
+                );
+            } else {
+                const expected_size: usize = 6 * 160 * 160 * 60;
+                let actual_size = tensor_fft_input.numel();
+                if actual_size != expected_size {
+                    anyhow::bail!(
+                        "Tensor size mismatch: expected {} elements, found {}",
+                        expected_size,
+                        actual_size
+                    );
+                }
+            }
         }
 
         let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
 
-        if true /* Do the init */ {
-            let ptr: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-                .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-                .as_mut_ptr();
+        /* Do the init */
+        {
+            let data: *mut Self =
+                std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
+                    .context("Failed to obtain unique mutable access to the newly allocated Arc")?
+                    .as_mut_ptr();
 
-            const shape: [i64; 4] = [6, 160, 160, 60];
+            const size: [i64; 4] = [6, 160, 160, 60];
             const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
             /* Now initialize the tensors */
             {
                 let mut out_tensor: tch::Tensor = unsafe {
                     tch::Tensor::from_blob(
-                        ptr as *mut u8,
-                        &shape,
+                        data as *mut u8,
+                        &size,
                         &strides,
                         tch::Kind::Float,
                         tch::Device::Cpu,
                     )
                 };
 
-                out_tensor.copy_(&tensor_fft_input);
+                /* Do the copy */
+                {
+                    out_tensor.copy_(&tensor_fft_input);
+                }
             }
         }
 
