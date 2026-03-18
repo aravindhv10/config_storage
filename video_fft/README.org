@@ -489,8 +489,7 @@
 
           let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
 
-          /* Do the init */
-          {
+          if true /* Do the init */ {
               let ptr: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
                   .context("Failed to obtain unique mutable access to the newly allocated Arc")?
                   .as_mut_ptr();
