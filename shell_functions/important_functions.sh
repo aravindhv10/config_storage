@@ -694,7 +694,7 @@ get_apt_packages() {
         'gettext-base' \
         'git' \
         'git-lfs' \
-        'graphicsmagick-imagemagick-compat' \
+        'graphicsmagick' \
         'ipython3' \
         'jq' \
         'libasound2-dev' \
