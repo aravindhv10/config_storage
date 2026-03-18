@@ -88,7 +88,7 @@
     mylist = basepkglist ++ pythonpkglist;
 
     fhs = pkgs.buildFHSEnv {
-      name = "simple-x11-env";
+      name = "torch-env";
       targetPkgs = pkgs: mylist;
       multiPkgs = pkgs: mylist;
       runScript = "./init.sh";
