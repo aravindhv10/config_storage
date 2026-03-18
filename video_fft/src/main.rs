@@ -346,9 +346,6 @@ impl a_p {
                     )
                 };
 
-                // let tensor_fft_permuted: tch::Tensor =
-                //     tensor_fft_input.permute(/*dims =*/ &[3, 1, 2, 0]);
-
                 out_tensor.copy_(&tensor_fft_input);
             }
         }
