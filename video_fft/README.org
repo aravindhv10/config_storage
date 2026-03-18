@@ -274,7 +274,7 @@
       println!("Done calculating n {:?}", n);
 
       // Perform the FFT
-      let tensor_video_fft = tensor_video_permuted.fft_rfftn(
+      let tensor_video_fft: tch::Tensor = tensor_video_permuted.fft_rfftn(
           /*s =*/ tensor_video_permuted.size(),
           /*dim =*/ vec![0, 1, 2, 3],
           /*norm =*/ "forward",
@@ -302,17 +302,17 @@
           );
 
       // 7. Magnitude and Phase Concatenation
-      let abs = compressed_fft.abs();
-      let angle = compressed_fft.angle();
-      let cat_fft = tch::Tensor::cat(&[abs, angle], 0);
+      let abs: tch::Tensor = compressed_fft.abs();
+      let angle: tch::Tensor = compressed_fft.angle();
+      let cat_fft: tch::Tensor = tch::Tensor::cat(&[abs, angle], 0);
 
       // 8. Trilinear Interpolation
       // interpolate expects (Batch, Channels, Depth, Height, Width)
       // We add a batch dimension with unsqueeze(0)
-      let input_for_interp = cat_fft.unsqueeze(0);
+      let input_for_interp: tch::Tensor = cat_fft.unsqueeze(0);
 
       // Interpolate the tensor to fixed size
-      let interpolated = input_for_interp.f_upsample_trilinear3d(
+      let interpolated: tch::Tensor = input_for_interp.f_upsample_trilinear3d(
           &[truncated_size, truncated_size, 60 as i64],
           false, // align_corners
           None,  // scale_h (optional)
