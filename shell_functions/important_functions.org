@@ -890,11 +890,15 @@
 * Do the basic stuff
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . './important_functions.sh'
+
   CLEAN '.git.sh'
   CLEAN 'important_functions.org~'
+
   GITADD 'important_functions.org'
   GITADD 'important_functions.sh'
-  git status
+
+  git commit -m 'Updated home_config' ; status
+  "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
 * COMMENT Work space
@@ -906,17 +910,5 @@
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-  " "log" "err")
-#+end_src
-
-** Add, commit and push
-#+begin_src elisp :results silent
-  (save-buffer)
-  (org-babel-tangle)
-  (async-shell-command "
-      './.git.sh'
-      git commit -m 'Updated home_config'
-      $HOME/SSH/KEYS/PERSONAL_LAPTOP_PERSONAL_GITHUB/setup.sh
-      git push
   " "log" "err")
 #+end_src
