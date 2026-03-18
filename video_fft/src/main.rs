@@ -64,12 +64,14 @@ fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
     let size: Vec<i64> = tensor_video.size();
     let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
 
-    let padded: tch::Tensor = if h < w {
-        tensor_video.f_pad(&[0, 0, 0, 0, 0, w - h], "constant", 0.0)?
-    } else if w < h {
-        tensor_video.f_pad(&[0, 0, 0, h - w, 0, 0], "constant", 0.0)?
-    } else {
-        tensor_video.shallow_clone()
+    let padded: tch::Tensor = {
+        if h < w {
+            tensor_video.f_pad(&[0, 0, 0, 0, 0, w - h], "constant", 0.0)?
+        } else if w < h {
+            tensor_video.f_pad(&[0, 0, 0, h - w, 0, 0], "constant", 0.0)?
+        } else {
+            tensor_video.shallow_clone()
+        }
     };
 
     Ok(padded)
@@ -379,7 +381,15 @@ async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
-    let sliced_tensor = full_tensor.i((0..80, .., .., ..));
+    let device: tch::Device = {
+        if tch::Cuda::is_available() {
+            tch::Device::Cuda(0)
+        } else {
+            tch::Device::Cpu
+        }
+    };
+
+    let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
 
     let compressed_tensor = compress_video_tensor(
         /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
