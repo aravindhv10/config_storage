@@ -417,14 +417,16 @@
               return Err(anyhow::format_err!("The video blob seems too small"));
           }
 
-          let sizes: [i64; 4] = [
+          let data = self.mmap.as_ptr();
+
+          let size: [i64; 4] = [
               self.get_size(3) as i64,
               self.get_size(2) as i64,
               self.get_size(1) as i64,
               self.get_size(0) as i64,
           ];
 
-          let dists: [i64; 4] = [
+          let strides: [i64; 4] = [
               self.get_dist(3) as i64,
               self.get_dist(2) as i64,
               self.get_dist(1) as i64,
@@ -435,9 +437,9 @@
 
           let tensor_data: tch::Tensor = unsafe {
               tch::Tensor::from_blob(
-                  /* data = */ self.mmap.as_ptr(),
-                  /* size = */ &sizes,
-                  /* strides = */ &dists,
+                  /* data = */ data,
+                  /* size = */ &size,
+                  /* strides = */ &strides,
                   tch::Kind::Uint8,
                   tch::Device::Cpu,
               )
