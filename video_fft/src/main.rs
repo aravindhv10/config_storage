@@ -276,23 +276,31 @@ impl video_slicer {
     }
 }
 
-#[repr(transparent)]
+#[repr(packed)]
 struct pixel6 {
     values: [f32; 6],
 }
 
-#[repr(transparent)]
+#[repr(packed)]
 struct row {
     values: [pixel6; 160],
 }
 
-#[repr(transparent)]
+#[repr(packed)]
 struct image {
     values: [row; 160],
 }
 
 struct video {
     values: Vec<image>,
+}
+
+impl video {
+    fn new(tensor_fft_input: &tch::Tensor) -> Self {
+        let tensor_fft_permuted: tch::Tensor = tensor_fft_input
+            .permute(/*dims =*/ &[3, 1, 2, 0])
+            .contiguous();
+    }
 }
 
 #[tokio::main]
