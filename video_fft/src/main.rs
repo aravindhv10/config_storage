@@ -314,7 +314,7 @@ impl a_p {
                 );
             } else {
                 const expected_size: usize = 6 * 160 * 160 * 60;
-                let actual_size = tensor_fft_input.numel();
+                let actual_size: usize = tensor_fft_input.numel();
                 if actual_size != expected_size {
                     anyhow::bail!(
                         "Tensor size mismatch: expected {} elements, found {}",
