@@ -1,3 +1,4 @@
+use anyhow::Context;
 use tch::IndexOp;
 
 fn convert_encoded_video_to_raw(
@@ -297,19 +298,32 @@ struct video {
 }
 
 impl video {
-    fn from_torch_fft_tensor(tensor_fft_input: &tch::Tensor) -> std::sync::Arc<Self> {
-        assert_eq!(
-            tensor_fft_input.kind(),
-            tch::Kind::Float,
-            "Expected Float tensor"
-        );
+    fn from_torch_fft_tensor(
+        tensor_fft_input: &tch::Tensor,
+    ) -> anyhow::Result<std::sync::Arc<Self>> {
+        if tensor_fft_input.kind() != tch::Kind::Float {
+            anyhow::bail!(
+                "Input tensor must be Kind::Float, found {:?}",
+                tensor_fft_input.kind()
+            );
+        }
+
+        let expected_size = 60 * 160 * 160 * 6;
+        let actual_size = tensor_fft_input.numel();
+        if actual_size != expected_size {
+            anyhow::bail!(
+                "Tensor size mismatch: expected {} elements, found {}",
+                expected_size,
+                actual_size
+            );
+        }
 
         let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
 
         /* Do the init */
         {
             let ptr: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-                .expect("Unique ownership lost")
+                .context("Failed to obtain unique mutable access to the newly allocated Arc")?
                 .as_mut_ptr();
 
             let shape = [60, 160, 160, 6];
@@ -342,7 +356,7 @@ impl video {
 
         let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
 
-        return final_video;
+        return Ok(final_video);
     }
 }
 
