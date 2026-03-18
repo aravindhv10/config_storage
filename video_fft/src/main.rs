@@ -291,15 +291,41 @@ struct image {
     values: [row; 160],
 }
 
+#[repr(packed)]
 struct video {
-    values: Vec<image>,
+    values: [image; 60],
 }
 
 impl video {
-    fn new(tensor_fft_input: &tch::Tensor) -> Self {
-        let tensor_fft_permuted: tch::Tensor = tensor_fft_input
-            .permute(/*dims =*/ &[3, 1, 2, 0])
-            .contiguous();
+    fn from_torch_fft_tensor(tensor_fft_input: &tch::Tensor) -> std::sync::Arc<Self> {
+        let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+
+        /* Do the init */
+        {
+            let ptr: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
+                .unwrap()
+                .as_mut_ptr();
+            let shape = [60, 160, 160, 6];
+            let strides = [
+                160 * 160 * 6, // To move 1 image (60 images total)
+                160 * 6,       // To move 1 row (160 rows per image)
+                6,             // To move 1 pixel (160 pixels per row)
+                1,             // To move 1 f32 (6 values per pixel)
+            ];
+
+            let mut out_tensor: tch::Tensor = unsafe {
+                tch::Tensor::from_blob(ptr, &shape, &strides, tch::Kind::Float, tch::Device::Cpu)
+            };
+
+            let tensor_fft_permuted: tch::Tensor =
+                tensor_fft_input.permute(/*dims =*/ &[3, 1, 2, 0]);
+
+            out_tensor.copy_(&tensor_fft_permuted);
+        }
+
+        let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+
+        return final_video;
     }
 }
 
