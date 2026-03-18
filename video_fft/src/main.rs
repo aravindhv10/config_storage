@@ -85,6 +85,12 @@ pub fn compress_video_tensor(
 ) -> anyhow::Result<tch::Tensor> {
     let tensor_video_pad: tch::Tensor = do_pad_video(tensor_video)?;
 
+    {
+        " For permuting: ";
+        " T0 H1 W2 C3 "; // INPUT
+        " C3 H1 W2 T0 "; // OUTPUT
+    }
+
     let tensor_video_permuted: tch::Tensor =
         tensor_video_pad.permute(/*dims =*/ &[3, 1, 2, 0]);
 
