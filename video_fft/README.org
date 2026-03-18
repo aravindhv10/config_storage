@@ -597,6 +597,7 @@
   GITADD 'Cargo.toml'
   GITADD 'cargo_watch.sh'
   GITADD 'demux_decode.c'
+  GITADD 'env.sh'
   GITADD 'flake.lock'
   GITADD 'flake.nix'
   GITADD '.gitignore'
