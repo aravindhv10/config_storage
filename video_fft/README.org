@@ -296,13 +296,15 @@
 
       let space_length: i64 = tensor_video_permuted.size()[2];
       let truncated_size: i64 = space_length >> 3;
-      let size_start: i64 = (space_length - truncated_size) >> 1;
-      let size_end: i64 = size_start + truncated_size;
 
-      let compressed_fft: tch::Tensor =
+      let compressed_fft: tch::Tensor = {
+          let size_start: i64 = (space_length - truncated_size) >> 1;
+          let size_end: i64 = size_start + truncated_size;
+
           tensor_video_fft.i(
               /*index =*/ (.., size_start..size_end, size_start..size_end, ..),
-          );
+          )
+      };
 
       let cat_fft: tch::Tensor = {
           let abs: tch::Tensor = compressed_fft.abs();
