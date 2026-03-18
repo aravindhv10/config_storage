@@ -56,8 +56,9 @@ fn convert_encoded_video_to_raw(
 
 fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
     let file: std::fs::File = std::fs::File::open(path_file_input)?;
-    let mmap: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-    Ok(gxhash::gxhash64(&mmap, 12345))
+    let input: memmap2::Mmap =
+        unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+    Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
 }
 
 fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
@@ -90,23 +91,31 @@ pub fn compress_video_tensor(
     let n_dim3: i64 = tensor_video_permuted.size()[3];
     let freq_step: f64 = fps / (n_dim3 as f64);
 
-    let mut n: i64 = 0;
-    for i in 0..=(n_dim3 / 2) {
-        if ((i as f64) * freq_step) < freq_limit {
-            n += 1;
-        } else {
-            break;
+    let tensor_video_fft: tch::Tensor = {
+        let s: Vec<i64> = tensor_video_permuted.size();
+        let dim: Vec<i64> = vec![0, 1, 2, 3];
+        let norm: &str = "forward";
+
+        tensor_video_permuted.fft_rfftn(/*s =*/ s, /*dim =*/ dim, /*norm =*/ norm)
+    };
+
+    let tensor_video_fft: tch::Tensor = {
+        let dim = 3;
+        let start = 0;
+
+        let mut length: i64 = 0;
+        for i in 0..=(n_dim3 / 2) {
+            if ((i as f64) * freq_step) < freq_limit {
+                length += 1;
+            } else {
+                break;
+            }
         }
-    }
 
-    let tensor_video_fft: tch::Tensor = tensor_video_permuted.fft_rfftn(
-        /*s =*/ tensor_video_permuted.size(),
-        /*dim =*/ vec![0, 1, 2, 3],
-        /*norm =*/ "forward",
-    );
-
-    let tensor_video_fft: tch::Tensor =
-        tensor_video_fft.narrow(/*dim =*/ 3, /*start =*/ 0, /*length =*/ n);
+        tensor_video_fft.narrow(
+            /*dim =*/ dim, /*start =*/ start, /*length =*/ length,
+        )
+    };
 
     let tensor_video_fft: tch::Tensor = tensor_video_fft.fft_fftshift(/*dim =*/ vec![0, 1, 2]);
 
@@ -120,9 +129,11 @@ pub fn compress_video_tensor(
             /*index =*/ (.., size_start..size_end, size_start..size_end, ..),
         );
 
-    let abs: tch::Tensor = compressed_fft.abs();
-    let angle: tch::Tensor = compressed_fft.angle();
-    let cat_fft: tch::Tensor = tch::Tensor::cat(&[abs, angle], 0);
+    let cat_fft: tch::Tensor = {
+        let abs: tch::Tensor = compressed_fft.abs();
+        let angle: tch::Tensor = compressed_fft.angle();
+        tch::Tensor::cat(&[abs, angle], 0)
+    };
 
     let input_for_interp: tch::Tensor = cat_fft.unsqueeze(0);
 
