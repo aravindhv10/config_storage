@@ -305,7 +305,7 @@ impl a_p {
     fn from_torch_fft_tensor(
         tensor_fft_input: &tch::Tensor,
     ) -> anyhow::Result<std::sync::Arc<Self>> {
-        /* Do the check */
+        // Do the check:
         {
             if tensor_fft_input.kind() != tch::Kind::Float {
                 anyhow::bail!(
@@ -327,7 +327,7 @@ impl a_p {
 
         let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
 
-        /* Do the init */
+        // Do the init:
         {
             let data: *mut Self =
                 std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
@@ -337,7 +337,7 @@ impl a_p {
             const size: [i64; 4] = [6, 160, 160, 60];
             const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
-            /* Now initialize the tensors */
+            // Now initialize the tensors:
             {
                 let mut out_tensor: tch::Tensor = unsafe {
                     tch::Tensor::from_blob(
@@ -349,7 +349,7 @@ impl a_p {
                     )
                 };
 
-                /* Do the copy */
+                // Do the copy:
                 {
                     out_tensor.copy_(&tensor_fft_input);
                 }
