@@ -312,7 +312,7 @@ impl a_p {
             );
         }
 
-        let expected_size = 6 * 160 * 160 * 60;
+        const expected_size: usize = 6 * 160 * 160 * 60;
         let actual_size = tensor_fft_input.numel();
         if actual_size != expected_size {
             anyhow::bail!(
@@ -330,9 +330,8 @@ impl a_p {
                 .context("Failed to obtain unique mutable access to the newly allocated Arc")?
                 .as_mut_ptr();
 
-            let shape = [6, 160, 160, 60];
-
-            let strides = [160 * 160 * 60, 160 * 60, 60, 1];
+            const shape: [i64; 4] = [6, 160, 160, 60];
+            const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
             /* Now initialize the tensors */
             {
