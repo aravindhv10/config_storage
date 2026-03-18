@@ -269,7 +269,7 @@ impl video_slicer {
             return Err(anyhow::format_err!("The video blob seems too small"));
         }
 
-        let data = self.mmap.as_ptr();
+        let data: *const u8 = self.mmap.as_ptr();
 
         let size: [i64; 4] = [
             self.get_size(3) as i64,
@@ -284,8 +284,6 @@ impl video_slicer {
             self.get_dist(1) as i64,
             self.get_dist(0) as i64,
         ];
-
-        println!("{:?}", dists);
 
         let tensor_data: tch::Tensor = unsafe {
             tch::Tensor::from_blob(
