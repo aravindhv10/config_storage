@@ -54,16 +54,16 @@ fn convert_encoded_video_to_raw(
 }
 
 fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
-    let file = std::fs::File::open(path_file_input)?;
-    let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+    let file: std::fs::File = std::fs::File::open(path_file_input)?;
+    let mmap: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
     Ok(gxhash::gxhash64(&mmap, 12345))
 }
 
 fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
-    let size = tensor_video.size();
+    let size: Vec<i64> = tensor_video.size();
     let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
 
-    let padded = if h < w {
+    let padded: tch::Tensor = if h < w {
         tensor_video.f_pad(&[0, 0, 0, 0, 0, w - h], "constant", 0.0)?
     } else if w < h {
         tensor_video.f_pad(&[0, 0, 0, h - w, 0, 0], "constant", 0.0)?
@@ -79,24 +79,14 @@ pub fn compress_video_tensor(
     fps: f64,
     freq_limit: f64,
 ) -> anyhow::Result<tch::Tensor> {
-    // 1. Padding
     let tensor_video_pad: tch::Tensor = do_pad_video(tensor_video)?;
 
-    println!("Done padding {:?}", tensor_video_pad.size());
-
-    // 2. Permute: (B, H, W, C) -> (C, H, W, B)
     let tensor_video_permuted: tch::Tensor =
         tensor_video_pad.permute(/*dims =*/ &[3, 1, 2, 0]);
 
-    println!("Done permute {:?}", tensor_video_permuted.size());
-
-    // 3. FFT Logic
-    // PyTorch rfftfreq equivalent:
-    // freq = [0, 1, ..., n/2] / (n * d)
     let n_dim3: i64 = tensor_video_permuted.size()[3];
     let freq_step: f64 = fps / (n_dim3 as f64);
 
-    // Calculate 'n' based on FREQ_LIMIT
     let mut n: i64 = 0;
     for i in 0..=(n_dim3 / 2) {
         if ((i as f64) * freq_step) < freq_limit {
@@ -106,47 +96,33 @@ pub fn compress_video_tensor(
         }
     }
 
-    println!("Done calculating n {:?}", n);
-
-    // Perform the FFT
     let tensor_video_fft: tch::Tensor = tensor_video_permuted.fft_rfftn(
         /*s =*/ tensor_video_permuted.size(),
         /*dim =*/ vec![0, 1, 2, 3],
         /*norm =*/ "forward",
     );
 
-    println!("Done permuting {:?}", tensor_video_fft.size());
-
-    // Truncate the time axis
     let tensor_video_fft: tch::Tensor =
         tensor_video_fft.narrow(/*dim =*/ 3, /*start =*/ 0, /*length =*/ n);
 
-    // Shift the space fft
     let tensor_video_fft: tch::Tensor = tensor_video_fft.fft_fftshift(/*dim =*/ vec![0, 1, 2]);
 
-    // Calculate truncating of spacial indices
     let space_length: i64 = tensor_video_permuted.size()[2];
     let truncated_size: i64 = space_length >> 3;
     let size_start: i64 = (space_length - truncated_size) >> 1;
     let size_end: i64 = size_start + truncated_size;
 
-    // 6. Spatial Truncation
     let compressed_fft: tch::Tensor =
         tensor_video_fft.i(
             /*index =*/ (.., size_start..size_end, size_start..size_end, ..),
         );
 
-    // 7. Magnitude and Phase Concatenation
     let abs: tch::Tensor = compressed_fft.abs();
     let angle: tch::Tensor = compressed_fft.angle();
     let cat_fft: tch::Tensor = tch::Tensor::cat(&[abs, angle], 0);
 
-    // 8. Trilinear Interpolation
-    // interpolate expects (Batch, Channels, Depth, Height, Width)
-    // We add a batch dimension with unsqueeze(0)
     let input_for_interp: tch::Tensor = cat_fft.unsqueeze(0);
 
-    // Interpolate the tensor to fixed size
     let interpolated: tch::Tensor = input_for_interp.f_upsample_trilinear3d(
         &[truncated_size, truncated_size, 60 as i64],
         false, // align_corners
