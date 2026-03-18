@@ -42,7 +42,9 @@
 
     kernelParams = [
       "zswap.enabled=1"
-      "zswap.max_pool_percent=80"
+      "zswap.compressor=zstd"
+      "zswap.zpool=zsmalloc"
+      "zswap.max_pool_percent=60" # Allows zswap to use up to 2 GB of your 8 GB RAM
     ];
   };
 }
