@@ -80,10 +80,10 @@
       ];
 
       kernelParams = [
-          "zswap.enabled=1"
-          "zswap.compressor=zstd"
-          "zswap.zpool=zsmalloc"
-          "zswap.max_pool_percent=60" # Allows zswap to use up to 2 GB of your 8 GB RAM
+        "zswap.enabled=1"
+        "zswap.compressor=zstd"
+        "zswap.zpool=zsmalloc"
+        "zswap.max_pool_percent=60" # Allows zswap to use up to 2 GB of your 8 GB RAM
       ];
     };
   }
@@ -1527,7 +1527,7 @@
   GITADD 'README.org'
   GITADD 'setup.sh'
 
-  git status ; git commit -m 'Added thorium flake'
+  git status ; git commit -m 'Updated zswap arguments'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
