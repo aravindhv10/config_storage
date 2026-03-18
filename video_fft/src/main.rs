@@ -276,34 +276,40 @@ impl video_slicer {
     }
 }
 
-#[repr(packed)]
+#[repr(C)]
 struct pixel6 {
     values: [f32; 6],
 }
 
-#[repr(packed)]
+#[repr(C)]
 struct row {
     values: [pixel6; 160],
 }
 
-#[repr(packed)]
+#[repr(C)]
 struct image {
     values: [row; 160],
 }
 
-#[repr(packed)]
+#[repr(C)]
 struct video {
     values: [image; 60],
 }
 
 impl video {
     fn from_torch_fft_tensor(tensor_fft_input: &tch::Tensor) -> std::sync::Arc<Self> {
+        assert_eq!(
+            tensor_fft_input.kind(),
+            tch::Kind::Float,
+            "Expected Float tensor"
+        );
+
         let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
 
         /* Do the init */
         {
             let ptr: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-                .unwrap()
+                .expect("Unique ownership lost")
                 .as_mut_ptr();
 
             let shape = [60, 160, 160, 6];
