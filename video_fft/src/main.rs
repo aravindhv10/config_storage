@@ -253,7 +253,7 @@ impl video_slicer {
             self.get_size(0) as i64,
         ];
 
-        let mut dists: [i64; 4] = [
+        let dists: [i64; 4] = [
             self.get_dist(3) as i64,
             self.get_dist(2) as i64,
             self.get_dist(1) as i64,
