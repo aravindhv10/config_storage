@@ -161,7 +161,9 @@ pub fn compress_video_tensor(
 struct video_slicer {
     path_file_video_input: String,
     path_file_rawvideo_output: String,
+
     fps: f32,
+
     size_x: u16,
     size_y: u16,
     size_c: u8,
@@ -191,11 +193,11 @@ impl video_slicer {
         size_c: u8,
     ) -> anyhow::Result<Self> {
         if path_file_rawvideo_output.is_none() {
-            let hash = get_file_hash(&path_file_video_input)?;
+            let hash: u64 = get_file_hash(&path_file_video_input)?;
             path_file_rawvideo_output = Some(format!("{}.{:x}.raw", path_file_video_input, hash));
         }
 
-        let path_file_rawvideo_output = path_file_rawvideo_output.unwrap();
+        let path_file_rawvideo_output: String = path_file_rawvideo_output.unwrap();
 
         convert_encoded_video_to_raw(
             path_file_video_input.as_str(),
@@ -206,19 +208,21 @@ impl video_slicer {
             size_c,
         )?;
 
-        let file = std::fs::File::open(path_file_rawvideo_output.as_str())?;
-        let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-        let size_t =
+        let file: std::fs::File = std::fs::File::open(path_file_rawvideo_output.as_str())?;
+        let mmap: memmap2::Mmap =
+            unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+
+        let size_t: u16 =
             (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
-        let dist_c = 1;
+        let dist_c: i32 = 1;
 
         let dist_c: usize = 1;
-        let dist_x: usize = size_c as usize;
-        let dist_y: usize = (dist_x as usize) * (size_x as usize);
-        let dist_t: usize = (dist_y as usize) * (size_y as usize);
+        let dist_x: usize = dist_c * (size_c as usize);
+        let dist_y: usize = dist_x * (size_x as usize);
+        let dist_t: usize = dist_y * (size_y as usize);
 
-        return Ok(Self {
+        let ret = Self {
             path_file_video_input: path_file_video_input,
             path_file_rawvideo_output: path_file_rawvideo_output,
             fps: fps,
@@ -234,7 +238,9 @@ impl video_slicer {
             dist_t: dist_t,
 
             mmap: mmap,
-        });
+        };
+
+        return Ok(ret);
     }
 
     #[inline(always)]
@@ -280,7 +286,7 @@ impl video_slicer {
 
         println!("{:?}", dists);
 
-        let tensor_data = unsafe {
+        let tensor_data: tch::Tensor = unsafe {
             tch::Tensor::from_blob(
                 self.mmap.as_ptr(),
                 &sizes,
@@ -291,59 +297,6 @@ impl video_slicer {
         };
 
         return Ok(tensor_data);
-    }
-}
-
-async fn read_video_to_torch(
-    path_file_video_input: String,
-    fps: f32,
-    size_x: u32,
-    size_y: u32,
-) -> anyhow::Result<tch::Tensor> {
-    let path_file_video_output = path_file_video_input.clone() + ".raw";
-
-    convert_encoded_video_to_raw(
-        path_file_video_input.as_str(),
-        path_file_video_output.as_str(),
-        fps,
-        size_x as u16,
-        size_y as u16,
-        3,
-    )?;
-
-    let file = std::fs::File::open(path_file_video_output.as_str())?;
-    let mmap = unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
-    let frame_size = (size_x * size_y * 3) as usize;
-    let total_bytes = mmap.len();
-    let num_frames = total_bytes / frame_size;
-
-    if num_frames >= 1 {
-        println!("Num frames = {:?}", num_frames);
-
-        let tensor_data = unsafe {
-            tch::Tensor::from_blob(
-                mmap.as_ptr(),
-                &[num_frames as i64, size_y as i64, size_x as i64, 3 as i64],
-                &[
-                    (size_x * size_x * 3) as i64,
-                    (size_x * 3) as i64,
-                    3 as i64,
-                    1 as i64,
-                ],
-                tch::Kind::Uint8,
-                tch::Device::Cpu,
-            )
-        };
-
-        let video_data_permuted = tch::Tensor::permute(&tensor_data, vec![3, 1, 2, 0]);
-
-        let sliced_tensor = video_data_permuted.i((.., .., .., 0..160));
-
-        println!("Final data {:?}", sliced_tensor.size());
-
-        return Ok(sliced_tensor);
-    } else {
-        return Err(anyhow::format_err!("The video blob seems too small"));
     }
 }
 
