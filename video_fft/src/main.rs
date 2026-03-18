@@ -85,14 +85,12 @@ pub fn compress_video_tensor(
 ) -> anyhow::Result<tch::Tensor> {
     let tensor_video_pad: tch::Tensor = do_pad_video(tensor_video)?;
 
-    {
+    let tensor_video_permuted: tch::Tensor = {
         " For permuting: ";
         " T0 H1 W2 C3 "; // INPUT
         " C3 H1 W2 T0 "; // OUTPUT
-    }
-
-    let tensor_video_permuted: tch::Tensor =
-        tensor_video_pad.permute(/*dims =*/ &[3, 1, 2, 0]);
+        tensor_video_pad.permute(/*dims =*/ &[3, 1, 2, 0])
+    };
 
     let n_dim3: i64 = tensor_video_permuted.size()[3];
     let freq_step: f64 = fps / (n_dim3 as f64);
@@ -123,7 +121,10 @@ pub fn compress_video_tensor(
         )
     };
 
-    let tensor_video_fft: tch::Tensor = tensor_video_fft.fft_fftshift(/*dim =*/ vec![0, 1, 2]);
+    let tensor_video_fft: tch::Tensor = {
+        let dim: Vec<i64> = vec![0, 1, 2];
+        tensor_video_fft.fft_fftshift(/*dim =*/ dim)
+    };
 
     let space_length: i64 = tensor_video_permuted.size()[2];
     let truncated_size: i64 = space_length >> 3;
