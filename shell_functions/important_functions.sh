@@ -695,6 +695,7 @@ get_apt_packages() {
         'git' \
         'git-lfs' \
         'graphicsmagick' \
+        'imagemagick' \
         'ipython3' \
         'jq' \
         'libasound2-dev' \

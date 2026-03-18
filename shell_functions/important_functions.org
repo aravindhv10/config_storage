@@ -834,6 +834,7 @@
           'git' \
           'git-lfs' \
           'graphicsmagick' \
+          'imagemagick' \
           'ipython3' \
           'jq' \
           'libasound2-dev' \
