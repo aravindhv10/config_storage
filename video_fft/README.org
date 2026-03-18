@@ -363,7 +363,7 @@
           let dist_y: usize = dist_x * (size_x as usize);
           let dist_t: usize = dist_y * (size_y as usize);
 
-          let ret = Self {
+          let ret: Self = Self {
               path_file_video_input: path_file_video_input,
               path_file_rawvideo_output: path_file_rawvideo_output,
               fps: fps,
@@ -441,12 +441,31 @@
       }
   }
 
+  #[repr(transparent)]
+  struct pixel6 {
+      values: [f32; 6],
+  }
+
+  #[repr(transparent)]
+  struct row {
+      values: [pixel6; 160],
+  }
+
+  #[repr(transparent)]
+  struct image {
+      values: [row; 160],
+  }
+
+  struct video {
+      values: Vec<image>,
+  }
+
   #[tokio::main]
   async fn main() -> anyhow::Result<()> {
       let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
       let full_tensor = res.get_video_tensor()?;
 
-      let sliced_tensor = full_tensor.i((0..80, .., .., ..));
+      let sliced_tensor = full_tensor.i((0..160, .., .., ..));
 
       let compressed_tensor = compress_video_tensor(
           /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
