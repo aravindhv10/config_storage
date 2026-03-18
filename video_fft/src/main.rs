@@ -278,26 +278,30 @@ impl video_slicer {
 }
 
 #[repr(C)]
-struct pixel6 {
-    values: [f32; 6],
+#[derive(Debug)]
+struct a_t {
+    t: [f32; 60],
 }
 
 #[repr(C)]
-struct row {
-    values: [pixel6; 160],
+#[derive(Debug)]
+struct a_x {
+    x: [a_t; 160],
 }
 
 #[repr(C)]
-struct image {
-    values: [row; 160],
+#[derive(Debug)]
+struct a_y {
+    y: [a_x; 160],
 }
 
 #[repr(C)]
-struct video {
-    values: [image; 60],
+#[derive(Debug)]
+struct a_p {
+    p: [a_y; 6],
 }
 
-impl video {
+impl a_p {
     fn from_torch_fft_tensor(
         tensor_fft_input: &tch::Tensor,
     ) -> anyhow::Result<std::sync::Arc<Self>> {
@@ -308,7 +312,7 @@ impl video {
             );
         }
 
-        let expected_size = 60 * 160 * 160 * 6;
+        let expected_size = 6 * 160 * 160 * 60;
         let actual_size = tensor_fft_input.numel();
         if actual_size != expected_size {
             anyhow::bail!(
@@ -326,14 +330,9 @@ impl video {
                 .context("Failed to obtain unique mutable access to the newly allocated Arc")?
                 .as_mut_ptr();
 
-            let shape = [60, 160, 160, 6];
+            let shape = [6, 160, 160, 60];
 
-            let strides = [
-                160 * 160 * 6, // To move 1 image (60 images total)
-                160 * 6,       // To move 1 row (160 rows per image)
-                6,             // To move 1 pixel (160 pixels per row)
-                1,             // To move 1 f32 (6 values per pixel)
-            ];
+            let strides = [160 * 160 * 60, 160 * 60, 60, 1];
 
             /* Now initialize the tensors */
             {
@@ -347,10 +346,10 @@ impl video {
                     )
                 };
 
-                let tensor_fft_permuted: tch::Tensor =
-                    tensor_fft_input.permute(/*dims =*/ &[3, 1, 2, 0]);
+                // let tensor_fft_permuted: tch::Tensor =
+                //     tensor_fft_input.permute(/*dims =*/ &[3, 1, 2, 0]);
 
-                out_tensor.copy_(&tensor_fft_permuted);
+                out_tensor.copy_(&tensor_fft_input);
             }
         }
 
@@ -365,7 +364,7 @@ async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
-    let sliced_tensor = full_tensor.i((0..160, .., .., ..));
+    let sliced_tensor = full_tensor.i((0..80, .., .., ..));
 
     let compressed_tensor = compress_video_tensor(
         /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
@@ -373,7 +372,9 @@ async fn main() -> anyhow::Result<()> {
         /*freq_limit: f64 =*/ 3.0,
     )?;
 
-    println!("{:?}", compressed_tensor);
+    let blob = a_p::from_torch_fft_tensor(&compressed_tensor)?;
+
+    println!("{:?}", blob);
 
     Ok(())
 }
