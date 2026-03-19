@@ -37,6 +37,12 @@ inline torch::TensorOptions get_host_output_device_and_dtype() {
       .device(torch::kCPU);
 }
 
+inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
+  auto size = tensor_input.sizes();
+  auto h = size[1];
+  auto w = size[1];
+}
+
 int do_fft_compress(void *blob, int size_t, int size_y, int size_x, int size_c,
                     float fps, float freq_limit, void *dest) {
   auto freq =
