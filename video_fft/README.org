@@ -495,7 +495,7 @@
                                          .device(torch::kCPU)) *
         fps;
 
-    auto passed = torch::sum(freq < freq_limit);
+    float32_t passed = torch::sum(freq < freq_limit).item().to<float32_t>();
 
     std::cout << passed;
 

@@ -45,7 +45,7 @@ int do_fft_compress(void *blob, int size_t, int size_y, int size_x, int size_c,
                                        .device(torch::kCPU)) *
       fps;
 
-  auto passed = torch::sum(freq < freq_limit);
+  float32_t passed = torch::sum(freq < freq_limit).item().to<float32_t>();
 
   std::cout << passed;
 
