@@ -26,6 +26,14 @@
   video-rs = { version = "0.11.0", features = ["ndarray"] }
 #+end_src
 
+* build.rs
+#+begin_src rust :mkdirp yes :tangle ./build.rs
+  fn main() -> Result<(), Box<dyn std::error::Error>> {
+      println!("cargo:rustc-link-arg=-lmytorch");
+      Ok(())
+  }
+#+end_src
+
 * Main cmake file
 
 ** Version check
@@ -937,6 +945,7 @@
       Ok(())
   }
 #+end_src
+
 
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
