@@ -166,10 +166,21 @@
 
 * Main cmake file
 
-** Header
+** Version check
 #+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+#+end_src
 
+** Important variables
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+  set(CMAKE_INSTALL_PREFIX "/usr")
+  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+#+end_src
+
+** Project name
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   project(video_fft VERSION 1.0 DESCRIPTION "Code to evaluate FFT of videos")
 #+end_src
 
@@ -198,13 +209,6 @@
   set_property(TARGET aoti_example PROPERTY CXX_STANDARD 17)
 #+end_src
 
-** Important variables
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-  set(CMAKE_INSTALL_PREFIX "/usr")
-  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-#+end_src
 
 * C++ Wrappers
 
