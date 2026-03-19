@@ -1,3 +1,77 @@
+* Cargo.toml
+
+** Main
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [package]
+  name = "video_fft"
+  version = "0.1.0"
+  edition = "2024"
+
+  [dependencies]
+  anyhow = "1.0.102"
+  gxhash = "3.5.0"
+  memmap2 = "0.9.10"
+  tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
+  tokio = { version = "1.50.0", features = ["full"] }
+#+end_src
+
+** COMMENT Extra
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  glob = "0.3.3"
+  walkdir = "2.5.0"
+  ndarray = "0.17.2"
+  image = "0.25.10"
+  ffmpeg-the-third = "4.1.0"
+  gpu-fft = { version = "1.1.1", features = ["wgpu"] }
+  video-rs = { version = "0.11.0", features = ["ndarray"] }
+#+end_src
+
+* Main cmake file
+
+** Version check
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+#+end_src
+
+** Important variables
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+  set(CMAKE_INSTALL_PREFIX "/usr")
+  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+#+end_src
+
+** Project name
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  project(video_fft VERSION 1.0 DESCRIPTION "Code to evaluate FFT of videos")
+#+end_src
+
+** Look for existing libraries
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  find_package(Torch REQUIRED)
+  find_package(OpenCV REQUIRED)
+#+end_src
+
+** Expose the main torch c++ functions
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  add_library(mytorch SHARED src/main.cpp)
+  target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
+  set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
+  install(TARGETS mytorch LIBRARY DESTINATION lib)
+#+end_src
+
+* Compile commands generated from cmake
+#+begin_src conf :mkdirp yes :tangle ./compile_commands.json
+  [
+  {
+    "directory": "/home/asd/config_storage/video_fft/build",
+    "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dmytorch_EXPORTS -isystem /usr/include/torch/csrc/api/include  -O3 -mtune=native -march=native -flto -O3 -mtune=native -march=native -flto -std=gnu++17 -fPIC -o CMakeFiles/mytorch.dir/src/main.cpp.o -c /home/asd/config_storage/video_fft/src/main.cpp",
+    "file": "/home/asd/config_storage/video_fft/src/main.cpp",
+    "output": "CMakeFiles/mytorch.dir/src/main.cpp.o"
+  }
+  ]
+#+end_src
+
 * Nix part
 #+begin_src nix :mkdirp yes :tangle ./flake.nix
   {
@@ -165,80 +239,6 @@
   cmake .. ; make -j
 #+end_src
 
-* Cargo.toml
-
-** Main
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  [package]
-  name = "video_fft"
-  version = "0.1.0"
-  edition = "2024"
-
-  [dependencies]
-  anyhow = "1.0.102"
-  gxhash = "3.5.0"
-  memmap2 = "0.9.10"
-  tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
-  tokio = { version = "1.50.0", features = ["full"] }
-#+end_src
-
-** COMMENT Extra
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  glob = "0.3.3"
-  walkdir = "2.5.0"
-  ndarray = "0.17.2"
-  image = "0.25.10"
-  ffmpeg-the-third = "4.1.0"
-  gpu-fft = { version = "1.1.1", features = ["wgpu"] }
-  video-rs = { version = "0.11.0", features = ["ndarray"] }
-#+end_src
-
-* Main cmake file
-
-** Version check
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
-#+end_src
-
-** Important variables
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-  set(CMAKE_INSTALL_PREFIX "/usr")
-  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-#+end_src
-
-** Project name
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  project(video_fft VERSION 1.0 DESCRIPTION "Code to evaluate FFT of videos")
-#+end_src
-
-** Look for existing libraries
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  find_package(Torch REQUIRED)
-  find_package(OpenCV REQUIRED)
-#+end_src
-
-** Expose the main torch c++ functions
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  add_library(mytorch SHARED src/main.cpp)
-  target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
-  set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
-  install(TARGETS mytorch LIBRARY DESTINATION lib)
-#+end_src
-
-** Compile commands generated from cmake
-#+begin_src conf :mkdirp yes :tangle ./compile_commands.json
-  [
-  {
-    "directory": "/home/asd/config_storage/video_fft/build",
-    "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dmytorch_EXPORTS -isystem /usr/include/torch/csrc/api/include  -O3 -mtune=native -march=native -flto -O3 -mtune=native -march=native -flto -std=gnu++17 -fPIC -o CMakeFiles/mytorch.dir/src/main.cpp.o -c /home/asd/config_storage/video_fft/src/main.cpp",
-    "file": "/home/asd/config_storage/video_fft/src/main.cpp",
-    "output": "CMakeFiles/mytorch.dir/src/main.cpp.o"
-  }
-  ]
-#+end_src
-
 * C++ - Rust Inter - Op
 
 ** C++
@@ -252,6 +252,8 @@
 #+end_src
 
 **** definitions
+
+***** Basic datatypes
 #+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
   using float32_t = float;
   using float64_t = double;
@@ -263,7 +265,10 @@
   using uint32_t = unsigned int;
   using uint64_t = unsigned long;
   using uint8_t = unsigned char;
+#+end_src
 
+***** Tensor IO datatypes
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
   using intype = uint8_t;
   using outtype = float32_t;
 #+end_src
@@ -366,39 +371,17 @@
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include "./main.hpp"
 
-  using float32_t = float;
-  using float64_t = double;
-
-  using intype = uint8_t;
-  using outtype = float32_t;
-
-  template <typename T> inline auto get_tensor_dtype() {
-    return torch::kBFloat16;
-  }
-
-  template <> inline auto get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
-
-  template <> inline auto get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
-
-  template <> inline auto get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
-
-  template <> inline auto get_tensor_dtype<uint64_t>() { return torch::kInt64; }
-
-  template <> inline auto get_tensor_dtype<int8_t>() { return torch::kInt8; }
-
+  template <> inline auto get_tensor_dtype<float32_t>() {return torch::kFloat32;}
+  template <> inline auto get_tensor_dtype<float64_t>() {return torch::kFloat64;}
   template <> inline auto get_tensor_dtype<int16_t>() { return torch::kInt16; }
-
   template <> inline auto get_tensor_dtype<int32_t>() { return torch::kInt32; }
-
   template <> inline auto get_tensor_dtype<int64_t>() { return torch::kInt64; }
-
-  template <> inline auto get_tensor_dtype<float32_t>() {
-    return torch::kFloat32;
-  }
-
-  template <> inline auto get_tensor_dtype<float64_t>() {
-    return torch::kFloat64;
-  }
+  template <> inline auto get_tensor_dtype<int8_t>() { return torch::kInt8; }
+  template <> inline auto get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
+  template <> inline auto get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
+  template <> inline auto get_tensor_dtype<uint64_t>() { return torch::kInt64; }
+  template <> inline auto get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
+  template <typename T> inline auto get_tensor_dtype() {return torch::kBFloat16;}
 
   inline torch::TensorOptions get_good_device_and_dtype() {
     printf("Called get_good_device_and_dtype()\n");
@@ -857,6 +840,9 @@
 
   #[tokio::main]
   async fn main() -> anyhow::Result<()> {
+      do_debug();
+      if false {
+          
       let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
       let full_tensor = res.get_video_tensor()?;
 
@@ -880,6 +866,7 @@
 
       println!("{:?}", blob);
 
+      }
       Ok(())
   }
 #+end_src
