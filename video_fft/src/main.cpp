@@ -1,16 +1,16 @@
 #include "./main.hpp"
 
-template <> inline auto get_tensor_dtype<float32_t>() {return torch::kFloat32;}
-template <> inline auto get_tensor_dtype<float64_t>() {return torch::kFloat64;}
-template <> inline auto get_tensor_dtype<int16_t>() { return torch::kInt16; }
-template <> inline auto get_tensor_dtype<int32_t>() { return torch::kInt32; }
-template <> inline auto get_tensor_dtype<int64_t>() { return torch::kInt64; }
-template <> inline auto get_tensor_dtype<int8_t>() { return torch::kInt8; }
-template <> inline auto get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
-template <> inline auto get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
-template <> inline auto get_tensor_dtype<uint64_t>() { return torch::kInt64; }
-template <> inline auto get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
-template <typename T> inline auto get_tensor_dtype() {return torch::kBFloat16;}
+template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
+template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
+template <> inline torch::ScalarType get_tensor_dtype<float64_t>() {return torch::kFloat64;}
+template <> inline torch::ScalarType get_tensor_dtype<int16_t>() { return torch::kInt16; }
+template <> inline torch::ScalarType get_tensor_dtype<int32_t>() { return torch::kInt32; }
+template <> inline torch::ScalarType get_tensor_dtype<int64_t>() { return torch::kInt64; }
+template <> inline torch::ScalarType get_tensor_dtype<int8_t>() { return torch::kInt8; }
+template <> inline torch::ScalarType get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
+template <> inline torch::ScalarType get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
+template <> inline torch::ScalarType get_tensor_dtype<uint64_t>() { return torch::kInt64; }
+template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
 
 inline torch::TensorOptions get_good_device_and_dtype() {
   printf("Called get_good_device_and_dtype()\n");

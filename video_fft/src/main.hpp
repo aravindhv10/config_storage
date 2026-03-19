@@ -1,6 +1,8 @@
 #ifndef _HEADER_GUARD_src_main_hpp
 #define _HEADER_GUARD_src_main_hpp
 
+#include "./export.hpp"
+
 #include <iostream>
 #include <vector>
 
@@ -13,7 +15,5 @@
 #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
 #include <torch/fft.h>
 #include <torch/torch.h>
-
-#include "./export.hpp"
 
 #endif
