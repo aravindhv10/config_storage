@@ -126,14 +126,14 @@
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_run.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
-  cargo run
+  cargo run --release
 #+end_src
 
 ** cargo_watch
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_watch.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
-  cargo watch -x run
+  cargo watch -x run --release
 #+end_src
 
 * Cargo.toml
@@ -165,25 +165,38 @@
 #+end_src
 
 * Main cmake file
+
+** Header
 #+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
   project(aoti_example VERSION 1.0 DESCRIPTION "Interface for inferring with libtorch exposed to rust")
+#+end_src
 
+** Look for existing libraries
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   find_package(Torch REQUIRED)
   find_package(OpenCV REQUIRED)
+#+end_src
 
-  add_executable(aoti_example src/test.cpp)
-  add_library(mytorch SHARED src/main.cpp)
-
-  target_link_libraries(aoti_example "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
+** Expose the main torch c++ functions
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
-
-  set_property(TARGET aoti_example PROPERTY CXX_STANDARD 17)
+  add_library(mytorch SHARED src/main.cpp)
   set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
-
   install(TARGETS mytorch LIBRARY DESTINATION lib)
+#+end_src
 
+** COMMENT The example library
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  target_link_libraries(aoti_example "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
+  add_executable(aoti_example src/test.cpp)
+  set_target_properties(aoti_example PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
+  set_property(TARGET aoti_example PROPERTY CXX_STANDARD 17)
+#+end_src
+
+** Important variables
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
   set(CMAKE_INSTALL_PREFIX "/usr")
@@ -191,14 +204,33 @@
 #+end_src
 
 * C++ Wrappers
+
+** main
+
+*** Header
+
+**** std
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include <iostream>
+  #include <vector>
+#+end_src
+
+**** COMMENT opencv
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include <opencv2/core/mat.hpp>
   #include <opencv2/imgcodecs.hpp>
   #include <opencv2/opencv.hpp>
+#+end_src
+
+**** torch
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
   #include <torch/torch.h>
-  #include <vector>
+#+end_src
+
+*** Actual code
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #include "./main.cpp"
 #+end_src
 
 * Main rust code
