@@ -244,7 +244,9 @@
   unlink 'libmytorch.so.1.0'
   unlink 'Makefile'
 
-  cmake .. ; make -j
+  cmake .. 
+  make -j
+  make -j install
 #+end_src
 
 * C++ - Rust Inter - Op
@@ -493,7 +495,7 @@
                                          .device(torch::kCPU)) *
         fps;
 
-    auto passed = freq < freq_limit;
+    auto passed = torch::sum(freq < freq_limit);
 
     std::cout << passed;
 

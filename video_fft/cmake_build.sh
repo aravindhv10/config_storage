@@ -16,4 +16,6 @@ unlink 'libmytorch.so'
 unlink 'libmytorch.so.1.0'
 unlink 'Makefile'
 
-cmake .. ; make -j
+cmake .. 
+make -j
+make -j install
