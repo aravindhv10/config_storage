@@ -10,37 +10,21 @@ template <typename T> inline auto get_tensor_dtype() {
   return torch::kBFloat16;
 }
 
-template <> inline auto get_tensor_dtype<uint8_t>() {
-  return torch::kUInt8;
-}
+template <> inline auto get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
 
-template <> inline auto get_tensor_dtype<uint16_t>() {
-  return torch::kUInt16;
-}
+template <> inline auto get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
 
-template <> inline auto get_tensor_dtype<uint32_t>() {
-  return torch::kUInt32;
-}
+template <> inline auto get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
 
-template <> inline auto get_tensor_dtype<uint64_t>() {
-  return torch::kInt64;
-}
+template <> inline auto get_tensor_dtype<uint64_t>() { return torch::kInt64; }
 
-template <> inline auto get_tensor_dtype<int8_t>() {
-  return torch::kInt8;
-}
+template <> inline auto get_tensor_dtype<int8_t>() { return torch::kInt8; }
 
-template <> inline auto get_tensor_dtype<int16_t>() {
-  return torch::kInt16;
-}
+template <> inline auto get_tensor_dtype<int16_t>() { return torch::kInt16; }
 
-template <> inline auto get_tensor_dtype<int32_t>() {
-  return torch::kInt32;
-}
+template <> inline auto get_tensor_dtype<int32_t>() { return torch::kInt32; }
 
-template <> inline auto get_tensor_dtype<int64_t>() {
-  return torch::kInt64;
-}
+template <> inline auto get_tensor_dtype<int64_t>() { return torch::kInt64; }
 
 template <> inline auto get_tensor_dtype<float32_t>() {
   return torch::kFloat32;
@@ -75,6 +59,13 @@ inline torch::TensorOptions get_host_output_device_and_dtype() {
       .device(torch::kCPU);
 }
 
-void do_fft_compress(void * blob, int size_t, int size_y, int size_x, int size_c , void * dest){
-  
+int do_fft_compress(void *blob, int size_t, int size_y, int size_x, int size_c,
+                     float32_t fps, void *dest) {
+  auto freq =
+      torch::fft::rfftfreq(size_t, torch::TensorOptions()
+                                       .dtype(get_tensor_dtype<float32_t>())
+                                       .device(torch::kCPU);) *
+      fps;
+
+    return 0;
 }

@@ -8,7 +8,9 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <c10/core/TensorOptions.h>
 #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
+#include <torch/fft.h>
 #include <torch/torch.h>
 
 #endif
