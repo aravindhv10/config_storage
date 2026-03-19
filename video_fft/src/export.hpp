@@ -12,8 +12,10 @@ using uint32_t = unsigned int;
 using uint64_t = unsigned long;
 using uint8_t = unsigned char;
 
+extern "C" {
 int do_fft_compress(void *blob, uint16_t size_t, uint16_t size_y,
                     uint16_t size_x, uint8_t size_c, float32_t fps,
                     float32_t freq_limit, void *dest);
+}
 
 #endif
