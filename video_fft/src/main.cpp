@@ -60,12 +60,16 @@ inline torch::TensorOptions get_host_output_device_and_dtype() {
 }
 
 int do_fft_compress(void *blob, int size_t, int size_y, int size_x, int size_c,
-                    float32_t fps, void *dest) {
+                    float fps, float freq_limit, void *dest) {
   auto freq =
       torch::fft::rfftfreq(size_t, torch::TensorOptions()
                                        .dtype(get_tensor_dtype<float32_t>())
                                        .device(torch::kCPU)) *
       fps;
+
+  auto passed = freq < freq_limit;
+
+  std::cout << passed;
 
   return 0;
 }
