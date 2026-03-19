@@ -968,6 +968,7 @@
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
+  GITADD 'build.rs'
   GITADD 'cargo_build.sh'
   GITADD 'Cargo.lock'
   GITADD 'cargo_run.sh'
