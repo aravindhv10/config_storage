@@ -73,3 +73,15 @@ int do_fft_compress(void *blob, int size_t, int size_y, int size_x, int size_c,
 
   return 0;
 }
+
+int do_debug() {
+    do_fft_compress(/*void *blob =*/ NULL,
+                    /*uint16_t size_t =*/ 100,
+                    /*uint16_t size_y =*/ 10,
+                    /*uint16_t size_x =*/ 10,
+                    /*uint8_t size_c =*/ 3,
+                    /*float32_t fps =*/ 8.0,
+                    /*float32_t freq_limit =*/ 3.0,
+                    /*void *dest =*/ NULL);
+    return 0;
+}

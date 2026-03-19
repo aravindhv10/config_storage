@@ -1,8 +1,6 @@
 #ifndef _HEADER_GUARD_src_export_hpp
 #define _HEADER_GUARD_src_export_hpp
 
-#define NULL  ((void *) 0)
-
 extern "C" {
 
 using float32_t = float;
@@ -20,16 +18,7 @@ int do_fft_compress(void *blob, uint16_t size_t, uint16_t size_y,
                     uint16_t size_x, uint8_t size_c, float32_t fps,
                     float32_t freq_limit, void *dest);
 
-int do_debug() {
-  do_fft_compress(/*void *blob =*/ NULL,
-                  /*uint16_t size_t =*/ 100,
-                  /*uint16_t size_y =*/ 10,
-                  /*uint16_t size_x =*/ 10,
-                  /*uint8_t size_c =*/ 3,
-                  /*float32_t fps =*/ 8.0,
-                  /*float32_t freq_limit =*/ 3.0,
-                  /*void *dest =*/ NULL);
-}
+int do_debug();
 
 } // extern "C"
 #endif
