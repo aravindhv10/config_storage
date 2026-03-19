@@ -273,6 +273,9 @@
 #+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
   #ifndef _HEADER_GUARD_src_export_hpp
   #define _HEADER_GUARD_src_export_hpp
+
+  #define NULL  ((void *) 0)
+
   extern "C" {
 #+end_src
 
