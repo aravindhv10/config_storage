@@ -210,6 +210,18 @@
   install(TARGETS mytorch LIBRARY DESTINATION lib)
 #+end_src
 
+** Compile commands generated from cmake
+#+begin_src conf :mkdirp yes :tangle ./compile_commands.json
+  [
+  {
+    "directory": "/home/asd/config_storage/video_fft/build",
+    "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dmytorch_EXPORTS -isystem /usr/include/torch/csrc/api/include  -O3 -mtune=native -march=native -flto -O3 -mtune=native -march=native -flto -std=gnu++17 -fPIC -o CMakeFiles/mytorch.dir/src/main.cpp.o -c /home/asd/config_storage/video_fft/src/main.cpp",
+    "file": "/home/asd/config_storage/video_fft/src/main.cpp",
+    "output": "CMakeFiles/mytorch.dir/src/main.cpp.o"
+  }
+  ]
+#+end_src
+
 * C++ Wrappers
 
 ** main
