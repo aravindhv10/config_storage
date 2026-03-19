@@ -297,6 +297,20 @@
                       float32_t freq_limit, void *dest);
 #+end_src
 
+***** tmp_debug function
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
+  int do_debug() {
+    do_fft_compress(/*void *blob =*/ NULL,
+                    /*uint16_t size_t =*/ 100,
+                    /*uint16_t size_y =*/ 10,
+                    /*uint16_t size_x =*/ 10,
+                    /*uint8_t size_c =*/ 3,
+                    /*float32_t fps =*/ 8.0,
+                    /*float32_t freq_limit =*/ 3.0,
+                    /*void *dest =*/ NULL);
+  }
+#+end_src
+
 **** End guard
 #+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
   } // extern "C"
