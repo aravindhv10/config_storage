@@ -686,6 +686,7 @@
   GITADD 'Cargo.toml'
   GITADD 'cargo_watch.sh'
   GITADD 'CMakeLists.txt'
+  GITADD 'compile_commands.json'
   GITADD 'demux_decode.c'
   GITADD 'env.sh'
   GITADD 'flake.lock'
