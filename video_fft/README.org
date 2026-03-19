@@ -122,6 +122,13 @@
   exec zsh
 #+end_src
 
+** cargo_build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+  cargo build --release
+#+end_src
+
 ** cargo_run
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_run.sh
   cd "$(dirname -- "${0}")"
@@ -864,6 +871,7 @@
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
+  GITADD 'cargo_build.sh'
   GITADD 'Cargo.lock'
   GITADD 'cargo_run.sh'
   GITADD 'Cargo.toml'
