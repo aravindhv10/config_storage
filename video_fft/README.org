@@ -191,7 +191,6 @@
 #+end_src
 
 * C++ Wrappers
-
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include <iostream>
   #include <opencv2/core/mat.hpp>
@@ -663,6 +662,7 @@
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
   GITADD 'README.org'
+  GITADD 'src/main.cpp'
   GITADD 'src/main.rs'
 
   git status ; git commit -m 'Some comments in the code'
