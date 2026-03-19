@@ -181,7 +181,8 @@
 
 ** Expose the main torch c++ functions
 #+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
+  # target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
+  target_link_libraries(mytorch "${TORCH_LIBRARIES}")
   add_library(mytorch SHARED src/main.cpp)
   set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
   install(TARGETS mytorch LIBRARY DESTINATION lib)
