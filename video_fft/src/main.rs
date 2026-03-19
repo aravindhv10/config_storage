@@ -402,30 +402,28 @@ impl a_p {
 async fn main() -> anyhow::Result<()> {
     do_debug();
     if false {
-        
-    let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
-    let full_tensor = res.get_video_tensor()?;
+        let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
+        let full_tensor = res.get_video_tensor()?;
 
-    let device: tch::Device = {
-        if tch::Cuda::is_available() {
-            tch::Device::Cuda(0)
-        } else {
-            tch::Device::Cpu
-        }
-    };
+        let device: tch::Device = {
+            if tch::Cuda::is_available() {
+                tch::Device::Cuda(0)
+            } else {
+                tch::Device::Cpu
+            }
+        };
 
-    let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
+        let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
 
-    let compressed_tensor = compress_video_tensor(
-        /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
-        /*fps: f64 =*/ 8.0,
-        /*freq_limit: f64 =*/ 3.0,
-    )?;
+        let compressed_tensor = compress_video_tensor(
+            /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
+            /*fps: f64 =*/ 8.0,
+            /*freq_limit: f64 =*/ 3.0,
+        )?;
 
-    let blob = a_p::from_torch_fft_tensor(&compressed_tensor)?;
+        let blob = a_p::from_torch_fft_tensor(&compressed_tensor)?;
 
-    println!("{:?}", blob);
-
+        println!("{:?}", blob);
     }
     Ok(())
 }
