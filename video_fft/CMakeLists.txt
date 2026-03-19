@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-project(aoti_example VERSION 1.0 DESCRIPTION "Interface for inferring with libtorch exposed to rust")
+project(video_fft VERSION 1.0 DESCRIPTION "Code to evaluate FFT of videos")
 
 find_package(Torch REQUIRED)
 find_package(OpenCV REQUIRED)
