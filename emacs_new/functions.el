@@ -54,8 +54,11 @@
 (defhydra
   hydra-format-and-save (:color blue)
   "format-and-save"
+
   ("p" myfun/save_and_format_py "save and format python" :color blue)
   ("l" myfun/save_and_format_latex "save and format latex" :color blue)
+  ("c" myfun/save_and_format_c "save and format latex" :color blue)
+
   ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
@@ -63,13 +66,13 @@
   hydra-org (:color blue)
   "org"
   ("b" org-table-align "org-table-align" :color red)
-  ("c" myfun/copy-org-src-block "copy" :color red)
-  ("e" org-edit-src-code "edit" :color blue)
+  ("y" myfun/copy-org-src-block "copy" :color red)
+  ("i" org-edit-src-code "edit" :color blue)
   ("j" org-babel-next-src-block "next src block"  :color red)
   ("k" org-babel-previous-src-block "org-babel-previous-src-block" :color red)
   (";" org-toggle-comment "comment" :color red)
-  ("t" org-babel-tangle "tangle" :color red)
-  ("x" org-babel-execute-src-block "exec" :color red)
+  ("w" org-babel-tangle "tangle" :color red)
+  ("e" org-babel-execute-src-block "exec" :color red)
   ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
@@ -133,6 +136,7 @@
   ("o" hydra-org/body "hydra-org" :color blue)
   ("p" hydra-projectile/body "hydra-projectile" :color blue)
 
+  ("q" hydra-all/body "hydra-all" :color blue)
   ("<escape>" nil "cancel" :color blue))
 
 ;; |----------------------------------------------------------------------------------------------------------------------------------|
