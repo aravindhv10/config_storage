@@ -400,7 +400,7 @@ impl a_p {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    do_debug();
+    unsafe { do_debug() } ;
     if false {
         let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
         let full_tensor = res.get_video_tensor()?;
