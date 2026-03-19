@@ -7,14 +7,6 @@ extern "C" {
 
 using float32_t = float;
 using float64_t = double;
-// using int16_t = short int;
-// using int32_t = int;
-// using int64_t = long;
-// using int8_t = char;
-// using uint16_t = unsigned short int;
-// using uint32_t = unsigned int;
-// using uint64_t = unsigned long;
-// using uint8_t = unsigned char;
 
 using intype = unsigned char;
 using outtype = float;
