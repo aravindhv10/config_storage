@@ -675,6 +675,7 @@
 
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
+  /build/
   /video.mp4
   /video.mp4.raw
 #+end_src
