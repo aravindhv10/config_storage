@@ -239,19 +239,62 @@
   ]
 #+end_src
 
-* C++ Wrappers
+* C++ - Rust Inter - Op
 
-** export
+** C++
 
-*** rust
+*** Begin guard
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
+  #ifndef _HEADER_GUARD_src_export_hpp
+  #define _HEADER_GUARD_src_export_hpp
+
+  extern "C" {
+#+end_src
 
 **** definitions
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
+  using float32_t = float;
+  using float64_t = double;
+  using int16_t = short int;
+  using int32_t = int;
+  using int64_t = long;
+  using int8_t = char;
+  using uint16_t = unsigned short int;
+  using uint32_t = unsigned int;
+  using uint64_t = unsigned long;
+  using uint8_t = unsigned char;
+
+  using intype = uint8_t;
+  using outtype = float32_t;
+#+end_src
+
+**** fft function
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
+  int do_fft_compress(void *blob, uint16_t size_t, uint16_t size_y,
+                      uint16_t size_x, uint8_t size_c, float32_t fps,
+                      float32_t freq_limit, void *dest);
+#+end_src
+
+**** tmp_debug function
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
+  int do_debug();
+#+end_src
+
+*** End guard
+#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
+  } // extern "C"
+  #endif
+#+end_src
+
+** rust
+
+*** definitions
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   pub type float32_t = f32;
   pub type float64_t = f64;
 #+end_src
 
-**** fft function
+*** fft function
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   unsafe extern "C" {
       pub fn do_fft_compress(
@@ -267,72 +310,30 @@
   }
 #+end_src
 
-*** C++
+* Main C++ Code
 
-**** Begin guard
-#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
-  #ifndef _HEADER_GUARD_src_export_hpp
-  #define _HEADER_GUARD_src_export_hpp
+** Header
 
-  extern "C" {
-#+end_src
-
-***** definitions
-#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
-  using float32_t = float;
-  using float64_t = double;
-  using int16_t = short int;
-  using int32_t = int;
-  using int64_t = long;
-  using int8_t = char;
-  using uint16_t = unsigned short int;
-  using uint32_t = unsigned int;
-  using uint64_t = unsigned long;
-  using uint8_t = unsigned char;
-#+end_src
-
-***** fft function
-#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
-  int do_fft_compress(void *blob, uint16_t size_t, uint16_t size_y,
-                      uint16_t size_x, uint8_t size_c, float32_t fps,
-                      float32_t freq_limit, void *dest);
-#+end_src
-
-***** tmp_debug function
-#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
-  int do_debug();
-#+end_src
-
-**** End guard
-#+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
-  } // extern "C"
-  #endif
-#+end_src
-
-** main
-
-*** Header
-
-**** Begin guard
+*** Begin guard
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #ifndef _HEADER_GUARD_src_main_hpp
   #define _HEADER_GUARD_src_main_hpp
 #+end_src
 
-***** std
+**** std
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <iostream>
   #include <vector>
 #+end_src
 
-***** opencv
+**** opencv
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <opencv2/core/mat.hpp>
   #include <opencv2/imgcodecs.hpp>
   #include <opencv2/opencv.hpp>
 #+end_src
 
-***** torch
+**** torch
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <ATen/ops/sum.h>
   #include <c10/core/TensorOptions.h>
@@ -341,12 +342,12 @@
   #include <torch/torch.h>
 #+end_src
 
-**** End guard
+*** End guard
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #endif
 #+end_src
 
-*** Actual code
+** Actual code
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include "./main.hpp"
 
