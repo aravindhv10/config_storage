@@ -404,6 +404,8 @@
 
 * Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  include!("export.rs");
+
   use anyhow::Context;
   use tch::IndexOp;
 
