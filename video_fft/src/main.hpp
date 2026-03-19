@@ -14,4 +14,6 @@
 #include <torch/fft.h>
 #include <torch/torch.h>
 
+#include "./export.rs"
+
 #endif

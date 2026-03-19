@@ -283,6 +283,7 @@
 *** End guard
 #+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
   } // extern "C"
+
   #endif
 #+end_src
 
@@ -292,6 +293,8 @@
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   pub type float32_t = f32;
   pub type float64_t = f64;
+  pub type intype = u8;
+  pub type outtype = float32_t;
 #+end_src
 
 *** fft function
@@ -307,6 +310,13 @@
           freq_limit: float32_t,
           dest: *mut ::std::os::raw::c_void,
       ) -> ::std::os::raw::c_int;
+  }
+#+end_src
+
+*** Debugging function
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn do_debug() -> ::std::os::raw::c_int;
   }
 #+end_src
 
@@ -340,6 +350,11 @@
   #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
   #include <torch/fft.h>
   #include <torch/torch.h>
+#+end_src
+
+**** exports
+#+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
+  #include "./export.rs"
 #+end_src
 
 *** End guard

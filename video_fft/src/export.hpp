@@ -24,4 +24,5 @@ int do_fft_compress(void *blob, uint16_t size_t, uint16_t size_y,
 int do_debug();
 
 } // extern "C"
+
 #endif
