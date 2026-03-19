@@ -14,8 +14,8 @@ using float64_t = double;
 // using uint64_t = unsigned long;
 // using uint8_t = unsigned char;
 
-using intype = uint8_t;
-using outtype = float32_t;
+using intype = unsigned char;
+using outtype = float;
 
 int do_fft_compress(void *blob, uint16_t size_t, uint16_t size_y,
                     uint16_t size_x, uint8_t size_c, float32_t fps,

@@ -269,8 +269,8 @@
 
 ***** Tensor IO datatypes
 #+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
-  using intype = uint8_t;
-  using outtype = float32_t;
+  using intype = unsigned char;
+  using outtype = float;
 #+end_src
 
 **** fft function
