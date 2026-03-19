@@ -193,22 +193,10 @@
 ** Expose the main torch c++ functions
 #+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
   add_library(mytorch SHARED src/main.cpp)
-
-  #target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
-  target_link_libraries(mytorch "${TORCH_LIBRARIES}")
-
+  target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
   set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
   install(TARGETS mytorch LIBRARY DESTINATION lib)
 #+end_src
-
-** COMMENT The example library
-#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  target_link_libraries(aoti_example "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
-  add_executable(aoti_example src/test.cpp)
-  set_target_properties(aoti_example PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
-  set_property(TARGET aoti_example PROPERTY CXX_STANDARD 17)
-#+end_src
-
 
 * C++ Wrappers
 
@@ -222,7 +210,7 @@
   #include <vector>
 #+end_src
 
-**** COMMENT opencv
+**** opencv
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <opencv2/core/mat.hpp>
   #include <opencv2/imgcodecs.hpp>

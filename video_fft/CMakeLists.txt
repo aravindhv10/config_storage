@@ -11,9 +11,6 @@ find_package(Torch REQUIRED)
 find_package(OpenCV REQUIRED)
 
 add_library(mytorch SHARED src/main.cpp)
-
-#target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
-target_link_libraries(mytorch "${TORCH_LIBRARIES}")
-
+target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
 set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
 install(TARGETS mytorch LIBRARY DESTINATION lib)
