@@ -46,6 +46,7 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
   auto w = size[2];
+  printf("%d %d %d %d",size[0],size[1],size[2],size[3]);
   if (h<w) {
     return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
   } else if (w<h) {
