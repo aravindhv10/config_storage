@@ -81,7 +81,7 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
             // .to(good_device_and_dtype);
   }
 
-  std::cout << tensor_video_padded;
+  // std::cout << tensor_video_padded;
 
   float32_t passed = 0;
   if (true) {

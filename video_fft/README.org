@@ -531,7 +531,7 @@ g++ \
               // .to(good_device_and_dtype);
     }
 
-    std::cout << tensor_video_padded;
+    // std::cout << tensor_video_padded;
 
     float32_t passed = 0;
     if (true) {
