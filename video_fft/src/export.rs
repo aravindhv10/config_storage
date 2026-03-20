@@ -16,7 +16,3 @@ unsafe extern "C" {
         dest: *mut ::std::os::raw::c_void,
     ) -> ::std::os::raw::c_int;
 }
-
-unsafe extern "C" {
-    pub fn do_debug() -> ::std::os::raw::c_int;
-}

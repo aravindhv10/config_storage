@@ -325,6 +325,12 @@ struct a_p {
     p: [a_y; 6],
 }
 
+#[repr(C)]
+#[derive(Debug)]
+struct fft_video {
+    v: a_p
+}
+
 impl a_p {
     fn from_torch_fft_tensor(
         tensor_fft_input: &tch::Tensor,

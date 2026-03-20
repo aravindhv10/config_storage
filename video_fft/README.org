@@ -626,39 +626,6 @@ g++ \
   }
 #+end_src
 
-*** Testing and debugging
-
-**** Actual function
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  extern "C" {
-  int do_debug() {
-      do_fft_compress(/*void *blob =*/ NULL,
-                      /*uint16_t size_t =*/ 100,
-                      /*uint16_t size_y =*/ 10,
-                      /*uint16_t size_x =*/ 10,
-                      /*uint8_t size_c =*/ 3,
-                      /*float32_t fps =*/ 8.0,
-                      /*float32_t freq_limit =*/ 3.0,
-                      /*void *dest =*/ NULL);
-      return 0;
-  }
-  }
-#+end_src
-
-**** Expose the function
-
-***** C++ 
-#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
-  int do_debug();
-#+end_src
-
-***** RUST
-#+begin_src rust :mkdirp yes :tangle ./src/export.rs
-  unsafe extern "C" {
-      pub fn do_debug() -> ::std::os::raw::c_int;
-  }
-#+end_src
-
 * Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
   include!("export.rs");
@@ -988,6 +955,12 @@ g++ \
       p: [a_y; 6],
   }
 
+  #[repr(C)]
+  #[derive(Debug)]
+  struct fft_video {
+      v: a_p
+  }
+
   impl a_p {
       fn from_torch_fft_tensor(
           tensor_fft_input: &tch::Tensor,
@@ -1108,7 +1081,6 @@ g++ \
       Ok(())
   }
 #+end_src
-
 
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
