@@ -339,7 +339,7 @@ impl fft_video {
         let size = std::mem::size_of::<fft_video>();
         let bytes = unsafe {
             std::slice::from_raw_parts(
-                (data as *const fft_video) as *const u8,
+                (self as *const fft_video) as *const u8,
                 size,
             )
         };
