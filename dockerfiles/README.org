@@ -4,11 +4,11 @@
   /CPU/0_base/important_functions.sh
   /CPU/1_install_packages/build/
   /CPU/1_install_packages/important_functions.sh
-  CPU/1_install_packages/run_rocm.sh
+  /CPU/1_install_packages/run_rocm.sh
   /CPU/1_rust_builder/
   /CPU/2_install_rust/build/
   /CPU/2_install_rust/important_functions.sh
-  CPU/2_install_rust/run_rocm.sh
+  /CPU/2_install_rust/run_rocm.sh
   /CPU/2_zsh/
   /CPU/3_good_setup/build/
   /CPU/3_good_setup/important_functions.sh
