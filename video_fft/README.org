@@ -1,6 +1,4 @@
 * Cargo.toml
-
-** Main
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [package]
   name = "video_fft"
@@ -13,17 +11,6 @@
   memmap2 = "0.9.10"
   tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
   tokio = { version = "1.50.0", features = ["full"] }
-#+end_src
-
-** COMMENT Extra
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  glob = "0.3.3"
-  walkdir = "2.5.0"
-  ndarray = "0.17.2"
-  image = "0.25.10"
-  ffmpeg-the-third = "4.1.0"
-  gpu-fft = { version = "1.1.1", features = ["wgpu"] }
-  video-rs = { version = "0.11.0", features = ["ndarray"] }
 #+end_src
 
 * build.rs
@@ -327,7 +314,9 @@ g++ \
   ./cargo_build.sh
 #+end_src
 
-** cargo_run
+** Scripts for running
+
+*** cargo_run
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_run.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
@@ -335,19 +324,16 @@ g++ \
   cargo run --release
 #+end_src
 
-** cargo_watch
+*** cargo_watch
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_watch.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
   cargo watch -x run --release
 #+end_src
 
-
 * C++ - Rust Inter - Op
 
-** Begin guard
-
-*** C++
+** Begin guard on c++ headers
 #+begin_src cpp :mkdirp yes :tangle ./src/export.hpp
   #ifndef _HEADER_GUARD_src_export_hpp
   #define _HEADER_GUARD_src_export_hpp
@@ -599,7 +585,6 @@ g++ \
                                compressed_tensor_video_fft.element_size();
 
     std::cout << compressed_tensor_video_fft.sizes();
-
     std::cout << total_tensor_size;
     std::cout << compressed_tensor_video_fft.nbytes() ;
 
