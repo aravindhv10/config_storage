@@ -592,9 +592,17 @@ g++ \
                 .align_corners(false) // Default in PyTorch is usually false
             )
             .squeeze()
+            .to(torch::kCPU)
             .contiguous();
 
+    size_t total_tensor_size = compressed_tensor_video_fft.numel() *
+                               compressed_tensor_video_fft.element_size();
+
     std::cout << compressed_tensor_video_fft.sizes();
+
+    std::cout << total_tensor_size;
+
+    std::memcpy(dest, compressed_tensor_video_fft.data_ptr(), total_tensor_size);
 
     return 0;
   }
