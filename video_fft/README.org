@@ -7,7 +7,6 @@
 
   [dependencies]
   anyhow = "1.0.102"
-  bincode = "3.0.0"
   gxhash = "3.5.0"
   memmap2 = "0.9.10"
   serde = { version = "1.0.228", features = ["derive"] }
