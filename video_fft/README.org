@@ -1115,6 +1115,57 @@ g++ \
 
           return Ok(final_video);
       }
+
+      fn from_torch_video_tensor(
+          tensor_video_input: &tch::Tensor,
+      ) -> anyhow::Result<std::sync::Arc<Self>> {
+          if true {
+              "################################";
+              "# Do the check: ################";
+              "################################";
+
+              if tensor_video_input.kind() != tch::Kind::Uint8 {
+                  anyhow::bail!(
+                      "Input tensor must be Kind::Uint8, found {:?}",
+                      tensor_video_input.kind()
+                  );
+              } else {
+                  const expected_size: usize = tensor_video_input.size()[0] * 720 * 1280 * 3;
+                  let actual_size: usize = tensor_video_input.numel();
+                  if actual_size != expected_size {
+                      anyhow::bail!(
+                          "Tensor size mismatch: expected {} elements, found {}",
+                          expected_size,
+                          actual_size
+                      );
+                  }
+              }
+          }
+
+          let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+
+          let data: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
+              .context("Failed to obtain unique mutable access to the newly allocated Arc")?
+              .as_mut_ptr();
+
+          unsafe {
+              do_fft_compress(
+                  /*blob: *mut ::std::os::raw::c_void =*/
+                  tensor_video_input.data_ptr(),
+                  /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
+                  /*size_y: u16 =*/ 720 as u16,
+                  /*size_x: u16 =*/ 1280 as u16,
+                  /*size_c: u8 =*/ 3,
+                  /*fps: float32_t =*/ 8.0 as f32,
+                  /*freq_limit: float32_t =*/ 3.0 as f32,
+                  /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
+              );
+          }
+
+          let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+
+          return Ok(final_video);
+      }
   }
 
   fn compress_slice_and_write(
@@ -1155,8 +1206,8 @@ g++ \
       let full_tensor = res.get_video_tensor()?;
 
       compress_slice_and_write(
-        /*tensor_slice_input: tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)) ,
-        /*path_file_bin_video_output: &str =*/ "./video.bin",
+          /*tensor_slice_input: tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)),
+          /*path_file_bin_video_output: &str =*/ "./video.bin",
       );
 
       return Ok(());
