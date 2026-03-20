@@ -134,10 +134,10 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
           .to(torch::kCPU)
           .contiguous();
 
-  size_t total_tensor_size = compressed_tensor_video_fft.numel() *
-                             compressed_tensor_video_fft.element_size();
-
   if (true) {
+    size_t total_tensor_size = compressed_tensor_video_fft.numel() *
+                               compressed_tensor_video_fft.element_size();
+
     std::cout << compressed_tensor_video_fft.sizes();
     std::cout << total_tensor_size;
     std::cout << compressed_tensor_video_fft.nbytes();
