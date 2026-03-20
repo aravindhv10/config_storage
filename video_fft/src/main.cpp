@@ -45,7 +45,7 @@ inline torch::TensorOptions get_host_output_device_and_dtype() {
 inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
-  auto w = size[1];
+  auto w = size[2];
   if (h<w) {
     return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
   } else if (w<h) {
