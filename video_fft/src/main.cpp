@@ -130,7 +130,8 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
               .mode(torch::kTrilinear)
               .align_corners(false) // Default in PyTorch is usually false
           )
-          .squeeze();
+          .squeeze()
+          .contiguous();
 
   std::cout << compressed_tensor_video_fft.sizes();
 

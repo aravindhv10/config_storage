@@ -591,7 +591,8 @@ g++ \
                 .mode(torch::kTrilinear)
                 .align_corners(false) // Default in PyTorch is usually false
             )
-            .squeeze();
+            .squeeze()
+            .contiguous();
 
     std::cout << compressed_tensor_video_fft.sizes();
 
