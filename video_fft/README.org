@@ -1073,7 +1073,7 @@ g++ \
       unsafe {
           do_fft_compress(
               /*blob: *mut ::std::os::raw::c_void =*/ sliced_tensor.data_ptr(),
-              /*size_t: u16 =*/ 80 as u16,
+              /*size_t: u16 =*/ 20 as u16,
               /*size_y: u16 =*/ 720 as u16,
               /*size_x: u16 =*/ 1280 as u16,
               /*size_c: u8 =*/ 3,
