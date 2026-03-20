@@ -522,6 +522,15 @@ g++ \
                       uint8_t const len_c, float32_t const fps,
                       float32_t const freq_limit, void *const dest) {
 
+    uint16_t len_max, len_min;
+    if (len_x > len_y) {
+      len_max = len_x;
+      len_min = len_y;
+    } else {
+      len_max = len_y;
+      len_min = len_x;
+    }
+
     int64_t dist_c = 1;
     int64_t dist_x = len_c * dist_c;
     int64_t dist_y = len_x * dist_x;
@@ -538,18 +547,24 @@ g++ \
       passed = torch::sum(freq < freq_limit).item().to<uint16_t>();
     }
 
-    torch::Tensor tensor_video_padded =
+    torch::Tensor tensor_video_padded = torch::fft::fftshift(
         torch::fft::rfftn(
-            do_pad_video(torch::from_blob(blob, {len_t, len_y, len_x, len_c},
-                                          {dist_t, dist_y, dist_x, dist_c},
-                                          torch::TensorOptions()
-                                              .dtype(get_tensor_dtype<uint8_t>())
-                                              .device(torch::kCPU)))
+            do_pad_video(
+                torch::from_blob(
+                    /* data = */ blob,
+                    /* sizes = */ {len_t, len_y, len_x, len_c},
+                    /* strides = */ {dist_t, dist_y, dist_x, dist_c},
+                    /* Device_DType = */
+                    torch::TensorOptions()
+                        .dtype(get_tensor_dtype<uint8_t>())
+                        .device(
+                            torch::kCPU))) // Done tensor construction from blob
                 .permute(/*dims =*/{3, 1, 2, 0})
                 .to(torch::TensorOptions()
                         .dtype(torch::kFloat32)
                         .device(torch::kCPU)))
-            .narrow(3, 0, passed);
+            .narrow(3, 0, passed),
+        /* fftshift_dims = */ {0, 1, 2});
 
     std::cout << passed;
 
