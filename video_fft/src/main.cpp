@@ -81,16 +81,6 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
   int64_t const dist_y = len_x * dist_x;
   int64_t const dist_t = len_y * dist_y;
 
-  // uint16_t const passed =
-  //     torch::sum(
-  //         (torch::fft::rfftfreq(len_t, torch::TensorOptions()
-  //                                          .dtype(get_tensor_dtype<float32_t>())
-  //                                          .device(torch::kCPU)) *
-  //          fps) < freq_limit)
-  //         .item()
-  //         .to<uint16_t>();
-  // std::cout << passed;
-
   torch::Tensor tensor_video_padded =
       torch::fft::fftshift(
           torch::fft::rfftn(
@@ -127,6 +117,19 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
                   torch::indexing::Slice(position_start, position_end),
                   torch::indexing::
                       Slice()}) /* Done truncating spatial dimensions */;
+
+  auto compressed_tensor_video_fft =
+      torch::nn::functional::interpolate(
+          torch::cat({tensor_video_padded.abs(), tensor_video_padded.angle()},
+                     /*dim=*/0)
+              .unsqueeze(0),
+          torch::nn::functional::InterpolateFuncOptions()
+              .size(std::vector<int64_t>(
+                  {len_truncated, len_truncated, static_cast<int64_t>(60)}))
+              .mode(torch::kTrilinear)
+              .align_corners(false) // Default in PyTorch is usually false
+          )
+          .squeeze();
 
   return 0;
 }
