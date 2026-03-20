@@ -602,7 +602,7 @@ g++ \
 
     std::cout << total_tensor_size;
 
-    std::memcpy(dest, compressed_tensor_video_fft.data_ptr(), total_tensor_size);
+    // std::memcpy(dest, compressed_tensor_video_fft.data_ptr(), total_tensor_size);
 
     return 0;
   }
