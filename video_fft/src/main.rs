@@ -1,6 +1,7 @@
 include!("export.rs");
 
 use anyhow::Context;
+use std::io::Write;
 use tch::IndexOp;
 
 fn convert_encoded_video_to_raw(
@@ -332,6 +333,20 @@ struct fft_video {
 }
 
 impl fft_video {
+    fn save(&self, filename: &str) -> anyhow::Result<()> {
+        let file = std::fs::File::create(filename)?;
+        let mut writer = std::io::BufWriter::new(file);
+        let size = std::mem::size_of::<fft_video>();
+        let bytes = unsafe {
+            std::slice::from_raw_parts(
+                (data as *const fft_video) as *const u8,
+                size,
+            )
+        };
+        writer.write_all(bytes)?;
+        return Ok(());
+    }
+
     fn from_torch_fft_tensor(
         tensor_fft_input: &tch::Tensor,
     ) -> anyhow::Result<std::sync::Arc<Self>> {
@@ -431,8 +446,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let final_video: std::sync::Arc<fft_video> = unsafe { store.assume_init() };
-
-    println!("{:?}", final_video);
+    final_video.save("./video.bin")?;
 
     return Ok(());
 }
