@@ -106,10 +106,19 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
               .to(torch::TensorOptions()
                       .dtype(torch::kFloat32)
                       .device(torch::kCPU)))
-          .index({torch::indexing::Slice(),
-                  torch::indexing::Slice(position_start, position_end),
-                  torch::indexing::Slice(position_start, position_end),
-                  torch::indexing::Slice(0, passed)}),
+          .index(
+              {torch::indexing::Slice(),
+               torch::indexing::Slice(position_start, position_end),
+               torch::indexing::Slice(position_start, position_end),
+               torch::indexing::Slice(
+                   0, torch::sum(
+                          (torch::fft::rfftfreq(
+                               len_t, torch::TensorOptions()
+                                          .dtype(get_tensor_dtype<float32_t>())
+                                          .device(torch::kCPU)) *
+                           fps) < freq_limit)
+                          .item()
+                          .to<uint16_t>())}),
       /* fftshift_dims = */ {0, 1, 2});
 
   return 0;
