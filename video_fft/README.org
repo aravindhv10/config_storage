@@ -542,45 +542,52 @@ g++ \
     int64_t const dist_y = len_x * dist_x;
     int64_t const dist_t = len_y * dist_y;
 
-    uint16_t const passed =
-        torch::sum(
-            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
-                                             .dtype(get_tensor_dtype<float32_t>())
-                                             .device(torch::kCPU)) *
-             fps) < freq_limit)
-            .item()
-            .to<uint16_t>();
+    // uint16_t const passed =
+    //     torch::sum(
+    //         (torch::fft::rfftfreq(len_t, torch::TensorOptions()
+    //                                          .dtype(get_tensor_dtype<float32_t>())
+    //                                          .device(torch::kCPU)) *
+    //          fps) < freq_limit)
+    //         .item()
+    //         .to<uint16_t>();
+    // std::cout << passed;
 
-    torch::Tensor tensor_video_padded = torch::fft::fftshift(
-        torch::fft::rfftn(
-            do_pad_video(
-                torch::from_blob(
-                    /* data = */ blob,
-                    /* sizes = */ {len_t, len_y, len_x, len_c},
-                    /* strides = */ {dist_t, dist_y, dist_x, dist_c},
-                    /* Device_DType = */
-                    torch::TensorOptions()
-                        .dtype(get_tensor_dtype<uint8_t>())
-                        .device(
-                            torch::kCPU))) // Done tensor construction from blob
-                .permute(/*dims =*/{3, 1, 2, 0})
-                .to(torch::TensorOptions()
-                        .dtype(torch::kFloat32)
-                        .device(torch::kCPU)))
-            .index(
-                {torch::indexing::Slice(),
-                 torch::indexing::Slice(position_start, position_end),
-                 torch::indexing::Slice(position_start, position_end),
-                 torch::indexing::Slice(
-                     0, torch::sum(
-                            (torch::fft::rfftfreq(
-                                 len_t, torch::TensorOptions()
-                                            .dtype(get_tensor_dtype<float32_t>())
-                                            .device(torch::kCPU)) *
-                             fps) < freq_limit)
-                            .item()
-                            .to<uint16_t>())}),
-        /* fftshift_dims = */ {0, 1, 2});
+    torch::Tensor tensor_video_padded =
+        torch::fft::fftshift(
+            torch::fft::rfftn(
+                do_pad_video(
+                    torch::from_blob(
+                        /* data = */ blob,
+                        /* sizes = */ {len_t, len_y, len_x, len_c},
+                        /* strides = */ {dist_t, dist_y, dist_x, dist_c},
+                        /* Device_DType = */
+                        torch::TensorOptions()
+                            .dtype(get_tensor_dtype<uint8_t>())
+                            .device(
+                                torch::kCPU)) /* Done construction from blob */
+                    )
+                    .permute(
+                        /*dims =*/{3, 1, 2, 0})
+                    .to(torch::TensorOptions()
+                            .dtype(torch::kFloat32)
+                            .device(torch::kCPU))) /* Done RFFT */
+                .narrow(
+                    3, 0,
+                    torch::sum(
+                        (torch::fft::rfftfreq(
+                             len_t, torch::TensorOptions()
+                                        .dtype(get_tensor_dtype<float32_t>())
+                                        .device(torch::kCPU)) *
+                         fps) <
+                        freq_limit) /* Done evaluating number of modes to keep */
+                        .item()
+                        .to<uint16_t>()) /* Done truncation along time */,
+            /* fftshift_dims = */ {0, 1, 2}) /* Done shifting the origin */
+            .index({torch::indexing::Slice(),
+                    torch::indexing::Slice(position_start, position_end),
+                    torch::indexing::Slice(position_start, position_end),
+                    torch::indexing::
+                        Slice()}) /* Done truncating spatial dimensions */;
 
     return 0;
   }
