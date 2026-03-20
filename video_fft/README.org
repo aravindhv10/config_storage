@@ -1025,6 +1025,7 @@ g++ \
               /*dest: *mut ::std::os::raw::c_void =*/ std::ptr::null_mut(),
           );
       }
+
       if false {
           let compressed_tensor = compress_video_tensor(
               /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
@@ -1033,8 +1034,9 @@ g++ \
           )?;
 
           let blob = a_p::from_torch_fft_tensor(&compressed_tensor)?;
+          println!("{:?}", blob);
       }
-      println!("{:?}", blob);
+
       Ok(())
   }
 #+end_src

@@ -425,6 +425,7 @@ async fn main() -> anyhow::Result<()> {
             /*dest: *mut ::std::os::raw::c_void =*/ std::ptr::null_mut(),
         );
     }
+
     if false {
         let compressed_tensor = compress_video_tensor(
             /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
@@ -433,7 +434,8 @@ async fn main() -> anyhow::Result<()> {
         )?;
 
         let blob = a_p::from_torch_fft_tensor(&compressed_tensor)?;
+        println!("{:?}", blob);
     }
-    println!("{:?}", blob);
+
     Ok(())
 }
