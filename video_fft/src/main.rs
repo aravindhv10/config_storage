@@ -328,7 +328,7 @@ struct a_p {
 #[repr(C)]
 #[derive(Debug)]
 struct fft_video {
-    v: a_p
+    v: a_p,
 }
 
 impl fft_video {
