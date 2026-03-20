@@ -66,21 +66,17 @@ int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
   torch::Tensor tensor_video_padded;
 
   if (true) {
-
     torch::Tensor tensor_video = torch::from_blob(
         blob, {len_t, len_y, len_x, len_c}, {dist_t, dist_y, dist_x, dist_t},
         get_host_input_device_and_dtype());
 
     tensor_video_padded = do_pad_video(/*torch::Tensor & tensor_input =*/ tensor_video) ;
-    
   }
-
 
   std::cout << passed;
 
   return 0;
 }
-
 
 int do_debug() {
     do_fft_compress(/*void *blob =*/ NULL,
