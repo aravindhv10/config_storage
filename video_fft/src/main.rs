@@ -451,32 +451,11 @@ fn compress_slice_and_write(
 async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
-    let mut store: std::sync::Arc<std::mem::MaybeUninit<fft_video>> = std::sync::Arc::new_uninit();
 
-    /* Do the fft and write to the output store */
-    {
-        let data: *mut fft_video =
-            std::sync::Arc::<std::mem::MaybeUninit<fft_video>>::get_mut(&mut store)
-                .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-                .as_mut_ptr();
-
-        unsafe {
-            do_fft_compress(
-                /*blob: *mut ::std::os::raw::c_void =*/
-                full_tensor.i((0..40, .., .., ..)).data_ptr(),
-                /*size_t: u16 =*/ 40 as u16,
-                /*size_y: u16 =*/ 720 as u16,
-                /*size_x: u16 =*/ 1280 as u16,
-                /*size_c: u8 =*/ 3,
-                /*fps: float32_t =*/ 8.0 as f32,
-                /*freq_limit: float32_t =*/ 3.0 as f32,
-                /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
-            );
-        }
-    }
-
-    let final_video: std::sync::Arc<fft_video> = unsafe { store.assume_init() };
-    final_video.save("./video.bin")?;
+    compress_slice_and_write(
+      /*tensor_slice_input: tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)) ,
+      /*path_file_bin_video_output: &str =*/ "./video.bin",
+    );
 
     return Ok(());
 }
