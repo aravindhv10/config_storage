@@ -329,7 +329,7 @@ g++ \
 
   cmake .. 
   make -j
-  make -j install
+  cp -vf -- 'libmytorch.so' 'libmytorch.so.1.0' '/lib'
 #+end_src
 
 * C++ - Rust Inter - Op

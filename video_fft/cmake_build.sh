@@ -18,4 +18,4 @@ unlink 'Makefile'
 
 cmake .. 
 make -j
-make -j install
+cp -vf -- 'libmytorch.so' 'libmytorch.so.1.0' '/lib'
