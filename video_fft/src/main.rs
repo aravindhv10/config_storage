@@ -419,9 +419,10 @@ async fn main() -> anyhow::Result<()> {
         };
 
         let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
+    } else {
+        let sliced_tensor = full_tensor.i((0..80, .., .., ..));
     }
 
-    let sliced_tensor = full_tensor.i((0..80, .., .., ..));
 
     println!("Calling do_fft_compress");
     unsafe {
