@@ -41,6 +41,13 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
   auto w = size[1];
+  if (h<w) {
+    return torch::Tensor::pad(tensor_input, {0, 0, 0, 0, 0, w - h}, "constant", 0.0 );
+  } else if (w<h) {
+    return torch::Tensor::pad(tensor_input, {0, 0, 0, h-w, 0, 0}, "constant", 0.0 );
+  } else {
+    return tensor_input.detach();
+  }
 }
 
 int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
@@ -63,6 +70,8 @@ int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
     tensor_video_padded = do_pad_video(/*torch::Tensor & tensor_input =*/ tensor_video).to(good_device_and_dtype) ;
   }
 
+  std::cout << tensor_video_padded;
+
   float32_t passed = 0;
   if (true) {
 
@@ -74,8 +83,6 @@ int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
 
     passed = torch::sum(freq < freq_limit).item().to<float32_t>();
   }
-
-
 
   std::cout << passed;
 
