@@ -264,56 +264,34 @@ g++ \
 
 * Important shell scripts
 
-** env
+** Initial env setup
+
+*** env
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
   export LIBTORCH_USE_PYTORCH=1
   export RUSTFLAGS="-C target-cpu=native"
 #+end_src
 
-** nix_develop
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nix_develop.sh
-  cd "$('dirname' '--' "${0}")"
-  exec 'nix' 'develop'
-#+end_src
-
-** init
+*** init
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./init.sh
   cd "$('dirname' -- "${0}")"
   . './env.sh'
   exec zsh
 #+end_src
 
-** cargo_build
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
-  cd "$(dirname -- "${0}")"
-  . './env.sh'
-  # cd 'src'
-  # bindgen './export.hpp' > './export.rs'
-  # cd '..'
-  exec cargo build '--release'
+*** nix_develop
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nix_develop.sh
+  cd "$('dirname' '--' "${0}")"
+  exec 'nix' 'develop'
 #+end_src
 
-** cargo_run
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_run.sh
-  cd "$(dirname -- "${0}")"
-  . './env.sh'
-  './cargo_build.sh'
-  cargo run --release
-#+end_src
+** build scripts
 
-** cargo_watch
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_watch.sh
-  cd "$(dirname -- "${0}")"
-  . './env.sh'
-  cargo watch -x run --release
-#+end_src
-
-** cmake_build
+*** cmake_build
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cmake_build.sh
   cd "$(dirname -- "${0}")"
 
-  export LIBTORCH_USE_PYTORCH=1
-  export RUSTFLAGS="-C target-cpu=native"
+  . './env.sh'
 
   mkdir -pv -- 'target'
   cd 'target'
@@ -331,6 +309,39 @@ g++ \
   make -j
   cp -vf -- 'libmytorch.so' 'libmytorch.so.1.0' '/lib'
 #+end_src
+
+*** cargo_build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+  # cd 'src'
+  # bindgen './export.hpp' > './export.rs'
+  # cd '..'
+  exec cargo build '--release'
+#+end_src
+
+*** all_build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./all_build.sh
+  cd "$(dirname -- "${0}")"
+  ./cmake_build.sh
+  ./cargo_build.sh
+#+end_src
+
+** cargo_run
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_run.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+  './cargo_build.sh'
+  cargo run --release
+#+end_src
+
+** cargo_watch
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_watch.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+  cargo watch -x run --release
+#+end_src
+
 
 * C++ - Rust Inter - Op
 
@@ -1080,6 +1091,7 @@ g++ \
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
+  GITADD 'all_build.sh'
   GITADD 'build.rs'
   GITADD 'cargo_build.sh'
   GITADD 'Cargo.lock'
