@@ -122,14 +122,14 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
   torch::Tensor compressed_tensor_video_fft =
       torch::nn::functional::interpolate(
           torch::cat({tensor_video_padded.abs(), tensor_video_padded.angle()},
-                     /*dim=*/0)
+                     /*dim=*/0) /* Done extracting abs and angle into real tensor*/
               .unsqueeze(0),
           torch::nn::functional::InterpolateFuncOptions()
               .size(std::vector<int64_t>(
                   {len_truncated, len_truncated, static_cast<int64_t>(60)}))
               .mode(torch::kTrilinear)
-              .align_corners(false) // Default in PyTorch is usually false
-          )
+              .align_corners(false)
+          ) /* Done interpolating */
           .squeeze()
           .to(torch::kCPU)
           .contiguous();
