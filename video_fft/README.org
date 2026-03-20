@@ -1000,20 +1000,32 @@ g++ \
 
   #[tokio::main]
   async fn main() -> anyhow::Result<()> {
+      let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
+      let full_tensor = res.get_video_tensor()?;
+
+      let device: tch::Device = {
+          if tch::Cuda::is_available() {
+              tch::Device::Cuda(0)
+          } else {
+              tch::Device::Cpu
+          }
+      };
+
+      let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
+
+      unsafe {
+          do_fft_compress(
+              /*blob: *mut ::std::os::raw::c_void =*/ sliced_tensor.data_ptr(),
+              /*size_t: u16 =*/ 80 as u16,
+              /*size_y: u16 =*/ 720 as u16,
+              /*size_x: u16 =*/ 1280 as u16,
+              /*size_c: u8 =*/ 3,
+              /*fps: float32_t =*/ 8.0 as f32,
+              /*freq_limit: float32_t =*/ 3.0 as f32,
+              /*dest: *mut ::std::os::raw::c_void =*/ std::ptr::null_mut(),
+          );
+      }
       if false {
-          let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
-          let full_tensor = res.get_video_tensor()?;
-
-          let device: tch::Device = {
-              if tch::Cuda::is_available() {
-                  tch::Device::Cuda(0)
-              } else {
-                  tch::Device::Cpu
-              }
-          };
-
-          let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
-
           let compressed_tensor = compress_video_tensor(
               /*tensor_video: &tch::Tensor =*/ &sliced_tensor,
               /*fps: f64 =*/ 8.0,
@@ -1021,9 +1033,8 @@ g++ \
           )?;
 
           let blob = a_p::from_torch_fft_tensor(&compressed_tensor)?;
-
-          println!("{:?}", blob);
       }
+      println!("{:?}", blob);
       Ok(())
   }
 #+end_src
