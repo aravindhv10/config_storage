@@ -42,9 +42,9 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   auto h = size[1];
   auto w = size[1];
   if (h<w) {
-    return torch::nn::functional::pad(tensor_input, torch::ArrayRef<long>({0, 0, 0, 0, 0, w - h}) , "constant", 0.0 );
+    return torch::nn::functional::pad(tensor_input, torch::ArrayRef<long>({0, 0, 0, 0, 0, w - h}));
   } else if (w<h) {
-    return torch::nn::functional::pad(tensor_input, torch::ArrayRef<long>({0, 0, 0, h-w, 0, 0}) , "constant", 0.0 );
+    return torch::nn::functional::pad(tensor_input, torch::ArrayRef<long>({0, 0, 0, h-w, 0, 0}));
   } else {
     return tensor_input.detach();
   }
