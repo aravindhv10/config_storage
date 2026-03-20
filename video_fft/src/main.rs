@@ -375,7 +375,6 @@ impl fft_video {
             "################################";
             "# Do the init: #################";
             "################################";
-
             let data: *mut Self =
                 std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
                     .context("Failed to obtain unique mutable access to the newly allocated Arc")?
@@ -421,7 +420,6 @@ impl fft_video {
             "################################";
             "# Do the check: ################";
             "################################";
-
             if tensor_video_input.kind() != tch::Kind::Uint8 {
                 anyhow::bail!(
                     "Input tensor must be Kind::Uint8, found {:?}",
@@ -503,10 +501,13 @@ async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
-    compress_slice_and_write(
-        /*tensor_slice_input: tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)),
-        /*path_file_bin_video_output: &str =*/ "./video.bin",
-    );
+    let slave = fft_video::from_torch_video_tensor(/*tensor_video_input: &tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)));
+    slave.save("./video.bin")?;
+
+    // compress_slice_and_write(
+    //     /*tensor_slice_input: tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)),
+    //     /*path_file_bin_video_output: &str =*/ "./video.bin",
+    // );
 
     return Ok(());
 }
