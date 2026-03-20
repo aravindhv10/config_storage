@@ -5,7 +5,9 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.102"
+bincode = "3.0.0"
 gxhash = "3.5.0"
 memmap2 = "0.9.10"
+serde = { version = "1.0.228", features = ["derive"] }
 tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
 tokio = { version = "1.50.0", features = ["full"] }
