@@ -1,8 +1,8 @@
 [
 {
-  "directory": "/home/asd/config_storage/video_fft/build",
-  "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dmytorch_EXPORTS -isystem /usr/include/torch/csrc/api/include  -O3 -mtune=native -march=native -flto -O3 -mtune=native -march=native -flto -std=gnu++17 -fPIC -o CMakeFiles/mytorch.dir/src/main.cpp.o -c /home/asd/config_storage/video_fft/src/main.cpp",
-  "file": "/home/asd/config_storage/video_fft/src/main.cpp",
+  "directory": "/data/source/target",
+  "command": "/usr/bin/c++ -DHIPBLASLT_USE_ROCROLLER -DUSE_C10D_GLOO -DUSE_C10D_NCCL -DUSE_DISTRIBUTED -DUSE_PROF_API=1 -DUSE_RPC -DUSE_TENSORPIPE -D__HIP_PLATFORM_AMD__ -D__HIP_PLATFORM_AMD__=1 -Dmytorch_EXPORTS -isystem /opt/venv/lib/python3.13/site-packages/torch/include -isystem /opt/venv/lib/python3.13/site-packages/torch/include/torch/csrc/api/include -isystem /opt/rocm/include -isystem /opt/rocm-7.1.1/include -isystem /opt/rocm-7.1.1/include/hiprand -isystem /opt/rocm-7.1.1/include/rocrand -isystem /usr/include/opencv4  -O3 -mtune=native -march=native -flto -O3 -mtune=native -march=native -flto -std=gnu++17 -fPIC -fPIC -D__HIP_PLATFORM_AMD__=1 -DCUDA_HAS_FP16=1 -DUSE_ROCM -D__HIP_NO_HALF_OPERATORS__=1 -D__HIP_NO_HALF_CONVERSIONS__=1 -DTORCH_HIP_VERSION=701 -Wno-shift-count-negative -Wno-shift-count-overflow -DCAFFE2_USE_MIOPEN -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP -std=c++17 -DHIPBLAS_V2 -DHIP_ENABLE_WARP_SYNC_BUILTINS -DHIPBLASLT_OUTER_VEC -DUSE_ROCM_CK_GEMM -o CMakeFiles/mytorch.dir/src/main.cpp.o -c /data/source/src/main.cpp",
+  "file": "/data/source/src/main.cpp",
   "output": "CMakeFiles/mytorch.dir/src/main.cpp.o"
 }
 ]
