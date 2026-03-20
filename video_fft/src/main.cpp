@@ -107,7 +107,8 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
                            len_t, torch::TensorOptions()
                                       .dtype(get_tensor_dtype<float32_t>())
                                       .device(torch::kCPU)) *
-                       fps) <
+                       fps) /* Scaled frequency mode range tensor */
+                      <
                       freq_limit) /* Done evaluating number of modes to keep */
                       .item()
                       .to<uint16_t>()) /* Done truncation along time */,
@@ -130,6 +131,8 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
               .align_corners(false) // Default in PyTorch is usually false
           )
           .squeeze();
+
+  std::cout << compressed_tensor_video_fft.sizes();
 
   return 0;
 }
