@@ -425,7 +425,7 @@ async fn main() -> anyhow::Result<()> {
             /*size_c: u8 =*/ 3,
             /*fps: float32_t =*/ 8.0 as f32,
             /*freq_limit: float32_t =*/ 3.0 as f32,
-            /*dest: *mut ::std::os::raw::c_void =*/ data as *mut fft_video,
+            /*dest: *mut ::std::os::raw::c_void =*/ data as *mut c_void,
         );
     }
 
