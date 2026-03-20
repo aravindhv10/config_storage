@@ -66,7 +66,7 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
   int64_t dist_y = len_x * dist_x;
   int64_t dist_t = len_y * dist_y;
 
-  float32_t passed = 0;
+  uint16_t passed = 0;
   if (true) {
     auto freq =
         torch::fft::rfftfreq(len_t, torch::TensorOptions()
@@ -74,19 +74,21 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
                                         .device(torch::kCPU)) *
         fps;
 
-    passed = torch::sum(freq < freq_limit).item().to<float32_t>();
+    passed = torch::sum(freq < freq_limit).item().to<uint16_t>();
   }
 
-  torch::Tensor tensor_video_padded = torch::fft::rfftn(
-      do_pad_video(torch::from_blob(blob, {len_t, len_y, len_x, len_c},
-                                    {dist_t, dist_y, dist_x, dist_c},
-                                    torch::TensorOptions()
-                                        .dtype(get_tensor_dtype<uint8_t>())
-                                        .device(torch::kCPU)))
-          .permute(/*dims =*/{3, 1, 2, 0})
-          .to(torch::TensorOptions()
-                  .dtype(torch::kFloat32)
-                  .device(torch::kCPU))).narrow(3, 0, n);
+  torch::Tensor tensor_video_padded =
+      torch::fft::rfftn(
+          do_pad_video(torch::from_blob(blob, {len_t, len_y, len_x, len_c},
+                                        {dist_t, dist_y, dist_x, dist_c},
+                                        torch::TensorOptions()
+                                            .dtype(get_tensor_dtype<uint8_t>())
+                                            .device(torch::kCPU)))
+              .permute(/*dims =*/{3, 1, 2, 0})
+              .to(torch::TensorOptions()
+                      .dtype(torch::kFloat32)
+                      .device(torch::kCPU)))
+          .narrow(3, 0, passed);
 
   std::cout << passed;
 
