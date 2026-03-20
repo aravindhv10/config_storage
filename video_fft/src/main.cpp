@@ -46,7 +46,6 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
   auto w = size[2];
-  std::cout << size;
   if (h<w) {
     return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
   } else if (w<h) {
@@ -74,11 +73,13 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
   if (true) {
     torch::Tensor tensor_video = torch::from_blob(
         blob, {len_t, len_y, len_x, len_c}, {dist_t, dist_y, dist_x, dist_c},
-        torch::TensorOptions().dtype(get_tensor_dtype<uint8_t>()).device(torch::kCPU));
+        torch::TensorOptions()
+            .dtype(get_tensor_dtype<uint8_t>())
+            .device(torch::kCPU));
 
     tensor_video_padded =
         do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video);
-            // .to(good_device_and_dtype);
+    // .to(good_device_and_dtype);
   }
 
   // std::cout << tensor_video_padded;
