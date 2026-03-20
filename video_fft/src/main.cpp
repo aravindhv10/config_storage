@@ -118,7 +118,7 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
                   torch::indexing::
                       Slice()}) /* Done truncating spatial dimensions */;
 
-  auto compressed_tensor_video_fft =
+  torch::Tensor compressed_tensor_video_fft =
       torch::nn::functional::interpolate(
           torch::cat({tensor_video_padded.abs(), tensor_video_padded.angle()},
                      /*dim=*/0)
