@@ -426,7 +426,7 @@ impl fft_video {
                     tensor_video_input.kind()
                 );
             } else {
-                let expected_size: usize = tensor_video_input.size()[0] * 720 * 1280 * 3;
+                let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
                 let actual_size: usize = tensor_video_input.numel();
                 if actual_size != expected_size {
                     anyhow::bail!(
