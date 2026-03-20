@@ -287,9 +287,9 @@ g++ \
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
-  cd 'src'
-  bindgen './export.hpp' > './export.rs'
-  cd '..'
+  # cd 'src'
+  # bindgen './export.hpp' > './export.rs'
+  # cd '..'
   exec cargo build '--release'
 #+end_src
 
