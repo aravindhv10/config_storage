@@ -64,13 +64,15 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
   int64_t dist_y = len_x * dist_x;
   int64_t dist_t = len_y * dist_y;
 
-  torch::Tensor tensor_video_padded = do_pad_video(
-                     torch::from_blob(blob, {len_t, len_y, len_x, len_c},
-                                      {dist_t, dist_y, dist_x, dist_c},
-                                      torch::TensorOptions()
-                                          .dtype(get_tensor_dtype<uint8_t>())
-                                          .device(torch::kCPU)))
-            .to(torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU));
+  torch::Tensor tensor_video_padded =
+      do_pad_video(torch::from_blob(blob, {len_t, len_y, len_x, len_c},
+                                    {dist_t, dist_y, dist_x, dist_c},
+                                    torch::TensorOptions()
+                                        .dtype(get_tensor_dtype<uint8_t>())
+                                        .device(torch::kCPU)))
+          .to(torch::TensorOptions()
+                  .dtype(torch::kFloat32)
+                  .device(torch::kCPU));
 
   float32_t passed = 0;
   if (true) {
