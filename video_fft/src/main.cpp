@@ -58,10 +58,10 @@ int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
     passed = torch::sum(freq < freq_limit).item().to<float32_t>();
   }
 
-  size_t dist_c = 1;
-  size_t dist_x = len_c * dist_c;
-  size_t dist_y = len_x * dist_x;
-  size_t dist_t = len_y * dist_y;
+  int64_t dist_c = 1;
+  int64_t dist_x = len_c * dist_c;
+  int64_t dist_y = len_x * dist_x;
+  int64_t dist_t = len_y * dist_y;
 
   torch::Tensor tensor_video = torch::from_blob(
       blob, {len_t, len_y, len_x, len_c}, {dist_t, dist_y, dist_x, dist_t},
