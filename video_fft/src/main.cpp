@@ -74,8 +74,8 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
         get_host_input_device_and_dtype());
 
     tensor_video_padded =
-        do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video)
-            .to(good_device_and_dtype);
+        do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video);
+            // .to(good_device_and_dtype);
   }
 
   std::cout << tensor_video_padded;

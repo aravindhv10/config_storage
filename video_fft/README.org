@@ -524,8 +524,8 @@ g++ \
           get_host_input_device_and_dtype());
 
       tensor_video_padded =
-          do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video)
-              .to(good_device_and_dtype);
+          do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video);
+              // .to(good_device_and_dtype);
     }
 
     std::cout << tensor_video_padded;
