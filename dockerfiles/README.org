@@ -625,9 +625,9 @@
 
   . '../shell_functions/important_functions.sh'
 
+  CLEAN 'CUDA_UBUNTU/5_libtorch/#Dockerfile#'
   CLEAN '.git.sh'
   CLEAN 'README.org~'
-  CLEAN 'CUDA_UBUNTU/5_libtorch/#Dockerfile#'
 
   GITADD 'AMDGPU_PYT/0_base/Dockerfile'
   GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
@@ -646,6 +646,7 @@
   GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
+  GITADD '.gitignore'
   GITADD 'README.org'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
