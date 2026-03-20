@@ -403,16 +403,21 @@ async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
-    let device: tch::Device = {
-        if tch::Cuda::is_available() {
-            tch::Device::Cuda(0)
-        } else {
-            tch::Device::Cpu
-        }
-    };
+    if false {
+        let device: tch::Device = {
+            if tch::Cuda::is_available() {
+                tch::Device::Cuda(0)
+            } else {
+                tch::Device::Cpu
+            }
+        };
 
-    let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
+        let sliced_tensor = full_tensor.i((0..80, .., .., ..)).to_device(device);
+    }
 
+    let sliced_tensor = full_tensor.i((0..80, .., .., ..));
+
+    println!("Calling do_fft_compress");
     unsafe {
         do_fft_compress(
             /*blob: *mut ::std::os::raw::c_void =*/ sliced_tensor.data_ptr(),
