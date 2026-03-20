@@ -500,6 +500,7 @@ g++ \
 
 **** Actual function
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  extern "C" {
   int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
                       float fps, float freq_limit, void *dest) {
 
@@ -538,6 +539,7 @@ g++ \
 
     return 0;
   }
+  }
 #+end_src
 
 **** Expose the function
@@ -569,6 +571,7 @@ g++ \
 
 **** Actual function
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  extern "C" {
   int do_debug() {
       do_fft_compress(/*void *blob =*/ NULL,
                       /*uint16_t size_t =*/ 100,
@@ -579,6 +582,7 @@ g++ \
                       /*float32_t freq_limit =*/ 3.0,
                       /*void *dest =*/ NULL);
       return 0;
+  }
   }
 #+end_src
 

@@ -50,6 +50,7 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   }
 }
 
+extern "C" {
 int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
                     float fps, float freq_limit, void *dest) {
 
@@ -88,7 +89,9 @@ int do_fft_compress(void *blob, int len_t, int len_y, int len_x, int len_c,
 
   return 0;
 }
+}
 
+extern "C" {
 int do_debug() {
     do_fft_compress(/*void *blob =*/ NULL,
                     /*uint16_t size_t =*/ 100,
@@ -99,4 +102,5 @@ int do_debug() {
                     /*float32_t freq_limit =*/ 3.0,
                     /*void *dest =*/ NULL);
     return 0;
+}
 }
