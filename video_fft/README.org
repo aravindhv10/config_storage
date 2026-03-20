@@ -513,7 +513,7 @@
     size_t dist_y = len_x * dist_x;
     size_t dist_t = len_y * dist_y;
 
-    torch::Tensor tensor_video = torch::at::from_blob(
+    torch::Tensor tensor_video = torch::from_blob(
         blob, {len_t, len_y, len_x, len_c}, {dist_t, dist_y, dist_x, dist_t},
         get_host_input_device_and_dtype());
 
