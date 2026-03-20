@@ -31,14 +31,14 @@ inline torch::TensorOptions get_good_device_and_dtype() {
 inline torch::TensorOptions get_host_input_device_and_dtype() {
   printf("Called get_host_input_device_and_dtype()\n");
   return torch::TensorOptions()
-      .dtype(get_tensor_dtype<intype>())
+      .dtype(get_tensor_dtype<uint8_t>())
       .device(torch::kCPU);
 }
 
 inline torch::TensorOptions get_host_output_device_and_dtype() {
   printf("get_host_output_device_and_dtype started\n");
   return torch::TensorOptions()
-      .dtype(get_tensor_dtype<outtype>())
+      .dtype(get_tensor_dtype<float32_t>())
       .device(torch::kCPU);
 }
 
@@ -46,7 +46,7 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
   auto w = size[2];
-  printf("%d %d %d %d",size[0],size[1],size[2],size[3]);
+  std::cout << size;
   if (h<w) {
     return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
   } else if (w<h) {
@@ -66,6 +66,8 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
   int64_t dist_t = len_y * dist_y;
 
   auto good_device_and_dtype = get_good_device_and_dtype();
+
+  std::cout << good_device_and_dtype;
 
   torch::Tensor tensor_video_padded;
 
