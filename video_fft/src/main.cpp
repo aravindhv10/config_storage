@@ -45,18 +45,33 @@ inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
 
 int do_fft_compress(void *blob, int size_t, int size_y, int size_x, int size_c,
                     float fps, float freq_limit, void *dest) {
-  auto freq =
-      torch::fft::rfftfreq(size_t, torch::TensorOptions()
-                                       .dtype(get_tensor_dtype<float32_t>())
-                                       .device(torch::kCPU)) *
-      fps;
 
-  float32_t passed = torch::sum(freq < freq_limit).item().to<float32_t>();
+  float32_t passed = 0;
+  if (true) {
+
+    auto freq =
+        torch::fft::rfftfreq(size_t, torch::TensorOptions()
+                                         .dtype(get_tensor_dtype<float32_t>())
+                                         .device(torch::kCPU)) *
+        fps;
+
+    passed = torch::sum(freq < freq_limit).item().to<float32_t>();
+  }
+
+  size_t dist_c = 1;
+  size_t dist_x = size_c * dist_c;
+  size_t dist_y = size_x * dist_x;
+  size_t dist_t = size_y * dist_y;
+
+  torch::Tensor tensor_video = torch::at::from_blob(
+      blob, {size_t, size_y, size_x, size_c}, {dist_t, dist_y, dist_x, dist_t},
+      get_host_input_device_and_dtype());
 
   std::cout << passed;
 
   return 0;
 }
+
 
 int do_debug() {
     do_fft_compress(/*void *blob =*/ NULL,
