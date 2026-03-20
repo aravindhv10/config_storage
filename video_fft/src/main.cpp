@@ -74,7 +74,7 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
   if (true) {
     torch::Tensor tensor_video = torch::from_blob(
         blob, {len_t, len_y, len_x, len_c}, {dist_t, dist_y, dist_x, dist_c},
-        get_host_input_device_and_dtype());
+        torch::TensorOptions().dtype(get_tensor_dtype<uint8_t>()).device(torch::kCPU));
 
     tensor_video_padded =
         do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video);
