@@ -106,10 +106,11 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
               .to(torch::TensorOptions()
                       .dtype(torch::kFloat32)
                       .device(torch::kCPU)))
-          .narrow(3, 0, passed),
+          .index({torch::indexing::Slice(),
+                  torch::indexing::Slice(position_start, position_end),
+                  torch::indexing::Slice(position_start, position_end),
+                  torch::indexing::Slice(0, passed)}),
       /* fftshift_dims = */ {0, 1, 2});
-
-  std::cout << passed;
 
   return 0;
 }
