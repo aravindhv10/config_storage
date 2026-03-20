@@ -287,13 +287,17 @@ g++ \
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
-  cargo build --release
+  cd 'src'
+  bindgen './export.hpp' > './export.rs'
+  cd '..'
+  exec cargo build '--release'
 #+end_src
 
 ** cargo_run
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_run.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
+  './cargo_build.sh'
   cargo run --release
 #+end_src
 

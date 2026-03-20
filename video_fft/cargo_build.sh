@@ -1,4 +1,7 @@
 #!/bin/sh
 cd "$(dirname -- "${0}")"
 . './env.sh'
-cargo build --release
+cd 'src'
+bindgen './export.hpp' > './export.rs'
+cd '..'
+exec cargo build '--release'
