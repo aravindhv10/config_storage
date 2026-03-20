@@ -1132,6 +1132,7 @@ g++ \
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
   GITADD 'README.org'
+  GITADD 'src/export.cpp'
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'
   GITADD 'src/main.cpp'
