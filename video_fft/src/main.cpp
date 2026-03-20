@@ -42,7 +42,7 @@ inline torch::TensorOptions get_host_output_device_and_dtype() {
       .device(torch::kCPU);
 }
 
-inline torch::Tensor do_pad_video(torch::Tensor & tensor_input) {
+inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
   auto w = size[2];
@@ -71,15 +71,14 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
   torch::Tensor tensor_video_padded;
 
   if (true) {
-    torch::Tensor tensor_video = torch::from_blob(
-        blob, {len_t, len_y, len_x, len_c}, {dist_t, dist_y, dist_x, dist_c},
-        torch::TensorOptions()
-            .dtype(get_tensor_dtype<uint8_t>())
-            .device(torch::kCPU));
-
-    tensor_video_padded =
-        do_pad_video(/*torch::Tensor & tensor_input =*/tensor_video);
-    // .to(good_device_and_dtype);
+    tensor_video_padded = do_pad_video(/*torch::Tensor & tensor_input =*/
+        torch::from_blob(
+                         blob,
+                         {len_t, len_y, len_x, len_c},
+                         {dist_t, dist_y, dist_x, dist_c},
+                         torch::TensorOptions().dtype(get_tensor_dtype<uint8_t>()).device(torch::kCPU)
+                         )
+    ).to(good_device_and_dtype);
   }
 
   // std::cout << tensor_video_padded;
