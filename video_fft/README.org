@@ -531,21 +531,25 @@ g++ \
       len_min = len_x;
     }
 
-    int64_t dist_c = 1;
-    int64_t dist_x = len_c * dist_c;
-    int64_t dist_y = len_x * dist_x;
-    int64_t dist_t = len_y * dist_y;
+    uint16_t const len_diff = len_max - len_max;
+    uint16_t const len_truncated = len_max >> 3;
 
-    uint16_t passed = 0;
-    if (true) {
-      auto freq =
-          torch::fft::rfftfreq(len_t, torch::TensorOptions()
-                                          .dtype(get_tensor_dtype<float32_t>())
-                                          .device(torch::kCPU)) *
-          fps;
+    uint16_t const position_start = (len_max - len_truncated) >> 1;
+    uint16_t const position_end = position_start + len_truncated;
 
-      passed = torch::sum(freq < freq_limit).item().to<uint16_t>();
-    }
+    int64_t const dist_c = 1;
+    int64_t const dist_x = len_c * dist_c;
+    int64_t const dist_y = len_x * dist_x;
+    int64_t const dist_t = len_y * dist_y;
+
+    uint16_t const passed =
+        torch::sum(
+            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
+                                             .dtype(get_tensor_dtype<float32_t>())
+                                             .device(torch::kCPU)) *
+             fps) < freq_limit)
+            .item()
+            .to<uint16_t>();
 
     torch::Tensor tensor_video_padded = torch::fft::fftshift(
         torch::fft::rfftn(
