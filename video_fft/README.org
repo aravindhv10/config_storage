@@ -538,25 +538,16 @@ g++ \
       passed = torch::sum(freq < freq_limit).item().to<float32_t>();
     }
 
-    torch::Tensor tensor_video_padded = torch.fft.rfftn(
-        do_pad_video(
-
-            torch::from_blob(blob,
-
-                             {len_t, len_y, len_x, len_c},
-                             {dist_t, dist_y, dist_x, dist_c},
-
-                             torch::TensorOptions()
-                                 .dtype(get_tensor_dtype<uint8_t>())
-                                 .device(torch::kCPU)
-
-                                 )
-
-                )
+    torch::Tensor tensor_video_padded = torch::fft::rfftn(
+        do_pad_video(torch::from_blob(blob, {len_t, len_y, len_x, len_c},
+                                      {dist_t, dist_y, dist_x, dist_c},
+                                      torch::TensorOptions()
+                                          .dtype(get_tensor_dtype<uint8_t>())
+                                          .device(torch::kCPU)))
             .permute(/*dims =*/{3, 1, 2, 0})
             .to(torch::TensorOptions()
                     .dtype(torch::kFloat32)
-                    .device(torch::kCPU)));
+                    .device(torch::kCPU))).narrow(3, 0, n);
 
     std::cout << passed;
 
