@@ -56,8 +56,8 @@ inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
 }
 
 extern "C" {
-int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
-                    uint8_t len_c, float fps, float freq_limit, void *dest) {
+int do_fft_compress(void const * const blob, uint16_t const len_t, uint16_t const len_y, uint16_t const len_x,
+                    uint8_t const len_c, float32_t const fps, float32_t const freq_limit, void const * const dest) {
 
   int64_t dist_c = 1;
   int64_t dist_x = len_c * dist_c;
@@ -70,13 +70,13 @@ int do_fft_compress(void *blob, uint16_t len_t, uint16_t len_y, uint16_t len_x,
                                     torch::TensorOptions()
                                         .dtype(get_tensor_dtype<uint8_t>())
                                         .device(torch::kCPU)))
+          .permute(/*dims =*/{3, 1, 2, 0})
           .to(torch::TensorOptions()
                   .dtype(torch::kFloat32)
                   .device(torch::kCPU));
 
   float32_t passed = 0;
   if (true) {
-
     auto freq =
         torch::fft::rfftfreq(len_t, torch::TensorOptions()
                                         .dtype(get_tensor_dtype<float32_t>())
