@@ -141,7 +141,10 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
 
   std::cout << total_tensor_size;
 
-  // std::memcpy(dest, compressed_tensor_video_fft.data_ptr(), total_tensor_size);
+  if (false) {
+    std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
+                total_tensor_size);
+  }
 
   return 0;
 }
