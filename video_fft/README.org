@@ -1428,10 +1428,11 @@ int do_fft_compress_vram_friendly(void *const blob, uint16_t const len_t,
 
   cd "$(dirname -- "${0}")"
 
-  alejandra 'flake.nix'
-
   CLEAN '.git.sh'
   CLEAN 'README.org~'
+
+  alejandra 'flake.nix'
+  cargo fmt
 
   GITADD 'all_build.sh'
   GITADD 'build.rs'
