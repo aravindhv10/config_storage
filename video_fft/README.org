@@ -68,84 +68,87 @@
   ]
 #+end_src
 
-/usr/bin/c++ \
-    -DCAFFE2_USE_MIOPEN \
-    -DCUDA_HAS_FP16=1 \
-    -DHIPBLASLT_OUTER_VEC \
-    -DHIPBLASLT_USE_ROCROLLER \
-    -DHIPBLAS_V2 \
-    -DHIP_ENABLE_WARP_SYNC_BUILTINS \
-    -D__HIP_NO_HALF_CONVERSIONS__=1 \
-    -D__HIP_NO_HALF_OPERATORS__=1 \
-    -D__HIP_PLATFORM_AMD__ \
-    -D__HIP_PLATFORM_AMD__=1 \
-    -Dmytorch_EXPORTS \
-    -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP \
-    -DTORCH_HIP_VERSION=701 \
-    -DUSE_C10D_GLOO \
-    -DUSE_C10D_NCCL \
-    -DUSE_DISTRIBUTED \
-    -DUSE_PROF_API=1 \
-    -DUSE_ROCM \
-    -DUSE_ROCM_CK_GEMM \
-    -DUSE_RPC \
-    -DUSE_TENSORPIPE \
-    -isystem /opt/rocm-7.1.1/include \
-    -isystem /opt/rocm-7.1.1/include/hiprand \
-    -isystem /opt/rocm-7.1.1/include/rocrand \
-    -isystem /opt/rocm/include \
-    -isystem /opt/venv/lib/python3.13/site-packages/torch/include \
-    -isystem /opt/venv/lib/python3.13/site-packages/torch/include/torch/csrc/api/include \
-    -isystem /usr/include/opencv4 \
-    -std=gnu++17 \
-    -fPIC \
-    -O3 -mtune=native -march=native -flto \
-    -Wno-shift-count-negative \
-    -Wno-shift-count-overflow \
-    -std=c++17 \
-    -o CMakeFiles/mytorch.dir/src/main.cpp.o \
-    -c /data/source/src/main.cpp \
-;
+* Custom build verification
+#+begin_src sh
+  /usr/bin/c++ \
+      -DCAFFE2_USE_MIOPEN \
+      -DCUDA_HAS_FP16=1 \
+      -DHIPBLASLT_OUTER_VEC \
+      -DHIPBLASLT_USE_ROCROLLER \
+      -DHIPBLAS_V2 \
+      -DHIP_ENABLE_WARP_SYNC_BUILTINS \
+      -D__HIP_NO_HALF_CONVERSIONS__=1 \
+      -D__HIP_NO_HALF_OPERATORS__=1 \
+      -D__HIP_PLATFORM_AMD__ \
+      -D__HIP_PLATFORM_AMD__=1 \
+      -Dmytorch_EXPORTS \
+      -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP \
+      -DTORCH_HIP_VERSION=701 \
+      -DUSE_C10D_GLOO \
+      -DUSE_C10D_NCCL \
+      -DUSE_DISTRIBUTED \
+      -DUSE_PROF_API=1 \
+      -DUSE_ROCM \
+      -DUSE_ROCM_CK_GEMM \
+      -DUSE_RPC \
+      -DUSE_TENSORPIPE \
+      -isystem /opt/rocm-7.1.1/include \
+      -isystem /opt/rocm-7.1.1/include/hiprand \
+      -isystem /opt/rocm-7.1.1/include/rocrand \
+      -isystem /opt/rocm/include \
+      -isystem /opt/venv/lib/python3.13/site-packages/torch/include \
+      -isystem /opt/venv/lib/python3.13/site-packages/torch/include/torch/csrc/api/include \
+      -isystem /usr/include/opencv4 \
+      -std=gnu++17 \
+      -fPIC \
+      -O3 -mtune=native -march=native -flto \
+      -Wno-shift-count-negative \
+      -Wno-shift-count-overflow \
+      -std=c++17 \
+      -o CMakeFiles/mytorch.dir/src/main.cpp.o \
+      -c /data/source/src/main.cpp \
+  ;
 
-g++ \
-    -E \
-    -DCAFFE2_USE_MIOPEN \
-    -DCUDA_HAS_FP16=1 \
-    -DHIPBLASLT_OUTER_VEC \
-    -DHIPBLASLT_USE_ROCROLLER \
-    -DHIPBLAS_V2 \
-    -DHIP_ENABLE_WARP_SYNC_BUILTINS \
-    -D__HIP_NO_HALF_CONVERSIONS__=1 \
-    -D__HIP_NO_HALF_OPERATORS__=1 \
-    -D__HIP_PLATFORM_AMD__ \
-    -D__HIP_PLATFORM_AMD__=1 \
-    -Dmytorch_EXPORTS \
-    -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP \
-    -DTORCH_HIP_VERSION=701 \
-    -DUSE_C10D_GLOO \
-    -DUSE_C10D_NCCL \
-    -DUSE_DISTRIBUTED \
-    -DUSE_PROF_API=1 \
-    -DUSE_ROCM \
-    -DUSE_ROCM_CK_GEMM \
-    -DUSE_RPC \
-    -DUSE_TENSORPIPE \
-    -isystem /opt/rocm-7.1.1/include \
-    -isystem /opt/rocm-7.1.1/include/hiprand \
-    -isystem /opt/rocm-7.1.1/include/rocrand \
-    -isystem /opt/rocm/include \
-    -isystem /opt/venv/lib/python3.13/site-packages/torch/include \
-    -isystem /opt/venv/lib/python3.13/site-packages/torch/include/torch/csrc/api/include \
-    -isystem /usr/include/opencv4 \
-    -fPIC \
-    -O3 -mtune=native -march=native -flto \
-    -Wno-shift-count-negative \
-    -Wno-shift-count-overflow \
-    -std=gnu++17 \
-    -std=c++17 \
-    -o all.cc \
-    -c /data/source/src/main.cpp \
-;
+  g++ \
+      -E \
+      -DCAFFE2_USE_MIOPEN \
+      -DCUDA_HAS_FP16=1 \
+      -DHIPBLASLT_OUTER_VEC \
+      -DHIPBLASLT_USE_ROCROLLER \
+      -DHIPBLAS_V2 \
+      -DHIP_ENABLE_WARP_SYNC_BUILTINS \
+      -D__HIP_NO_HALF_CONVERSIONS__=1 \
+      -D__HIP_NO_HALF_OPERATORS__=1 \
+      -D__HIP_PLATFORM_AMD__ \
+      -D__HIP_PLATFORM_AMD__=1 \
+      -Dmytorch_EXPORTS \
+      -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_HIP \
+      -DTORCH_HIP_VERSION=701 \
+      -DUSE_C10D_GLOO \
+      -DUSE_C10D_NCCL \
+      -DUSE_DISTRIBUTED \
+      -DUSE_PROF_API=1 \
+      -DUSE_ROCM \
+      -DUSE_ROCM_CK_GEMM \
+      -DUSE_RPC \
+      -DUSE_TENSORPIPE \
+      -isystem /opt/rocm-7.1.1/include \
+      -isystem /opt/rocm-7.1.1/include/hiprand \
+      -isystem /opt/rocm-7.1.1/include/rocrand \
+      -isystem /opt/rocm/include \
+      -isystem /opt/venv/lib/python3.13/site-packages/torch/include \
+      -isystem /opt/venv/lib/python3.13/site-packages/torch/include/torch/csrc/api/include \
+      -isystem /usr/include/opencv4 \
+      -fPIC \
+      -O3 -mtune=native -march=native -flto \
+      -Wno-shift-count-negative \
+      -Wno-shift-count-overflow \
+      -std=gnu++17 \
+      -std=c++17 \
+      -o all.cc \
+      -c /data/source/src/main.cpp \
+  ;
+#+end_src
 
 * Nix part
 #+begin_src nix :mkdirp yes :tangle ./flake.nix
