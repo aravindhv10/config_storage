@@ -385,13 +385,19 @@
   cp -vf -- 'libmytorch.so' 'libmytorch.so.1.0' '/lib'
 #+end_src
 
+*** Generate rust bindings
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./generate_rs_bindings.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+  cd 'src'
+  bindgen './export.hpp' > './export.rs'
+#+end_src
+
 *** cargo_build
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
   cd "$(dirname -- "${0}")"
   . './env.sh'
-  # cd 'src'
-  # bindgen './export.hpp' > './export.rs'
-  # cd '..'
+  # './generate_rs_bindings.sh'
   exec cargo build '--release'
 #+end_src
 
@@ -1231,6 +1237,7 @@
   GITADD 'env.sh'
   GITADD 'flake.lock'
   GITADD 'flake.nix'
+  GITADD 'generate_rs_bindings.sh'
   GITADD '.gitignore'
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
