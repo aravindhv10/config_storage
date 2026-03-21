@@ -691,77 +691,6 @@
   }
 #+end_src
 
-extern "C" {
-int do_fft_compress_vram_friendly(void *const blob, uint16_t const len_t,
-                                  uint16_t const len_y, uint16_t const len_x,
-                                  uint8_t const len_c, float32_t const fps,
-                                  float32_t const freq_limit, void *const dest,
-                                  bool use_gpu) {
-    auto device = use_gpu ? torch::kCUDA : torch::kCPU;
-    
-    // 1. Initial Load and Padding [cite: 31, 32, 33]
-    torch::Tensor tensor = torch::from_blob(
-        blob, {len_t, len_y, len_x, len_c}, 
-        torch::TensorOptions().dtype(torch::kUint8).device(torch::kCPU)
-    ).to(device).to(torch::kFloat32);
-
-    // Padding logic [cite: 32, 33]
-    tensor = do_pad_video(tensor); 
-    
-    // 2. Sequential FFT Pass 1: Time (Dimension 0)
-    // We use rfft here because the input is real.
-    // Result becomes complex. Shape: [len_t/2 + 1, H, W, C]
-    tensor = torch::fft::rfft(tensor, /*n=*/std::nullopt, /*dim=*/0);
-
-    // 3. Immediate Temporal Truncation
-    // Calculate cutoff 'n' based on freq_limit [cite: 37, 38, 39]
-    int64_t n_cutoff = torch::sum(
-        (torch::fft::rfftfreq(len_t, torch::TensorOptions().device(torch::kCPU)) * fps) < freq_limit
-    ).item().toLong();
-    
-    tensor = tensor.narrow(0, 0, n_cutoff); // Reduce VRAM footprint early 
-
-    // 4. Sequential FFT Pass 2: Height (Dimension 1)
-    // Must use complex fft now.
-    tensor = torch::fft::fft(tensor, std::nullopt, /*dim=*/1);
-
-    // 5. Sequential FFT Pass 3: Width (Dimension 2)
-    tensor = torch::fft::fft(tensor, std::nullopt, /*dim=*/2);
-
-    // 6. Post-FFT Processing (Shift and Spatial Truncation)
-    // Shift spatial dims (now dims 1 and 2) [cite: 42]
-    tensor = torch::fft::fftshift(tensor, {1, 2});
-
-    uint16_t len_max = std::max(len_x, len_y);
-    uint16_t len_truncated = len_max >> 3; [cite: 43]
-    uint16_t pos_start = (len_max - len_truncated) >> 1; [cite: 43]
-    uint16_t pos_end = pos_start + len_truncated; [cite: 44]
-
-    // Slice spatial dimensions [cite: 44]
-    tensor = tensor.index({
-        torch::indexing::Slice(), 
-        torch::indexing::Slice(pos_start, pos_end),
-        torch::indexing::Slice(pos_start, pos_end),
-        torch::indexing::Slice()
-    });
-
-    // 7. Magnitude/Phase Concatenation and Interpolation [cite: 45, 46]
-    // Permute to [C, H, W, T] for interpolation compatibility
-    tensor = tensor.permute({3, 1, 2, 0}); 
-    
-    torch::Tensor compressed = torch::nn::functional::interpolate(
-        torch::cat({tensor.abs(), tensor.angle()}, 0).unsqueeze(0),
-        torch::nn::functional::InterpolateFuncOptions()
-            .size(std::vector<int64_t>({len_truncated, len_truncated, 60}))
-            .mode(torch::kTrilinear)
-            .align_corners(false)
-    ).squeeze().to(torch::kCPU).contiguous(); [cite: 46, 47]
-
-    std::memcpy(dest, compressed.data_ptr(), compressed.nbytes());
-    return 0;
-}
-}
-
 ***** Full at once
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   extern "C" {
@@ -1422,112 +1351,112 @@ int do_fft_compress_vram_friendly(void *const blob, uint16_t const len_t,
 
 * Python code to verify rust + c++ function of FFT
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./validate.py
-import numpy as np
-import torch
+  import numpy as np
+  import torch
 
-APPROXIMATE_LENGTH = 20
-FPS = 8.0
-FREQ_LIMIT = 3.0
-LR = 0.000001
-N_CHANNELS = 3
-N_CLASS_OUTPUT = 3
-SIZE_X = 1280
-SIZE_Y = 720
+  APPROXIMATE_LENGTH = 20
+  FPS = 8.0
+  FREQ_LIMIT = 3.0
+  LR = 0.000001
+  N_CHANNELS = 3
+  N_CLASS_OUTPUT = 3
+  SIZE_X = 1280
+  SIZE_Y = 720
 
-N_FFT_MODES_T = int(APPROXIMATE_LENGTH * FREQ_LIMIT)  # 60
+  N_FFT_MODES_T = int(APPROXIMATE_LENGTH * FREQ_LIMIT)  # 60
 
-N_CHANNELS_FFT = N_CHANNELS * 2  # 6 (real and imag for every color channel)
+  N_CHANNELS_FFT = N_CHANNELS * 2  # 6 (real and imag for every color channel)
 
-SIZE_MAX = max(SIZE_X, SIZE_Y)  # 1280
-SIZE_MIN = min(SIZE_X, SIZE_Y)  # 720
+  SIZE_MAX = max(SIZE_X, SIZE_Y)  # 1280
+  SIZE_MIN = min(SIZE_X, SIZE_Y)  # 720
 
-SIZE_DIFF = SIZE_MAX - SIZE_MIN
-SIZE_TRUNCATED = SIZE_MAX >> 3  # 160
+  SIZE_DIFF = SIZE_MAX - SIZE_MIN
+  SIZE_TRUNCATED = SIZE_MAX >> 3  # 160
 
-SIZE_START = (SIZE_MAX - SIZE_TRUNCATED) >> 1
-SIZE_END = SIZE_START + SIZE_TRUNCATED
+  SIZE_START = (SIZE_MAX - SIZE_TRUNCATED) >> 1
+  SIZE_END = SIZE_START + SIZE_TRUNCATED
 
-MODEL_TMP_DIMENSION = 512
-
-
-def do_pad_video(tensor_video):  # N H W C
-    B, H, W, C = list(tensor_video.shape)
-    if H < W:
-        tensor_video_pad = torch.nn.functional.pad(
-            input=tensor_video,
-            pad=(0, 0, 0, 0, 0, W-H),
-        )
-    elif W < H:
-        tensor_video_pad = torch.nn.functional.pad(
-            input=tensor_video,
-            pad=(0, 0, 0, H - W, 0, 0),
-        )
-
-    return tensor_video_pad
-
-def compress_video_tensor(tensor_video):
-
-    if tensor_video is None:
-        return None
-
-    tensor_video_pad = do_pad_video(tensor_video=tensor_video)
-    del tensor_video
-
-    tensor_video_pad = torch.permute(
-        tensor_video_pad,
-        (
-            3,
-            1,
-            2,
-            0,
-        ),
-    )
-
-    freq = torch.fft.rfftfreq(n=tensor_video_pad.shape[3], d=1.0 / FPS)
-    valid = (0 <= freq) & (freq < FREQ_LIMIT)
-    del freq
-    n = valid.sum().item()
-    del valid
-
-    tensor_video_fft = torch.fft.rfftn(tensor_video_pad)
-    del tensor_video_pad
-    tensor_video_fft = tensor_video_fft[:, :, :, 0:n]
-
-    tensor_video_fft = torch.fft.fftshift(
-        tensor_video_fft,
-        dim=(
-            0,
-            1,
-            2,
-        ),
-    )
-    compressed_tensor_video_fft = tensor_video_fft[
-        :, SIZE_START:SIZE_END, SIZE_START:SIZE_END, :
-    ]
-    compressed_tensor_video_fft = torch.cat(
-        (compressed_tensor_video_fft.abs(), compressed_tensor_video_fft.angle())
-    )
-    compressed_tensor_video_fft = torch.nn.functional.interpolate(
-        input=compressed_tensor_video_fft.unsqueeze(0),
-        size=(SIZE_TRUNCATED, SIZE_TRUNCATED, int(N_FFT_MODES_T)),
-        mode="trilinear",
-    ).squeeze()
-    return compressed_tensor_video_fft
+  MODEL_TMP_DIMENSION = 512
 
 
+  def do_pad_video(tensor_video):  # N H W C
+      B, H, W, C = list(tensor_video.shape)
+      if H < W:
+          tensor_video_pad = torch.nn.functional.pad(
+              input=tensor_video,
+              pad=(0, 0, 0, 0, 0, W - H),
+          )
+      elif W < H:
+          tensor_video_pad = torch.nn.functional.pad(
+              input=tensor_video,
+              pad=(0, 0, 0, H - W, 0, 0),
+          )
 
-res = np.fromfile('video.mp4.raw', dtype=np.uint8)
-vid = res.reshape( (-1, 720, 1280, 3) )[ 0:40 , : , : , : ]
-vid = torch.from_numpy(vid)
-vid = compress_video_tensor(vid)
-res = vid.detach().numpy()
-res2 = np.fromfile('video.bin.sequential', dtype=np.float32).reshape(6,160,160,60)
+      return tensor_video_pad
 
-diff = res2 - res
 
-np.sum(np.abs(diff))
-np.sum(np.abs(res))
-np.sum(np.abs(res2))
+  def compress_video_tensor(tensor_video):
+
+      if tensor_video is None:
+          return None
+
+      tensor_video_pad = do_pad_video(tensor_video=tensor_video)
+      del tensor_video
+
+      tensor_video_pad = torch.permute(
+          tensor_video_pad,
+          (
+              3,
+              1,
+              2,
+              0,
+          ),
+      )
+
+      freq = torch.fft.rfftfreq(n=tensor_video_pad.shape[3], d=1.0 / FPS)
+      valid = (0 <= freq) & (freq < FREQ_LIMIT)
+      del freq
+      n = valid.sum().item()
+      del valid
+
+      tensor_video_fft = torch.fft.rfftn(tensor_video_pad)
+      del tensor_video_pad
+      tensor_video_fft = tensor_video_fft[:, :, :, 0:n]
+
+      tensor_video_fft = torch.fft.fftshift(
+          tensor_video_fft,
+          dim=(
+              0,
+              1,
+              2,
+          ),
+      )
+      compressed_tensor_video_fft = tensor_video_fft[
+          :, SIZE_START:SIZE_END, SIZE_START:SIZE_END, :
+      ]
+      compressed_tensor_video_fft = torch.cat(
+          (compressed_tensor_video_fft.abs(), compressed_tensor_video_fft.angle())
+      )
+      compressed_tensor_video_fft = torch.nn.functional.interpolate(
+          input=compressed_tensor_video_fft.unsqueeze(0),
+          size=(SIZE_TRUNCATED, SIZE_TRUNCATED, int(N_FFT_MODES_T)),
+          mode="trilinear",
+      ).squeeze()
+      return compressed_tensor_video_fft
+
+
+  res = np.fromfile("video.mp4.raw", dtype=np.uint8)
+  vid = res.reshape((-1, 720, 1280, 3))[0:40, :, :, :]
+  vid = torch.from_numpy(vid)
+  vid = compress_video_tensor(vid)
+  res = vid.detach().numpy()
+  res2 = np.fromfile("video.bin.sequential", dtype=np.float32).reshape(6, 160, 160, 60)
+
+  diff = res2 - res
+
+  np.sum(np.abs(diff))
+  np.sum(np.abs(res))
+  np.sum(np.abs(res2))
 #+end_src
 
 * gitignore

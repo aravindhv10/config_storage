@@ -32,7 +32,7 @@ def do_pad_video(tensor_video):  # N H W C
     if H < W:
         tensor_video_pad = torch.nn.functional.pad(
             input=tensor_video,
-            pad=(0, 0, 0, 0, 0, W-H),
+            pad=(0, 0, 0, 0, 0, W - H),
         )
     elif W < H:
         tensor_video_pad = torch.nn.functional.pad(
@@ -41,6 +41,7 @@ def do_pad_video(tensor_video):  # N H W C
         )
 
     return tensor_video_pad
+
 
 def compress_video_tensor(tensor_video):
 
@@ -92,13 +93,12 @@ def compress_video_tensor(tensor_video):
     return compressed_tensor_video_fft
 
 
-
-res = np.fromfile('video.mp4.raw', dtype=np.uint8)
-vid = res.reshape( (-1, 720, 1280, 3) )[ 0:40 , : , : , : ]
+res = np.fromfile("video.mp4.raw", dtype=np.uint8)
+vid = res.reshape((-1, 720, 1280, 3))[0:40, :, :, :]
 vid = torch.from_numpy(vid)
 vid = compress_video_tensor(vid)
 res = vid.detach().numpy()
-res2 = np.fromfile('video.bin.sequential', dtype=np.float32).reshape(6,160,160,60)
+res2 = np.fromfile("video.bin.sequential", dtype=np.float32).reshape(6, 160, 160, 60)
 
 diff = res2 - res
 
