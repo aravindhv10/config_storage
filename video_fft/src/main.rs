@@ -470,6 +470,13 @@ impl fft_video {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    if tch::Cuda::is_available() {
+        println!("GPU is available!");
+        println!("Number of devices: {}", tch::Cuda::device_count());
+    } else {
+        println!("No GPU detected.");
+    }
+
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
