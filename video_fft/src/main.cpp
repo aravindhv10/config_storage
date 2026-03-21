@@ -59,7 +59,8 @@ extern "C" {
 int do_fft_compress(void *const blob, uint16_t const len_t,
                     uint16_t const len_y, uint16_t const len_x,
                     uint8_t const len_c, float32_t const fps,
-                    float32_t const freq_limit, void *const dest) {
+                    float32_t const freq_limit, void *const dest,
+                    bool use_gpu) {
 
   uint16_t len_max, len_min;
   if (len_x > len_y) {
@@ -68,6 +69,11 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
   } else {
     len_max = len_y;
     len_min = len_x;
+  }
+
+  auto device_gpu = torch::kCPU;
+  if (use_gpu) {
+    device_gpu = torch::kCUDA;
   }
 
   uint16_t const len_diff = len_max - len_max;
@@ -99,7 +105,7 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
                       /*dims =*/{3, 1, 2, 0})
                   .to(torch::TensorOptions()
                           .dtype(torch::kFloat32)
-                          .device(torch::kCPU))) /* Done RFFT */
+                          .device(device_gpu))) /* Done RFFT */
               .narrow(
                   3, 0,
                   torch::sum(
@@ -134,19 +140,8 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
           .to(torch::kCPU)
           .contiguous();
 
-  if (true) {
-    size_t total_tensor_size = compressed_tensor_video_fft.numel() *
-                               compressed_tensor_video_fft.element_size();
-
-    std::cout << compressed_tensor_video_fft.sizes();
-    std::cout << total_tensor_size;
-    std::cout << compressed_tensor_video_fft.nbytes();
-  }
-
-  if (true) {
-    std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
-                compressed_tensor_video_fft.nbytes()); //   total_tensor_size
-  }
+  std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
+              compressed_tensor_video_fft.nbytes());
 
   return 0;
 }

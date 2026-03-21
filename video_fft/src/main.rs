@@ -506,10 +506,5 @@ async fn main() -> anyhow::Result<()> {
     )?;
     slave.save("./video.bin")?;
 
-    // compress_slice_and_write(
-    //     /*tensor_slice_input: tch::Tensor =*/ full_tensor.i((0..40, .., .., ..)),
-    //     /*path_file_bin_video_output: &str =*/ "./video.bin",
-    // );
-
     return Ok(());
 }
