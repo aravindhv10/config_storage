@@ -680,7 +680,23 @@
         torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 2, 1, 0});
     " C3 H2 W1 T0 ";
 
-    std::cout << tensor_video_padded.sizes();
+    torch::Tensor compressed_tensor_video_fft =
+        torch::nn::functional::interpolate(
+            torch::cat(
+                {tensor_video_padded.abs(), tensor_video_padded.angle()},
+                /*dim=*/0) /* Done extracting abs and angle into real tensor*/
+                .unsqueeze(0),
+            torch::nn::functional::InterpolateFuncOptions()
+                .size(std::vector<int64_t>(
+                    {len_truncated, len_truncated, static_cast<int64_t>(60)}))
+                .mode(torch::kTrilinear)
+                .align_corners(false)) /* Done interpolating */
+            .squeeze()
+            .to(torch::kCPU)
+            .contiguous();
+
+    std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
+                compressed_tensor_video_fft.nbytes());
 
     return 0;
   }
