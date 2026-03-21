@@ -643,31 +643,37 @@
     " STEP 2 HWCT | RFFT => THWC";
     " H0 W1 C2 T3 ";
     tensor_video_padded =
-        torch::fft::rfft(tensor_video_padded)
-            .permute(/*dims =*/{3, 0, 1, 2});
+        torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{3, 0, 1, 2});
     " T3 H0 W1 C2 ";
 
     " STEP 3 THWC | FFT => CTHW ";
     " T0 H1 W2 C3 ";
     tensor_video_padded =
-        torch::fft::fft(tensor_video_padded)
-            .permute(/*dims =*/{3, 0, 1, 2});
+        torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 0, 1, 2});
     " C3 T0 H1 W2 ";
 
     " STEP 4 CTHW | FFT => WCTH ";
     " C0 T1 H2 W3 ";
     tensor_video_padded =
-        torch::fft::fft(tensor_video_padded)
-            .permute(/*dims =*/{3, 0, 1, 2});
+        torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 0, 1, 2});
     " W3 C0 T1 H2 ";
 
     " STEP 5 WCTH | FFT => CHWT ";
     " W0 C1 T2 H3 ";
     tensor_video_padded =
-        torch::fft::fft(tensor_video_padded)
-            .permute(/*dims =*/{1, 3, 0, 2});
+        torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 3, 0, 2});
     " C1 H3 W0 T2 ";
-    
+
+    tensor_video_padded = tensor_video_padded.narrow(
+        3, 0,
+        torch::sum(
+            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
+                                             .dtype(get_tensor_dtype<float32_t>())
+                                             .device(torch::kCPU)) *
+             fps)         /* Scaled frequency mode range tensor */
+            < freq_limit) /* Done evaluating number of modes to keep */
+            .item()
+            .to<uint16_t>());
 
     return 0;
   }
