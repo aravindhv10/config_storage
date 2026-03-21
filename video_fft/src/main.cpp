@@ -105,29 +105,29 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .to(torch::TensorOptions().dtype(torch::kFloat32).device(device_gpu));
   " H1 W2 C3 T0 ";
 
-  " STEP 2 HWCT | RFFT => THWC";
+  "HWCT | RFFT => WCTH";
   " H0 W1 C2 T3 ";
   tensor_video_padded =
-      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{3, 0, 1, 2});
-  " T3 H0 W1 C2 ";
+      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
+  " W1 C2 T3 H0 ";
 
-  " STEP 3 THWC | FFT => CTHW ";
-  " T0 H1 W2 C3 ";
-  tensor_video_padded =
-      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 0, 1, 2});
-  " C3 T0 H1 W2 ";
-
-  " STEP 4 CTHW | FFT => WCTH ";
-  " C0 T1 H2 W3 ";
-  tensor_video_padded =
-      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 0, 1, 2});
-  " W3 C0 T1 H2 ";
-
-  " STEP 5 WCTH | FFT => CHWT ";
+  "WCTH | FFT => CTHW";
   " W0 C1 T2 H3 ";
   tensor_video_padded =
-      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 3, 0, 2});
-  " C1 H3 W0 T2 ";
+      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
+  " C1 T2 H3 W0 ";
+
+  "CTHW | FFT => THWC";
+  " C0 T1 H2 W3 ";
+  tensor_video_padded =
+      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
+  " T1 H2 W3 C0 ";
+
+  "THWC | FFT => CHWT";
+  " T0 H1 W2 C3 ";
+  tensor_video_padded =
+      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{3, 1, 2, 0});
+  " C3 H1 W2 T0 ";
 
   tensor_video_padded = tensor_video_padded.narrow(
       3, 0,
@@ -139,6 +139,8 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           < freq_limit) /* Done evaluating number of modes to keep */
           .item()
           .to<uint16_t>());
+
+  tensor_video_padded = torch::fft::fftshift(tensor_video_padded);
 
   return 0;
 }
