@@ -56,6 +56,88 @@ inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
 }
 
 extern "C" {
+int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
+                              uint16_t const len_y, uint16_t const len_x,
+                              uint8_t const len_c, float32_t const fps,
+                              float32_t const freq_limit, void *const dest,
+                              bool use_gpu) {
+
+  uint16_t len_max, len_min;
+  if (len_x > len_y) {
+    len_max = len_x;
+    len_min = len_y;
+  } else {
+    len_max = len_y;
+    len_min = len_x;
+  }
+
+  auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
+
+  uint16_t const len_diff = len_max - len_max;
+  uint16_t const len_truncated = len_max >> 3;
+
+  uint16_t const position_start = (len_max - len_truncated) >> 1;
+  uint16_t const position_end = position_start + len_truncated;
+
+  int64_t const dist_c = 1;
+  int64_t const dist_x = len_c * dist_c;
+  int64_t const dist_y = len_x * dist_x;
+  int64_t const dist_t = len_y * dist_y;
+
+  " T0 H1 W2 C3 ";
+  " C3 H1 W2 T0 ";
+
+  torch::Tensor tensor_video_padded =
+      torch::fft::rfft(torch::from_blob(
+                           /* data = */ blob,
+                           /* sizes = */ {len_t, len_y, len_x, len_c},
+                           /* strides = */ {dist_t, dist_y, dist_x, dist_c},
+                           /* Device_DType = */
+                           torch::TensorOptions()
+                               .dtype(get_tensor_dtype<uint8_t>())
+                               .device(torch::kCPU))
+                           .permute(
+                               /*dims =*/{3, 1, 2, 0})
+                           .to(torch::TensorOptions()
+                                   .dtype(torch::kFloat32)
+                                   .device(device_gpu)))
+          .narrow(3, 0,
+                  torch::sum(
+                      (torch::fft::rfftfreq(
+                           len_t, torch::TensorOptions()
+                                      .dtype(get_tensor_dtype<float32_t>())
+                                      .device(torch::kCPU)) *
+                       fps) /* Scaled frequency mode range tensor */
+                      <
+                      freq_limit) /* Done evaluating number of modes to keep */
+                      .item()
+                      .to<uint16_t>())
+
+      ;
+
+  torch::Tensor compressed_tensor_video_fft =
+      torch::nn::functional::interpolate(
+          torch::cat(
+              {tensor_video_padded.abs(), tensor_video_padded.angle()},
+              /*dim=*/0) /* Done extracting abs and angle into real tensor*/
+              .unsqueeze(0),
+          torch::nn::functional::InterpolateFuncOptions()
+              .size(std::vector<int64_t>(
+                  {len_truncated, len_truncated, static_cast<int64_t>(60)}))
+              .mode(torch::kTrilinear)
+              .align_corners(false)) /* Done interpolating */
+          .squeeze()
+          .to(torch::kCPU)
+          .contiguous();
+
+  std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
+              compressed_tensor_video_fft.nbytes());
+
+  return 0;
+}
+}
+
+extern "C" {
 int do_fft_compress(void *const blob, uint16_t const len_t,
                     uint16_t const len_y, uint16_t const len_x,
                     uint8_t const len_c, float32_t const fps,
@@ -71,10 +153,7 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
     len_min = len_x;
   }
 
-  auto device_gpu = torch::kCPU;
-  if (use_gpu) {
-    device_gpu = torch::kCUDA;
-  }
+  auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
 
   uint16_t const len_diff = len_max - len_max;
   uint16_t const len_truncated = len_max >> 3;
