@@ -455,6 +455,7 @@ impl fft_video {
                 /*fps: float32_t =*/ 8.0 as f32,
                 /*freq_limit: float32_t =*/ 3.0 as f32,
                 /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
+                /*bool use_gpu =*/ false,
             );
         }
 
