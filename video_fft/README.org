@@ -69,6 +69,8 @@
 #+end_src
 
 * Custom build verification
+
+** 1
 #+begin_src sh
   /usr/bin/c++ \
       -DCAFFE2_USE_MIOPEN \
@@ -108,7 +110,10 @@
       -o CMakeFiles/mytorch.dir/src/main.cpp.o \
       -c /data/source/src/main.cpp \
   ;
+#+end_src
 
+** 2
+#+begin_src sh
   g++ \
       -E \
       -DCAFFE2_USE_MIOPEN \
