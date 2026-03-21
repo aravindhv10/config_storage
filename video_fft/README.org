@@ -1562,6 +1562,7 @@ np.sum(np.abs(res2))
   GITADD 'cmake_build.sh'
   GITADD 'CMakeLists.txt'
   GITADD 'compile_commands.json'
+  GITADD 'convert_video_2_raw.sh'
   GITADD 'demux_decode.c'
   GITADD 'env.sh'
   GITADD 'flake.lock'
@@ -1580,6 +1581,7 @@ np.sum(np.abs(res2))
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'
+  GITADD 'validate.py'
 
   git status ; git commit -m 'Added more docker scripts'
   "${HOME}/SSH/K/P/setup.sh" ; git push
