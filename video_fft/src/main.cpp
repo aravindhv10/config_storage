@@ -120,30 +120,18 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   tensor_video_padded =
       torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/2);
 
-  if (true) {
-    tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {1, 2});
+  tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {1, 2});
 
-    tensor_video_padded = tensor_video_padded.index(
-        {torch::indexing::Slice(),
-         torch::indexing::Slice(position_start, position_end),
-         torch::indexing::Slice(position_start, position_end),
-         torch::indexing::Slice()});
-  }
+  tensor_video_padded = tensor_video_padded.index(
+      {torch::indexing::Slice(),
+       torch::indexing::Slice(position_start, position_end),
+       torch::indexing::Slice(position_start, position_end),
+       torch::indexing::Slice()});
 
   tensor_video_padded =
       torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/3);
 
-  if (false) {
-    tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {1, 2, 3});
-
-    tensor_video_padded = tensor_video_padded.index(
-        {torch::indexing::Slice(),
-         torch::indexing::Slice(position_start, position_end),
-         torch::indexing::Slice(position_start, position_end),
-         torch::indexing::Slice()});
-  } else {
-    tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {3});
-  }
+  tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {3});
 
   torch::Tensor compressed_tensor_video_fft =
       torch::nn::functional::interpolate(
