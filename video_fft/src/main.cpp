@@ -125,10 +125,21 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
 
   " T0 C1 H2 W3 ";
   tensor_video_padded =
-      torch::fft::fftshift(torch::fft::fft(tensor_video_padded), {2})
+      torch::fft::fftshift(torch::fft::fft(tensor_video_padded), {3})
           .index({torch::indexing::Slice(), torch::indexing::Slice(),
                   torch::indexing::Slice(),
-                  torch::indexing::Slice(position_start, position_end)});
+                  torch::indexing::Slice(position_start, position_end)})
+          .permute(/*dims =*/{0, 1, 3, 2});
+  " T0 C1 W3 H2 ";
+
+  " T0 C1 W2 H3 ";
+  tensor_video_padded =
+      torch::fft::fftshift(torch::fft::fft(tensor_video_padded), {3})
+          .index({torch::indexing::Slice(), torch::indexing::Slice(),
+                  torch::indexing::Slice(),
+                  torch::indexing::Slice(position_start, position_end)})
+          .permute(/*dims =*/{0, 1, 3, 2});
+
 
   std::cout << tensor_video_padded.sizes();
 
