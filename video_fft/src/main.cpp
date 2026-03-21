@@ -84,9 +84,11 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   int64_t const dist_y = len_x * dist_x;
   int64_t const dist_t = len_y * dist_y;
 
+  " STEP 1 PERMUTATION: ";
   " T0 H1 W2 C3 ";
   " C3 H1 W2 T0 ";
 
+  " STEP 2 PERMUTATION AFTER TIME RFFT: ";
   " C0 H1 W2 T3 ";
   " T3 C0 H1 W2 ";
 
@@ -120,6 +122,13 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                                .item()
                                .to<uint16_t>()))
           .permute(/*dims =*/{3, 0, 1, 2});
+
+  " T0 C1 H2 W3 ";
+  tensor_video_padded =
+      torch::fft::fftshift(torch::fft::fft(tensor_video_padded), {2})
+          .index({torch::indexing::Slice(), torch::indexing::Slice(),
+                  torch::indexing::Slice(),
+                  torch::indexing::Slice(position_start, position_end)});
 
   std::cout << tensor_video_padded.sizes();
 
