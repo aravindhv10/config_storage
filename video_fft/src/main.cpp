@@ -115,10 +115,10 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   tensor_video_padded = tensor_video_padded.narrow(3, 0, t_cutoff);
 
   tensor_video_padded =
-      torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/1);
+      torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/2);
 
   tensor_video_padded =
-      torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/2);
+      torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/1);
 
   tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {1, 2});
 
@@ -129,9 +129,9 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
        torch::indexing::Slice()});
 
   tensor_video_padded =
-      torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/3);
+      torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/0);
 
-  tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {3});
+  tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {0});
 
   torch::Tensor compressed_tensor_video_fft =
       torch::nn::functional::interpolate(

@@ -447,19 +447,36 @@ impl fft_video {
             .context("Failed to obtain unique mutable access to the newly allocated Arc")?
             .as_mut_ptr();
 
-        unsafe {  // do_fft_compress_efficient
-            do_fft_compress(
-                /*blob: *mut ::std::os::raw::c_void =*/
-                tensor_video_input.data_ptr(),
-                /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
-                /*size_y: u16 =*/ 720 as u16,
-                /*size_x: u16 =*/ 1280 as u16,
-                /*size_c: u8 =*/ 3,
-                /*fps: float32_t =*/ 8.0 as f32,
-                /*freq_limit: float32_t =*/ 3.0 as f32,
-                /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
-                /*bool use_gpu =*/ use_gpu,
-            );
+        if true {
+            unsafe { 
+                do_fft_compress_efficient(
+                    /*blob: *mut ::std::os::raw::c_void =*/
+                    tensor_video_input.data_ptr(),
+                    /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
+                    /*size_y: u16 =*/ 720 as u16,
+                    /*size_x: u16 =*/ 1280 as u16,
+                    /*size_c: u8 =*/ 3,
+                    /*fps: float32_t =*/ 8.0 as f32,
+                    /*freq_limit: float32_t =*/ 3.0 as f32,
+                    /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
+                    /*bool use_gpu =*/ use_gpu,
+                );
+            }
+        } else {
+            unsafe {
+                do_fft_compress(
+                    /*blob: *mut ::std::os::raw::c_void =*/
+                    tensor_video_input.data_ptr(),
+                    /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
+                    /*size_y: u16 =*/ 720 as u16,
+                    /*size_x: u16 =*/ 1280 as u16,
+                    /*size_c: u8 =*/ 3,
+                    /*fps: float32_t =*/ 8.0 as f32,
+                    /*freq_limit: float32_t =*/ 3.0 as f32,
+                    /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
+                    /*bool use_gpu =*/ use_gpu,
+                );
+            }
         }
 
         let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
