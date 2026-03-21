@@ -447,8 +447,8 @@ impl fft_video {
             .context("Failed to obtain unique mutable access to the newly allocated Arc")?
             .as_mut_ptr();
 
-        unsafe { 
-            do_fft_compress_efficient(
+        unsafe {  // do_fft_compress_efficient
+            do_fft_compress(
                 /*blob: *mut ::std::os::raw::c_void =*/
                 tensor_video_input.data_ptr(),
                 /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
