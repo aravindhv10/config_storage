@@ -97,7 +97,10 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .to(device_gpu);
   " T0 H1 W2 C3 ";
 
-  " STEP 1 THWC => HWCT: ";
+  std::cout << "Starting" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
+
+  " THWC => HWCT: ";
   " T0 H1 W2 C3 ";
   tensor_video_padded =
       do_pad_video(tensor_video_padded)
@@ -105,11 +108,17 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .to(torch::TensorOptions().dtype(torch::kFloat32).device(device_gpu));
   " H1 W2 C3 T0 ";
 
+  std::cout << "1 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
+
   "HWCT | RFFT => WCTH";
   " H0 W1 C2 T3 ";
   tensor_video_padded =
       torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
   " W1 C2 T3 H0 ";
+
+  std::cout << "2 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
 
   "WCTH | FFT => CTHW";
   " W0 C1 T2 H3 ";
@@ -117,17 +126,26 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
       torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
   " C1 T2 H3 W0 ";
 
+  std::cout << "3 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
+
   "CTHW | FFT => THWC";
   " C0 T1 H2 W3 ";
   tensor_video_padded =
       torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
   " T1 H2 W3 C0 ";
 
+  std::cout << "4 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
+
   "THWC | FFT => CHWT";
   " T0 H1 W2 C3 ";
   tensor_video_padded =
       torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{3, 1, 2, 0});
   " C3 H1 W2 T0 ";
+
+  std::cout << "5 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
 
   tensor_video_padded = tensor_video_padded.narrow(
       3, 0,
@@ -140,6 +158,9 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .item()
           .to<uint16_t>());
 
+  std::cout << "6 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
+
   tensor_video_padded =
       torch::fft::fftshift(tensor_video_padded, {0, 1, 2})
           .index({torch::indexing::Slice(),
@@ -147,7 +168,8 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                   torch::indexing::Slice(position_start, position_end),
                   torch::indexing::Slice()});
 
-  std::cout << tensor_video_padded.sizes();
+  std::cout << "7 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
 
   torch::Tensor compressed_tensor_video_fft =
       torch::nn::functional::interpolate(
@@ -164,7 +186,8 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .to(torch::kCPU)
           .contiguous();
 
-  std::cout << tensor_video_padded.sizes();
+  std::cout << "8 Done" <<std::endl;
+  std::cout << tensor_video_padded.sizes() << std::endl;
 
   std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
               compressed_tensor_video_fft.nbytes());
