@@ -4,7 +4,7 @@ use anyhow::Context;
 use std::io::Write;
 use tch::IndexOp;
 
-const USE_GPU = false;
+const USE_GPU: bool = false;
 
 fn convert_encoded_video_to_raw(
     path_file_video_input: &str,
