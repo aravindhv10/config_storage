@@ -111,27 +111,9 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                       <
                       freq_limit) /* Done evaluating number of modes to keep */
                       .item()
-                      .to<uint16_t>())
+                      .to<uint16_t>());
 
-      ;
-
-  torch::Tensor compressed_tensor_video_fft =
-      torch::nn::functional::interpolate(
-          torch::cat(
-              {tensor_video_padded.abs(), tensor_video_padded.angle()},
-              /*dim=*/0) /* Done extracting abs and angle into real tensor*/
-              .unsqueeze(0),
-          torch::nn::functional::InterpolateFuncOptions()
-              .size(std::vector<int64_t>(
-                  {len_truncated, len_truncated, static_cast<int64_t>(60)}))
-              .mode(torch::kTrilinear)
-              .align_corners(false)) /* Done interpolating */
-          .squeeze()
-          .to(torch::kCPU)
-          .contiguous();
-
-  std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
-              compressed_tensor_video_fft.nbytes());
+  std::cout << tensor_video_padded.sizes();
 
   return 0;
 }
