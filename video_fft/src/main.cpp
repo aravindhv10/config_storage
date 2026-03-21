@@ -109,71 +109,30 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   " H0 W1 C2 T3 ";
   tensor_video_padded =
       torch::fft::rfft(tensor_video_padded)
-          .permute(/*dims =*/{3, 0, 1, 2}) /* C0 H1 W2 T3 -> T3 C0 H1 W2 */;
+          .permute(/*dims =*/{3, 0, 1, 2});
   " T3 H0 W1 C2 ";
 
   " STEP 3 THWC | FFT => CTHW ";
   " T0 H1 W2 C3 ";
   tensor_video_padded =
       torch::fft::fft(tensor_video_padded)
-          .permute(/*dims =*/{3, 0, 1, 2}) /* T0 H1 W2 C3 -> C3 T0 H1 W2 */;
+          .permute(/*dims =*/{3, 0, 1, 2});
   " C3 T0 H1 W2 ";
 
   " STEP 4 CTHW | FFT => WCTH ";
-  " C0 T0 H1 W2 ";
+  " C0 T1 H2 W3 ";
   tensor_video_padded =
       torch::fft::fft(tensor_video_padded)
-          .permute(/*dims =*/{0, 1, 3, 2}) /* T0 C1 W2 H3 -> T0 C1 W3 H2 */;
-  "  ";
+          .permute(/*dims =*/{3, 0, 1, 2});
+  " W3 C0 T1 H2 ";
 
   " STEP 5 WCTH | FFT => CHWT ";
+  " W0 C1 T2 H3 ";
+  tensor_video_padded =
+      torch::fft::fft(tensor_video_padded)
+          .permute(/*dims =*/{1, 3, 0, 2});
+  " C1 H3 W0 T2 ";
   
-  " C0 H1 W2 T3 ";
-  torch::Tensor tensor_video_padded =
-      torch::fft::rfft(
-          do_pad_video(/* torch::Tensor tensor_input = */
-                       torch::from_blob(
-                           /* data = */ blob,
-                           /* sizes = */ {len_t, len_y, len_x, len_c},
-                           /* strides = */ {dist_t, dist_y, dist_x, dist_c},
-                           /* Device_DType = */
-                           torch::TensorOptions()
-                               .dtype(get_tensor_dtype<uint8_t>())
-                               .device(torch::kCPU)))
-              .permute(/*dims =*/{3, 1, 2, 0}) /* T0 H1 W2 C3 -> C3 H1 W2 T0 */
-              .to(torch::TensorOptions()
-                      .dtype(torch::kFloat32)
-                      .device(device_gpu)))
-          .permute(/*dims =*/{3, 0, 1, 2}) /* C0 H1 W2 T3 -> T3 C0 H1 W2 */;
-  " T3 C0 H1 W2 ";
-
-  " T0 C1 W2 H3 ";
-  tensor_video_padded =
-      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{0, 2, 3, 1});
-  " T0 W2 H3 C1 ";
-
-  " T0 W1 H2 C3 ";
-  tensor_video_padded =
-      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 2, 1, 0});
-  " C3 H2 W1 T0 ";
-
-  torch::Tensor compressed_tensor_video_fft =
-      torch::nn::functional::interpolate(
-          torch::cat(
-              {tensor_video_padded.abs(), tensor_video_padded.angle()},
-              /*dim=*/0) /* Done extracting abs and angle into real tensor*/
-              .unsqueeze(0),
-          torch::nn::functional::InterpolateFuncOptions()
-              .size(std::vector<int64_t>(
-                  {len_truncated, len_truncated, static_cast<int64_t>(60)}))
-              .mode(torch::kTrilinear)
-              .align_corners(false)) /* Done interpolating */
-          .squeeze()
-          .to(torch::kCPU)
-          .contiguous();
-
-  std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
-              compressed_tensor_video_fft.nbytes());
 
   return 0;
 }
