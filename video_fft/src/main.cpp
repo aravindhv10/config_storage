@@ -95,10 +95,12 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
               .device(torch::kCPU)) /* T H W C */
           .to(device_gpu);
 
-  tensor_video_padded = do_pad_video(tensor_video_padded).to(torch::kFloat32);
+  tensor_video_padded = do_pad_video(tensor_video_padded)
+                            .to(torch::kFloat32)
+                            .permute({3, 1, 2, 0});
 
   tensor_video_padded =
-      torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/0);
+      torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/3);
 
   auto t_cutoff =
       torch::sum(
@@ -110,7 +112,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .item()
           .to<uint16_t>();
 
-  tensor_video_padded = tensor_video_padded.narrow(0, 0, t_cutoff);
+  tensor_video_padded = tensor_video_padded.narrow(3, 0, t_cutoff);
 
   tensor_video_padded =
       torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/1);
