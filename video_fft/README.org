@@ -619,7 +619,6 @@
     int64_t const dist_y = len_x * dist_x;
     int64_t const dist_t = len_y * dist_y;
 
-    " Initialize the tensor: ";
     torch::Tensor tensor_video_padded =
         torch::from_blob(
             /* data = */ blob,
@@ -630,38 +629,28 @@
                 .dtype(get_tensor_dtype<uint8_t>())
                 .device(torch::kCPU)) /* T H W C */
             .to(device_gpu);
-    " T0 H1 W2 C3 ";
 
-    std::cout << "Starting" <<std::endl;
-    std::cout << tensor_video_padded.sizes() << std::endl;
+    tensor_video_padded = do_pad_video(tensor_video_padded).to(torch::kFloat32);
 
-    " THWC => HWCT: ";
-    " T0 H1 W2 C3 ";
     tensor_video_padded =
-        do_pad_video(tensor_video_padded)
-            .permute(/*dims =*/{1, 2, 3, 0}) /* T0 H1 W2 C3 -> H1 W2 C3 T0 */
-            .to(torch::TensorOptions().dtype(torch::kFloat32).device(device_gpu));
-    " H1 W2 C3 T0 ";
+        torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/0);
 
-    std::cout << "1 Done" <<std::endl;
-    std::cout << tensor_video_padded.sizes() << std::endl;
+    auto t_cutoff =
+        torch::sum(
+            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
+                                             .dtype(get_tensor_dtype<float32_t>())
+                                             .device(torch::kCPU)) *
+             fps)         /* Scaled frequency mode range tensor */
+            < freq_limit) /* Done evaluating number of modes to keep */
+            .item()
+            .to<uint16_t>();
 
-    "HWCT | RFFT => WCTH";
-    " H0 W1 C2 T3 ";
-    tensor_video_padded =
-        torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
-    " W1 C2 T3 H0 ";
+    tensor_video_padded = tensor_video_padded.narrow(0, 0, t_cutoff);
 
-    std::cout << "2 Done" <<std::endl;
-    std::cout << tensor_video_padded.sizes() << std::endl;
+    tensor_video_padded = torch::fft::fft(tensor_video_padded)
 
-    "WCTH | FFT => CTHW";
-    " W0 C1 T2 H3 ";
-    tensor_video_padded =
-        torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
-    " C1 T2 H3 W0 ";
-
-    std::cout << "3 Done" <<std::endl;
+                              std::cout
+                          << "3 Done" << std::endl;
     std::cout << tensor_video_padded.sizes() << std::endl;
 
     "CTHW | FFT => THWC";
@@ -670,7 +659,7 @@
         torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
     " T1 H2 W3 C0 ";
 
-    std::cout << "4 Done" <<std::endl;
+    std::cout << "4 Done" << std::endl;
     std::cout << tensor_video_padded.sizes() << std::endl;
 
     "THWC | FFT => CHWT";
@@ -679,7 +668,7 @@
         torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 1, 2, 0});
     " C3 H1 W2 T0 ";
 
-    std::cout << "5 Done" <<std::endl;
+    std::cout << "5 Done" << std::endl;
     std::cout << tensor_video_padded.sizes() << std::endl;
 
     tensor_video_padded = tensor_video_padded.narrow(
@@ -693,7 +682,7 @@
             .item()
             .to<uint16_t>());
 
-    std::cout << "6 Done" <<std::endl;
+    std::cout << "6 Done" << std::endl;
     std::cout << tensor_video_padded.sizes() << std::endl;
 
     tensor_video_padded =
@@ -703,7 +692,7 @@
                     torch::indexing::Slice(position_start, position_end),
                     torch::indexing::Slice()});
 
-    std::cout << "7 Done" <<std::endl;
+    std::cout << "7 Done" << std::endl;
     std::cout << tensor_video_padded.sizes() << std::endl;
 
     torch::Tensor compressed_tensor_video_fft =
@@ -721,7 +710,7 @@
             .to(torch::kCPU)
             .contiguous();
 
-    std::cout << "8 Done" <<std::endl;
+    std::cout << "8 Done" << std::endl;
     std::cout << tensor_video_padded.sizes() << std::endl;
 
     std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
@@ -731,6 +720,77 @@
   }
   }
 #+end_src
+
+extern "C" {
+int do_fft_compress_vram_friendly(void *const blob, uint16_t const len_t,
+                                  uint16_t const len_y, uint16_t const len_x,
+                                  uint8_t const len_c, float32_t const fps,
+                                  float32_t const freq_limit, void *const dest,
+                                  bool use_gpu) {
+    auto device = use_gpu ? torch::kCUDA : torch::kCPU;
+    
+    // 1. Initial Load and Padding [cite: 31, 32, 33]
+    torch::Tensor tensor = torch::from_blob(
+        blob, {len_t, len_y, len_x, len_c}, 
+        torch::TensorOptions().dtype(torch::kUint8).device(torch::kCPU)
+    ).to(device).to(torch::kFloat32);
+
+    // Padding logic [cite: 32, 33]
+    tensor = do_pad_video(tensor); 
+    
+    // 2. Sequential FFT Pass 1: Time (Dimension 0)
+    // We use rfft here because the input is real.
+    // Result becomes complex. Shape: [len_t/2 + 1, H, W, C]
+    tensor = torch::fft::rfft(tensor, /*n=*/std::nullopt, /*dim=*/0);
+
+    // 3. Immediate Temporal Truncation
+    // Calculate cutoff 'n' based on freq_limit [cite: 37, 38, 39]
+    int64_t n_cutoff = torch::sum(
+        (torch::fft::rfftfreq(len_t, torch::TensorOptions().device(torch::kCPU)) * fps) < freq_limit
+    ).item().toLong();
+    
+    tensor = tensor.narrow(0, 0, n_cutoff); // Reduce VRAM footprint early 
+
+    // 4. Sequential FFT Pass 2: Height (Dimension 1)
+    // Must use complex fft now.
+    tensor = torch::fft::fft(tensor, std::nullopt, /*dim=*/1);
+
+    // 5. Sequential FFT Pass 3: Width (Dimension 2)
+    tensor = torch::fft::fft(tensor, std::nullopt, /*dim=*/2);
+
+    // 6. Post-FFT Processing (Shift and Spatial Truncation)
+    // Shift spatial dims (now dims 1 and 2) [cite: 42]
+    tensor = torch::fft::fftshift(tensor, {1, 2});
+
+    uint16_t len_max = std::max(len_x, len_y);
+    uint16_t len_truncated = len_max >> 3; [cite: 43]
+    uint16_t pos_start = (len_max - len_truncated) >> 1; [cite: 43]
+    uint16_t pos_end = pos_start + len_truncated; [cite: 44]
+
+    // Slice spatial dimensions [cite: 44]
+    tensor = tensor.index({
+        torch::indexing::Slice(), 
+        torch::indexing::Slice(pos_start, pos_end),
+        torch::indexing::Slice(pos_start, pos_end),
+        torch::indexing::Slice()
+    });
+
+    // 7. Magnitude/Phase Concatenation and Interpolation [cite: 45, 46]
+    // Permute to [C, H, W, T] for interpolation compatibility
+    tensor = tensor.permute({3, 1, 2, 0}); 
+    
+    torch::Tensor compressed = torch::nn::functional::interpolate(
+        torch::cat({tensor.abs(), tensor.angle()}, 0).unsqueeze(0),
+        torch::nn::functional::InterpolateFuncOptions()
+            .size(std::vector<int64_t>({len_truncated, len_truncated, 60}))
+            .mode(torch::kTrilinear)
+            .align_corners(false)
+    ).squeeze().to(torch::kCPU).contiguous(); [cite: 46, 47]
+
+    std::memcpy(dest, compressed.data_ptr(), compressed.nbytes());
+    return 0;
+}
+}
 
 ***** Full at once
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp

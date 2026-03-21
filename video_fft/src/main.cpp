@@ -84,7 +84,6 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   int64_t const dist_y = len_x * dist_x;
   int64_t const dist_t = len_y * dist_y;
 
-  " Initialize the tensor: ";
   torch::Tensor tensor_video_padded =
       torch::from_blob(
           /* data = */ blob,
@@ -95,38 +94,28 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
               .dtype(get_tensor_dtype<uint8_t>())
               .device(torch::kCPU)) /* T H W C */
           .to(device_gpu);
-  " T0 H1 W2 C3 ";
 
-  std::cout << "Starting" <<std::endl;
-  std::cout << tensor_video_padded.sizes() << std::endl;
+  tensor_video_padded = do_pad_video(tensor_video_padded).to(torch::kFloat32);
 
-  " THWC => HWCT: ";
-  " T0 H1 W2 C3 ";
   tensor_video_padded =
-      do_pad_video(tensor_video_padded)
-          .permute(/*dims =*/{1, 2, 3, 0}) /* T0 H1 W2 C3 -> H1 W2 C3 T0 */
-          .to(torch::TensorOptions().dtype(torch::kFloat32).device(device_gpu));
-  " H1 W2 C3 T0 ";
+      torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/0);
 
-  std::cout << "1 Done" <<std::endl;
-  std::cout << tensor_video_padded.sizes() << std::endl;
+  auto t_cutoff =
+      torch::sum(
+          (torch::fft::rfftfreq(len_t, torch::TensorOptions()
+                                           .dtype(get_tensor_dtype<float32_t>())
+                                           .device(torch::kCPU)) *
+           fps)         /* Scaled frequency mode range tensor */
+          < freq_limit) /* Done evaluating number of modes to keep */
+          .item()
+          .to<uint16_t>();
 
-  "HWCT | RFFT => WCTH";
-  " H0 W1 C2 T3 ";
-  tensor_video_padded =
-      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
-  " W1 C2 T3 H0 ";
+  tensor_video_padded = tensor_video_padded.narrow(0, 0, t_cutoff);
 
-  std::cout << "2 Done" <<std::endl;
-  std::cout << tensor_video_padded.sizes() << std::endl;
+  tensor_video_padded = torch::fft::fft(tensor_video_padded)
 
-  "WCTH | FFT => CTHW";
-  " W0 C1 T2 H3 ";
-  tensor_video_padded =
-      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
-  " C1 T2 H3 W0 ";
-
-  std::cout << "3 Done" <<std::endl;
+                            std::cout
+                        << "3 Done" << std::endl;
   std::cout << tensor_video_padded.sizes() << std::endl;
 
   "CTHW | FFT => THWC";
@@ -135,7 +124,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
       torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
   " T1 H2 W3 C0 ";
 
-  std::cout << "4 Done" <<std::endl;
+  std::cout << "4 Done" << std::endl;
   std::cout << tensor_video_padded.sizes() << std::endl;
 
   "THWC | FFT => CHWT";
@@ -144,7 +133,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
       torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 1, 2, 0});
   " C3 H1 W2 T0 ";
 
-  std::cout << "5 Done" <<std::endl;
+  std::cout << "5 Done" << std::endl;
   std::cout << tensor_video_padded.sizes() << std::endl;
 
   tensor_video_padded = tensor_video_padded.narrow(
@@ -158,7 +147,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .item()
           .to<uint16_t>());
 
-  std::cout << "6 Done" <<std::endl;
+  std::cout << "6 Done" << std::endl;
   std::cout << tensor_video_padded.sizes() << std::endl;
 
   tensor_video_padded =
@@ -168,7 +157,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                   torch::indexing::Slice(position_start, position_end),
                   torch::indexing::Slice()});
 
-  std::cout << "7 Done" <<std::endl;
+  std::cout << "7 Done" << std::endl;
   std::cout << tensor_video_padded.sizes() << std::endl;
 
   torch::Tensor compressed_tensor_video_fft =
@@ -186,7 +175,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .to(torch::kCPU)
           .contiguous();
 
-  std::cout << "8 Done" <<std::endl;
+  std::cout << "8 Done" << std::endl;
   std::cout << tensor_video_padded.sizes() << std::endl;
 
   std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
