@@ -123,7 +123,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   "WCTH | FFT => CTHW";
   " W0 C1 T2 H3 ";
   tensor_video_padded =
-      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
+      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
   " C1 T2 H3 W0 ";
 
   std::cout << "3 Done" <<std::endl;
@@ -132,7 +132,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   "CTHW | FFT => THWC";
   " C0 T1 H2 W3 ";
   tensor_video_padded =
-      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
+      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{1, 2, 3, 0});
   " T1 H2 W3 C0 ";
 
   std::cout << "4 Done" <<std::endl;
@@ -141,7 +141,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   "THWC | FFT => CHWT";
   " T0 H1 W2 C3 ";
   tensor_video_padded =
-      torch::fft::rfft(tensor_video_padded).permute(/*dims =*/{3, 1, 2, 0});
+      torch::fft::fft(tensor_video_padded).permute(/*dims =*/{3, 1, 2, 0});
   " C3 H1 W2 T0 ";
 
   std::cout << "5 Done" <<std::endl;
