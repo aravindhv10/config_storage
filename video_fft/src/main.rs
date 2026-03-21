@@ -4,6 +4,8 @@ use anyhow::Context;
 use std::io::Write;
 use tch::IndexOp;
 
+const USE_GPU = false;
+
 fn convert_encoded_video_to_raw(
     path_file_video_input: &str,
     path_file_video_output: &str,
@@ -414,7 +416,7 @@ impl fft_video {
     }
 
     fn from_torch_video_tensor(
-        tensor_video_input: &tch::Tensor,
+        tensor_video_input: &tch::Tensor, use_gpu: bool,
     ) -> anyhow::Result<std::sync::Arc<Self>> {
         if true {
             "################################";
@@ -455,7 +457,7 @@ impl fft_video {
                 /*fps: float32_t =*/ 8.0 as f32,
                 /*freq_limit: float32_t =*/ 3.0 as f32,
                 /*dest: *mut ::std::os::raw::c_void =*/ data as *mut ::std::os::raw::c_void,
-                /*bool use_gpu =*/ false,
+                /*bool use_gpu =*/ use_gpu,
             );
         }
 
@@ -471,7 +473,7 @@ async fn main() -> anyhow::Result<()> {
     let full_tensor = res.get_video_tensor()?;
 
     let slave = fft_video::from_torch_video_tensor(
-        /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..40, .., .., ..)),
+        /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..40, .., .., ..)), USE_GPU,
     )?;
     slave.save("./video.bin")?;
 
