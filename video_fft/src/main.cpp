@@ -87,8 +87,13 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   " T0 H1 W2 C3 ";
   " C3 H1 W2 T0 ";
 
+  " C0 H1 W2 T3 ";
+  " T3 C0 H1 W2 ";
+
   torch::Tensor tensor_video_padded =
-      torch::fft::rfft(torch::from_blob(
+      do_pad_video(/* torch::Tensor tensor_input = */
+                   torch::fft::rfft(
+                       torch::from_blob(
                            /* data = */ blob,
                            /* sizes = */ {len_t, len_y, len_x, len_c},
                            /* strides = */ {dist_t, dist_y, dist_x, dist_c},
@@ -101,17 +106,20 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                            .to(torch::TensorOptions()
                                    .dtype(torch::kFloat32)
                                    .device(device_gpu)))
-          .narrow(3, 0,
-                  torch::sum(
-                      (torch::fft::rfftfreq(
-                           len_t, torch::TensorOptions()
-                                      .dtype(get_tensor_dtype<float32_t>())
-                                      .device(torch::kCPU)) *
-                       fps) /* Scaled frequency mode range tensor */
-                      <
-                      freq_limit) /* Done evaluating number of modes to keep */
-                      .item()
-                      .to<uint16_t>());
+                       .narrow(
+                           3, 0,
+                           torch::sum(
+                               (torch::fft::rfftfreq(
+                                    len_t,
+                                    torch::TensorOptions()
+                                        .dtype(get_tensor_dtype<float32_t>())
+                                        .device(torch::kCPU)) *
+                                fps) /* Scaled frequency mode range tensor */
+                               < freq_limit) /* Done evaluating number of modes
+                                                to keep */
+                               .item()
+                               .to<uint16_t>()))
+          .permute(/*dims =*/{3, 0, 1, 2});
 
   std::cout << tensor_video_padded.sizes();
 
