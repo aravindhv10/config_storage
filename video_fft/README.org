@@ -1472,14 +1472,14 @@
       let total_video_length = tensor_video_input.size()[0];
 
       if total_video_length < 120 {
-          println!("num_windows = {}", 0);
+
           return Err(anyhow::format_err!("Video too short..."));
+
       } else if (120 <= total_video_length) && (total_video_length < 176) {
-          println!("num_windows = {}", 1);
 
           let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
 
-          if false {
+          if true {
               fft_video::from_torch_video_tensor(
                   /*tensor_video_input: &tch::Tensor =*/
                   &tensor_video_input.i((0..total_video_length, .., .., ..)),
@@ -1502,14 +1502,21 @@
               }
           };
 
-          println!("num_windows = {}", num_windows);
-
           for i in 1..=num_windows {
               let path_file_video_bin_output: String =
                   path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
 
               let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
-              println!("{} {} {}", path_file_video_bin_output, end - 160, end);
+              let start = end - 160;
+
+              if true {
+                  fft_video::from_torch_video_tensor(
+                      /*tensor_video_input: &tch::Tensor =*/
+                      &tensor_video_input.i((start..end, .., .., ..)),
+                      USE_GPU,
+                  )?
+                  .save(path_file_video_bin_output.as_str())?;
+              }
           }
           return Ok("Successfully encoded the video into many pieces".to_string());
       }
