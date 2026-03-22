@@ -574,13 +574,15 @@ fn main() -> anyhow::Result<()> {
 
     for entry in jwalk::WalkDir::new(target_dir)
         .into_iter()
-        .filter_map(|e| e.ok() && (!e.path().is_dir()))
+        .filter_map(|e| e.ok())
     {
         let path = entry.path();
 
-        if let Some(ext) = path.extension() {
-            if ext == "mp4" {
-                list_path_file_video.push(path.display().to_string());
+        if !path.is_dir() {
+            if let Some(ext) = path.extension() {
+                if ext == "mp4" {
+                    list_path_file_video.push(path.display().to_string());
+                }
             }
         }
     }
