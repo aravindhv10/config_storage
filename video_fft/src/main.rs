@@ -527,8 +527,11 @@ fn video_tensor_2_fft_file_160(
         println!("num_windows = {}", num_windows);
 
         for i in 1..=num_windows {
+            let path_file_video_bin_output: String =
+                path_dir_output + "/out-" + i.to_string().as_str() + ".raw";
+
             let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
-            println!("{} {}", end - 160, end);
+            println!("{} {} {}", path_file_video_bin_output, end - 160, end);
         }
         return Ok("Successfully encoded the video into many pieces".to_string());
     }
