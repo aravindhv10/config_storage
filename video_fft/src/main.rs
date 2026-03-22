@@ -501,9 +501,9 @@ fn video_tensor_2_fft_file_160(
         let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
         if (120 <= total_video_length) && (total_video_length < 176) {
-            if !std::fs::exists(path_file_video_bin_output) {
-                let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
+            let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
 
+            if !std::fs::exists(path_file_video_bin_output)? {
                 fft_video::from_torch_video_tensor(
                     /*tensor_video_input: &tch::Tensor =*/
                     &tensor_video_input.i((0..total_video_length, .., .., ..)),
@@ -530,7 +530,7 @@ fn video_tensor_2_fft_file_160(
                 let path_file_video_bin_output: String =
                     path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
 
-                if !std::fs::exists(path_file_video_bin_output) {
+                if !std::fs::exists(path_file_video_bin_output)? {
                     let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
                     let start = end - 160;
 
