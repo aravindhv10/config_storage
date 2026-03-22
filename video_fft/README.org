@@ -1575,7 +1575,6 @@
   }
 #+end_src
 
-
 * Logic for iterating over video:
 video.len() in:
 1. [0..120): break;
