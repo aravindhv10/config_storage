@@ -499,11 +499,11 @@ async fn main() -> anyhow::Result<()> {
     let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
-    let slave = fft_video::from_torch_video_tensor(
+    fft_video::from_torch_video_tensor(
         /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..160, .., .., ..)),
         USE_GPU,
-    )?;
-    slave.save("./video.bin")?;
+    )?
+    .save("./video.bin")?;
 
     return Ok(());
 }
