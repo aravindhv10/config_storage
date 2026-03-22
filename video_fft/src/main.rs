@@ -499,17 +499,23 @@ fn video_tensor_2_fft_file_160(
     } else if (120 <= total_video_length) && (total_video_length < 176) {
         println!("num_windows = {}", 1);
 
-        // let path_file_video_bin_output: String = path_dir_output + "/out-1.raw";
+        let path_file_video_bin_output: String = path_dir_output + "/out-1.raw";
 
-        // fft_video::from_torch_video_tensor(
-        //     /*tensor_video_input: &tch::Tensor =*/
-        //     &tensor_video_input.i((0..176, .., .., ..)),
-        //     USE_GPU,
-        // )?
-        // .save(path_file_video_bin_output.as_str())?;
+        if false {
+            fft_video::from_torch_video_tensor(
+                /*tensor_video_input: &tch::Tensor =*/
+                &tensor_video_input.i((0..total_video_length, .., .., ..)),
+                USE_GPU,
+            )?
+            .save(path_file_video_bin_output.as_str())?;
+        }
+
+        return Ok("Successfully encoded the the whole video into a single file".to_string());
     } else {
         let float_val = (((total_video_length - 160) as f32) / 40.0) as f32;
+
         let diff = float_val - float_val.floor();
+
         let num_windows: i64 = {
             if diff < 0.25 {
                 (float_val.floor() as i64) + 1
@@ -517,14 +523,15 @@ fn video_tensor_2_fft_file_160(
                 (float_val.ceil() as i64) + 1
             }
         };
+
         println!("num_windows = {}", num_windows);
+
         for i in 1..=num_windows {
             let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
             println!("{} {}", end - 160, end);
         }
+        return Ok("Successfully encoded the video into many pieces".to_string());
     }
-
-    return Ok("Successfully encoded the video".to_string());
 }
 
 #[tokio::main]
