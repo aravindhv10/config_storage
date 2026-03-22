@@ -582,7 +582,7 @@ fn main() -> anyhow::Result<()> {
         // 3. Filter for non-directories (files and symlinks) ending in .mp4
         if !path.is_dir() {
             if let Some(ext) = path.extension() {
-                if ext == ".mp4" {
+                if ext == "mp4" {
                     list_path_file_video.push(path.display().to_string());
                 }
             }
