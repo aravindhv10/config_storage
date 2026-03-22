@@ -487,6 +487,22 @@ impl fft_video {
     }
 }
 
+fn video_tensor_2_fft_file(
+    tensor_video_input: tch::Tensor,
+    end: i64,
+    path_file_video_bin_output: String,
+) -> anyhow::Result<()> {
+    let start = (end - 160).max(0 as i64);
+
+    fft_video::from_torch_video_tensor(
+        /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..160, .., .., ..)),
+        USE_GPU,
+    )?
+    .save("./video.bin")?;
+
+    return Ok(());
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     if tch::Cuda::is_available() {
