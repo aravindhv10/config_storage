@@ -495,49 +495,54 @@ fn video_tensor_2_fft_file_160(
 
     if total_video_length < 120 {
         return Err(anyhow::format_err!("Video too short..."));
-    } else if (120 <= total_video_length) && (total_video_length < 176) {
-        let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
-
-        if true {
-            fft_video::from_torch_video_tensor(
-                /*tensor_video_input: &tch::Tensor =*/
-                &tensor_video_input.i((0..total_video_length, .., .., ..)),
-                USE_GPU,
-            )?
-            .save(path_file_video_bin_output.as_str())?;
-        }
-
-        return Ok("Successfully encoded the the whole video into a single file".to_string());
     } else {
-        let float_val = (((total_video_length - 160) as f32) / 40.0) as f32;
+        std::fs::create_dir_all(path_dir_output);
 
-        let diff = float_val - float_val.floor();
+        if (120 <= total_video_length) && (total_video_length < 176) {
+            let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
 
-        let num_windows: i64 = {
-            if diff < 0.25 {
-                (float_val.floor() as i64) + 1
-            } else {
-                (float_val.ceil() as i64) + 1
-            }
-        };
-
-        for i in 1..=num_windows {
-            let path_file_video_bin_output: String =
-                path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
-
-            let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
-            let start = end - 160;
-
-            if true {
+            if false {
                 fft_video::from_torch_video_tensor(
                     /*tensor_video_input: &tch::Tensor =*/
-                    &tensor_video_input.i((start..end, .., .., ..)),
+                    &tensor_video_input.i((0..total_video_length, .., .., ..)),
                     USE_GPU,
                 )?
                 .save(path_file_video_bin_output.as_str())?;
             }
+
+            return Ok("Successfully encoded the the whole video into a single file".to_string());
+        } else {
+            let float_val = (((total_video_length - 160) as f32) / 40.0) as f32;
+
+            let diff = float_val - float_val.floor();
+
+            let num_windows: i64 = {
+                if diff < 0.25 {
+                    (float_val.floor() as i64) + 1
+                } else {
+                    (float_val.ceil() as i64) + 1
+                }
+            };
+
+            for i in 1..=num_windows {
+                let path_file_video_bin_output: String =
+                    path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
+
+                let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
+                let start = end - 160;
+
+                if false {
+                    fft_video::from_torch_video_tensor(
+                        /*tensor_video_input: &tch::Tensor =*/
+                        &tensor_video_input.i((start..end, .., .., ..)),
+                        USE_GPU,
+                    )?
+                    .save(path_file_video_bin_output.as_str())?;
+                }
+            }
+
+            return Ok("Successfully encoded the video into many pieces".to_string());
         }
-        return Ok("Successfully encoded the video into many pieces".to_string());
     }
 }
 
