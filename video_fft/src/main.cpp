@@ -113,29 +113,26 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
     int64_t constexpr i = 3;
 
     tensor_video_padded =
-        torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i);
-
-    tensor_video_padded = tensor_video_padded.narrow(i, 0, t_cutoff);
+        torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i)
+            .narrow(i, 0, t_cutoff);
   }
 
   if (true) {
     int64_t constexpr i = 2;
 
-    tensor_video_padded = torch::fft::fftshift(
-        torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
-
     tensor_video_padded =
-        tensor_video_padded.narrow(i, position_start, len_truncated);
+        torch::fft::fftshift(
+            torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i})
+            .narrow(i, position_start, len_truncated);
   }
 
   if (true) {
     int64_t constexpr i = 1;
 
-    tensor_video_padded = torch::fft::fftshift(
-        torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
-
     tensor_video_padded =
-        tensor_video_padded.narrow(i, position_start, len_truncated);
+        torch::fft::fftshift(
+            torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i})
+            .narrow(i, position_start, len_truncated);
   }
 
   if (true) {
