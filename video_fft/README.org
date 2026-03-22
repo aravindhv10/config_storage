@@ -1488,6 +1488,10 @@
       } else {
           let num_windows: i64 = ((((total_video_length - 160) as f32) / 40.0).ceil() as i64) + 1;
           println!("num_windows = {}", num_windows);
+          for i in 1..=num_windows {
+              let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
+              println!("{} {}", end - 160, end);
+          }
       }
 
       return Ok("Successfully encoded the video".to_string());
@@ -1525,6 +1529,10 @@ video.len() in:
 1. [0..120): break;
 2. [120..160]: compress(video).
 3. (160..): for end in range(160, video.len(), 40).
+   
+   y = y1 + ( (y2 - y1) * (x - x1) / (x2 - x1) )
+
+   end_current = 160 + ( (video_length - 160) * (i - 1) / (num_windows - 1) )
 
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore

@@ -510,6 +510,10 @@ fn video_tensor_2_fft_file_160(
     } else {
         let num_windows: i64 = ((((total_video_length - 160) as f32) / 40.0).ceil() as i64) + 1;
         println!("num_windows = {}", num_windows);
+        for i in 1..=num_windows {
+            let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
+            println!("{} {}", end - 160, end);
+        }
     }
 
     return Ok("Successfully encoded the video".to_string());
