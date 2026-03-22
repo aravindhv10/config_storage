@@ -572,7 +572,7 @@ fn main() -> anyhow::Result<()> {
 
     let mut list_path_file_video: Vec<String> = vec![];
 
-    for entry in walkdir::WalkDir::new(target_dir)
+    for entry in jwalk::WalkDir::new(target_dir)
         .into_iter()
         .filter_map(|e| e.ok())
     // Ignore errors (like permission denied)

@@ -8,11 +8,12 @@
   [dependencies]
   anyhow = "1.0.102"
   gxhash = "3.5.0"
+  jwalk = "0.8.1"
   memmap2 = "0.9.10"
+  rayon = "1.11.0"
   serde = { version = "1.0.228", features = ["derive"] }
   tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
   tokio = { version = "1.50.0", features = ["full"] }
-  walkdir = "2.5.0"
 #+end_src
 
 * build.rs
@@ -1553,7 +1554,7 @@
 
       let mut list_path_file_video: Vec<String> = vec![];
 
-      for entry in walkdir::WalkDir::new(target_dir)
+      for entry in jwalk::WalkDir::new(target_dir)
           .into_iter()
           .filter_map(|e| e.ok()) // Ignore errors (like permission denied)
       {
