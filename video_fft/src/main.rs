@@ -500,7 +500,7 @@ async fn main() -> anyhow::Result<()> {
     let full_tensor = res.get_video_tensor()?;
 
     let slave = fft_video::from_torch_video_tensor(
-        /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..40, .., .., ..)),
+        /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..160, .., .., ..)),
         USE_GPU,
     )?;
     slave.save("./video.bin")?;
