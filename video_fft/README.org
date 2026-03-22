@@ -619,6 +619,16 @@
     int64_t const dist_y = len_x * dist_x;
     int64_t const dist_t = len_y * dist_y;
 
+    auto t_cutoff =
+        torch::sum(
+            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
+                                             .dtype(get_tensor_dtype<float32_t>())
+                                             .device(torch::kCPU)) *
+             fps)         /* Scaled frequency mode range tensor */
+            < freq_limit) /* Done evaluating number of modes to keep */
+            .item()
+            .to<uint16_t>();
+
     torch::Tensor tensor_video_padded =
         torch::from_blob(
             /* data = */ blob,
@@ -634,39 +644,22 @@
                               .to(torch::kFloat32)
                               .permute({3, 1, 2, 0});
 
-    tensor_video_padded =
-        torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/3);
+    for (int64_t i = 3; i >= 0; i -= 1) {
+      if (i == 3) {
+        tensor_video_padded =
+            torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i);
 
-    auto t_cutoff =
-        torch::sum(
-            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
-                                             .dtype(get_tensor_dtype<float32_t>())
-                                             .device(torch::kCPU)) *
-             fps)         /* Scaled frequency mode range tensor */
-            < freq_limit) /* Done evaluating number of modes to keep */
-            .item()
-            .to<uint16_t>();
+        tensor_video_padded = tensor_video_padded.narrow(3, 0, t_cutoff);
+      } else {
+        tensor_video_padded = torch::fft::fftshift(
+            torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
 
-    tensor_video_padded = tensor_video_padded.narrow(3, 0, t_cutoff);
-
-    tensor_video_padded =
-        torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/2);
-
-    tensor_video_padded =
-        torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/1);
-
-    tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {1, 2});
-
-    tensor_video_padded = tensor_video_padded.index(
-        {torch::indexing::Slice(),
-         torch::indexing::Slice(position_start, position_end),
-         torch::indexing::Slice(position_start, position_end),
-         torch::indexing::Slice()});
-
-    tensor_video_padded =
-        torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/0);
-
-    tensor_video_padded = torch::fft::fftshift(tensor_video_padded, {0});
+        if (i > 0) {
+          tensor_video_padded =
+              tensor_video_padded.narrow(i, position_start, position_end);
+        }
+      }
+    }
 
     torch::Tensor compressed_tensor_video_fft =
         torch::nn::functional::interpolate(
