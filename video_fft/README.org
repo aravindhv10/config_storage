@@ -1465,20 +1465,27 @@
       }
   }
 
-  fn video_tensor_2_fft_file(
+  fn video_tensor_2_fft_file_160(
       tensor_video_input: tch::Tensor,
-      end: i64,
-      path_file_video_bin_output: String,
-  ) -> anyhow::Result<()> {
-      let start = (end - 160).max(0 as i64);
+      path_dir_output: &str,
+  ) -> anyhow::Result<String> {
+      let total_video_length = tensor_video_input.size()[0];
 
-      fft_video::from_torch_video_tensor(
-          /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..160, .., .., ..)),
-          USE_GPU,
-      )?
-      .save("./video.bin")?;
+      if total_video_length < 120 {
+          return Err(anyhow::format_err!("Video too short..."));
+      } else if (120 <= total_video_length) && (total_video_length < 176) {
+          let path_file_video_bin_output: String = path_dir_output + "/out-1.raw";
 
-      return Ok(());
+          fft_video::from_torch_video_tensor(
+              /*tensor_video_input: &tch::Tensor =*/
+              &tensor_video_input.i((0..176, .., .., ..)),
+              USE_GPU,
+          )?
+          .save(path_file_video_bin_output.as_str())?;
+      } else {
+      }
+
+      return Ok("Successfully encoded the video".to_string());
   }
 
   #[tokio::main]
