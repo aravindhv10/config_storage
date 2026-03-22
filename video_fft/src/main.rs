@@ -560,7 +560,32 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
     );
 }
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() < 2 {
+        eprintln!("Usage: {} <directory>", args[0]);
+        std::process::exit(1);
+    }
+
+    let target_dir = &args[1];
+
+    for entry in walkdir::WalkDir::new(target_dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    // Ignore errors (like permission denied)
+    {
+        let path = entry.path();
+
+        // 3. Filter for non-directories (files and symlinks) ending in .mp4
+        if !path.is_dir() {
+            if let Some(ext) = path.extension() {
+                if ext == ".mp4" {
+                    println!("{}", path.display());
+                }
+            }
+        }
+    }
+
     return Ok(());
 }
