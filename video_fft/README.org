@@ -1479,7 +1479,7 @@
           if (120 <= total_video_length) && (total_video_length < 176) {
               let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
 
-              if false {
+              if !std::fs::exists(path_file_video_bin_output) {
                   fft_video::from_torch_video_tensor(
                       /*tensor_video_input: &tch::Tensor =*/
                       &tensor_video_input.i((0..total_video_length, .., .., ..)),
@@ -1506,10 +1506,10 @@
                   let path_file_video_bin_output: String =
                       path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
 
-                  let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
-                  let start = end - 160;
+                  if !std::fs::exists(path_file_video_bin_output) {
+                      let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
+                      let start = end - 160;
 
-                  if false {
                       fft_video::from_torch_video_tensor(
                           /*tensor_video_input: &tch::Tensor =*/
                           &tensor_video_input.i((start..end, .., .., ..)),
@@ -1523,6 +1523,8 @@
           }
       }
   }
+
+  fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {}
 
   #[tokio::main]
   async fn main() -> anyhow::Result<()> {
