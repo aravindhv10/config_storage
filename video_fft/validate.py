@@ -98,7 +98,7 @@ vid = res.reshape((-1, 720, 1280, 3))[0:40, :, :, :]
 vid = torch.from_numpy(vid)
 vid = compress_video_tensor(vid)
 res = vid.detach().numpy()
-res2 = np.fromfile("video.bin.sequential", dtype=np.float32).reshape(6, 160, 160, 60)
+res2 = np.fromfile("video.bin", dtype=np.float32).reshape(6, 160, 160, 60)
 
 diff = res2 - res
 

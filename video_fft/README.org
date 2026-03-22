@@ -649,7 +649,7 @@
         tensor_video_padded =
             torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i);
 
-        tensor_video_padded = tensor_video_padded.narrow(3, 0, t_cutoff);
+        tensor_video_padded = tensor_video_padded.narrow(i, 0, t_cutoff);
       } else {
         tensor_video_padded = torch::fft::fftshift(
             torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
@@ -659,6 +659,7 @@
               tensor_video_padded.narrow(i, position_start, position_end);
         }
       }
+      std::cout << tensor_video_padded.sizes() << std::endl;
     }
 
     torch::Tensor compressed_tensor_video_fft =
@@ -1443,7 +1444,7 @@
   vid = torch.from_numpy(vid)
   vid = compress_video_tensor(vid)
   res = vid.detach().numpy()
-  res2 = np.fromfile("video.bin.sequential", dtype=np.float32).reshape(6, 160, 160, 60)
+  res2 = np.fromfile("video.bin", dtype=np.float32).reshape(6, 160, 160, 60)
 
   diff = res2 - res
 

@@ -114,7 +114,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
       tensor_video_padded =
           torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i);
 
-      tensor_video_padded = tensor_video_padded.narrow(3, 0, t_cutoff);
+      tensor_video_padded = tensor_video_padded.narrow(i, 0, t_cutoff);
     } else {
       tensor_video_padded = torch::fft::fftshift(
           torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
@@ -124,6 +124,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             tensor_video_padded.narrow(i, position_start, position_end);
       }
     }
+    std::cout << tensor_video_padded.sizes() << std::endl;
   }
 
   torch::Tensor compressed_tensor_video_fft =
