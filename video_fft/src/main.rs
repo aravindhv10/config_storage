@@ -574,17 +574,13 @@ fn main() -> anyhow::Result<()> {
 
     for entry in jwalk::WalkDir::new(target_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
-    // Ignore errors (like permission denied)
+        .filter_map(|e| e.ok() && (!e.path().is_dir()))
     {
         let path = entry.path();
 
-        // 3. Filter for non-directories (files and symlinks) ending in .mp4
-        if !path.is_dir() {
-            if let Some(ext) = path.extension() {
-                if ext == "mp4" {
-                    list_path_file_video.push(path.display().to_string());
-                }
+        if let Some(ext) = path.extension() {
+            if ext == "mp4" {
+                list_path_file_video.push(path.display().to_string());
             }
         }
     }
