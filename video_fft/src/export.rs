@@ -5,7 +5,7 @@ pub type intype = u8;
 pub type outtype = float32_t;
 
 unsafe extern "C" {
-    pub fn do_fft_compress(
+    pub fn do_fft_compress_efficient(
         blob: *mut ::std::os::raw::c_void,
         len_t: u16,
         len_y: u16,
@@ -19,7 +19,7 @@ unsafe extern "C" {
 }
 
 unsafe extern "C" {
-    pub fn do_fft_compress_efficient(
+    pub fn do_fft_compress(
         blob: *mut ::std::os::raw::c_void,
         len_t: u16,
         len_y: u16,
