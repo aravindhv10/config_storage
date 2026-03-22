@@ -1488,9 +1488,10 @@
 #+end_src
 
 * Logic for iterating over video:
-
-- video.len() in [0..120): break;
-- video.len() in [120..180]: compress(video).
+video.len() in:
+1. [0..120): break;
+2. [120..176): compress(video).
+3. [176..): for end in range(160, video.len(), 40).
 
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
