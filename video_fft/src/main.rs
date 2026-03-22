@@ -583,7 +583,7 @@ fn main() -> anyhow::Result<()> {
         if !path.is_dir() {
             if let Some(ext) = path.extension() {
                 if ext == ".mp4" {
-                    ist_path_file_video.push(path.display());
+                    list_path_file_video.push(path.display());
                 }
             }
         }
