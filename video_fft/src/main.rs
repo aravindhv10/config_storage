@@ -587,7 +587,12 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    println!("{:?}", list_path_file_video);
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(2)
+        .build()
+        .unwrap();
+
+    let results: Vec<anyhow::Result<String>> = pool.install(|x| process_video_file(x));
 
     return Ok(());
 }
