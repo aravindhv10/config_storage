@@ -1524,7 +1524,17 @@
       }
   }
 
-  fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {}
+  fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
+      let res = video_slicer::new(path_file_video_input, None, 8.0, 1280, 720, 3)?;
+      let full_tensor = res.get_video_tensor()?;
+
+      let path_dir_output = path_file_video_input.clone() + ".dir";
+
+      return video_tensor_2_fft_file_160(
+          /*tensor_video_input: tch::Tensor =*/ full_tensor,
+          /*path_dir_output: &str =*/ path_dir_output.as_str(),
+      );
+  }
 
   #[tokio::main]
   async fn main() -> anyhow::Result<()> {
