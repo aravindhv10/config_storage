@@ -570,22 +570,10 @@ fn main() -> anyhow::Result<()> {
 
     let target_dir = &args[1];
 
-    for entry in walkdir::WalkDir::new(target_dir)
+    let list_path_file_video: Vec<String> = walkdir::WalkDir::new(target_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-    // Ignore errors (like permission denied)
-    {
-        let path = entry.path();
-
-        // 3. Filter for non-directories (files and symlinks) ending in .mp4
-        if !path.is_dir() {
-            if let Some(ext) = path.extension() {
-                if ext == ".mp4" {
-                    println!("{}", path.display());
-                }
-            }
-        }
-    }
+        .collect();
 
     return Ok(());
 }
