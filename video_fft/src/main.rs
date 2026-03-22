@@ -499,7 +499,7 @@ fn video_tensor_2_fft_file_160(
     } else if (120 <= total_video_length) && (total_video_length < 176) {
         println!("num_windows = {}", 1);
 
-        let path_file_video_bin_output: String = path_dir_output + "/out-1.raw";
+        let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
 
         if false {
             fft_video::from_torch_video_tensor(
@@ -528,7 +528,7 @@ fn video_tensor_2_fft_file_160(
 
         for i in 1..=num_windows {
             let path_file_video_bin_output: String =
-                path_dir_output + "/out-" + i.to_string().as_str() + ".raw";
+                path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
 
             let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
             println!("{} {} {}", path_file_video_bin_output, end - 160, end);
