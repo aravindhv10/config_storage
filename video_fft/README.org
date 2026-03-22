@@ -644,23 +644,41 @@
                               .to(torch::kFloat32)
                               .permute({3, 1, 2, 0});
 
-    for (int64_t i = 3; i >= 0; i -= 1) {
-      if (i == 3) {
-        tensor_video_padded =
-            torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i);
+    if (true) {
+      int64_t constexpr i = 3;
 
-        tensor_video_padded = tensor_video_padded.narrow(i, 0, t_cutoff);
-      } else {
-        tensor_video_padded = torch::fft::fftshift(
-            torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
+      tensor_video_padded =
+          torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i);
 
-        if (i > 0) {
-          tensor_video_padded =
-              tensor_video_padded.narrow(i, position_start, len_truncated);
-        }
-      }
+      tensor_video_padded = tensor_video_padded.narrow(i, 0, t_cutoff);
     }
 
+    if (true) {
+      int64_t constexpr i = 2;
+
+      tensor_video_padded = torch::fft::fftshift(
+          torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
+
+      tensor_video_padded =
+          tensor_video_padded.narrow(i, position_start, len_truncated);
+    }
+
+    if (true) {
+      int64_t constexpr i = 1;
+
+      tensor_video_padded = torch::fft::fftshift(
+          torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
+
+      tensor_video_padded =
+          tensor_video_padded.narrow(i, position_start, len_truncated);
+    }
+
+    if (true) {
+      int64_t constexpr i = 0;
+
+      tensor_video_padded = torch::fft::fftshift(
+          torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
+    }
 
     torch::Tensor compressed_tensor_video_fft =
         torch::nn::functional::interpolate(
