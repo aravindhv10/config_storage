@@ -1569,6 +1569,8 @@
           }
       }
 
+      println!("{:?}",list_path_file_video);
+
       return Ok(());
   }
 #+end_src

@@ -589,5 +589,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
+    println!("{:?}", list_path_file_video);
+
     return Ok(());
 }
