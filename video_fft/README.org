@@ -1530,10 +1530,10 @@
   }
 
   fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
-      let res = video_slicer::new(path_file_video_input, None, 8.0, 1280, 720, 3)?;
+      let res = video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
       let full_tensor = res.get_video_tensor()?;
 
-      let path_dir_output = path_file_video_input.clone() + ".dir";
+      let path_dir_output = path_file_video_input + ".dir";
 
       return video_tensor_2_fft_file_160(
           /*tensor_video_input: tch::Tensor =*/ full_tensor,
