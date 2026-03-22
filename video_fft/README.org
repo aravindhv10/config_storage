@@ -1472,17 +1472,22 @@
       let total_video_length = tensor_video_input.size()[0];
 
       if total_video_length < 120 {
+          println!("num_windows = {}", 0);
           return Err(anyhow::format_err!("Video too short..."));
       } else if (120 <= total_video_length) && (total_video_length < 176) {
-          let path_file_video_bin_output: String = path_dir_output + "/out-1.raw";
+          println!("num_windows = {}", 1);
 
-          fft_video::from_torch_video_tensor(
-              /*tensor_video_input: &tch::Tensor =*/
-              &tensor_video_input.i((0..176, .., .., ..)),
-              USE_GPU,
-          )?
-          .save(path_file_video_bin_output.as_str())?;
+          // let path_file_video_bin_output: String = path_dir_output + "/out-1.raw";
+
+          // fft_video::from_torch_video_tensor(
+          //     /*tensor_video_input: &tch::Tensor =*/
+          //     &tensor_video_input.i((0..176, .., .., ..)),
+          //     USE_GPU,
+          // )?
+          // .save(path_file_video_bin_output.as_str())?;
       } else {
+          let num_windows: i64 = ((((total_video_length - 160) as f32) / 40.0).ceil() as i64) + 1;
+          println!("num_windows = {}", num_windows);
       }
 
       return Ok("Successfully encoded the video".to_string());
@@ -1500,11 +1505,16 @@
       let res = video_slicer::new("./video.mp4".to_string(), None, 8.0, 1280, 720, 3)?;
       let full_tensor = res.get_video_tensor()?;
 
-      fft_video::from_torch_video_tensor(
-          /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..160, .., .., ..)),
-          USE_GPU,
-      )?
-      .save("./video.bin")?;
+      video_tensor_2_fft_file_160(
+          /*tensor_video_input: tch::Tensor =*/ full_tensor,
+          /*path_dir_output: &str =*/ "./video.mp4.dir",
+      );
+
+      // fft_video::from_torch_video_tensor(
+      //     /*tensor_video_input: &tch::Tensor =*/ &full_tensor.i((0..160, .., .., ..)),
+      //     USE_GPU,
+      // )?
+      // .save("./video.bin")?;
 
       return Ok(());
   }
