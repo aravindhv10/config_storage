@@ -1,6 +1,7 @@
 include!("export.rs");
 
 use anyhow::Context;
+use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
 
@@ -592,7 +593,12 @@ fn main() -> anyhow::Result<()> {
         .build()
         .unwrap();
 
-    let results: Vec<anyhow::Result<String>> = pool.install(|x| process_video_file(x));
+    let processed: Vec<anyhow::Result<String>> = pool.install(|| {
+        list_path_file_video
+            .into_par_iter() // Convert to a parallel iterator
+            .map(process_video_file) // The function to map   |s| s.to_uppercase()
+            .collect() // Gather back into a Vec
+    });
 
     return Ok(());
 }
