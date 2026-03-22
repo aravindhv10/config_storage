@@ -122,7 +122,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
 
       if (i > 0) {
         tensor_video_padded =
-            tensor_video_padded.narrow(i, position_start, position_end);
+            tensor_video_padded.narrow(i, position_start, len_truncated);
         printf("Inside space block\n");
       }
     }
