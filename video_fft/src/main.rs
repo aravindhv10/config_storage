@@ -570,7 +570,7 @@ fn main() -> anyhow::Result<()> {
 
     let target_dir = &args[1];
 
-    let list_path_file_video: Vec<String> = vec![];
+    let mut list_path_file_video: Vec<String> = vec![];
 
     for entry in walkdir::WalkDir::new(target_dir)
         .into_iter()
