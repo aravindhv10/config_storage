@@ -498,6 +498,8 @@ fn video_tensor_2_fft_file_160(
     } else {
         std::fs::create_dir_all(path_dir_output);
 
+        let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
+
         if (120 <= total_video_length) && (total_video_length < 176) {
             if !std::fs::exists(path_file_video_bin_output) {
                 let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
@@ -505,7 +507,7 @@ fn video_tensor_2_fft_file_160(
                 fft_video::from_torch_video_tensor(
                     /*tensor_video_input: &tch::Tensor =*/
                     &tensor_video_input.i((0..total_video_length, .., .., ..)),
-                    USE_GPU,
+                    use_gpu,
                 )?
                 .save(path_file_video_bin_output.as_str())?;
             }
@@ -535,7 +537,7 @@ fn video_tensor_2_fft_file_160(
                     fft_video::from_torch_video_tensor(
                         /*tensor_video_input: &tch::Tensor =*/
                         &tensor_video_input.i((start..end, .., .., ..)),
-                        USE_GPU,
+                        use_gpu,
                     )?
                     .save(path_file_video_bin_output.as_str())?;
                 }
