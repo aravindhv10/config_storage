@@ -425,6 +425,21 @@
   cargo watch -x run --release
 #+end_src
 
+** Shell script to convert video to raw format
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./convert_video_2_raw.sh
+  cd "$('dirname' -- "${0}")"
+  ffmpeg \
+      "-i" './video.mp4' \
+      "-r" '8' \
+      "-nostdin" \
+      "-f" "rawvideo" \
+      "-pix_fmt" "rgb24" \
+      "-vf" "scale=1280:720" \
+      './video.mp4.raw' \
+  ;
+  exit '0'
+#+end_src
+
 * C++ - Rust Inter - Op
 
 ** Guarded and prepared header
@@ -1362,11 +1377,6 @@
   }
 #+end_src
 
-* Shell script to convert video to raw format
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./convert_video_2_raw.sh
-  cd "$('dirname' -- "${0}")"
-  exec ffmpeg "-i" './video.mp4' "-r" '8' "-nostdin" "-f" "rawvideo" "-pix_fmt" "rgb24" "-vf" "scale=1280:720" './video.mp4.raw'
-#+end_src
 
 * Python code to verify rust + c++ function of FFT
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./validate.py
