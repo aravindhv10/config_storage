@@ -648,7 +648,6 @@
 
 ** Actual code
 
-
 *** Include all the important headers
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include "./main.hpp"
@@ -1577,7 +1576,6 @@
 
   fn main() -> anyhow::Result<()> {
       let args: Vec<String> = std::env::args().collect();
-      init_gpu_limit() ;
 
       if args.len() < 2 {
           eprintln!("Usage: {} <directory>", args[0]);
