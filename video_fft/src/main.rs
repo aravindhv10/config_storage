@@ -601,7 +601,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let pool = rayon::ThreadPoolBuilder::new()
-        .num_threads(2)
+        .num_threads(8)
         .build()
         .unwrap();
 
