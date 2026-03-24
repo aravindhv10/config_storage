@@ -1,11 +1,16 @@
-include!("export.rs");
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 use anyhow::Context;
 use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
 
-const USE_GPU: bool = false;
+const USE_GPU: bool = true;
+
+include!("export.rs");
 
 fn convert_encoded_video_to_raw(
     path_file_video_input: &str,

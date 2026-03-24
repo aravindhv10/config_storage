@@ -8,7 +8,7 @@ anyhow = "1.0.102"
 gxhash = "3.5.0"
 jwalk = "0.8.1"
 memmap2 = "0.9.10"
+mimalloc = "0.1.48"
 rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
-tokio = { version = "1.50.0", features = ["full"] }

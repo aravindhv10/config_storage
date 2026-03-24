@@ -10,10 +10,10 @@
   gxhash = "3.5.0"
   jwalk = "0.8.1"
   memmap2 = "0.9.10"
+  mimalloc = "0.1.48"
   rayon = "1.11.0"
   serde = { version = "1.0.228", features = ["derive"] }
   tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
-  tokio = { version = "1.50.0", features = ["full"] }
 #+end_src
 
 * build.rs
@@ -1004,14 +1004,19 @@
 
 * Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
-  include!("export.rs");
+  use mimalloc::MiMalloc;
+
+  #[global_allocator]
+  static GLOBAL: MiMalloc = MiMalloc;
 
   use anyhow::Context;
   use rayon::prelude::*;
   use std::io::Write;
   use tch::IndexOp;
 
-  const USE_GPU: bool = false;
+  const USE_GPU: bool = true;
+
+  include!("export.rs");
 
   fn convert_encoded_video_to_raw(
       path_file_video_input: &str,
