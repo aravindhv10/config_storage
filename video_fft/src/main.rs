@@ -62,9 +62,15 @@ fn convert_encoded_video_to_raw(
 
 fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
     let file: std::fs::File = std::fs::File::open(path_file_input)?;
-    let input: memmap2::Mmap =
-        unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+    let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
     Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
+}
+
+fn get_str_hash(path_file_input: &str) -> u64 {
+    gxhash::gxhash64(
+        /* input = */ path_file_input.as_bytes(),
+        /* seed = */ 12345,
+    )
 }
 
 fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
@@ -198,8 +204,9 @@ impl video_slicer {
         size_c: u8,
     ) -> anyhow::Result<Self> {
         if path_file_rawvideo_output.is_none() {
-            let hash: u64 = get_file_hash(&path_file_video_input)?;
-            path_file_rawvideo_output = Some(format!("{}.{:x}.raw", path_file_video_input, hash));
+            let name_hash: u64 = get_str_hash(path_file_video_input.as_str());
+            let hash: u64 = get_file_hash(path_file_video_input.as_str())?;
+            path_file_rawvideo_output = Some(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
         }
 
         let path_file_rawvideo_output: String = path_file_rawvideo_output.unwrap();
