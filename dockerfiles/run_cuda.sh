@@ -15,7 +15,7 @@ sudo -A docker run \
     --ulimit memlock=-1 \
     --ulimit stack=67108864 \
     --shm-size 107374182400 \
-    --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+    --mount 'type=tmpfs,destination=/tmp,tmpfs-size=137438953472' \
     -v "${INPUT}:/data/input" \
     -v "${OUTPUT}:/data/output" \
     -v "${MODEL}:/data/model" \

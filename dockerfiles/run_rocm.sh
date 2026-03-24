@@ -15,7 +15,7 @@ podman run \
     '--device' '/dev/dri' \
     '--net' 'host' \
     '--security-opt' 'seccomp=unconfined' \
-    --mount 'type=tmpfs,destination=/data/TMPFS,tmpfs-size=137438953472' \
+    --mount 'type=tmpfs,destination=/tmp,tmpfs-size=137438953472' \
     -v "$(realpath .):/data/source" \
     -v "${HOME}/BUILD:/data/build" \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
