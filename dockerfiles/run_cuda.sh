@@ -1,25 +1,24 @@
 #!/bin/sh
 cd "$('dirname' '--' "${0}")"
-. "${HOME}/important_functions.sh"
+
+# IMAGE_NAME='6_pytorch'
 IMAGE_NAME="$(basename -- "$(realpath -- .)")"
-mkdir -pv -- './input' './output' './model'
-INPUT="$(realpath ./input)"
-OUTPUT="$(realpath ./output)"
-MODEL="$(realpath ./model)"
+IMAGE_CMD='zsh'
+PATH_DIR_SRC="$('realpath' '.')"
+PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
+
 sudo -A docker run \
-    --tty \
-    --interactive \
-    --rm \
-    --gpus 'all,"capabilities=compute,utility,video"' \
-    --ipc host \
-    --ulimit memlock=-1 \
-    --ulimit stack=67108864 \
-    --shm-size 107374182400 \
-    --mount 'type=tmpfs,destination=/tmp,tmpfs-size=137438953472' \
-    -v "${INPUT}:/data/input" \
-    -v "${OUTPUT}:/data/output" \
-    -v "${MODEL}:/data/model" \
+    '--tty' \
+    '--interactive' \
+    '--rm' \
+    '--gpus' 'all,"capabilities=compute,utility,video"' \
+    '--ipc' 'host' \
+    '--ulimit' 'memlock=-1' \
+    '--ulimit' 'stack=67108864' \
+    '--shm-size' '107374182400' \
+    '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=134217728' \
+    -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+    -v "CACHE:/usr/local/cargo/registry" \
     -v "CACHE:/root/.cache" \
-    -v "CACHE:/root/.triton" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;
