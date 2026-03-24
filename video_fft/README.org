@@ -13,7 +13,8 @@
   mimalloc = "0.1.48"
   rayon = "1.11.0"
   serde = { version = "1.0.228", features = ["derive"] }
-  tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
+  # tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
+  tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
 #+end_src
 
 * build.rs
