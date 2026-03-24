@@ -108,7 +108,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           < freq_limit) /* Done evaluating number of modes to keep */
           .item()
           .to<uint16_t>();
-
+  locker.l();
   torch::Tensor tensor_video_padded =
       torch::from_blob(
           /* data = */ blob,
@@ -171,6 +171,8 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           .squeeze()
           .to(torch::kCPU)
           .contiguous();
+
+  locker.r();
 
   std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
               compressed_tensor_video_fft.nbytes());
