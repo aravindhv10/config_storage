@@ -660,14 +660,22 @@
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   sem_t gpu_semaphore;
 
-  void init_gpu_limit() {
-      sem_init(&gpu_semaphore, 0, 2);
+  extern "C" {
+  void init_gpu_limit() { sem_init(&gpu_semaphore, 0, 2); }
   }
 #+end_src
 
 **** Export the function
+
+***** C++
 #+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
   void init_gpu_limit();
+#+end_src
+
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+unsafe extern "C" {
+    pub fn init_gpu_limit();
+}
 #+end_src
 
 *** Standard conversions from c++ types to torch types
@@ -1573,6 +1581,7 @@
 
   fn main() -> anyhow::Result<()> {
       let args: Vec<String> = std::env::args().collect();
+      init_gpu_limit() ;
 
       if args.len() < 2 {
           eprintln!("Usage: {} <directory>", args[0]);

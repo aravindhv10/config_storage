@@ -570,6 +570,7 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
+    init_gpu_limit();
 
     if args.len() < 2 {
         eprintln!("Usage: {} <directory>", args[0]);

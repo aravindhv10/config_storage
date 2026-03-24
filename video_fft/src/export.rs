@@ -5,6 +5,10 @@ pub type intype = u8;
 pub type outtype = float32_t;
 
 unsafe extern "C" {
+    pub fn init_gpu_limit();
+}
+
+unsafe extern "C" {
     pub fn do_fft_compress_efficient(
         blob: *mut ::std::os::raw::c_void,
         len_t: u16,
