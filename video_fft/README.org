@@ -655,27 +655,21 @@
 #+end_src
 
 *** Declare the global semaphore for gpu management and function to initialize
-
-**** Actual function
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  sem_t gpu_semaphore;
+  class gpu_locker {
 
-  extern "C" {
-  void init_gpu_limit() { sem_init(&gpu_semaphore, 0, 2); }
-  }
-#+end_src
+  private:
+    sem_t gpu_semaphore;
 
-**** Export the function
+  public:
+    gpu_locker() { sem_init(&gpu_semaphore, 0, 2); }
+    ~gpu_locker() {}
 
-***** C++
-#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
-  void init_gpu_limit();
-#+end_src
+    inline void l() { sem_wait(&gpu_semaphore); }
+    inline void r() { sem_post(&gpu_semaphore); }
+  };
 
-#+begin_src rust :mkdirp yes :tangle ./src/export.rs
-unsafe extern "C" {
-    pub fn init_gpu_limit();
-}
+  static gpu_locker locker;
 #+end_src
 
 *** Standard conversions from c++ types to torch types

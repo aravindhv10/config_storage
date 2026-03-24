@@ -1,10 +1,19 @@
 #include "./main.hpp"
 
-sem_t gpu_semaphore;
+class gpu_locker {
 
-extern "C" {
-void init_gpu_limit() { sem_init(&gpu_semaphore, 0, 2); }
-}
+private:
+  sem_t gpu_semaphore;
+
+public:
+  gpu_locker() { sem_init(&gpu_semaphore, 0, 2); }
+  ~gpu_locker() {}
+
+  inline void l() { sem_wait(&gpu_semaphore); }
+  inline void r() { sem_post(&gpu_semaphore); }
+};
+
+static gpu_locker locker;
 
 template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
 template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
