@@ -1,5 +1,11 @@
 #include "./main.hpp"
 
+sem_t gpu_semaphore;
+
+void init_gpu_limit() {
+    sem_init(&gpu_semaphore, 0, 2);
+}
+
 template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
 template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
 template <> inline torch::ScalarType get_tensor_dtype<float64_t>() {return torch::kFloat64;}

@@ -614,6 +614,11 @@
   #include "./export.hpp"
 #+end_src
 
+**** for semaphore
+#+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
+  #include <semaphore.h>
+#+end_src
+
 **** std
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <iostream>
@@ -643,9 +648,26 @@
 
 ** Actual code
 
+
 *** Include all the important headers
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #include "./main.hpp"
+#+end_src
+
+*** Declare the global semaphore for gpu management and function to initialize
+
+**** Actual function
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  sem_t gpu_semaphore;
+
+  void init_gpu_limit() {
+      sem_init(&gpu_semaphore, 0, 2);
+  }
+#+end_src
+
+**** Export the function
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void init_gpu_limit();
 #+end_src
 
 *** Standard conversions from c++ types to torch types

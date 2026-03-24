@@ -3,6 +3,8 @@
 
 #include "./export.hpp"
 
+#include <semaphore.h>
+
 #include <iostream>
 #include <vector>
 
