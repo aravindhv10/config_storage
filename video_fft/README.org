@@ -1520,7 +1520,7 @@
           let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
           if (120 <= total_video_length) && (total_video_length < 176) {
-              let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.raw";
+              let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
 
               if !std::fs::exists(path_file_video_bin_output.as_str())? {
                   fft_video::from_torch_video_tensor(
@@ -1547,7 +1547,7 @@
 
               for i in 1..=num_windows {
                   let path_file_video_bin_output: String =
-                      path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".raw";
+                      path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".bin";
 
                   if !std::fs::exists(path_file_video_bin_output.as_str())? {
                       let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
