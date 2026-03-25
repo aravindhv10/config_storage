@@ -1014,7 +1014,7 @@
   static GLOBAL: MiMalloc = MiMalloc;
 
   use anyhow::Context;
-  use bytemuck::Pod; Zeroable;
+  use bytemuck::Pod;
   use bytemuck::Zeroable;
   use rayon::prelude::*;
   use std::io::Write;
