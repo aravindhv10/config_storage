@@ -320,31 +320,31 @@ impl video_slicer {
 }
 
 #[repr(C)]
-#[derive(Debug, Zeroable, Pod)]
+#[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct a_t {
     t: [f32; 60],
 }
 
 #[repr(C)]
-#[derive(Debug, Zeroable, Pod)]
+#[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct a_x {
     x: [a_t; 160],
 }
 
 #[repr(C)]
-#[derive(Debug, Zeroable, Pod)]
+#[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct a_y {
     y: [a_x; 160],
 }
 
 #[repr(C)]
-#[derive(Debug, Zeroable, Pod)]
+#[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct a_p {
     p: [a_y; 6],
 }
 
 #[repr(C)]
-#[derive(Debug, Zeroable, Pod)]
+#[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct fft_video {
     v: a_p,
 }
