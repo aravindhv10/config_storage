@@ -573,6 +573,76 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
     );
 }
 
+#[repr(C)]
+#[derive(Debug, Default)]
+struct a_t_64 {
+    t: [f64; 60],
+}
+
+impl a_t_64 {
+    fn add_2_self(&mut self, other: a_t) {
+        for i in 0..self.t.len() {
+            self.t[i] += other.t[i];
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default)]
+struct a_x_64 {
+    x: [a_t_64; 160],
+}
+
+impl a_x_64 {
+    fn add_2_self(&mut self, other: a_x) {
+        for i in 0..self.x.len() {
+            self.x[i].add_2_self(other.x[i]);
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default)]
+struct a_y_64 {
+    y: [a_x_64; 160],
+}
+
+impl a_y_64 {
+    fn add_2_self(&mut self, other: a_y) {
+        for i in 0..self.y.len() {
+            self.y[i].add_2_self(other.y[i]);
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default)]
+struct a_p_64 {
+    p: [a_y_64; 6],
+}
+
+impl a_p_64 {
+    fn add_2_self(&mut self, other: a_p) {
+        for i in 0..self.p.len() {
+            self.p[i].add_2_self(other.p[i]);
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Default)]
+struct fft_video_64 {
+    v: a_p_64,
+}
+
+impl fft_video_64 {
+    fn add_2_self(&mut self, other: fft_video) {
+        for i in 0..self.v.len() {
+            self.v[i].add_2_self(other.v[i]);
+        }
+    }
+}
+
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
