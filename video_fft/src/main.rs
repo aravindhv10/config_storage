@@ -581,7 +581,7 @@ struct a_t_64 {
 
 impl Default for a_t_64 {
     fn default() -> Self {
-        a_t_64 {
+        Self {
             t: [0.0 as f64; 60],
         }
     }
@@ -596,9 +596,17 @@ impl a_t_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct a_x_64 {
     x: [a_t_64; 160],
+}
+
+impl Default for a_x_64 {
+    fn default() -> Self {
+        Self {
+            x: [a_t_64::default(); 160],
+        }
+    }
 }
 
 impl a_x_64 {
@@ -610,9 +618,17 @@ impl a_x_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct a_y_64 {
     y: [a_x_64; 160],
+}
+
+impl Default for a_y_64 {
+    fn default() -> Self {
+        Self {
+            y: [a_x_64::default(); 160],
+        }
+    }
 }
 
 impl a_y_64 {
@@ -624,9 +640,17 @@ impl a_y_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct a_p_64 {
     p: [a_y_64; 6],
+}
+
+impl Default for a_p_64 {
+    fn default() -> Self {
+        Self {
+            p: [a_y_64::default(); 6],
+        }
+    }
 }
 
 impl a_p_64 {
