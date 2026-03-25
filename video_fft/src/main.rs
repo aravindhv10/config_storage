@@ -574,15 +574,23 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
 }
 
 #[repr(C)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct a_t_64 {
     t: [f64; 60],
+}
+
+impl Default for a_t_64 {
+    fn default() -> Self {
+        a_t_64 {
+            t: [0.0 as f64; 60],
+        }
+    }
 }
 
 impl a_t_64 {
     fn add_2_self(&mut self, other: a_t) {
         for i in 0..self.t.len() {
-            self.t[i] += other.t[i];
+            self.t[i] += other.t[i] as f64;
         }
     }
 }
