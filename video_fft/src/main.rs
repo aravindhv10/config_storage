@@ -669,9 +669,7 @@ struct fft_video_64 {
 
 impl fft_video_64 {
     fn add_2_self(&mut self, other: &fft_video) {
-        for i in 0..self.v.len() {
-            self.v[i].add_2_self(&(other.v[i]));
-        }
+        self.v.add_2_self(&(other.v));
     }
 }
 
