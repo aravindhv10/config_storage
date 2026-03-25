@@ -15,7 +15,10 @@
   serde = { version = "1.0.228", features = ["derive"] }
   # tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
   tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
+  tokio = { version = "1.50.0", features = ["full"] }
+  futures = "0.3.32"
 #+end_src
+
 
 * build.rs
 #+begin_src rust :mkdirp yes :tangle ./build.rs
