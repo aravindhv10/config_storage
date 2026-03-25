@@ -1581,7 +1581,7 @@
   }
 
   #[repr(C)]
-  #[derive(Debug, Copy)]
+  #[derive(Debug, Copy, Clone)]
   struct a_t_64 {
       t: [f64; 60],
   }
@@ -1603,7 +1603,7 @@
   }
 
   #[repr(C)]
-  #[derive(Debug, Copy)]
+  #[derive(Debug, Copy, Clone)]
   struct a_x_64 {
       x: [a_t_64; 160],
   }
@@ -1625,7 +1625,7 @@
   }
 
   #[repr(C)]
-  #[derive(Debug, Copy)]
+  #[derive(Debug, Copy, Clone)]
   struct a_y_64 {
       y: [a_x_64; 160],
   }
@@ -1647,7 +1647,7 @@
   }
 
   #[repr(C)]
-  #[derive(Debug, Copy)]
+  #[derive(Debug, Copy, Clone)]
   struct a_p_64 {
       p: [a_y_64; 6],
   }
@@ -1669,7 +1669,7 @@
   }
 
   #[repr(C)]
-  #[derive(Debug, Default)]
+  #[derive(Debug, Default, Clone)]
   struct fft_video_64 {
       v: a_p_64,
   }

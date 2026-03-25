@@ -574,7 +574,7 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 struct a_t_64 {
     t: [f64; 60],
 }
@@ -596,7 +596,7 @@ impl a_t_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 struct a_x_64 {
     x: [a_t_64; 160],
 }
@@ -618,7 +618,7 @@ impl a_x_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 struct a_y_64 {
     y: [a_x_64; 160],
 }
@@ -640,7 +640,7 @@ impl a_y_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 struct a_p_64 {
     p: [a_y_64; 6],
 }
@@ -662,7 +662,7 @@ impl a_p_64 {
 }
 
 #[repr(C)]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct fft_video_64 {
     v: a_p_64,
 }
