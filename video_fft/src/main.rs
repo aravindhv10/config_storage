@@ -710,11 +710,13 @@ async fn eval_actual_sum(
     mut accumulator: &fft_video_64,
     list_path_file_video_input: Vec<String>,
 ) -> anyhow::Result<()> {
+    let mut arc_uninit = std::sync::Arc::<fft_video>::new_uninit();
+    let data_ptr = std::sync::Arc::get_mut(&mut arc_uninit)
+        .unwrap()
+        .as_mut_ptr();
     for i in list_path_file_video_input {
-        let content = tokio::fs::read(i.as_str()).await?;
-        
-        unsafe {std::ptr::read(bytes.as_ptr() as *const Asd}
-        
+        let dest_slice =
+            std::slice::from_raw_parts_mut(data_ptr as *mut u8, std::mem::size_of::<fft_video>());
     }
     Ok(())
 }
