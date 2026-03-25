@@ -727,6 +727,12 @@ async fn eval_actual_sum(
     mut accumulator: &fft_video_64,
     list_path_file_video_input: Vec<String>,
 ) -> anyhow::Result<()> {
+    let mut accumulator = std::sync::Arc::<fft_video_64>::new(fft_video_64::default());
+    for i in list_path_file_video_input {
+        let data = tokio::fs::read(i).await?;
+        let data_fft: &fft_video = bytemuck::from_bytes(&data[..std::mem::size_of::<fft_video>()]);
+        accumulator.add_2_self(data_fft);
+    }
     Ok(())
 }
 
