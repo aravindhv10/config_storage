@@ -574,7 +574,7 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 struct a_t_64 {
     t: [f64; 60],
 }
@@ -588,7 +588,7 @@ impl Default for a_t_64 {
 }
 
 impl a_t_64 {
-    fn add_2_self(&mut self, other: a_t) {
+    fn add_2_self(&mut self, other: &a_t) {
         for i in 0..self.t.len() {
             self.t[i] += other.t[i] as f64;
         }
@@ -596,7 +596,7 @@ impl a_t_64 {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 struct a_x_64 {
     x: [a_t_64; 160],
 }
@@ -610,15 +610,15 @@ impl Default for a_x_64 {
 }
 
 impl a_x_64 {
-    fn add_2_self(&mut self, other: a_x) {
+    fn add_2_self(&mut self, other: &a_x) {
         for i in 0..self.x.len() {
-            self.x[i].add_2_self(other.x[i]);
+            self.x[i].add_2_self(&(other.x[i]));
         }
     }
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 struct a_y_64 {
     y: [a_x_64; 160],
 }
@@ -632,15 +632,15 @@ impl Default for a_y_64 {
 }
 
 impl a_y_64 {
-    fn add_2_self(&mut self, other: a_y) {
+    fn add_2_self(&mut self, other: &a_y) {
         for i in 0..self.y.len() {
-            self.y[i].add_2_self(other.y[i]);
+            self.y[i].add_2_self(&(other.y[i]));
         }
     }
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 struct a_p_64 {
     p: [a_y_64; 6],
 }
@@ -654,9 +654,9 @@ impl Default for a_p_64 {
 }
 
 impl a_p_64 {
-    fn add_2_self(&mut self, other: a_p) {
+    fn add_2_self(&mut self, other: &a_p) {
         for i in 0..self.p.len() {
-            self.p[i].add_2_self(other.p[i]);
+            self.p[i].add_2_self(&(other.p[i]));
         }
     }
 }
@@ -668,9 +668,9 @@ struct fft_video_64 {
 }
 
 impl fft_video_64 {
-    fn add_2_self(&mut self, other: fft_video) {
+    fn add_2_self(&mut self, other: &fft_video) {
         for i in 0..self.v.len() {
-            self.v[i].add_2_self(other.v[i]);
+            self.v[i].add_2_self(&(other.v[i]));
         }
     }
 }
