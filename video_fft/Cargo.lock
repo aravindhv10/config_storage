@@ -1198,6 +1198,7 @@ name = "video_fft"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bytemuck",
  "futures",
  "gxhash",
  "jwalk",
