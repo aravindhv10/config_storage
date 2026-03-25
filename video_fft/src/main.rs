@@ -610,6 +610,12 @@ impl a_t_64 {
             self.t[i] += other.t[i] as f64;
         }
     }
+
+    fn add_2_self_64(&mut self, other: &Self) {
+        for i in 0..self.t.len() {
+            self.t[i] += other.t[i] as f64;
+        }
+    }
 }
 
 #[repr(C)]
@@ -630,6 +636,12 @@ impl a_x_64 {
     fn add_2_self(&mut self, other: &a_x) {
         for i in 0..self.x.len() {
             self.x[i].add_2_self(&(other.x[i]));
+        }
+    }
+
+    fn add_2_self_64(&mut self, other: &Self) {
+        for i in 0..self.x.len() {
+            self.x[i].add_2_self_64(&(other.x[i]));
         }
     }
 }
@@ -654,6 +666,12 @@ impl a_y_64 {
             self.y[i].add_2_self(&(other.y[i]));
         }
     }
+
+    fn add_2_self_64(&mut self, other: &Self) {
+        for i in 0..self.y.len() {
+            self.y[i].add_2_self_64(&(other.y[i]));
+        }
+    }
 }
 
 #[repr(C)]
@@ -676,6 +694,12 @@ impl a_p_64 {
             self.p[i].add_2_self(&(other.p[i]));
         }
     }
+
+    fn add_2_self_64(&mut self, other: &Self) {
+        for i in 0..self.p.len() {
+            self.p[i].add_2_self_64(&(other.p[i]));
+        }
+    }
 }
 
 #[repr(C)]
@@ -687,6 +711,10 @@ struct fft_video_64 {
 impl fft_video_64 {
     fn add_2_self(&mut self, other: &fft_video) {
         self.v.add_2_self(&(other.v));
+    }
+
+    fn add_2_self_64(&mut self, other: &Self) {
+        self.v.add_2_self_64(&(other.v));
     }
 }
 
@@ -753,8 +781,6 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
             }
         }
     }
-
-    let mut accumulator: fft_video_64;
 
     Ok(())
 }
