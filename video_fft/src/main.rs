@@ -325,11 +325,17 @@ struct a_t {
     t: [f32; 60],
 }
 
+unsafe impl Zeroable for a_t {}
+unsafe impl Pod for a_t {}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct a_x {
     x: [a_t; 160],
 }
+
+unsafe impl Zeroable for a_x {}
+unsafe impl Pod for a_x {}
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Zeroable, Pod)]
@@ -337,17 +343,26 @@ struct a_y {
     y: [a_x; 160],
 }
 
+unsafe impl Zeroable for a_y {}
+unsafe impl Pod for a_y {}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct a_p {
     p: [a_y; 6],
 }
 
+unsafe impl Zeroable for a_p {}
+unsafe impl Pod for a_p {}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Zeroable, Pod)]
 struct fft_video {
     v: a_p,
 }
+
+unsafe impl Zeroable for fft_video {}
+unsafe impl Pod for fft_video {}
 
 impl fft_video {
     fn save(&self, filename: &str) -> anyhow::Result<()> {
