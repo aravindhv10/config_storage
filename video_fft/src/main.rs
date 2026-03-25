@@ -673,16 +673,7 @@ impl fft_video_64 {
     }
 }
 
-fn main() -> anyhow::Result<()> {
-    let args: Vec<String> = std::env::args().collect();
-
-    if args.len() < 2 {
-        eprintln!("Usage: {} <directory>", args[0]);
-        std::process::exit(1);
-    }
-
-    let target_dir = &args[1];
-
+fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     let mut list_path_file_video: Vec<String> = vec![];
 
     for entry in jwalk::WalkDir::new(target_dir)
@@ -713,4 +704,19 @@ fn main() -> anyhow::Result<()> {
     });
 
     return Ok(());
+}
+
+fn main() -> anyhow::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() < 2 {
+        eprintln!("Usage: {} <directory>", args[0]);
+        std::process::exit(1);
+    }
+
+    let target_dir = &args[1];
+
+    fft_all_video_files_under_dir(/* target_dir: &str = */ target_dir)?;
+
+    Ok(())
 }
