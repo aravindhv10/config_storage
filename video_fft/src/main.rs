@@ -4,6 +4,8 @@ use mimalloc::MiMalloc;
 static GLOBAL: MiMalloc = MiMalloc;
 
 use anyhow::Context;
+use bytemuck::Pod; Zeroable;
+use bytemuck::Zeroable;
 use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
@@ -318,31 +320,31 @@ impl video_slicer {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Zeroable, Pod)]
 struct a_t {
     t: [f32; 60],
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Zeroable, Pod)]
 struct a_x {
     x: [a_t; 160],
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Zeroable, Pod)]
 struct a_y {
     y: [a_x; 160],
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Zeroable, Pod)]
 struct a_p {
     p: [a_y; 6],
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Zeroable, Pod)]
 struct fft_video {
     v: a_p,
 }
@@ -711,12 +713,12 @@ async fn eval_actual_sum(
     list_path_file_video_input: Vec<String>,
 ) -> anyhow::Result<()> {
     let mut arc_uninit = std::sync::Arc::<fft_video>::new_uninit();
-    let data_ptr = std::sync::Arc::get_mut(&mut arc_uninit)
-        .unwrap()
-        .as_mut_ptr();
+    let data_ptr = std::sync::Arc::get_mut(&mut arc_uninit).unwrap().as_mut_ptr();
     for i in list_path_file_video_input {
-        let dest_slice =
-            std::slice::from_raw_parts_mut(data_ptr as *mut u8, std::mem::size_of::<fft_video>());
+        let dest_slice = std::slice::from_raw_parts_mut(
+            data_ptr as *mut u8,
+            std::mem::size_of::<fft_video>()
+        );
     }
     Ok(())
 }

@@ -17,7 +17,7 @@
   tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
   tokio = { version = "1.50.0", features = ["full"] }
   futures = "0.3.32"
-  # bytemuck = { version = "1.25.0", features = ["derive"] }
+  bytemuck = { version = "1.25.0", features = ["derive"] }
 #+end_src
 
 * build.rs
@@ -1014,6 +1014,8 @@
   static GLOBAL: MiMalloc = MiMalloc;
 
   use anyhow::Context;
+  use bytemuck::Pod; Zeroable;
+  use bytemuck::Zeroable;
   use rayon::prelude::*;
   use std::io::Write;
   use tch::IndexOp;
@@ -1328,31 +1330,31 @@
   }
 
   #[repr(C)]
-  #[derive(Debug)]
+  #[derive(Debug, Zeroable, Pod)]
   struct a_t {
       t: [f32; 60],
   }
 
   #[repr(C)]
-  #[derive(Debug)]
+  #[derive(Debug, Zeroable, Pod)]
   struct a_x {
       x: [a_t; 160],
   }
 
   #[repr(C)]
-  #[derive(Debug)]
+  #[derive(Debug, Zeroable, Pod)]
   struct a_y {
       y: [a_x; 160],
   }
 
   #[repr(C)]
-  #[derive(Debug)]
+  #[derive(Debug, Zeroable, Pod)]
   struct a_p {
       p: [a_y; 6],
   }
 
   #[repr(C)]
-  #[derive(Debug)]
+  #[derive(Debug, Zeroable, Pod)]
   struct fft_video {
       v: a_p,
   }
