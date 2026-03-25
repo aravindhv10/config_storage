@@ -712,6 +712,9 @@ async fn eval_actual_sum(
 ) -> anyhow::Result<()> {
     for i in list_path_file_video_input {
         let content = tokio::fs::read(i.as_str()).await?;
+        
+        unsafe {std::ptr::read(bytes.as_ptr() as *const Asd}
+        
     }
     Ok(())
 }
