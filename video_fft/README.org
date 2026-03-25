@@ -1716,6 +1716,39 @@
       return Ok(());
   }
 
+  async fn eval_actual_sum(
+      mut accumulator: &fft_video_64,
+      list_path_file_video_input: Vec<String>,
+  ) -> anyhow::Result<()> {
+      for i in list_path_file_video_input {
+          let content = tokio::fs::read(i.as_str()).await?;
+      }
+      Ok(())
+  }
+
+  async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
+      let mut list_path_file_video: Vec<String> = vec![];
+
+      for entry in jwalk::WalkDir::new(target_dir)
+          .into_iter()
+          .filter_map(|e| e.ok())
+      {
+          let path = entry.path();
+
+          if !path.is_dir() {
+              if let Some(ext) = path.extension() {
+                  if ext == "mp4" {
+                      list_path_file_video.push(path.display().to_string());
+                  }
+              }
+          }
+      }
+
+      let mut accumulator: fft_video_64;
+
+      Ok(())
+  }
+
   fn main() -> anyhow::Result<()> {
       let args: Vec<String> = std::env::args().collect();
 
