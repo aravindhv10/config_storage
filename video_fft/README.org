@@ -1878,21 +1878,21 @@
       Ok(path_file_sigma_output)
   }
 
+  pub async fn eval_mean_sigma_slave(path_dir_base: &str) -> anyhow::Result<()> {
+      let path_file_64bin_mean = eval_mean(path_dir_base)?;
+
+      let path_file_64bin_sigma = eval_sigma(/* target_dir: &str = */ path_dir_base, /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str())?;
+
+      Ok(())
+  }
+
   pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
       let rt = tokio::runtime::Builder::new_multi_thread()
           .worker_threads(24)
           .enable_all()
           .build()?;
 
-      rt.block_on(async {
-          let path_file_64bin_mean = tokio::join!(eval_mean(path_dir_base)).0?;
-
-          let path_file_64bin_sigma = tokio::join!(eval_sigma(
-              /* target_dir: &str = */ path_dir_base,
-              /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str()
-          ))
-          .0?;
-      });
+      rt.block_on(async {tokio::join!(eval_mean_sigma_slave(path_dir_base: &str));});
 
       Ok(())
   }
