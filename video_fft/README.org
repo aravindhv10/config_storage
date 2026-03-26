@@ -1669,6 +1669,17 @@
   }
 
   impl fft_video_64 {
+      pub fn save(&self, filename: &str) -> anyhow::Result<()> {
+          let file = std::fs::File::create(filename)?;
+          let mut writer = std::io::BufWriter::new(file);
+          let size = std::mem::size_of::<Self>();
+          let bytes =
+              unsafe { std::slice::from_raw_parts((self as *const fft_video) as *const u8, size) };
+          writer.write_all(bytes)?;
+          return Ok(());
+      }
+
+      
       fn add_2_self(&mut self, other: &videofft::fft_video) {
           self.v.add_2_self(&(other.v));
       }
