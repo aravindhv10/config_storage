@@ -1330,75 +1330,40 @@
   }
 #+end_src
 
-* Main rust code
-#+begin_src rust :mkdirp yes :tangle ./src/main.rs
-  use mimalloc::MiMalloc;
-
-  #[global_allocator]
-  static GLOBAL: MiMalloc = MiMalloc;
-
-  mod videofn;
-  mod videoview;
-  mod export;
-
-  use anyhow::Context;
-  use bytemuck::Contiguous;
-  use bytemuck::Pod;
-  use bytemuck::Zeroable;
-  use futures::stream;
-  use futures::stream::StreamExt;
-  use rayon::prelude::*;
-  use std::io::Write;
-  use tch::IndexOp;
-
-  const USE_GPU: bool = true;
-
-  // include!("export.rs");
-
+* video fft struct implementation
+#+begin_src rust :mkdirp yes :tangle ./src/videofft.rs
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
-  struct a_t {
+  pub struct a_t {
       t: [f32; 60],
   }
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
-  struct a_x {
+  pub struct a_x {
       x: [a_t; 160],
   }
 
-  unsafe impl Zeroable for a_x {}
-  unsafe impl Pod for a_x {}
-
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
-  struct a_y {
+  pub struct a_y {
       y: [a_x; 160],
   }
 
-  unsafe impl Zeroable for a_y {}
-  unsafe impl Pod for a_y {}
-
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
-  struct a_p {
+  pub struct a_p {
       p: [a_y; 6],
   }
 
-  unsafe impl Zeroable for a_p {}
-  unsafe impl Pod for a_p {}
-
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
-  struct fft_video {
+  pub struct fft_video {
       v: a_p,
   }
 
-  unsafe impl Zeroable for fft_video {}
-  unsafe impl Pod for fft_video {}
-
   impl fft_video {
-      fn save(&self, filename: &str) -> anyhow::Result<()> {
+      pub fn save(&self, filename: &str) -> anyhow::Result<()> {
           let file = std::fs::File::create(filename)?;
           let mut writer = std::io::BufWriter::new(file);
           let size = std::mem::size_of::<fft_video>();
@@ -1478,7 +1443,7 @@
           return Ok(final_video);
       }
 
-      fn from_torch_video_tensor(
+      pub fn from_torch_video_tensor(
           tensor_video_input: &tch::Tensor,
           use_gpu: bool,
       ) -> anyhow::Result<std::sync::Arc<Self>> {
@@ -1549,6 +1514,34 @@
           return Ok(final_video);
       }
   }
+#+end_src
+
+* Main rust code
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  use mimalloc::MiMalloc;
+
+  #[global_allocator]
+  static GLOBAL: MiMalloc = MiMalloc;
+
+  mod videofn;
+  mod videoview;
+  mod export;
+  mod videofft;
+
+  use anyhow::Context;
+  use bytemuck::Contiguous;
+  use bytemuck::Pod;
+  use bytemuck::Zeroable;
+  use futures::stream;
+  use futures::stream::StreamExt;
+  use rayon::prelude::*;
+  use std::io::Write;
+  use tch::IndexOp;
+
+  const USE_GPU: bool = true;
+
+  // include!("export.rs");
+
 
   fn video_tensor_2_fft_file_160(
       tensor_video_input: tch::Tensor,
