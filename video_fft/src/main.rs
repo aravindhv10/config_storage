@@ -124,7 +124,6 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     return Ok(());
 }
 
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
