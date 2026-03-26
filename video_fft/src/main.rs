@@ -788,6 +788,7 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+#[tokio::main]
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
@@ -798,7 +799,8 @@ fn main() -> anyhow::Result<()> {
 
     let target_dir = &args[1];
 
-    fft_all_video_files_under_dir(/* target_dir: &str = */ target_dir)?;
+    tokio::task::spawn_blocking(move || eval_sum(target_dir)).await?;
+    // fft_all_video_files_under_dir(/* target_dir: &str = */ target_dir)?;
 
     Ok(())
 }
