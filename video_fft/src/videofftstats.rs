@@ -65,7 +65,7 @@ impl Default for a_x_64 {
 impl a_x_64 {
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_x) {
         for i in 0..self.x.len() {
-            self.x[i].add_unnormalized_sigma_2_self(mu.x[i], other.x[i]);
+            self.x[i].add_unnormalized_sigma_2_self(&(mu.x[i]), &(other.x[i]));
         }
     }
 
@@ -105,7 +105,7 @@ impl Default for a_y_64 {
 impl a_y_64 {
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_y) {
         for i in 0..self.y.len() {
-            self.y[i].add_unnormalized_sigma_2_self(mu.y[i], other.y[i]);
+            self.y[i].add_unnormalized_sigma_2_self(&(mu.y[i]), &(other.y[i]));
         }
     }
 
@@ -145,7 +145,7 @@ impl Default for a_p_64 {
 impl a_p_64 {
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_p) {
         for i in 0..self.p.len() {
-            self.p[i].add_unnormalized_sigma_2_self(mu.p[i], other.p[i]);
+            self.p[i].add_unnormalized_sigma_2_self(&(mu.p[i]), &(other.p[i]));
         }
     }
 
@@ -176,7 +176,7 @@ pub struct fft_video_64 {
 
 impl fft_video_64 {
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::fft_video) {
-        self.v.add_unnormalized_sigma_2_self(mu.v, other.v);
+        self.v.add_unnormalized_sigma_2_self(&(mu.v), &(other.v));
     }
 
     fn add_2_self(&mut self, other: &videofft::fft_video) {
