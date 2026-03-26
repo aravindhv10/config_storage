@@ -372,6 +372,7 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow:
         }
 
         accumulator.divide_self(list_path_file_video.len() as f64);
+        accumulator.take_sqrt();
 
         if true {
             accumulator.save(path_file_sigma_output.as_str()).await?;

@@ -1896,6 +1896,7 @@
           }
 
           accumulator.divide_self(list_path_file_video.len() as f64);
+          accumulator.take_sqrt();
 
           if true {
               accumulator.save(path_file_sigma_output.as_str()).await?;
