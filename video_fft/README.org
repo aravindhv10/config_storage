@@ -1848,7 +1848,7 @@
       const nchunks: usize = 1 << 12;
 
       let mean_data = tokio::fs::read(path_file_bin64_mean).await?;
-      let mean = &unsafe { *(mean_data.as_ptr() as *const fft_video_64) };
+      let mean = unsafe { &*(mean_data.as_ptr() as *const fft_video_64) };
 
       let mut streams = vec![];
       for i in list_path_file_video.chunks(nchunks) {
