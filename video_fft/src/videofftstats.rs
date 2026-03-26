@@ -362,6 +362,7 @@ pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
 
     rt.block_on(async {
         let path_file_64bin_mean = tokio::join!(eval_mean(path_dir_base)).0?;
+
         let path_file_64bin_sigma = tokio::join!(eval_sigma(
             /* target_dir: &str = */ path_dir_base,
             /* path_file_bin64_mean: &str = */ path_file_64bin_mean
