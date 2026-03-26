@@ -4,7 +4,6 @@ use mimalloc::MiMalloc;
 static GLOBAL: MiMalloc = MiMalloc;
 
 mod videofn;
-use videofn::convert_encoded_video_to_raw;
 use videofn::get_file_hash;
 use videofn::get_str_hash;
 
@@ -160,7 +159,7 @@ impl video_slicer {
 
         let path_file_rawvideo_output: String = path_file_rawvideo_output.unwrap();
 
-        convert_encoded_video_to_raw(
+        videofn::convert_encoded_video_to_raw(
             path_file_video_input.as_str(),
             path_file_rawvideo_output.as_str(),
             fps,
