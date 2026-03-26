@@ -1231,30 +1231,8 @@
   }
 #+end_src
 
-* Main rust code
-#+begin_src rust :mkdirp yes :tangle ./src/main.rs
-  use mimalloc::MiMalloc;
-
-  #[global_allocator]
-  static GLOBAL: MiMalloc = MiMalloc;
-
-  mod videofn;
-  mod videoview;
-
-  use anyhow::Context;
-  use bytemuck::Contiguous;
-  use bytemuck::Pod;
-  use bytemuck::Zeroable;
-  use futures::stream;
-  use futures::stream::StreamExt;
-  use rayon::prelude::*;
-  use std::io::Write;
-  use tch::IndexOp;
-
-  const USE_GPU: bool = true;
-
-  include!("export.rs");
-
+* Torch implementation of pad and fft in rust
+#+begin_src rust :mkdirp yes :tangle ./src/torchimpl.rs
   fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
       let size: Vec<i64> = tensor_video.size();
       let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
@@ -1272,7 +1250,7 @@
       Ok(padded)
   }
 
-  pub fn compress_video_tensor(
+  fn compress_video_tensor(
       tensor_video: &tch::Tensor,
       fps: f64,
       freq_limit: f64,
@@ -1350,7 +1328,31 @@
 
       return Ok(interpolated.squeeze());
   }
+#+end_src
 
+* Main rust code
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  use mimalloc::MiMalloc;
+
+  #[global_allocator]
+  static GLOBAL: MiMalloc = MiMalloc;
+
+  mod videofn;
+  mod videoview;
+
+  use anyhow::Context;
+  use bytemuck::Contiguous;
+  use bytemuck::Pod;
+  use bytemuck::Zeroable;
+  use futures::stream;
+  use futures::stream::StreamExt;
+  use rayon::prelude::*;
+  use std::io::Write;
+  use tch::IndexOp;
+
+  const USE_GPU: bool = true;
+
+  include!("export.rs");
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
