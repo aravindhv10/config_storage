@@ -789,7 +789,7 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
 }
 
 #[tokio::main]
-fn main() -> anyhow::Result<()> {
+async fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() < 2 {
@@ -797,10 +797,11 @@ fn main() -> anyhow::Result<()> {
         std::process::exit(1);
     }
 
-    let target_dir = &args[1];
+    let target_dir = args[1].to_string();
 
-    tokio::task::spawn_blocking(move || eval_sum(target_dir)).await?;
-    // fft_all_video_files_under_dir(/* target_dir: &str = */ target_dir)?;
+    eval_sum(target_dir.as_str()).await?;
+
+    // tokio::task::spawn_blocking(move || fft_all_video_files_under_dir(/*target_dir: &str =*/ target_dir)).await?;
 
     Ok(())
 }
