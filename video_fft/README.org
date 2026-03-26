@@ -1765,8 +1765,7 @@
               unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
 
           accumulator.add_unnormalized_sigma_2_self(
-              /* mu: &Self = */ mu,
-              /* other: &videofft::fft_video = */ data_fft,
+              /* mu: &Self = */ mu, /* other: &videofft::fft_video = */ data_fft,
           );
       }
 
@@ -1881,7 +1880,10 @@
   pub async fn eval_mean_sigma_slave(path_dir_base: &str) -> anyhow::Result<()> {
       let path_file_64bin_mean = eval_mean(path_dir_base)?;
 
-      let path_file_64bin_sigma = eval_sigma(/* target_dir: &str = */ path_dir_base, /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str())?;
+      let path_file_64bin_sigma = eval_sigma(
+          /* target_dir: &str = */ path_dir_base,
+          /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
+      )?;
 
       Ok(())
   }
@@ -1892,7 +1894,9 @@
           .enable_all()
           .build()?;
 
-      rt.block_on(async {tokio::join!(eval_mean_sigma_slave(path_dir_base: &str));});
+      rt.block_on(async {
+          tokio::join!(eval_mean_sigma_slave(path_dir_base: &str));
+      });
 
       Ok(())
   }
