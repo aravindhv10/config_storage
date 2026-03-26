@@ -1773,7 +1773,7 @@
       Ok(accumulator)
   }
 
-  pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
+  pub async fn eval_mean(target_dir: &str) -> anyhow::Result<String> {
       let mut list_path_file_video: Vec<String> = vec![];
 
       if true {
@@ -1803,6 +1803,8 @@
 
       let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
 
+      let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
+
       if true {
           let mut accumulator: std::boxed::Box<fft_video_64> =
               std::boxed::Box::new(fft_video_64::default());
@@ -1815,15 +1817,14 @@
           accumulator.divide_self(list_path_file_video.len() as f64);
 
           if true {
-              let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
               accumulator.save(path_file_mean_output.as_str()).await?;
           }
       }
 
-      Ok(())
+      Ok(path_file_mean_output)
   }
 
-  pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow::Result<()> {
+  pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow::Result<String> {
       let mut list_path_file_video: Vec<String> = vec![];
 
       if true {
@@ -1856,6 +1857,8 @@
 
       let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
 
+      let path_file_sigma_output = target_dir.to_string() + "_sigma.64bin";
+
       if true {
           let mut accumulator: std::boxed::Box<fft_video_64> =
               std::boxed::Box::new(fft_video_64::default());
@@ -1868,18 +1871,25 @@
           accumulator.divide_self(list_path_file_video.len() as f64);
 
           if true {
-              let path_file_mean_output = target_dir.to_string() + "_sigma.64bin";
-              accumulator.save(path_file_mean_output.as_str()).await?;
+              accumulator.save(path_file_sigma_output.as_str()).await?;
           }
       }
 
-      Ok(())
+      Ok(path_file_sigma_output)
   }
 
-  fn eval_mean_sigma( path_dir_base: &str ) -> anyhow::Result<()>{
+  pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
+      let rt = tokio::runtime::Builder::new_multi_thread()
+          .worker_threads(24)
+          .enable_all()
+          .build()?;
+
+      rt.block_on(async {
+          let path_file_64bin_mean = tokio::join!(eval_mean(path_dir_base)).0?;
+          let path_file_64bin_sigma = tokio::join!(eval_sigma(/* target_dir: &str = */ path_dir_base, /* path_file_bin64_mean: &str = */ path_file_64bin_mean)).0?;
+      });
 
       Ok(())
-      
   }
 #+end_src
 
