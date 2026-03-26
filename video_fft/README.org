@@ -1764,14 +1764,17 @@
   async fn eval_actual_sum(
       mut accumulator: &fft_video_64,
       list_path_file_video_input: Vec<String>,
-  ) -> anyhow::Result<()> {
-      let mut accumulator = std::boxed::Box::new(fft_video_64::default());
+  ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+      let mut accumulator: std::boxed::Box<fft_video_64> =
+          std::boxed::Box::new(fft_video_64::default());
+
       for i in list_path_file_video_input {
           let data = tokio::fs::read(i).await?;
-          let data_fft: &fft_video = bytemuck::from_bytes(&data[..std::mem::size_of::<fft_video>()]);
+          let data_fft: &fft_video = unsafe { &*(data.as_ptr() as *const fft_video) };
           accumulator.add_2_self(data_fft);
       }
-      Ok(())
+
+      Ok(accumulator)
   }
 
   async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
