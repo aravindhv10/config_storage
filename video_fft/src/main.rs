@@ -1,12 +1,14 @@
-use bytemuck::Contiguous;
 use mimalloc::MiMalloc;
 
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
 use anyhow::Context;
+use bytemuck::Contiguous;
 use bytemuck::Pod;
 use bytemuck::Zeroable;
+use futures::stream;
+use futures::stream::StreamExt;
 use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
@@ -753,7 +755,7 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
 }
 
 async fn eval_actual_sum(
-    list_path_file_video_input: Vec<String>,
+    list_path_file_video_input: &[String],
 ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
     let mut accumulator: std::boxed::Box<fft_video_64> =
         std::boxed::Box::new(fft_video_64::default());
@@ -787,17 +789,10 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
 
     const nthreads: u8 = 8;
 
-    let mut begin_index: Vec<usize> = vec![];
-    let mut end_index: Vec<usize> = vec![];
-    let total_len: usize = list_path_file_video.len();
-    for i in 0..nthreads {
-        begin_index.push((total_len * (i as usize)) / (nthreads as usize));
-        end_index.push((total_len * ((i + 1) as usize)) / (nthreads as usize));
+    let mut streams = vec![];
+    for i in list_path_file_video.chunks_exact(nthreads as usize) {
+        streams.push(eval_actual_sum(i));
     }
-
-    println!("{:?}", total_len);
-    println!("{:?}", begin_index);
-    println!("{:?}", end_index);
 
     // eval_actual_sum(
     //     /*list_path_file_video_input: Vec<String> =*/ list_path_file_video,
