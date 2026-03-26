@@ -217,8 +217,10 @@ async fn eval_actual_mean(
 
     for i in list_path_file_video_input {
         let data = tokio::fs::read(i.as_str()).await?;
+
         let data_fft: &videofft::fft_video =
             unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
+
         accumulator.add_2_self(data_fft);
     }
 
@@ -234,6 +236,7 @@ async fn eval_actual_sigma(
 
     for i in list_path_file_video_input {
         let data = tokio::fs::read(i.as_str()).await?;
+
         let data_fft: &videofft::fft_video =
             unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
 
@@ -247,6 +250,56 @@ async fn eval_actual_sigma(
 }
 
 pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
+    let mut list_path_file_video: Vec<String> = vec![];
+
+    if true {
+        for entry in jwalk::WalkDir::new(target_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            let path = entry.path();
+
+            if !path.is_dir() {
+                if let Some(ext) = path.extension() {
+                    if ext == "bin" {
+                        list_path_file_video.push(path.display().to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    const nthreads: usize = 16;
+    const nchunks: usize = 1 << 12;
+
+    let mut streams = vec![];
+    for i in list_path_file_video.chunks(nchunks) {
+        streams.push(eval_actual_mean(i));
+    }
+
+    let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
+
+    if true {
+        let mut accumulator: std::boxed::Box<fft_video_64> =
+            std::boxed::Box::new(fft_video_64::default());
+
+        while let Some(result) = jobs.next().await {
+            let arr = result?;
+            accumulator.add_2_self_64(&*arr);
+        }
+
+        accumulator.divide_self(list_path_file_video.len() as f64);
+
+        if true {
+            let path_file_mean_output = target_dir.to_string() + "_mean.bin64";
+            accumulator.save(path_file_mean_output.as_str()).await?;
+        }
+    }
+
+    Ok(())
+}
+
+pub async fn eval_sigma(target_dir: &str, path_file_bin_mean: &str) -> anyhow::Result<()> {
     let mut list_path_file_video: Vec<String> = vec![];
 
     if true {
