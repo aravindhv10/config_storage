@@ -4,8 +4,6 @@ use mimalloc::MiMalloc;
 static GLOBAL: MiMalloc = MiMalloc;
 
 mod videofn;
-use videofn::get_file_hash;
-use videofn::get_str_hash;
 
 use anyhow::Context;
 use bytemuck::Contiguous;
@@ -152,8 +150,8 @@ impl video_slicer {
         size_c: u8,
     ) -> anyhow::Result<Self> {
         if path_file_rawvideo_output.is_none() {
-            let name_hash: u64 = get_str_hash(path_file_video_input.as_str());
-            let hash: u64 = get_file_hash(path_file_video_input.as_str())?;
+            let name_hash: u64 = videofn::get_str_hash(path_file_video_input.as_str());
+            let hash: u64 = videofn::get_file_hash(path_file_video_input.as_str())?;
             path_file_rawvideo_output = Some(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
         }
 
