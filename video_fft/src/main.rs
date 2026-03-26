@@ -10,9 +10,6 @@ mod videofn;
 mod videoview;
 
 use anyhow::Context;
-use bytemuck::Contiguous;
-use bytemuck::Pod;
-use bytemuck::Zeroable;
 use rayon::prelude::*;
 use tch::IndexOp;
 
