@@ -27,9 +27,6 @@ struct a_t {
     t: [f32; 60],
 }
 
-unsafe impl Zeroable for a_t {}
-unsafe impl Pod for a_t {}
-
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 struct a_x {
