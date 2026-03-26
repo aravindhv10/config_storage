@@ -1640,7 +1640,7 @@
 
   #[repr(C)]
   #[derive(Debug, Default, Clone)]
-  struct fft_video_64 {
+  pub struct fft_video_64 {
       v: a_p_64,
   }
 
