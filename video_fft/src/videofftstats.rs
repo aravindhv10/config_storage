@@ -351,3 +351,7 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow:
 
     Ok(())
 }
+
+fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
+    Ok(())
+}

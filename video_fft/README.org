@@ -1875,6 +1875,12 @@
 
       Ok(())
   }
+
+  fn eval_mean_sigma( path_dir_base: &str ) -> anyhow::Result<()>{
+
+      Ok(())
+      
+  }
 #+end_src
 
 * Main rust code
