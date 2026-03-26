@@ -115,7 +115,7 @@ impl fft_video {
     pub fn from_torch_video_tensor(
         tensor_video_input: &tch::Tensor,
         use_gpu: bool,
-    ) -> anyhow::Result<std::sync::Arc<Self>> {
+    ) -> anyhow::Result<std::boxed::Box<Self>> {
         if true {
             "################################";
             "# Do the check: ################";
