@@ -235,10 +235,8 @@ pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
 
         if true {
             let path_file_mean_output = target_dir.to_string() + "_mean.bin";
-            accumulator.save(path_file_mean_output.as_str());
+            accumulator.save(path_file_mean_output.as_str()).await?;
         }
-
-        println!("{:?}", accumulator);
     }
 
     Ok(())
