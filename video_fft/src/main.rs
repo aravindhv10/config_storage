@@ -4,7 +4,6 @@ use mimalloc::MiMalloc;
 static GLOBAL: MiMalloc = MiMalloc;
 
 mod export;
-mod export;
 mod videofft;
 mod videofn;
 mod videoview;

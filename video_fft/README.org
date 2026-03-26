@@ -1526,11 +1526,10 @@
   #[global_allocator]
   static GLOBAL: MiMalloc = MiMalloc;
 
-  mod videofn;
-  mod videoview;
   mod export;
   mod videofft;
-  mod export;
+  mod videofn;
+  mod videoview;
 
   use anyhow::Context;
   use bytemuck::Contiguous;
