@@ -37,8 +37,7 @@ impl fft_video {
         let file = std::fs::File::create(filename)?;
         let mut writer = std::io::BufWriter::new(file);
         let size = std::mem::size_of::<fft_video>();
-        let bytes =
-            unsafe { std::slice::from_raw_parts((self as *const fft_video) as *const u8, size) };
+        let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
         writer.write_all(bytes)?;
         return Ok(());
     }

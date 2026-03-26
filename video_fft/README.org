@@ -1372,7 +1372,7 @@
           let mut writer = std::io::BufWriter::new(file);
           let size = std::mem::size_of::<fft_video>();
           let bytes =
-              unsafe { std::slice::from_raw_parts((self as *const fft_video) as *const u8, size) };
+              unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
           writer.write_all(bytes)?;
           return Ok(());
       }
@@ -1674,7 +1674,7 @@
           let file = tokio::fs::File::create(filename).await?;
           let size = std::mem::size_of::<Self>();
           let bytes =
-              unsafe { std::slice::from_raw_parts((self as *const fft_video) as *const u8, size) };
+              unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
           file.write_all(bytes).await?;
           return Ok(());
       }
