@@ -1014,28 +1014,11 @@
   }
 #+end_src
 
-* Main rust code
-#+begin_src rust :mkdirp yes :tangle ./src/main.rs
-  use mimalloc::MiMalloc;
-
-  #[global_allocator]
-  static GLOBAL: MiMalloc = MiMalloc;
-
+* Rust functions for ffmpeg and name hashing
+#+begin_src rust :mkdirp yes :tangle ./src/videofn.rs
   use anyhow::Context;
-  use bytemuck::Contiguous;
-  use bytemuck::Pod;
-  use bytemuck::Zeroable;
-  use futures::stream;
-  use futures::stream::StreamExt;
-  use rayon::prelude::*;
-  use std::io::Write;
-  use tch::IndexOp;
 
-  const USE_GPU: bool = true;
-
-  include!("export.rs");
-
-  fn convert_encoded_video_to_raw(
+  pub fn convert_encoded_video_to_raw(
       path_file_video_input: &str,
       path_file_video_output: &str,
       fps: f32,
@@ -1088,18 +1071,46 @@
       };
   }
 
-  fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
+  pub fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
       let file: std::fs::File = std::fs::File::open(path_file_input)?;
       let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
       Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
   }
 
-  fn get_str_hash(path_file_input: &str) -> u64 {
+  pub fn get_str_hash(path_file_input: &str) -> u64 {
       gxhash::gxhash64(
           /* input = */ path_file_input.as_bytes(),
           /* seed = */ 12345,
       )
   }
+#+end_src
+
+* Main rust code
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  use mimalloc::MiMalloc;
+
+  #[global_allocator]
+  static GLOBAL: MiMalloc = MiMalloc;
+
+  mod videofn;
+  use videofn::convert_encoded_video_to_raw as convert_encoded_video_to_raw;
+  use videofn::get_file_hash as get_file_hash;
+  use videofn::get_str_hash as get_str_hash;
+
+  use anyhow::Context;
+  use bytemuck::Contiguous;
+  use bytemuck::Pod;
+  use bytemuck::Zeroable;
+  use futures::stream;
+  use futures::stream::StreamExt;
+  use rayon::prelude::*;
+  use std::io::Write;
+  use tch::IndexOp;
+
+  const USE_GPU: bool = true;
+
+  include!("export.rs");
+
 
   fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
       let size: Vec<i64> = tensor_video.size();
