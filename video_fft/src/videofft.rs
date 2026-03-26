@@ -138,11 +138,14 @@ impl fft_video {
             }
         }
 
-        let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+        // let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
 
-        let data: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-            .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-            .as_mut_ptr();
+        // let data: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
+        //     .context("Failed to obtain unique mutable access to the newly allocated Arc")?
+        //     .as_mut_ptr();
+
+        let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
+        let data: *mut Self = store.as_mut_ptr();
 
         if true {
             unsafe {
@@ -178,7 +181,8 @@ impl fft_video {
             }
         }
 
-        let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+        // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+        let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
         return Ok(final_video);
     }
