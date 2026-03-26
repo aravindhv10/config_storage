@@ -371,7 +371,7 @@ pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
         .build()?;
 
     rt.block_on(async {
-        tokio::join!(eval_mean_sigma_slave(path_dir_base: &str));
+        tokio::join!(eval_mean_sigma_slave(path_dir_base));
     });
 
     Ok(())

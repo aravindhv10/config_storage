@@ -1895,7 +1895,7 @@
           .build()?;
 
       rt.block_on(async {
-          tokio::join!(eval_mean_sigma_slave(path_dir_base: &str));
+          tokio::join!(eval_mean_sigma_slave(path_dir_base));
       });
 
       Ok(())
