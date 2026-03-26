@@ -1536,7 +1536,7 @@
   impl a_t_64 {
       fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::a_t) {
           for i in 0..self.t.len() {
-              let d = (other.t[i] as f64) - mu.t[i]
+              let d = (other.t[i] as f64) - mu.t[i];
               self.t[i] += d * d ;
           }
       }
