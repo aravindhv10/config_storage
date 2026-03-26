@@ -107,7 +107,7 @@ impl Default for a_t_64 {
 }
 
 impl a_t_64 {
-    fn add_2_self(&mut self, other: &a_t) {
+    fn add_2_self(&mut self, other: &videofft::a_t) {
         for i in 0..self.t.len() {
             self.t[i] += other.t[i] as f64;
         }
@@ -135,7 +135,7 @@ impl Default for a_x_64 {
 }
 
 impl a_x_64 {
-    fn add_2_self(&mut self, other: &a_x) {
+    fn add_2_self(&mut self, other: &videofft::a_x) {
         for i in 0..self.x.len() {
             self.x[i].add_2_self(&(other.x[i]));
         }
@@ -163,7 +163,7 @@ impl Default for a_y_64 {
 }
 
 impl a_y_64 {
-    fn add_2_self(&mut self, other: &a_y) {
+    fn add_2_self(&mut self, other: &videofft::a_y) {
         for i in 0..self.y.len() {
             self.y[i].add_2_self(&(other.y[i]));
         }
@@ -191,7 +191,7 @@ impl Default for a_p_64 {
 }
 
 impl a_p_64 {
-    fn add_2_self(&mut self, other: &a_p) {
+    fn add_2_self(&mut self, other: &videofft::a_p) {
         for i in 0..self.p.len() {
             self.p[i].add_2_self(&(other.p[i]));
         }
