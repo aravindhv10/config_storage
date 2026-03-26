@@ -365,7 +365,7 @@ pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
 
         let path_file_64bin_sigma = tokio::join!(eval_sigma(
             /* target_dir: &str = */ path_dir_base,
-            /* path_file_bin64_mean: &str = */ path_file_64bin_mean
+            /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str()
         ))
         .0?;
     });
