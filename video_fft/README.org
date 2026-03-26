@@ -1919,6 +1919,7 @@ video.len() in:
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'
   GITADD 'src/torchimpl.rs'
+  GITADD 'src/videofft.rs'
   GITADD 'src/videofn.rs'
   GITADD 'src/videoview.rs'
   GITADD 'validate.py'

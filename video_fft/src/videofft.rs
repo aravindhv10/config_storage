@@ -1,0 +1,185 @@
+use anyhow::Context;
+use std::io::Write;
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct a_t {
+    pub t: [f32; 60],
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct a_x {
+    pub x: [a_t; 160],
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct a_y {
+    pub y: [a_x; 160],
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct a_p {
+    pub p: [a_y; 6],
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct fft_video {
+    pub v: a_p,
+}
+
+impl fft_video {
+    pub fn save(&self, filename: &str) -> anyhow::Result<()> {
+        let file = std::fs::File::create(filename)?;
+        let mut writer = std::io::BufWriter::new(file);
+        let size = std::mem::size_of::<fft_video>();
+        let bytes =
+            unsafe { std::slice::from_raw_parts((self as *const fft_video) as *const u8, size) };
+        writer.write_all(bytes)?;
+        return Ok(());
+    }
+
+    fn from_torch_fft_tensor(
+        tensor_fft_input: &tch::Tensor,
+    ) -> anyhow::Result<std::sync::Arc<Self>> {
+        if true {
+            "################################";
+            "# Do the check: ################";
+            "################################";
+
+            if tensor_fft_input.kind() != tch::Kind::Float {
+                anyhow::bail!(
+                    "Input tensor must be Kind::Float, found {:?}",
+                    tensor_fft_input.kind()
+                );
+            } else {
+                const expected_size: usize = 6 * 160 * 160 * 60;
+                let actual_size: usize = tensor_fft_input.numel();
+                if actual_size != expected_size {
+                    anyhow::bail!(
+                        "Tensor size mismatch: expected {} elements, found {}",
+                        expected_size,
+                        actual_size
+                    );
+                }
+            }
+        }
+
+        let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+
+        if true {
+            "################################";
+            "# Do the init: #################";
+            "################################";
+            let data: *mut Self =
+                std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
+                    .context("Failed to obtain unique mutable access to the newly allocated Arc")?
+                    .as_mut_ptr();
+
+            const size: [i64; 4] = [6, 160, 160, 60];
+            const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
+
+            if true {
+                "################################";
+                "# Now initialize the tensors: ##";
+                "################################";
+
+                let mut out_tensor: tch::Tensor = unsafe {
+                    tch::Tensor::from_blob(
+                        data as *mut u8,
+                        &size,
+                        &strides,
+                        tch::Kind::Float,
+                        tch::Device::Cpu,
+                    )
+                };
+
+                if true {
+                    "################################";
+                    "# Do the copy: #################";
+                    "################################";
+
+                    out_tensor.copy_(&tensor_fft_input);
+                }
+            }
+        }
+
+        let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+
+        return Ok(final_video);
+    }
+
+    pub fn from_torch_video_tensor(
+        tensor_video_input: &tch::Tensor,
+        use_gpu: bool,
+    ) -> anyhow::Result<std::sync::Arc<Self>> {
+        if true {
+            "################################";
+            "# Do the check: ################";
+            "################################";
+            if tensor_video_input.kind() != tch::Kind::Uint8 {
+                anyhow::bail!(
+                    "Input tensor must be Kind::Uint8, found {:?}",
+                    tensor_video_input.kind()
+                );
+            } else {
+                let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
+                let actual_size: usize = tensor_video_input.numel();
+                if actual_size != expected_size {
+                    anyhow::bail!(
+                        "Tensor size mismatch: expected {} elements, found {}",
+                        expected_size,
+                        actual_size
+                    );
+                }
+            }
+        }
+
+        let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+
+        let data: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
+            .context("Failed to obtain unique mutable access to the newly allocated Arc")?
+            .as_mut_ptr();
+
+        if true {
+            unsafe {
+                export::do_fft_compress_efficient(
+                    /*blob: *mut ::std::os::raw::c_void =*/
+                    tensor_video_input.data_ptr(),
+                    /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
+                    /*size_y: u16 =*/ 720 as u16,
+                    /*size_x: u16 =*/ 1280 as u16,
+                    /*size_c: u8 =*/ 3,
+                    /*fps: float32_t =*/ 8.0 as f32,
+                    /*freq_limit: float32_t =*/ 3.0 as f32,
+                    /*dest: *mut ::std::os::raw::c_void =*/
+                    data as *mut ::std::os::raw::c_void,
+                    /*bool use_gpu =*/ use_gpu,
+                );
+            }
+        } else {
+            unsafe {
+                export::do_fft_compress(
+                    /*blob: *mut ::std::os::raw::c_void =*/
+                    tensor_video_input.data_ptr(),
+                    /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
+                    /*size_y: u16 =*/ 720 as u16,
+                    /*size_x: u16 =*/ 1280 as u16,
+                    /*size_c: u8 =*/ 3,
+                    /*fps: float32_t =*/ 8.0 as f32,
+                    /*freq_limit: float32_t =*/ 3.0 as f32,
+                    /*dest: *mut ::std::os::raw::c_void =*/
+                    data as *mut ::std::os::raw::c_void,
+                    /*bool use_gpu =*/ use_gpu,
+                );
+            }
+        }
+
+        let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+
+        return Ok(final_video);
+    }
+}
