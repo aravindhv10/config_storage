@@ -1,4 +1,6 @@
 * Cargo.toml
+
+** Active
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [package]
   name = "video_fft"
@@ -13,11 +15,25 @@
   mimalloc = "0.1.48"
   rayon = "1.11.0"
   serde = { version = "1.0.228", features = ["derive"] }
-  # tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
-  tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
   tokio = { version = "1.50.0", features = ["full"] }
   futures = "0.3.32"
-  # bytemuck = { version = "1.25.0", features = ["derive"] }
+#+end_src
+
+** Torch-rs version
+
+*** 0.22
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
+#+end_src
+
+*** COMMENT 0.23
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
+#+end_src
+
+** COMMENT Inactive
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  bytemuck = { version = "1.25.0", features = ["derive"] }
 #+end_src
 
 * build.rs
@@ -791,7 +807,9 @@
             < freq_limit) /* Done evaluating number of modes to keep */
             .item()
             .to<uint16_t>();
+
     locker.l();
+
     torch::Tensor tensor_video_padded =
         torch::from_blob(
             /* data = */ blob,
@@ -1517,6 +1535,7 @@
           }
 
           // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+
           let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
           return Ok(final_video);

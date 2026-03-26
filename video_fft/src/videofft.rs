@@ -182,6 +182,7 @@ impl fft_video {
         }
 
         // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+
         let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
         return Ok(final_video);

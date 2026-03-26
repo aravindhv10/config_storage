@@ -108,7 +108,9 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
           < freq_limit) /* Done evaluating number of modes to keep */
           .item()
           .to<uint16_t>();
+
   locker.l();
+
   torch::Tensor tensor_video_padded =
       torch::from_blob(
           /* data = */ blob,
