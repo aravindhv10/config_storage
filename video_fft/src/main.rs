@@ -758,7 +758,6 @@ async fn eval_actual_sum(
         std::boxed::Box::new(fft_video_64::default());
 
     for i in list_path_file_video_input {
-        println!("Reading file {}", i.as_str());
         let data = tokio::fs::read(i.as_str()).await?;
         let data_fft: &fft_video = unsafe { &*(data.as_ptr() as *const fft_video) };
         accumulator.add_2_self(data_fft);
