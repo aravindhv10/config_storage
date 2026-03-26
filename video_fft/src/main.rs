@@ -1,3 +1,4 @@
+use bytemuck::Contiguous;
 use mimalloc::MiMalloc;
 
 #[global_allocator]
@@ -784,12 +785,23 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
         }
     }
 
-    println!("{:?}", list_path_file_video);
+    const nthreads: u8 = 8;
 
-    eval_actual_sum(
-        /*list_path_file_video_input: Vec<String> =*/ list_path_file_video,
-    )
-    .await?;
+    let mut begin_index: Vec<usize> = vec![];
+    let mut end_index: Vec<usize> = vec![];
+    let total_len: usize = list_path_file_video.len();
+    for i in 0..nthreads {
+        begin_index.push((total_len * i) / nthreads);
+        end_index.push((total_len * (i + 1)) / nthreads);
+    }
+
+    println!("{:?}", begin_index);
+    println!("{:?}", end_index);
+
+    // eval_actual_sum(
+    //     /*list_path_file_video_input: Vec<String> =*/ list_path_file_video,
+    // )
+    // .await?;
 
     Ok(())
 }
