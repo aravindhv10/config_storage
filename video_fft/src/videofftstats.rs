@@ -354,12 +354,13 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow:
 }
 
 pub async fn eval_mean_sigma_slave(path_dir_base: &str) -> anyhow::Result<()> {
-    let path_file_64bin_mean = eval_mean(path_dir_base)?;
+    let path_file_64bin_mean = eval_mean(path_dir_base).await?;
 
     let path_file_64bin_sigma = eval_sigma(
         /* target_dir: &str = */ path_dir_base,
         /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
-    )?;
+    )
+    .await?;
 
     Ok(())
 }
