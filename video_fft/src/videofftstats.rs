@@ -194,18 +194,19 @@ async fn eval_actual_sum(
 
 pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
     let mut list_path_file_video: Vec<String> = vec![];
-    let path_file_mean_output = target_dir.to_string() + "_mean.bin";
 
-    for entry in jwalk::WalkDir::new(target_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        let path = entry.path();
+    if true {
+        for entry in jwalk::WalkDir::new(target_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            let path = entry.path();
 
-        if !path.is_dir() {
-            if let Some(ext) = path.extension() {
-                if ext == "bin" {
-                    list_path_file_video.push(path.display().to_string());
+            if !path.is_dir() {
+                if let Some(ext) = path.extension() {
+                    if ext == "bin" {
+                        list_path_file_video.push(path.display().to_string());
+                    }
                 }
             }
         }
@@ -219,17 +220,26 @@ pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
         streams.push(eval_actual_sum(i));
     }
 
-    let mut accumulator: std::boxed::Box<fft_video_64> =
-        std::boxed::Box::new(fft_video_64::default());
-
     let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
 
-    while let Some(result) = jobs.next().await {
-        let arr = result?;
-        accumulator.add_2_self_64(&*arr);
-    }
+    if true {
+        let mut accumulator: std::boxed::Box<fft_video_64> =
+            std::boxed::Box::new(fft_video_64::default());
 
-    println!("{:?}", accumulator);
+        while let Some(result) = jobs.next().await {
+            let arr = result?;
+            accumulator.add_2_self_64(&*arr);
+        }
+
+        accumulator.divide_self(list_path_file_video.len() as f64);
+
+        if true {
+            let path_file_mean_output = target_dir.to_string() + "_mean.bin";
+            accumulator.save(path_file_mean_output.as_str());
+        }
+
+        println!("{:?}", accumulator);
+    }
 
     Ok(())
 }
