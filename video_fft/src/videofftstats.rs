@@ -291,7 +291,7 @@ pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
         accumulator.divide_self(list_path_file_video.len() as f64);
 
         if true {
-            let path_file_mean_output = target_dir.to_string() + "_mean.bin64";
+            let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
             accumulator.save(path_file_mean_output.as_str()).await?;
         }
     }
@@ -299,7 +299,7 @@ pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn eval_sigma(target_dir: &str, path_file_bin_mean: &str) -> anyhow::Result<()> {
+pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow::Result<()> {
     let mut list_path_file_video: Vec<String> = vec![];
 
     if true {
@@ -322,9 +322,12 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin_mean: &str) -> anyhow::R
     const nthreads: usize = 16;
     const nchunks: usize = 1 << 12;
 
+    let mean_data = tokio::fs::read(path_file_bin64_mean).await?;
+    let mean = &unsafe { *(mean_data.as_ptr() as *const fft_video_64) };
+
     let mut streams = vec![];
     for i in list_path_file_video.chunks(nchunks) {
-        streams.push(eval_actual_mean(i));
+        streams.push(eval_actual_sigma(i, mean));
     }
 
     let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
@@ -341,7 +344,7 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin_mean: &str) -> anyhow::R
         accumulator.divide_self(list_path_file_video.len() as f64);
 
         if true {
-            let path_file_mean_output = target_dir.to_string() + "_mean.bin";
+            let path_file_mean_output = target_dir.to_string() + "_sigma.64bin";
             accumulator.save(path_file_mean_output.as_str()).await?;
         }
     }
