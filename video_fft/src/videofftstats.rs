@@ -149,8 +149,17 @@ impl fft_video_64 {
     pub async fn save(&self, filename: &str) -> anyhow::Result<()> {
         let size = std::mem::size_of::<Self>();
         let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
-        let mut file = tokio::fs::File::create(filename).await?;
-        file.write_all(bytes).await?;
+
+        if false {
+            let mut file = tokio::fs::File::create(filename).await?;
+            file.write_all(bytes).await?;
+        } else {
+            tokio::fs::File::create(filename)
+                .await?
+                .write_all(bytes)
+                .await?;
+        }
+
         return Ok(());
     }
 
