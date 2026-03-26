@@ -1233,7 +1233,7 @@
 
 * Torch implementation of pad and fft in rust
 #+begin_src rust :mkdirp yes :tangle ./src/torchimpl.rs
-  fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
+  pub fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
       let size: Vec<i64> = tensor_video.size();
       let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
 
@@ -1250,7 +1250,7 @@
       Ok(padded)
   }
 
-  fn compress_video_tensor(
+  pub fn compress_video_tensor(
       tensor_video: &tch::Tensor,
       fps: f64,
       freq_limit: f64,
@@ -1339,6 +1339,7 @@
 
   mod videofn;
   mod videoview;
+  mod export;
 
   use anyhow::Context;
   use bytemuck::Contiguous;
@@ -1352,7 +1353,7 @@
 
   const USE_GPU: bool = true;
 
-  include!("export.rs");
+  // include!("export.rs");
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
@@ -1514,7 +1515,7 @@
 
           if true {
               unsafe {
-                  do_fft_compress_efficient(
+                  export::do_fft_compress_efficient(
                       /*blob: *mut ::std::os::raw::c_void =*/
                       tensor_video_input.data_ptr(),
                       /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
@@ -1530,7 +1531,7 @@
               }
           } else {
               unsafe {
-                  do_fft_compress(
+                  export::do_fft_compress(
                       /*blob: *mut ::std::os::raw::c_void =*/
                       tensor_video_input.data_ptr(),
                       /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,

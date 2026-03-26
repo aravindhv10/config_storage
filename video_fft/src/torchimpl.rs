@@ -1,4 +1,4 @@
-fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
+pub fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
     let size: Vec<i64> = tensor_video.size();
     let (_b, h, w, _c) = (size[0], size[1], size[2], size[3]);
 
@@ -15,7 +15,7 @@ fn do_pad_video(tensor_video: &tch::Tensor) -> anyhow::Result<tch::Tensor> {
     Ok(padded)
 }
 
-fn compress_video_tensor(
+pub fn compress_video_tensor(
     tensor_video: &tch::Tensor,
     fps: f64,
     freq_limit: f64,

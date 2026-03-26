@@ -3,6 +3,7 @@ use mimalloc::MiMalloc;
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
+mod export;
 mod videofn;
 mod videoview;
 
@@ -18,7 +19,7 @@ use tch::IndexOp;
 
 const USE_GPU: bool = true;
 
-include!("export.rs");
+// include!("export.rs");
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -180,7 +181,7 @@ impl fft_video {
 
         if true {
             unsafe {
-                do_fft_compress_efficient(
+                export::do_fft_compress_efficient(
                     /*blob: *mut ::std::os::raw::c_void =*/
                     tensor_video_input.data_ptr(),
                     /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
@@ -196,7 +197,7 @@ impl fft_video {
             }
         } else {
             unsafe {
-                do_fft_compress(
+                export::do_fft_compress(
                     /*blob: *mut ::std::os::raw::c_void =*/
                     tensor_video_input.data_ptr(),
                     /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
