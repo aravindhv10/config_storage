@@ -135,7 +135,7 @@ async fn main() -> anyhow::Result<()> {
 
     let target_dir = args[1].to_string();
 
-    videofftstats::eval_sum(target_dir.as_str()).await?;
+    videofftstats::eval_mean(target_dir.as_str()).await?;
 
     // tokio::task::spawn_blocking(move || fft_all_video_files_under_dir(/*target_dir: &str =*/ target_dir)).await?;
 
