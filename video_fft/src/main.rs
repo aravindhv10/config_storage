@@ -20,8 +20,6 @@ use tch::IndexOp;
 
 const USE_GPU: bool = true;
 
-// include!("export.rs");
-
 fn video_tensor_2_fft_file_160(
     tensor_video_input: tch::Tensor,
     path_dir_output: &str,
@@ -39,7 +37,7 @@ fn video_tensor_2_fft_file_160(
             let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
 
             if !std::fs::exists(path_file_video_bin_output.as_str())? {
-                fft_video::from_torch_video_tensor(
+                videofft::fft_video::from_torch_video_tensor(
                     /*tensor_video_input: &tch::Tensor =*/
                     &tensor_video_input.i((0..total_video_length, .., .., ..)),
                     use_gpu,
@@ -69,7 +67,7 @@ fn video_tensor_2_fft_file_160(
                     let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
                     let start = end - 160;
 
-                    fft_video::from_torch_video_tensor(
+                    videofft::fft_video::from_torch_video_tensor(
                         /*tensor_video_input: &tch::Tensor =*/
                         &tensor_video_input.i((start..end, .., .., ..)),
                         use_gpu,
@@ -214,7 +212,7 @@ struct fft_video_64 {
 }
 
 impl fft_video_64 {
-    fn add_2_self(&mut self, other: &fft_video) {
+    fn add_2_self(&mut self, other: &videofft::fft_video) {
         self.v.add_2_self(&(other.v));
     }
 
@@ -264,7 +262,8 @@ async fn eval_actual_sum(
 
     for i in list_path_file_video_input {
         let data = tokio::fs::read(i.as_str()).await?;
-        let data_fft: &fft_video = unsafe { &*(data.as_ptr() as *const fft_video) };
+        let data_fft: &videofft::fft_video =
+            unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
         accumulator.add_2_self(data_fft);
     }
 
