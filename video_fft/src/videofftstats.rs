@@ -178,6 +178,22 @@ pub struct fft_video_64 {
 }
 
 impl fft_video_64 {
+    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::fft_video) {
+        self.v.add_unnormalized_sigma_2_self(mu.v, other.v);
+    }
+
+    fn add_2_self(&mut self, other: &videofft::fft_video) {
+        self.v.add_2_self(&(other.v));
+    }
+
+    fn add_2_self_64(&mut self, other: &Self) {
+        self.v.add_2_self_64(&(other.v));
+    }
+
+    fn divide_self(&mut self, val: f64) {
+        self.v.divide_self(val);
+    }
+
     pub async fn save(&self, filename: &str) -> anyhow::Result<()> {
         let size = std::mem::size_of::<Self>();
         let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
@@ -194,25 +210,9 @@ impl fft_video_64 {
 
         return Ok(());
     }
-
-    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::fft_video) {
-        self.v.add_unnormalized_sigma_2_self(mu.v, other.v);
-    }
-
-    fn add_2_self(&mut self, other: &videofft::fft_video) {
-        self.v.add_2_self(&(other.v));
-    }
-
-    fn add_2_self_64(&mut self, other: &Self) {
-        self.v.add_2_self_64(&(other.v));
-    }
-
-    fn divide_self(&mut self, val: f64) {
-        self.v.divide_self(val);
-    }
 }
 
-async fn eval_actual_sum(
+async fn eval_actual_mean(
     list_path_file_video_input: &[String],
 ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
     let mut accumulator: std::boxed::Box<fft_video_64> =
@@ -253,7 +253,7 @@ pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
 
     let mut streams = vec![];
     for i in list_path_file_video.chunks(nchunks) {
-        streams.push(eval_actual_sum(i));
+        streams.push(eval_actual_mean(i));
     }
 
     let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
