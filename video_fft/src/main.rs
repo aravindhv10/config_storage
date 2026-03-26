@@ -787,12 +787,25 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
         }
     }
 
-    const nthreads: u8 = 8;
+    const nthreads: usize = 16;
+    const nchunks: usize = 1 << 12;
 
     let mut streams = vec![];
-    for i in list_path_file_video.chunks_exact(nthreads as usize) {
+    for i in list_path_file_video.chunks(nchunks) {
         streams.push(eval_actual_sum(i));
     }
+
+    let mut accumulator: std::boxed::Box<fft_video_64> =
+        std::boxed::Box::new(fft_video_64::default());
+
+    let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
+
+    while let Some(result) = jobs.next().await {
+        let arr = result?;
+        accumulator.add_2_self_64(&*arr);
+    }
+
+    println!("{:?}", accumulator);
 
     // eval_actual_sum(
     //     /*list_path_file_video_input: Vec<String> =*/ list_path_file_video,
