@@ -1523,6 +1523,8 @@
 * rust code for class to evaluate video stats
 #+begin_src rust :mkdirp yes :tangle ./src/videofftstats.rs
   use crate::videofft;
+  use futures::stream;
+  use futures::stream::StreamExt;
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
@@ -1667,7 +1669,7 @@
       Ok(accumulator)
   }
 
-  async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
+  async pub fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
       let mut list_path_file_video: Vec<String> = vec![];
 
       for entry in jwalk::WalkDir::new(target_dir)
@@ -1726,8 +1728,6 @@
   use bytemuck::Contiguous;
   use bytemuck::Pod;
   use bytemuck::Zeroable;
-  use futures::stream;
-  use futures::stream::StreamExt;
   use rayon::prelude::*;
   use tch::IndexOp;
 

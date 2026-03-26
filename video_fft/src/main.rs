@@ -13,8 +13,6 @@ use anyhow::Context;
 use bytemuck::Contiguous;
 use bytemuck::Pod;
 use bytemuck::Zeroable;
-use futures::stream;
-use futures::stream::StreamExt;
 use rayon::prelude::*;
 use tch::IndexOp;
 
@@ -125,6 +123,7 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
 
     return Ok(());
 }
+
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
