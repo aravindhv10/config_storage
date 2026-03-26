@@ -1928,10 +1928,12 @@ video.len() in:
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'
+  GITADD 'src/torchimpl.rs'
   GITADD 'src/videofn.rs'
+  GITADD 'src/videoview.rs'
   GITADD 'validate.py'
 
-  git status ; git commit -m 'changed to use /dev/shm for temporary video location'
+  git status ; git commit -m 'Started splitting one large rust file into functional parts'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
