@@ -1085,7 +1085,7 @@
 
 * Rust class for interpreting video as torch tensor
 #+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
-  mod videofn;
+  use crate::videofn;
 
   pub struct video_slicer {
       path_file_video_input: String,
