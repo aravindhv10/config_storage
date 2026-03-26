@@ -9,15 +9,14 @@ struct a_t_64 {
     t: [f64; 60],
 }
 
-impl Default for a_t_64 {
-    fn default() -> Self {
-        Self {
-            t: [0.0 as f64; 60],
+impl a_t_64 {
+    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::a_t) {
+        for i in 0..self.t.len() {
+            let d = (other.t[i] as f64) - mu.t[i]
+            self.t[i] += d * d ;
         }
     }
-}
-
-impl a_t_64 {
+    
     fn add_2_self(&mut self, other: &videofft::a_t) {
         for i in 0..self.t.len() {
             self.t[i] += other.t[i] as f64;
@@ -33,6 +32,20 @@ impl a_t_64 {
     fn divide_self(&mut self, val: f64) {
         for i in 0..self.t.len() {
             self.t[i] /= val;
+        }
+    }
+
+    fn new(val: f64) -> Self {
+        Self {
+            t: [val; 60],
+        }
+    }
+}
+
+impl Default for a_t_64 {
+    fn default() -> Self {
+        Self {
+            t: [0.0 as f64; 60],
         }
     }
 }
@@ -52,6 +65,12 @@ impl Default for a_x_64 {
 }
 
 impl a_x_64 {
+    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::a_x) {
+        for i in 0..self.x.len() {
+            self.x[i].add_unnormalized_sigma_2_self(mu.x[i], other.x[i]);
+        }
+    }
+
     fn add_2_self(&mut self, other: &videofft::a_x) {
         for i in 0..self.x.len() {
             self.x[i].add_2_self(&(other.x[i]));
@@ -86,6 +105,13 @@ impl Default for a_y_64 {
 }
 
 impl a_y_64 {
+    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::a_y) {
+        for i in 0..self.y.len() {
+            self.y[i].add_unnormalized_sigma_2_self(mu.y[i], other.y[i]);
+        }
+    }
+
+
     fn add_2_self(&mut self, other: &videofft::a_y) {
         for i in 0..self.y.len() {
             self.y[i].add_2_self(&(other.y[i]));
@@ -120,6 +146,12 @@ impl Default for a_p_64 {
 }
 
 impl a_p_64 {
+    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::a_p) {
+        for i in 0..self.p.len() {
+            self.p[i].add_unnormalized_sigma_2_self(mu.p[i], other.p[i]);
+        }
+    }
+
     fn add_2_self(&mut self, other: &videofft::a_p) {
         for i in 0..self.p.len() {
             self.p[i].add_2_self(&(other.p[i]));
@@ -161,6 +193,10 @@ impl fft_video_64 {
         }
 
         return Ok(());
+    }
+
+    fn add_unnormalized_sigma_2_self(&mut self, mu: &Self,  other: &videofft::fft_video) {
+        self.v.add_unnormalized_sigma_2_self(mu.v, other.v);
     }
 
     fn add_2_self(&mut self, other: &videofft::fft_video) {
