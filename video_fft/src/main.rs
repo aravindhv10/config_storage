@@ -15,7 +15,6 @@ use bytemuck::Zeroable;
 use futures::stream;
 use futures::stream::StreamExt;
 use rayon::prelude::*;
-use std::io::Write;
 use tch::IndexOp;
 
 const USE_GPU: bool = true;

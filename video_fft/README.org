@@ -1332,34 +1332,37 @@
 
 * video fft struct implementation
 #+begin_src rust :mkdirp yes :tangle ./src/videofft.rs
+  use anyhow::Context;
+  use std::io::Write;
+
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
   pub struct a_t {
-      t: [f32; 60],
+      pub t: [f32; 60],
   }
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
   pub struct a_x {
-      x: [a_t; 160],
+      pub x: [a_t; 160],
   }
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
   pub struct a_y {
-      y: [a_x; 160],
+      pub y: [a_x; 160],
   }
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
   pub struct a_p {
-      p: [a_y; 6],
+      pub p: [a_y; 6],
   }
 
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
   pub struct fft_video {
-      v: a_p,
+      pub v: a_p,
   }
 
   impl fft_video {
@@ -1535,7 +1538,6 @@
   use futures::stream;
   use futures::stream::StreamExt;
   use rayon::prelude::*;
-  use std::io::Write;
   use tch::IndexOp;
 
   const USE_GPU: bool = true;
