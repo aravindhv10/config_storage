@@ -241,8 +241,7 @@ async fn eval_actual_sigma(
             unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
 
         accumulator.add_unnormalized_sigma_2_self(
-            /* mu: &Self = */ fft_video_64,
-            /* other: &videofft::fft_video = */ data_fft,
+            /* mu: &Self = */ mu, /* other: &videofft::fft_video = */ data_fft,
         );
     }
 
