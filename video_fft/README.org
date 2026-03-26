@@ -1717,7 +1717,6 @@
   }
 
   pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
-
       let mut list_path_file_video: Vec<String> = vec![];
 
       if true {
