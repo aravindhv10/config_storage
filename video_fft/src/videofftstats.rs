@@ -225,6 +225,27 @@ async fn eval_actual_mean(
     Ok(accumulator)
 }
 
+async fn eval_actual_sigma(
+    list_path_file_video_input: &[String],
+    mu: &fft_video_64,
+) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+    let mut accumulator: std::boxed::Box<fft_video_64> =
+        std::boxed::Box::new(fft_video_64::default());
+
+    for i in list_path_file_video_input {
+        let data = tokio::fs::read(i.as_str()).await?;
+        let data_fft: &videofft::fft_video =
+            unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
+
+        accumulator.add_unnormalized_sigma_2_self(
+            /* mu: &Self = */ fft_video_64,
+            /* other: &videofft::fft_video = */ data_fft,
+        );
+    }
+
+    Ok(accumulator)
+}
+
 pub async fn eval_mean(target_dir: &str) -> anyhow::Result<()> {
     let mut list_path_file_video: Vec<String> = vec![];
 
