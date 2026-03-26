@@ -1,6 +1,7 @@
 use crate::videofft;
 use futures::stream;
 use futures::stream::StreamExt;
+use tokio::io::AsyncWriteExt;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -145,13 +146,12 @@ pub struct fft_video_64 {
 }
 
 impl fft_video_64 {
-    pub fn save(&self, filename: &str) -> anyhow::Result<()> {
-        let file = std::fs::File::create(filename)?;
-        let mut writer = std::io::BufWriter::new(file);
+    pub async fn save(&self, filename: &str) -> anyhow::Result<()> {
+        let file = tokio::fs::File::create(filename).await?;
         let size = std::mem::size_of::<Self>();
         let bytes =
             unsafe { std::slice::from_raw_parts((self as *const fft_video) as *const u8, size) };
-        writer.write_all(bytes)?;
+        file.write_all(bytes).await?;
         return Ok(());
     }
 
