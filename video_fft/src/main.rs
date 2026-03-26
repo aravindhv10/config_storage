@@ -5,6 +5,7 @@ static GLOBAL: MiMalloc = MiMalloc;
 
 mod export;
 mod videofft;
+mod videofftstats;
 mod videofn;
 mod videoview;
 
@@ -92,134 +93,6 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
     );
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct a_t_64 {
-    t: [f64; 60],
-}
-
-impl Default for a_t_64 {
-    fn default() -> Self {
-        Self {
-            t: [0.0 as f64; 60],
-        }
-    }
-}
-
-impl a_t_64 {
-    fn add_2_self(&mut self, other: &videofft::a_t) {
-        for i in 0..self.t.len() {
-            self.t[i] += other.t[i] as f64;
-        }
-    }
-
-    fn add_2_self_64(&mut self, other: &Self) {
-        for i in 0..self.t.len() {
-            self.t[i] += other.t[i] as f64;
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct a_x_64 {
-    x: [a_t_64; 160],
-}
-
-impl Default for a_x_64 {
-    fn default() -> Self {
-        Self {
-            x: [a_t_64::default(); 160],
-        }
-    }
-}
-
-impl a_x_64 {
-    fn add_2_self(&mut self, other: &videofft::a_x) {
-        for i in 0..self.x.len() {
-            self.x[i].add_2_self(&(other.x[i]));
-        }
-    }
-
-    fn add_2_self_64(&mut self, other: &Self) {
-        for i in 0..self.x.len() {
-            self.x[i].add_2_self_64(&(other.x[i]));
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct a_y_64 {
-    y: [a_x_64; 160],
-}
-
-impl Default for a_y_64 {
-    fn default() -> Self {
-        Self {
-            y: [a_x_64::default(); 160],
-        }
-    }
-}
-
-impl a_y_64 {
-    fn add_2_self(&mut self, other: &videofft::a_y) {
-        for i in 0..self.y.len() {
-            self.y[i].add_2_self(&(other.y[i]));
-        }
-    }
-
-    fn add_2_self_64(&mut self, other: &Self) {
-        for i in 0..self.y.len() {
-            self.y[i].add_2_self_64(&(other.y[i]));
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct a_p_64 {
-    p: [a_y_64; 6],
-}
-
-impl Default for a_p_64 {
-    fn default() -> Self {
-        Self {
-            p: [a_y_64::default(); 6],
-        }
-    }
-}
-
-impl a_p_64 {
-    fn add_2_self(&mut self, other: &videofft::a_p) {
-        for i in 0..self.p.len() {
-            self.p[i].add_2_self(&(other.p[i]));
-        }
-    }
-
-    fn add_2_self_64(&mut self, other: &Self) {
-        for i in 0..self.p.len() {
-            self.p[i].add_2_self_64(&(other.p[i]));
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Default, Clone)]
-struct fft_video_64 {
-    v: a_p_64,
-}
-
-impl fft_video_64 {
-    fn add_2_self(&mut self, other: &videofft::fft_video) {
-        self.v.add_2_self(&(other.v));
-    }
-
-    fn add_2_self_64(&mut self, other: &Self) {
-        self.v.add_2_self_64(&(other.v));
-    }
-}
-
 fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     let mut list_path_file_video: Vec<String> = vec![];
 
@@ -253,68 +126,6 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     return Ok(());
 }
 
-async fn eval_actual_sum(
-    list_path_file_video_input: &[String],
-) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
-    let mut accumulator: std::boxed::Box<fft_video_64> =
-        std::boxed::Box::new(fft_video_64::default());
-
-    for i in list_path_file_video_input {
-        let data = tokio::fs::read(i.as_str()).await?;
-        let data_fft: &videofft::fft_video =
-            unsafe { &*(data.as_ptr() as *const videofft::fft_video) };
-        accumulator.add_2_self(data_fft);
-    }
-
-    Ok(accumulator)
-}
-
-async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
-    let mut list_path_file_video: Vec<String> = vec![];
-
-    for entry in jwalk::WalkDir::new(target_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        let path = entry.path();
-
-        if !path.is_dir() {
-            if let Some(ext) = path.extension() {
-                if ext == "bin" {
-                    list_path_file_video.push(path.display().to_string());
-                }
-            }
-        }
-    }
-
-    const nthreads: usize = 16;
-    const nchunks: usize = 1 << 12;
-
-    let mut streams = vec![];
-    for i in list_path_file_video.chunks(nchunks) {
-        streams.push(eval_actual_sum(i));
-    }
-
-    let mut accumulator: std::boxed::Box<fft_video_64> =
-        std::boxed::Box::new(fft_video_64::default());
-
-    let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
-
-    while let Some(result) = jobs.next().await {
-        let arr = result?;
-        accumulator.add_2_self_64(&*arr);
-    }
-
-    println!("{:?}", accumulator);
-
-    // eval_actual_sum(
-    //     /*list_path_file_video_input: Vec<String> =*/ list_path_file_video,
-    // )
-    // .await?;
-
-    Ok(())
-}
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -326,7 +137,7 @@ async fn main() -> anyhow::Result<()> {
 
     let target_dir = args[1].to_string();
 
-    eval_sum(target_dir.as_str()).await?;
+    videofftstats::eval_sum(target_dir.as_str()).await?;
 
     // tokio::task::spawn_blocking(move || fft_all_video_files_under_dir(/*target_dir: &str =*/ target_dir)).await?;
 
