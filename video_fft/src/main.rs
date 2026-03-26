@@ -124,8 +124,7 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     return Ok(());
 }
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() < 2 {
@@ -136,12 +135,9 @@ async fn main() -> anyhow::Result<()> {
     let target_dir = args[1].to_string();
 
     if true {
-        videofftstats::eval_mean(target_dir.as_str()).await?;
+        videofftstats::eval_mean_sigma(target_dir.as_str())?;
     } else {
-        tokio::task::spawn_blocking(move || {
-            fft_all_video_files_under_dir(/*target_dir: &str =*/ target_dir.as_str())
-        })
-        .await?;
+        fft_all_video_files_under_dir(/*target_dir: &str =*/ target_dir.as_str())?;
     }
 
     Ok(())
