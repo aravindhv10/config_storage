@@ -525,6 +525,14 @@
   ./cargo_build.sh
 #+end_src
 
+*** all_install
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./all_install.sh
+  cd "$(dirname -- "${0}")"
+  cp -vf -- './target/libmytorch.so' './target/libmytorch.so.1.0' '/lib/'
+  cp -vf -- './target/release/video_fft' '/bin/'
+  exit '0'
+#+end_src
+
 ** Scripts for running
 
 *** cargo_run
@@ -1849,6 +1857,7 @@ video.len() in:
   cargo fmt
 
   GITADD 'all_build.sh'
+  GITADD 'all_install.sh'
   GITADD 'build.rs'
   GITADD 'cargo_build.sh'
   GITADD 'Cargo.lock'
