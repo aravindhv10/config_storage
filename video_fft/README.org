@@ -1769,10 +1769,7 @@
       return Ok(());
   }
 
-  async fn eval_actual_sum(
-      mut accumulator: &fft_video_64,
-      list_path_file_video_input: Vec<String>,
-  ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+  async fn eval_actual_sum(list_path_file_video_input: Vec<String>) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
       let mut accumulator: std::boxed::Box<fft_video_64> =
           std::boxed::Box::new(fft_video_64::default());
 
@@ -1802,6 +1799,8 @@
               }
           }
       }
+
+      println!("{:?}", list_path_file_video);
 
       Ok(())
   }

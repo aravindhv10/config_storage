@@ -752,7 +752,6 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
 }
 
 async fn eval_actual_sum(
-    mut accumulator: &fft_video_64,
     list_path_file_video_input: Vec<String>,
 ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
     let mut accumulator: std::boxed::Box<fft_video_64> =
@@ -784,6 +783,8 @@ async fn eval_sum(target_dir: &str) -> anyhow::Result<()> {
             }
         }
     }
+
+    println!("{:?}", list_path_file_video);
 
     Ok(())
 }
