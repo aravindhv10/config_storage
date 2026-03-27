@@ -714,39 +714,6 @@
   template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
 #+end_src
 
-*** Functions to get appropriate dtypes and device
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  inline torch::TensorOptions get_good_device_and_dtype_old() {
-    printf("Called get_good_device_and_dtype()\n");
-    if (torch::cuda::is_available()) {
-      printf("Returning cuda\n");
-      return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCUDA);
-    } else {
-      printf("Returning cpu\n");
-      return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCPU);
-    }
-  }
-
-  inline torch::TensorOptions get_good_device_and_dtype() {
-    printf("Called get_good_device_and_dtype()\n");
-    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-  }
-
-  inline torch::TensorOptions get_host_input_device_and_dtype() {
-    printf("Called get_host_input_device_and_dtype()\n");
-    return torch::TensorOptions()
-        .dtype(get_tensor_dtype<uint8_t>())
-        .device(torch::kCPU);
-  }
-
-  inline torch::TensorOptions get_host_output_device_and_dtype() {
-    printf("get_host_output_device_and_dtype started\n");
-    return torch::TensorOptions()
-        .dtype(get_tensor_dtype<float32_t>())
-        .device(torch::kCPU);
-  }
-#+end_src
-
 *** Main functions for padding
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
@@ -1470,17 +1437,23 @@
           use_gpu: bool,
       ) -> anyhow::Result<std::boxed::Box<Self>> {
           if true {
+
               "################################";
               "# Do the check: ################";
               "################################";
+
               if tensor_video_input.kind() != tch::Kind::Uint8 {
+
                   anyhow::bail!(
                       "Input tensor must be Kind::Uint8, found {:?}",
                       tensor_video_input.kind()
                   );
+
               } else {
+
                   let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
                   let actual_size: usize = tensor_video_input.numel();
+
                   if actual_size != expected_size {
                       anyhow::bail!(
                           "Tensor size mismatch: expected {} elements, found {}",
@@ -1491,16 +1464,16 @@
               }
           }
 
-          // let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
-
-          // let data: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-          //     .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-          //     .as_mut_ptr();
-
           let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
-          let data: *mut Self = store.as_mut_ptr();
 
           if true {
+
+              "################################";
+              "# Perform the FFT ##############";
+              "################################";
+
+              let data: *mut Self = store.as_mut_ptr();
+
               unsafe {
                   export::do_fft_compress_efficient(
                       /*blob: *mut ::std::os::raw::c_void =*/
@@ -1516,25 +1489,7 @@
                       /*bool use_gpu =*/ use_gpu,
                   );
               }
-          } else {
-              unsafe {
-                  export::do_fft_compress(
-                      /*blob: *mut ::std::os::raw::c_void =*/
-                      tensor_video_input.data_ptr(),
-                      /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
-                      /*size_y: u16 =*/ 720 as u16,
-                      /*size_x: u16 =*/ 1280 as u16,
-                      /*size_c: u8 =*/ 3,
-                      /*fps: float32_t =*/ 8.0 as f32,
-                      /*freq_limit: float32_t =*/ 3.0 as f32,
-                      /*dest: *mut ::std::os::raw::c_void =*/
-                      data as *mut ::std::os::raw::c_void,
-                      /*bool use_gpu =*/ use_gpu,
-                  );
-              }
           }
-
-          // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
 
           let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 

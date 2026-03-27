@@ -120,6 +120,7 @@ impl fft_video {
             "################################";
             "# Do the check: ################";
             "################################";
+
             if tensor_video_input.kind() != tch::Kind::Uint8 {
                 anyhow::bail!(
                     "Input tensor must be Kind::Uint8, found {:?}",
@@ -128,6 +129,7 @@ impl fft_video {
             } else {
                 let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
                 let actual_size: usize = tensor_video_input.numel();
+
                 if actual_size != expected_size {
                     anyhow::bail!(
                         "Tensor size mismatch: expected {} elements, found {}",
@@ -138,16 +140,15 @@ impl fft_video {
             }
         }
 
-        // let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
-
-        // let data: *mut Self = std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-        //     .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-        //     .as_mut_ptr();
-
         let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
-        let data: *mut Self = store.as_mut_ptr();
 
         if true {
+            "################################";
+            "# Perform the FFT ##############";
+            "################################";
+
+            let data: *mut Self = store.as_mut_ptr();
+
             unsafe {
                 export::do_fft_compress_efficient(
                     /*blob: *mut ::std::os::raw::c_void =*/
@@ -163,25 +164,7 @@ impl fft_video {
                     /*bool use_gpu =*/ use_gpu,
                 );
             }
-        } else {
-            unsafe {
-                export::do_fft_compress(
-                    /*blob: *mut ::std::os::raw::c_void =*/
-                    tensor_video_input.data_ptr(),
-                    /*size_t: u16 =*/ tensor_video_input.size()[0] as u16,
-                    /*size_y: u16 =*/ 720 as u16,
-                    /*size_x: u16 =*/ 1280 as u16,
-                    /*size_c: u8 =*/ 3,
-                    /*fps: float32_t =*/ 8.0 as f32,
-                    /*freq_limit: float32_t =*/ 3.0 as f32,
-                    /*dest: *mut ::std::os::raw::c_void =*/
-                    data as *mut ::std::os::raw::c_void,
-                    /*bool use_gpu =*/ use_gpu,
-                );
-            }
         }
-
-        // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
 
         let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 

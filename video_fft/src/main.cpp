@@ -27,36 +27,6 @@ template <> inline torch::ScalarType get_tensor_dtype<uint32_t>() { return torch
 template <> inline torch::ScalarType get_tensor_dtype<uint64_t>() { return torch::kInt64; }
 template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
 
-inline torch::TensorOptions get_good_device_and_dtype_old() {
-  printf("Called get_good_device_and_dtype()\n");
-  if (torch::cuda::is_available()) {
-    printf("Returning cuda\n");
-    return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCUDA);
-  } else {
-    printf("Returning cpu\n");
-    return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCPU);
-  }
-}
-
-inline torch::TensorOptions get_good_device_and_dtype() {
-  printf("Called get_good_device_and_dtype()\n");
-  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-}
-
-inline torch::TensorOptions get_host_input_device_and_dtype() {
-  printf("Called get_host_input_device_and_dtype()\n");
-  return torch::TensorOptions()
-      .dtype(get_tensor_dtype<uint8_t>())
-      .device(torch::kCPU);
-}
-
-inline torch::TensorOptions get_host_output_device_and_dtype() {
-  printf("get_host_output_device_and_dtype started\n");
-  return torch::TensorOptions()
-      .dtype(get_tensor_dtype<float32_t>())
-      .device(torch::kCPU);
-}
-
 inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
   auto size = tensor_input.sizes();
   auto h = size[1];
