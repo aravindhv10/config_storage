@@ -153,7 +153,7 @@ fn main() -> anyhow::Result<()> {
                     return Ok(());
                 }
                 "f" => {
-                    fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2])?;
+                    fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str())?;
                     return Ok(());
                 }
                 _ => {
