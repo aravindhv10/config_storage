@@ -16,7 +16,7 @@ podman run \
     '--net' 'host' \
     '--security-opt' 'seccomp=unconfined' \
     '--shm-size' '107374182400' \
-    '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=134217728' \
+    '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
     -v "CACHE:/usr/local/cargo/registry" \
     -v "CACHE:/root/.cache" \
