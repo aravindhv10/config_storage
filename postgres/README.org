@@ -73,7 +73,9 @@
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
+  GITADD 'connect_to_db.sh'
   GITADD 'docker_run_postgres.sh'
+  GITADD 'env.sh'
   GITADD 'README.org'
 
   git status ; git commit -m 'Started work on postgres and sea orm'

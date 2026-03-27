@@ -1,0 +1,9 @@
+#!/bin/sh
+HOST='127.0.0.1'
+PORT_HOST='12345'
+PORT_GUEST='5432'
+PASSWORD_GUEST='asd123'
+NAME_GUEST='inferencecoordinator'
+IMAGE_NAME='postgres:18.3-trixie'
+USER='postgres'
+DBNAME='postgres'
