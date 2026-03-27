@@ -1,14 +1,22 @@
 * Docker scripts for postgres
 
-** Start the docker image
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./docker_run_postgres.sh
-  cd "$(dirname -- "${0}")"
-
+** Configuration for the server
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
+  HOST='127.0.0.1'
   PORT_HOST='12345'
   PORT_GUEST='5432'
   PASSWORD_GUEST='asd123'
   NAME_GUEST='inferencecoordinator'
   IMAGE_NAME='postgres:18.3-trixie'
+  USER='postgres'
+  DBNAME='postgres'
+#+end_src
+
+** Shell script to start the server container
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./docker_run_postgres.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+
 
   'docker' 'run' \
       '-it' '--rm' \
@@ -20,6 +28,38 @@
   ;
 
   exit '0'
+#+end_src
+
+** Shell script to connect to the server
+
+*** header
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect_to_db.sh
+  cd "$('dirname' -- "${0}")"
+#+end_src
+
+*** COMMENT install on debian
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect_to_db.sh
+  sudo -A \
+      apt install \
+          postgresql-client \
+  ;
+#+end_src
+
+*** Source env
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect_to_db.sh
+  . './env.sh'
+#+end_src
+
+*** connect
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect_to_db.sh
+  echo "${PASSWORD_GUEST}"
+
+  psql \
+      -h "${HOST}" \
+      -p "${PORT_HOST}" \
+      -U "${USER}" \
+      -d "${DBNAME}" \
+  ;
 #+end_src
 
 * Main script to manage git stuff
@@ -38,7 +78,6 @@
 
   git status ; git commit -m 'Started work on postgres and sea orm'
   "${HOME}/SSH/K/P/setup.sh" ; git push
-
 #+end_src
 
 ** COMMENT run the script
