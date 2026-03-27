@@ -83,6 +83,7 @@
     podman-compose
     podman-tui
     poppler-utils
+    postgresql
     qbittorrent-enhanced
     qpdf
     rust-analyzer
