@@ -2,7 +2,6 @@
 cd "$(dirname -- "${0}")"
 . './env.sh'
 
-
 'docker' 'run' \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
