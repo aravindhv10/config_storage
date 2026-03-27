@@ -147,16 +147,16 @@ fn main() -> anyhow::Result<()> {
         }
 
         3 => {
-            match args[1] {
+            match args[1].as_str() {
                 "s" => {
-                    videofftstats::eval_mean_sigma(args[2])?;
+                    videofftstats::eval_mean_sigma(args[2].as_str())?;
                     return Ok(());
                 }
                 "f" => {
                     fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2])?;
                     return Ok(());
                 }
-                "_" => {
+                _ => {
                     eprintln!("Usage: {} <s/f> <directory>", args[0]);
                     eprintln!("s: stats for bin files under <directory>");
                     eprintln!("f: perform fft compression for videos under <directory>");
