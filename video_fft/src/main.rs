@@ -124,18 +124,55 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
-    if args.len() < 2 {
-        eprintln!("Usage: {} <directory>", args[0]);
-        std::process::exit(1);
-    }
+    match args.len() {
+        0 => {
+            eprintln!("Usage: <self> <s/f> <directory>");
+            eprintln!("s: stats for bin files under <directory>");
+            eprintln!("f: perform fft compression for videos under <directory>");
+            return Err(anyhow::format_err!("Wrong invocation"));
+        }
 
-    let target_dir = args[1].to_string();
+        1 => {
+            eprintln!("Usage: {} <s/f> <directory>", args[0]);
+            eprintln!("s: stats for bin files under <directory>");
+            eprintln!("f: perform fft compression for videos under <directory>");
+            return Err(anyhow::format_err!("Wrong invocation"));
+        }
 
-    if true {
-        videofftstats::eval_mean_sigma(target_dir.as_str())?;
-    } else {
-        fft_all_video_files_under_dir(/*target_dir: &str =*/ target_dir.as_str())?;
-    }
+        2 => {
+            eprintln!("Usage: {} <s/f> <directory>", args[0]);
+            eprintln!("s: stats for bin files under <directory>");
+            eprintln!("f: perform fft compression for videos under <directory>");
+            return Err(anyhow::format_err!("Wrong invocation"));
+        }
 
-    Ok(())
+        3 => {
+            match args[1] {
+                "s" => {
+                    videofftstats::eval_mean_sigma(args[2])?;
+                    return Ok(());
+                }
+                "f" => {
+                    fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2])?;
+                    return Ok(());
+                }
+                "_" => {
+                    eprintln!("Usage: {} <s/f> <directory>", args[0]);
+                    eprintln!("s: stats for bin files under <directory>");
+                    eprintln!("f: perform fft compression for videos under <directory>");
+                    return Err(anyhow::format_err!("Wrong invocation"));
+                }
+            };
+        }
+
+        _ => {
+            eprintln!("Spurious arguments detected");
+            eprintln!("Usage: {} <s/f> <directory>", args[0]);
+            eprintln!("s: stats for bin files under <directory>");
+            eprintln!("f: perform fft compression for videos under <directory>");
+            return Err(anyhow::format_err!("Wrong invocation"));
+        }
+    };
+
+    return Ok(());
 }
