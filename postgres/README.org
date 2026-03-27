@@ -31,11 +31,14 @@
   cd "$(dirname -- "${0}")"
 
   CLEAN '.git.sh'
+  CLEAN 'README.org~'
 
+  GITADD 'docker_run_postgres.sh'
   GITADD 'README.org'
 
   git status ; git commit -m 'Started work on postgres and sea orm'
   "${HOME}/SSH/K/P/setup.sh" ; git push
+
 #+end_src
 
 ** COMMENT run the script
