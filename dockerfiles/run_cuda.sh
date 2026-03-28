@@ -13,6 +13,7 @@ sudo -A docker run \
     '--rm' \
     '--net' 'host' \
     '--ipc' 'host' \
+    '--tmpfs' '/tmp:size=107374182400' \
     '--gpus' 'all,"capabilities=compute,utility,video"' \
     '--ulimit' 'memlock=-1' \
     '--ulimit' 'stack=67108864' \

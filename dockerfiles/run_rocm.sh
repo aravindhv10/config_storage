@@ -13,6 +13,7 @@ podman run \
     '--rm' \
     '--net' 'host' \
     '--ipc' 'host' \
+    '--tmpfs' '/tmp:size=107374182400' \
     '--device' '/dev/kfd' \
     '--device' '/dev/dri' \
     '--security-opt' 'seccomp=unconfined' \
