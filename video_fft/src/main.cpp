@@ -58,7 +58,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
 
   auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
 
-  uint16_t const len_diff = len_max - len_max;
+  uint16_t const len_diff = len_max - len_min;
   uint16_t const len_truncated = len_max >> 3;
 
   uint16_t const position_start = (len_max - len_truncated) >> 1;
@@ -171,7 +171,7 @@ int do_fft_compress(void *const blob, uint16_t const len_t,
 
   auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
 
-  uint16_t const len_diff = len_max - len_max;
+  uint16_t const len_diff = len_max - len_min;
   uint16_t const len_truncated = len_max >> 3;
 
   uint16_t const position_start = (len_max - len_truncated) >> 1;
