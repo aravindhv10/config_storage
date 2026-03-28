@@ -991,6 +991,7 @@ in {
             onnx
             onnxruntime
             opencv-python
+            openpyxl
             pandas
             pillow
             protobuf
