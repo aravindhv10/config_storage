@@ -12,10 +12,10 @@ sudo -A docker run \
     '--interactive' \
     '--rm' \
     '--gpus' 'all,"capabilities=compute,utility,video"' \
+    '--net' 'host' \
     '--ipc' 'host' \
     '--ulimit' 'memlock=-1' \
     '--ulimit' 'stack=67108864' \
-    '--shm-size' '107374182400' \
     '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
     -v "CACHE:/usr/local/cargo/registry" \
