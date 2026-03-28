@@ -11,9 +11,9 @@ sudo -A docker run \
     '--tty' \
     '--interactive' \
     '--rm' \
-    '--gpus' 'all,"capabilities=compute,utility,video"' \
     '--net' 'host' \
     '--ipc' 'host' \
+    '--gpus' 'all,"capabilities=compute,utility,video"' \
     '--ulimit' 'memlock=-1' \
     '--ulimit' 'stack=67108864' \
     '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \

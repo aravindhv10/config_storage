@@ -11,9 +11,9 @@ podman run \
     '--tty' \
     '--interactive' \
     '--rm' \
-    '--device' '/dev/dri' \
     '--net' 'host' \
     '--ipc' 'host' \
+    '--device' '/dev/dri' \
     '--security-opt' 'seccomp=unconfined' \
     '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
