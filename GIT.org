@@ -2,7 +2,7 @@
 
 ** Message to commit
 #+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
-  Updated code to use new convention of SSH keys
+  Updated compress script
 #+end_src
 
 ** Add git stuff
@@ -31,6 +31,7 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
+  compress.sh
   emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
