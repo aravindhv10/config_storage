@@ -13,13 +13,15 @@ sudo -A docker run \
     '--rm' \
     '--net' 'host' \
     '--ipc' 'host' \
-    '--tmpfs' '/tmp:size=107374182400' \
-    '--gpus' 'all,"capabilities=compute,utility,video"' \
+    '--tmpfs' '/tmp:size=107374182400,exec' \
     '--ulimit' 'memlock=-1' \
     '--ulimit' 'stack=67108864' \
-    '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
+    '--gpus' 'all,"capabilities=compute,utility,video"' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
     -v "CACHE:/usr/local/cargo/registry" \
     -v "CACHE:/root/.cache" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;
+
+    # '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+    # '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
