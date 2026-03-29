@@ -232,6 +232,11 @@
           dhcp-range = ["192.168.122.101,192.168.122.200"];
         };
       };
+
+      k3s = {
+          enable = true;
+          role = "server";
+      } ;
     };
   }
 #+end_src
