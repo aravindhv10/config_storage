@@ -1,0 +1,86 @@
+* Shell script to run opencode image
+
+** Podman
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./podman_run.sh
+  cd "$('dirname' '--' "${0}")"
+
+  IMAGE_NAME='ghcr.io/anomalyco/opencode'
+  IMAGE_CMD='zsh'
+
+  PATH_DIR_SRC="$('realpath' '.')"
+  PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
+
+  podman run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--device' '/dev/kfd' \
+      '--device' '/dev/dri' \
+      '--security-opt' 'seccomp=unconfined' \
+      -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/.cache" \
+      "${IMAGE_NAME}" \
+  ;
+#+end_src
+
+** Docker
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./docker_run.sh
+  cd "$('dirname' '--' "${0}")"
+
+  # IMAGE_NAME='6_pytorch'
+  IMAGE_NAME='ghcr.io/anomalyco/opencode'
+  IMAGE_CMD='zsh'
+
+  PATH_DIR_SRC="$('realpath' '.')"
+  PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
+
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'all,"capabilities=compute,utility,video"' \
+      -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/.cache" \
+      "${IMAGE_NAME}" \
+  ;
+#+end_src
+
+* Main script to manage git stuff
+
+** Script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+
+  CLEAN '.git.sh'
+  CLEAN 'README.org~'
+
+  GITADD 'README.org'
+  GITADD 'docker_run.sh'
+  GITADD 'podman_run.sh'
+
+  git status ; git commit -m 'Added template dir to the repo'
+  "${HOME}/SSH/K/P/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the script
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src
