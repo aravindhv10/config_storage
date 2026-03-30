@@ -147,6 +147,16 @@ Main link: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/lat
   sudo -A docker run --rm --runtime=nvidia --gpus all nvidia/cuda:11.6.2-base-ubuntu20.04 nvidia-smi
 #+end_src
 
+* Install K3S
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./install_k3s.sh
+  cd "$('dirname' -- "${0}")"
+  mkdir -pv -- "${HOME}/k3s"
+  cd "${HOME}/k3s"
+  aria2c -c -x16 -j16 'https://get.k3s.io' -o 'k3s.sh'
+  chmod +x ./k3s.sh
+  sudo -A ./k3s.sh
+#+end_src
+
 * Git management scripts
 
 ** Actual script
@@ -164,14 +174,15 @@ Main link: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/lat
 
 *** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD 'DOC.org'
-  GITADD 'README.org'
   GITADD 'build_docker.sh'
   GITADD 'clone_LOS.sh'
+  GITADD 'DOC.org'
   GITADD 'install_apt_dependencies.sh'
   GITADD 'install_docker.sh'
+  GITADD 'install_k3s.sh'
   GITADD 'install_nvidia_ctk.sh'
   GITADD 'install_nvidia_drivers.sh'
+  GITADD 'README.org'
   GITADD 'work.sh'
 #+end_src
 
@@ -190,3 +201,4 @@ Main link: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/lat
     './.git.sh'
   " "log" "err")
 #+end_src
+
