@@ -178,7 +178,7 @@ Main link: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/lat
 *** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   git commit -m 'Started writing code to fix jan RD data'
-  "${HOME}/SSH/KEYS/PERSONAL_LAPTOP/setup.sh"
+  "${HOME}/SSH/K/P/setup.sh"
   git push
 #+end_src
 
