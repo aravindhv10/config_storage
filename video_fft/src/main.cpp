@@ -47,6 +47,8 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                               float32_t const freq_limit, void *const dest,
                               bool use_gpu) {
 
+  printf("Came inside do_fft_compress_efficient\n");
+
   uint16_t len_max, len_min;
   if (len_x > len_y) {
     len_max = len_x;
@@ -58,16 +60,23 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
 
   auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
 
+  printf("Done deciding on GPU\n");
+
   uint16_t const len_diff = len_max - len_min;
   uint16_t const len_truncated = len_max >> 3;
 
   uint16_t const position_start = (len_max - len_truncated) >> 1;
   uint16_t const position_end = position_start + len_truncated;
 
+  printf("%u %u\n", position_start, position_end);
+
   int64_t const dist_c = 1;
   int64_t const dist_x = len_c * dist_c;
   int64_t const dist_y = len_x * dist_x;
   int64_t const dist_t = len_y * dist_y;
+
+  printf("%u %u %u %u\n", len_c, len_x, len_y, len_t);
+  printf("%u %u %u %u\n", dist_c, dist_x, dist_y, dist_t);
 
   auto t_cutoff =
       torch::sum(
