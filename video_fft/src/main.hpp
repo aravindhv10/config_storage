@@ -3,7 +3,9 @@
 
 #include "./export.hpp"
 
+#include <fcntl.h>
 #include <semaphore.h>
+#include <sys/stat.h>
 
 #include <iostream>
 #include <vector>

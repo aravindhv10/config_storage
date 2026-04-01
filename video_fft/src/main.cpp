@@ -3,11 +3,11 @@
 class gpu_locker {
 
 private:
-  sem_t gpu_semaphore;
+  sem_t *gpu_semaphore;
 
 public:
-  gpu_locker() { sem_init(&gpu_semaphore, 0, 2); }
-  ~gpu_locker() {}
+  gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
+  ~gpu_locker() { sem_close(gpu_semaphore); }
 
   inline void l() { sem_wait(&gpu_semaphore); }
   inline void r() { sem_post(&gpu_semaphore); }
