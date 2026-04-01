@@ -107,7 +107,7 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     }
 
     let pool = rayon::ThreadPoolBuilder::new()
-        .num_threads(8)
+        .num_threads(3)
         .build()
         .unwrap();
 
