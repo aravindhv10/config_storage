@@ -1,45 +1,48 @@
+* C codes
+
+** Creating the semaphor
 #+begin_src c++ :tangle ./create.cc
-#include <semaphore.h>
-#include <fcntl.h>
-#include <stdio.h>
+  #include <fcntl.h>
+  #include <semaphore.h>
+  #include <stdio.h>
 
-int main (int const argc, char const ** argv) {
-  sem_t * sem = sem_open("/testing", /*int oflag =*/ O_CREAT, 0700, 2 );
-  if(sem != SEM_FAILED) {
-    printf("Successfully opened the semaphor\n");
+  int main(int const argc, char const **argv) {
+    sem_t *sem = sem_open("/testing", /*int oflag =*/O_CREAT, 0700, 2);
+    if (sem != SEM_FAILED) {
+      printf("Successfully opened the semaphor\n");
+    }
   }
-}
 #+end_src
 
+** Creating the semaphor
 #+begin_src c++ :tangle ./post.cc
-#include <semaphore.h>
-#include <fcntl.h>
-#include <stdio.h>
+  #include <fcntl.h>
+  #include <semaphore.h>
+  #include <stdio.h>
 
-int main (int const argc, char const ** argv) {
-  sem_t * sem = sem_open("/testing", /*int oflag =*/ O_CREAT, 0700, 2 );
-  if(sem != SEM_FAILED) {
-    printf("Successfully opened the semaphor\n");
+  int main(int const argc, char const **argv) {
+    sem_t *sem = sem_open("/testing", /*int oflag =*/O_CREAT, 0700, 2);
+    if (sem != SEM_FAILED) {
+      printf("Successfully opened the semaphor\n");
+    }
+    sem_post(sem);
   }
-  sem_post(sem);
-}
 #+end_src
 
+** Creating the semaphor
 #+begin_src c++ :tangle ./wait.cc
-#include <semaphore.h>
-#include <fcntl.h>
-#include <stdio.h>
+  #include <fcntl.h>
+  #include <semaphore.h>
+  #include <stdio.h>
 
-int main (int const argc, char const ** argv) {
-  sem_t * sem = sem_open("/testing", /*int oflag =*/ O_CREAT, 0700, 2 );
-  if(sem != SEM_FAILED) {
-    printf("Successfully opened the semaphor\n");
+  int main(int const argc, char const **argv) {
+    sem_t *sem = sem_open("/testing", /*int oflag =*/O_CREAT, 0700, 2);
+    if (sem != SEM_FAILED) {
+      printf("Successfully opened the semaphor\n");
+    }
+    sem_wait(sem);
   }
-  sem_wait(sem);
-}
 #+end_src
-
-
 
 * Main script to manage git stuff
 
@@ -65,6 +68,6 @@ int main (int const argc, char const ** argv) {
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
-          './.git.sh'
+      './.git.sh'
   " "log" "err")
 #+end_src
