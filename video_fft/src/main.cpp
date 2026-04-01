@@ -1,5 +1,32 @@
 #include "./main.hpp"
 
+inline torch::TensorOptions get_input_device_and_dtype() {
+  printf("Called get_host_input_device_and_dtype()\n");
+  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+}
+
+inline torch::TensorOptions get_inference_device_and_dtype() {
+  printf("Called get_good_device_and_dtype()\n");
+  if (torch::cuda::is_available()) {
+    printf("Returning cuda\n");
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCUDA);
+  } else {
+    printf("Returning cpu\n");
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+  }
+}
+
+inline torch::TensorOptions get_output_device_and_dtype() {
+  printf("get_host_output_device_and_dtype started\n");
+  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+}
+
+class infer_slave {
+public:
+  infer_slave(){}
+  ~infer_slave(){}
+} ;
+
 class gpu_locker {
 
 private:
