@@ -30,10 +30,15 @@ private:
   torch::TensorOptions options_output;
   std::vector<torch::Tensor> inputs;
   std::vector<torch::Tensor> outputs;
+  std::size_t batch_size;
   std::size_t bytes_to_copy;
 
 public:
-  infer_slave() {}
+  infer_slave(std::string const path_file_model, std::size_t BATCH_SIZE)
+      : loader(path_file_model), options_input(get_input_device_and_dtype()),
+        options_compute(get_inference_device_and_dtype()),
+        options_output(get_output_device_and_dtype()), batch_size(BATCH_SIZE) {}
+
   ~infer_slave() {}
 };
 
