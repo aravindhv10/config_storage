@@ -1,0 +1,70 @@
+#+begin_src c++ :tangle ./create.cc
+#include <semaphore.h>
+#include <fcntl.h>
+#include <stdio.h>
+
+int main (int const argc, char const ** argv) {
+  sem_t * sem = sem_open("/testing", /*int oflag =*/ O_CREAT, 0700, 2 );
+  if(sem != SEM_FAILED) {
+    printf("Successfully opened the semaphor\n");
+  }
+}
+#+end_src
+
+#+begin_src c++ :tangle ./post.cc
+#include <semaphore.h>
+#include <fcntl.h>
+#include <stdio.h>
+
+int main (int const argc, char const ** argv) {
+  sem_t * sem = sem_open("/testing", /*int oflag =*/ O_CREAT, 0700, 2 );
+  if(sem != SEM_FAILED) {
+    printf("Successfully opened the semaphor\n");
+  }
+  sem_post(sem);
+}
+#+end_src
+
+#+begin_src c++ :tangle ./wait.cc
+#include <semaphore.h>
+#include <fcntl.h>
+#include <stdio.h>
+
+int main (int const argc, char const ** argv) {
+  sem_t * sem = sem_open("/testing", /*int oflag =*/ O_CREAT, 0700, 2 );
+  if(sem != SEM_FAILED) {
+    printf("Successfully opened the semaphor\n");
+  }
+  sem_wait(sem);
+}
+#+end_src
+
+
+
+* Main script to manage git stuff
+
+** Actual script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+
+  CLEAN '.git.sh'
+
+  GITADD 'create.cc'
+  GITADD 'post.cc'
+  GITADD 'README.org'
+  GITADD 'wait.cc'
+
+  git status ; git commit -m 'Started writing semaphor codes'
+  "${HOME}/SSH/K/P/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the script
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src
