@@ -743,118 +743,127 @@
                                 float32_t const freq_limit, void *const dest,
                                 bool use_gpu) {
 
-    printf("Came inside do_fft_compress_efficient\n");
+    try {
 
-    uint16_t len_max, len_min;
-    if (len_x > len_y) {
-      len_max = len_x;
-      len_min = len_y;
-    } else {
-      len_max = len_y;
-      len_min = len_x;
+      printf("Came inside do_fft_compress_efficient\n");
+
+      uint16_t len_max, len_min;
+      if (len_x > len_y) {
+        len_max = len_x;
+        len_min = len_y;
+      } else {
+        len_max = len_y;
+        len_min = len_x;
+      }
+
+      auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
+
+      printf("Done deciding on GPU\n");
+
+      uint16_t const len_diff = len_max - len_min;
+      uint16_t const len_truncated = len_max >> 3;
+
+      uint16_t const position_start = (len_max - len_truncated) >> 1;
+      uint16_t const position_end = position_start + len_truncated;
+
+      printf("%u %u\n", position_start, position_end);
+
+      int64_t const dist_c = 1;
+      int64_t const dist_x = len_c * dist_c;
+      int64_t const dist_y = len_x * dist_x;
+      int64_t const dist_t = len_y * dist_y;
+
+      printf("%u %u %u %u\n", len_c, len_x, len_y, len_t);
+      printf("%u %u %u %u\n", dist_c, dist_x, dist_y, dist_t);
+
+      auto t_cutoff =
+          torch::sum((torch::fft::rfftfreq(
+                          len_t, torch::TensorOptions()
+                                     .dtype(get_tensor_dtype<float32_t>())
+                                     .device(torch::kCPU)) *
+                      fps)         /* Scaled frequency mode range tensor */
+                     < freq_limit) /* Done evaluating number of modes to keep */
+              .item()
+              .to<uint16_t>();
+
+      locker.l();
+
+      torch::Tensor tensor_video_padded =
+          torch::from_blob(
+              /* data = */ blob,
+              /* sizes = */ {len_t, len_y, len_x, len_c},
+              /* strides = */ {dist_t, dist_y, dist_x, dist_c},
+              /* Device_DType = */
+              torch::TensorOptions()
+                  .dtype(get_tensor_dtype<uint8_t>())
+                  .device(torch::kCPU)) /* T H W C */
+              .to(device_gpu);
+
+      tensor_video_padded = do_pad_video(tensor_video_padded)
+                                .to(torch::kFloat32)
+                                .permute({3, 1, 2, 0});
+
+      if (true) {
+        int64_t constexpr i = 3;
+
+        tensor_video_padded =
+            torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i)
+                .narrow(i, 0, t_cutoff);
+      }
+
+      if (true) {
+        int64_t constexpr i = 2;
+
+        tensor_video_padded =
+            torch::fft::fftshift(
+                torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i),
+                {i})
+                .narrow(i, position_start, len_truncated);
+      }
+
+      if (true) {
+        int64_t constexpr i = 1;
+
+        tensor_video_padded =
+            torch::fft::fftshift(
+                torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i),
+                {i})
+                .narrow(i, position_start, len_truncated);
+      }
+
+      if (true) {
+        int64_t constexpr i = 0;
+
+        tensor_video_padded = torch::fft::fftshift(
+            torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
+      }
+
+      torch::Tensor compressed_tensor_video_fft =
+          torch::nn::functional::interpolate(
+              torch::cat(
+                  {tensor_video_padded.abs(), tensor_video_padded.angle()},
+                  /*dim=*/0) /* Done extracting abs and angle into real tensor*/
+                  .unsqueeze(0),
+              torch::nn::functional::InterpolateFuncOptions()
+                  .size(std::vector<int64_t>(
+                      {len_truncated, len_truncated, static_cast<int64_t>(60)}))
+                  .mode(torch::kTrilinear)
+                  .align_corners(false)) /* Done interpolating */
+              .squeeze()
+              .to(torch::kCPU)
+              .contiguous();
+
+      locker.r();
+
+      std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
+                  compressed_tensor_video_fft.nbytes());
+
+      return 0;
+
+    } catch (const std::exception &e) {
+      printf("Error: %s\n", e.what());
+      return -1; // Error
     }
-
-    auto device_gpu = use_gpu ? torch::kCUDA : torch::kCPU;
-
-    printf("Done deciding on GPU\n");
-
-    uint16_t const len_diff = len_max - len_min;
-    uint16_t const len_truncated = len_max >> 3;
-
-    uint16_t const position_start = (len_max - len_truncated) >> 1;
-    uint16_t const position_end = position_start + len_truncated;
-
-    printf("%u %u\n", position_start, position_end);
-
-    int64_t const dist_c = 1;
-    int64_t const dist_x = len_c * dist_c;
-    int64_t const dist_y = len_x * dist_x;
-    int64_t const dist_t = len_y * dist_y;
-
-    printf("%u %u %u %u\n", len_c, len_x, len_y, len_t);
-    printf("%u %u %u %u\n", dist_c, dist_x, dist_y, dist_t);
-
-    auto t_cutoff =
-        torch::sum(
-            (torch::fft::rfftfreq(len_t, torch::TensorOptions()
-                                             .dtype(get_tensor_dtype<float32_t>())
-                                             .device(torch::kCPU)) *
-             fps)         /* Scaled frequency mode range tensor */
-            < freq_limit) /* Done evaluating number of modes to keep */
-            .item()
-            .to<uint16_t>();
-
-    locker.l();
-
-    torch::Tensor tensor_video_padded =
-        torch::from_blob(
-            /* data = */ blob,
-            /* sizes = */ {len_t, len_y, len_x, len_c},
-            /* strides = */ {dist_t, dist_y, dist_x, dist_c},
-            /* Device_DType = */
-            torch::TensorOptions()
-                .dtype(get_tensor_dtype<uint8_t>())
-                .device(torch::kCPU)) /* T H W C */
-            .to(device_gpu);
-
-    tensor_video_padded = do_pad_video(tensor_video_padded)
-                              .to(torch::kFloat32)
-                              .permute({3, 1, 2, 0});
-
-    if (true) {
-      int64_t constexpr i = 3;
-
-      tensor_video_padded =
-          torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i)
-              .narrow(i, 0, t_cutoff);
-    }
-
-    if (true) {
-      int64_t constexpr i = 2;
-
-      tensor_video_padded =
-          torch::fft::fftshift(
-              torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i})
-              .narrow(i, position_start, len_truncated);
-    }
-
-    if (true) {
-      int64_t constexpr i = 1;
-
-      tensor_video_padded =
-          torch::fft::fftshift(
-              torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i})
-              .narrow(i, position_start, len_truncated);
-    }
-
-    if (true) {
-      int64_t constexpr i = 0;
-
-      tensor_video_padded = torch::fft::fftshift(
-          torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
-    }
-
-    torch::Tensor compressed_tensor_video_fft =
-        torch::nn::functional::interpolate(
-            torch::cat(
-                {tensor_video_padded.abs(), tensor_video_padded.angle()},
-                /*dim=*/0) /* Done extracting abs and angle into real tensor*/
-                .unsqueeze(0),
-            torch::nn::functional::InterpolateFuncOptions()
-                .size(std::vector<int64_t>(
-                    {len_truncated, len_truncated, static_cast<int64_t>(60)}))
-                .mode(torch::kTrilinear)
-                .align_corners(false)) /* Done interpolating */
-            .squeeze()
-            .to(torch::kCPU)
-            .contiguous();
-
-    locker.r();
-
-    std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
-                compressed_tensor_video_fft.nbytes());
-
-    return 0;
   }
   }
 #+end_src
