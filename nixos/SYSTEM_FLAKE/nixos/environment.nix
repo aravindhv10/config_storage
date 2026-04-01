@@ -984,7 +984,6 @@ in {
             inotify-simple
             ipython
             jax
-            lightning
             matplotlib
             multiprocess
             numpy
@@ -1000,7 +999,6 @@ in {
             safetensors
             tensorboard
             tensorboardx
-            timm
             torch
             torchcodec
             torchmetrics
