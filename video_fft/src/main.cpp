@@ -9,8 +9,8 @@ public:
   gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
   ~gpu_locker() { sem_close(gpu_semaphore); }
 
-  inline void l() { sem_wait(&gpu_semaphore); }
-  inline void r() { sem_post(&gpu_semaphore); }
+  inline void l() { sem_wait(gpu_semaphore); }
+  inline void r() { sem_post(gpu_semaphore); }
 };
 
 static gpu_locker locker;
