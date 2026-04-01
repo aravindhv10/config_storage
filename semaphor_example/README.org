@@ -53,6 +53,7 @@
   cd "$(dirname -- "${0}")"
 
   CLEAN '.git.sh'
+  CLEAN 'README.org~'
 
   GITADD 'create.cc'
   GITADD 'post.cc'
