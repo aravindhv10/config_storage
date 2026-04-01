@@ -22,10 +22,20 @@ inline torch::TensorOptions get_output_device_and_dtype() {
 }
 
 class infer_slave {
+private:
+  c10::InferenceMode mode;
+  torch::inductor::AOTIModelPackageLoader loader;
+  torch::TensorOptions options_input;
+  torch::TensorOptions options_compute;
+  torch::TensorOptions options_output;
+  std::vector<torch::Tensor> inputs;
+  std::vector<torch::Tensor> outputs;
+  std::size_t bytes_to_copy;
+
 public:
-  infer_slave(){}
-  ~infer_slave(){}
-} ;
+  infer_slave() {}
+  ~infer_slave() {}
+};
 
 class gpu_locker {
 
