@@ -993,6 +993,7 @@ in {
             openpyxl
             pandas
             pillow
+            polars
             protobuf
             python-multipart
             requests
