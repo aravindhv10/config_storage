@@ -13,7 +13,7 @@
     };
 
     hyprland = {
-      enable = true;
+      enable = false;
       package = unstable.hyprland;
       withUWSM = true;
       # withUWSM = false;
