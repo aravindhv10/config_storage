@@ -23,21 +23,24 @@ inline torch::TensorOptions get_output_device_and_dtype() {
 
 class infer_slave {
 private:
-  c10::InferenceMode mode;
-  torch::inductor::AOTIModelPackageLoader loader;
   torch::TensorOptions options_input;
   torch::TensorOptions options_compute;
   torch::TensorOptions options_output;
-  std::vector<torch::Tensor> inputs;
-  std::vector<torch::Tensor> outputs;
+
+  torch::inductor::AOTIModelPackageLoader loader;
   std::size_t batch_size;
   std::size_t bytes_to_copy;
 
+  c10::InferenceMode mode;
+  std::vector<torch::Tensor> inputs;
+  std::vector<torch::Tensor> outputs;
+
 public:
   infer_slave(std::string const path_file_model, std::size_t BATCH_SIZE)
-      : loader(path_file_model), options_input(get_input_device_and_dtype()),
+      : options_input(get_input_device_and_dtype()),
         options_compute(get_inference_device_and_dtype()),
-        options_output(get_output_device_and_dtype()), batch_size(BATCH_SIZE) {}
+        options_output(get_output_device_and_dtype()), loader(path_file_model),
+        batch_size(BATCH_SIZE) {}
 
   ~infer_slave() {}
 };
