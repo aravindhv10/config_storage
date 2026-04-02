@@ -1,5 +1,6 @@
 use crate::export;
 use anyhow::Context;
+use rayon::prelude::*;
 use std::io::Write;
 
 #[repr(C)]
@@ -171,5 +172,42 @@ impl fft_video {
         let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
         return Ok(final_video);
+    }
+
+    pub fn from_list_torch_video_tensor(
+        list_torch_video_tensor: Vec<tch::Tensor>,
+        use_gpu: bool,
+    ) -> anyhow::Result<Vec<Self>> {
+        if list_torch_video_tensor.len() > 0 {
+            // let ret: Vec<Self> = list_torch_video_tensor
+            //     .into_iter()
+            //     .map(|i| {
+            //         from_torch_video_tensor(
+            //             /*tensor_video_input: &tch::Tensor =*/ i,
+            //             /*use_gpu: bool =*/ use_gpu,
+            //         )
+            //     })
+            //     .collect();
+
+            // return Ok(ret);
+            //
+            let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+
+            let ret: Vec<Self> = pool.install(|| {
+                list_torch_video_tensor
+                    .into_par_iter()
+                    .map(|i| {
+                        Self::from_torch_video_tensor(
+                            /*tensor_video_input: &tch::Tensor =*/ &i,
+                            /*use_gpu: bool =*/ use_gpu,
+                        )
+                    })
+                    .collect()
+            });
+
+            return Ok(ret);
+        } else {
+            return Err(anyhow::format_err!("Input vector is empty"));
+        }
     }
 }

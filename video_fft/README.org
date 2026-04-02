@@ -1266,8 +1266,9 @@
 
 * video fft struct implementation
 #+begin_src rust :mkdirp yes :tangle ./src/videofft.rs
-  use anyhow::Context;
   use crate::export;
+  use anyhow::Context;
+  use rayon::prelude::*;
   use std::io::Write;
 
   #[repr(C)]
@@ -1306,8 +1307,7 @@
           let mut writer = std::io::BufWriter::new(file);
           let size = std::mem::size_of::<fft_video>();
 
-          let bytes =
-              unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
+          let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
 
           writer.write_all(bytes)?;
           return Ok(());
@@ -1388,20 +1388,16 @@
           use_gpu: bool,
       ) -> anyhow::Result<std::boxed::Box<Self>> {
           if true {
-
               "################################";
               "# Do the check: ################";
               "################################";
 
               if tensor_video_input.kind() != tch::Kind::Uint8 {
-
                   anyhow::bail!(
                       "Input tensor must be Kind::Uint8, found {:?}",
                       tensor_video_input.kind()
                   );
-
               } else {
-
                   let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
                   let actual_size: usize = tensor_video_input.numel();
 
@@ -1418,7 +1414,6 @@
           let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
 
           if true {
-
               "################################";
               "# Perform the FFT ##############";
               "################################";
@@ -1445,6 +1440,43 @@
           let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
           return Ok(final_video);
+      }
+
+      pub fn from_list_torch_video_tensor(
+          list_torch_video_tensor: Vec<tch::Tensor>,
+          use_gpu: bool,
+      ) -> anyhow::Result<Vec<Self>> {
+          if list_torch_video_tensor.len() > 0 {
+              // let ret: Vec<Self> = list_torch_video_tensor
+              //     .into_iter()
+              //     .map(|i| {
+              //         from_torch_video_tensor(
+              //             /*tensor_video_input: &tch::Tensor =*/ i,
+              //             /*use_gpu: bool =*/ use_gpu,
+              //         )
+              //     })
+              //     .collect();
+
+              // return Ok(ret);
+              //
+              let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+
+              let ret: Vec<Self> = pool.install(|| {
+                  list_torch_video_tensor
+                      .into_par_iter()
+                      .map(|i| {
+                          Self::from_torch_video_tensor(
+                              /*tensor_video_input: &tch::Tensor =*/ &i,
+                              /*use_gpu: bool =*/ use_gpu,
+                          )
+                      })
+                      .collect()
+              });
+
+              return Ok(ret);
+          } else {
+              return Err(anyhow::format_err!("Input vector is empty"));
+          }
       }
   }
 #+end_src
