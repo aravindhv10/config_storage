@@ -10,7 +10,6 @@ RUN \
     && get_all_good_programs_and_config \
     && echo 'DONE Download and install rust programs' ;
 
-
 RUN \
     echo 'START Delete tar files after installing' \
     fd '\.tar$' '/var/tmp' -t f -x unlink '{}' \

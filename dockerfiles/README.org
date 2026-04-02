@@ -59,7 +59,7 @@
 
 **** Main base image
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
-  FROM rocm/pytorch:rocm7.1.1_ubuntu24.04_py3.13_pytorch_release_2.10.0
+  FROM rocm/pytorch:rocm7.2.1_ubuntu24.04_py3.12_pytorch_release_2.9.1
 #+end_src
 
 **** provide default python venv for use later
@@ -177,7 +177,6 @@
       && get_all_good_programs_and_config \
       && echo 'DONE Download and install rust programs' ;
 
-
   RUN \
       echo 'START Delete tar files after installing' \
       fd '\.tar$' '/var/tmp' -t f -x unlink '{}' \
@@ -272,7 +271,7 @@
       && uv pip install \
           '--index-url' 'https://download.pytorch.org/whl/cpu' \
               'torch' \
-              'torchcodec==0.10' \
+              'torchcodec' \
               'torchvision' \
       && echo 'DONE pip' ;
 
@@ -305,11 +304,8 @@
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
-              'tensorrt' \
               'torch' \
               'torchao' \
-              'torchcodec==0.9' \
-              'torch-tensorrt' \
               'torchvision' \
               'xformers' \
       && echo 'DONE pytorch' ;
@@ -318,6 +314,11 @@
   ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
+
+**** Disabled packages
+              'tensorrt' \
+              'torchcodec' \
+              'torch-tensorrt' \
 
 *** AMDGPU
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/5_libtorch/Dockerfile

@@ -20,11 +20,8 @@ RUN \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
         '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
-            'tensorrt' \
             'torch' \
             'torchao' \
-            'torchcodec==0.9' \
-            'torch-tensorrt' \
             'torchvision' \
             'xformers' \
     && echo 'DONE pytorch' ;
