@@ -1447,21 +1447,11 @@
           use_gpu: bool,
       ) -> anyhow::Result<Vec<Self>> {
           if list_torch_video_tensor.len() > 0 {
-              // let ret: Vec<Self> = list_torch_video_tensor
-              //     .into_iter()
-              //     .map(|i| {
-              //         from_torch_video_tensor(
-              //             /*tensor_video_input: &tch::Tensor =*/ i,
-              //             /*use_gpu: bool =*/ use_gpu,
-              //         )
-              //     })
-              //     .collect();
-
-              // return Ok(ret);
-              //
               let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
 
-              let ret: Vec<Self> = pool.install(|| {
+              let length = list_torch_video_tensor.len();
+
+              let ret: Vec<anyhow::Result<std::boxed::Box<Self>>> = pool.install(|| {
                   list_torch_video_tensor
                       .into_par_iter()
                       .map(|i| {
@@ -1473,7 +1463,20 @@
                       .collect()
               });
 
-              return Ok(ret);
+              let mut ret2 = Vec::<Self>::with_capacity(length);
+
+              for i in ret.into_iter() {
+                  match i {
+                      Ok(o) => {
+                          ret2.push(*o);
+                      }
+                      Err(e) => {
+                          eprintln!("Failed to FFT a vector due to {}", e);
+                      }
+                  }
+              }
+
+              return Ok(ret2);
           } else {
               return Err(anyhow::format_err!("Input vector is empty"));
           }
