@@ -634,6 +634,8 @@
 #+end_src
 
 * Script to work
+
+** Actual script
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
   cd "$(dirname -- "${0}")"
 
@@ -672,12 +674,11 @@
   exit '0'
 #+end_src
 
-* COMMENT Work space
+** COMMENT Run the script
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
-      git status
   " "log" "err")
 #+end_src
