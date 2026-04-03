@@ -213,4 +213,46 @@ impl fft_video {
             return Err(anyhow::format_err!("Input vector is empty"));
         }
     }
+
+    fn from_windowed_torch_video_tensor(
+        tensor_video_input: &tch::Tensor,
+        use_gpu: bool,
+    ) -> anyhow::Result<Vec<Self>> {
+        let total_video_length = tensor_video_input.size()[0];
+        if total_video_length < 120 {
+            return Err(anyhow::format_err!("Video too short..."));
+        } else if (120 <= total_video_length) && (total_video_length < 176) {
+            return from_list_torch_video_tensor(
+                /*list_torch_video_tensor: Vec<tch::Tensor> =*/ vec![tensor_video_input],
+                /*use_gpu: bool =*/ use_gpu,
+            );
+        } else {
+            let float_val = (((total_video_length - 160) as f64) / 40.0) as f64;
+
+            let floor_val = float_val.floor();
+
+            let diff = float_val - floor_val;
+
+            let num_windows: usize = {
+                if diff < 0.25 {
+                    (floor_val as usize) + 1
+                } else {
+                    (floor_val as usize) + 2
+                }
+            };
+
+            let mut list_torch_video_tensor = Vec::<tch::Tensor>::with_capacity(num_windows);
+
+            for i in 1..=num_windows {
+                let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
+                let start = end - 160;
+                list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
+            }
+
+            return from_list_torch_video_tensor(
+                /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
+                /*use_gpu: bool =*/ use_gpu,
+            );
+        }
+    }
 }
