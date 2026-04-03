@@ -224,7 +224,8 @@ impl fft_video {
             return Err(anyhow::format_err!("Video too short..."));
         } else if (120 <= total_video_length) && (total_video_length < 176) {
             return Self::from_list_torch_video_tensor(
-                /*list_torch_video_tensor: Vec<tch::Tensor> =*/ vec![tensor_video_input],
+                /*list_torch_video_tensor: Vec<tch::Tensor> =*/
+                vec![tensor_video_input.shallow_clone()],
                 /*use_gpu: bool =*/ use_gpu,
             );
         } else {
