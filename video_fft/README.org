@@ -2312,16 +2312,18 @@ video.len() in:
   alejandra 'flake.nix'
   cargo fmt
 
+  GITADD '.gitignore'
+  GITADD 'CMakeLists.txt'
+  GITADD 'Cargo.lock'
+  GITADD 'Cargo.toml'
+  GITADD 'README.org'
   GITADD 'all_build.sh'
   GITADD 'all_install.sh'
   GITADD 'build.rs'
   GITADD 'cargo_build.sh'
-  GITADD 'Cargo.lock'
   GITADD 'cargo_run.sh'
-  GITADD 'Cargo.toml'
   GITADD 'cargo_watch.sh'
   GITADD 'cmake_build.sh'
-  GITADD 'CMakeLists.txt'
   GITADD 'compile_commands.json'
   GITADD 'convert_video_2_raw.sh'
   GITADD 'demux_decode.c'
@@ -2329,16 +2331,15 @@ video.len() in:
   GITADD 'flake.lock'
   GITADD 'flake.nix'
   GITADD 'generate_rs_bindings.sh'
-  GITADD '.gitignore'
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
-  GITADD 'README.org'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
   GITADD 'src/export.cpp'
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'
+  GITADD 'src/inferencerelated.rs'
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'
@@ -2349,7 +2350,7 @@ video.len() in:
   GITADD 'src/videoview.rs'
   GITADD 'validate.py'
 
-  git status ; git commit -m 'Added named semaphores and some cleanups'
+  git status ; git commit -m 'Started writing inference related class in rust'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
