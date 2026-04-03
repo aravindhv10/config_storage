@@ -21,7 +21,9 @@ inline torch::TensorOptions get_output_device_and_dtype() {
   return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
 }
 
-class infer_slave {
+#define _MACRO_SELF_ infer_slave
+
+class _MACRO_SELF_ {
 private:
   torch::TensorOptions options_input;
   torch::TensorOptions options_compute;
@@ -32,18 +34,35 @@ private:
   std::size_t bytes_to_copy;
 
   c10::InferenceMode mode;
-  std::vector<torch::Tensor> inputs;
-  std::vector<torch::Tensor> outputs;
 
 public:
-  infer_slave(std::string const path_file_model, std::size_t BATCH_SIZE)
+  inline void infer(void *blob_source, void *blob_destination) {
+
+    torch::Tensor cpu_tensor = torch::from_blob(
+        blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
+        options_input);
+
+    std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+    std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+    torch::Tensor out_tensor = outputs[0].contiguous().cpu().to(options_output);
+
+    std::memcpy(blob_destination, out_tensor.data_ptr<outtype>(),
+                bytes_to_copy);
+  }
+
+  _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
       : options_input(get_input_device_and_dtype()),
         options_compute(get_inference_device_and_dtype()),
         options_output(get_output_device_and_dtype()), loader(path_file_model),
-        batch_size(BATCH_SIZE) {}
+        batch_size(BATCH_SIZE),
+        bytes_to_copy(batch_size * 3 * sizeof(outtype)) {}
 
-  ~infer_slave() {}
+  ~_MACRO_SELF_() {}
 };
+
+#undef _MACRO_SELF_
 
 class gpu_locker {
 

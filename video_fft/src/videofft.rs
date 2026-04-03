@@ -215,11 +215,12 @@ impl fft_video {
         }
     }
 
-    fn from_windowed_torch_video_tensor(
+    fn windowed_from_torch_video_tensor(
         tensor_video_input: &tch::Tensor,
         use_gpu: bool,
     ) -> anyhow::Result<Vec<Self>> {
         let total_video_length = tensor_video_input.size()[0];
+
         if total_video_length < 120 {
             return Err(anyhow::format_err!("Video too short..."));
         } else if (120 <= total_video_length) && (total_video_length < 176) {
