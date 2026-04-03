@@ -2114,9 +2114,6 @@
 
   const USE_GPU: bool = true;
 
-
-
-
   fn video_tensor_2_fft_file_160(
       tensor_video_input: tch::Tensor,
       path_dir_output: &str,
