@@ -2,6 +2,7 @@ use crate::export;
 use anyhow::Context;
 use rayon::prelude::*;
 use std::io::Write;
+use tch::IndexOp;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -249,7 +250,7 @@ impl fft_video {
                 list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
             }
 
-            return from_list_torch_video_tensor(
+            return Self::from_list_torch_video_tensor(
                 /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
                 /*use_gpu: bool =*/ use_gpu,
             );
