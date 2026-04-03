@@ -203,7 +203,7 @@
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-*** Download important codes
+*** COMMENT Download important codes
 #+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
   RUN \
       echo 'START Download all sources' \
@@ -372,6 +372,8 @@
 #+end_src
 
 *** CUDA_UBUNTU
+
+**** Main parts
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/6_pytorch/Dockerfile
   FROM 5_libtorch
 
@@ -381,10 +383,14 @@
       echo 'START Quantization, optimization and offloading' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
+              "huggingface_hub" \
+              "pytorch-image-models" \
+              "transformers" \
               'accelerate' \
               'albumentations' \
               'datasets' \
               'deepspeed' \
+              'diffusers' \
               'einops' \
               'evaluate' \
               'fastapi[standard]' \
@@ -419,6 +425,15 @@
               'ultralytics' \
               'urllib3' \
               'wandb' \
+      && echo 'DONE onnxstuff' ;
+#+end_src
+
+**** COMMENT Shaky parts
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/6_pytorch/Dockerfile
+  RUN \
+      echo 'START Quantization, optimization and offloading' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
               -e "${HOME}/GITHUB/facebookresearch/pytorchvideo" \
               -e "${HOME}/GITHUB/huggingface/diffusers" \
               -e "${HOME}/GITHUB/huggingface/huggingface_hub" \
@@ -437,6 +452,8 @@
 #+end_src
 
 *** AMDGPU
+
+**** Main parts
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/6_pytorch/Dockerfile
   FROM 5_libtorch
 
@@ -484,6 +501,15 @@
               'ultralytics' \
               'urllib3' \
               'wandb' \
+      && echo 'DONE onnxstuff' ;
+#+end_src
+
+**** COMMENT Shaky parts
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/6_pytorch/Dockerfile
+  RUN \
+      echo 'START Quantization, optimization and offloading' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
               -e "${HOME}/GITHUB/facebookresearch/pytorchvideo" \
               -e "${HOME}/GITHUB/huggingface/diffusers" \
               -e "${HOME}/GITHUB/huggingface/huggingface_hub" \

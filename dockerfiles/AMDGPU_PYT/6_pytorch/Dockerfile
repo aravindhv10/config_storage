@@ -44,18 +44,4 @@ RUN \
             'ultralytics' \
             'urllib3' \
             'wandb' \
-            -e "${HOME}/GITHUB/facebookresearch/pytorchvideo" \
-            -e "${HOME}/GITHUB/huggingface/diffusers" \
-            -e "${HOME}/GITHUB/huggingface/huggingface_hub" \
-            -e "${HOME}/GITHUB/huggingface/pytorch-image-models" \
-            -e "${HOME}/GITHUB/huggingface/transformers" \
-    && echo 'DONE onnxstuff' ;
-
-RUN \
-    echo 'START Quantization, optimization and offloading' \
-    && . "${HOME}/venv/bin/activate" \
-    && uv pip install \
-        '--no-build-isolation' \
-            -e "${HOME}/GITHUB/IDEA-Research/detrex" \
-            -e "${HOME}/GITHUB/IDEA-Research/detrex/detectron2" \
     && echo 'DONE onnxstuff' ;
