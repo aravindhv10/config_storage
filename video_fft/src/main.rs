@@ -21,6 +21,16 @@ pub struct infer_results {
     p_rd: f32,
 }
 
+impl Default for infer_results {
+    fn default() -> Self {
+        infer_results {
+            p_calm: 0 as f32,
+            p_contraversial: 0 as f32,
+            p_rd: 0 as f32,
+        }
+    }
+}
+
 pub struct infer_slave {
     slave: *mut ::std::os::raw::c_void,
     batch_size: ::std::os::raw::c_uchar,
@@ -40,15 +50,37 @@ impl infer_slave {
         }
     }
 
-    pub fn infer(&mut self, vals: Vec<videofft::fft_video>) -> anyhow::Result<Vec<infer_results>> {
+    pub fn infer(
+        &mut self,
+        vals: &mut Vec<videofft::fft_video>,
+    ) -> anyhow::Result<Vec<infer_results>> {
         if (vals.len() % (self.batch_size as usize)) != 0 {
             return Err(anyhow::format_err!(
                 "The input vector length should be a multiple of batch size"
             ));
         }
 
-        let ret = Vec::<infer_results>::with_capacity(vals.len());
-        for i in (vals.chunks(self.batch_size as usize)) {}
+        let mut ret = Vec::<infer_results>::with_capacity(vals.len());
+
+        for i in (vals.chunks_exact_mut(self.batch_size as usize)) {
+            let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
+
+            output.resize_with(self.batch_size as usize, Default::default);
+
+            unsafe {
+                export::run_infer_slave(
+                    /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
+                    /*blob_source: *mut ::std::os::raw::c_void =*/
+                    i.as_mut_ptr() as *mut ::std::os::raw::c_void,
+                    /*blob_destination: *mut ::std::os::raw::c_void =*/
+                    output.as_mut_ptr() as *mut ::std::os::raw::c_void,
+                )
+            };
+
+            for i in output.into_iter() {
+                ret.push(i);
+            }
+        }
 
         return Ok(ret);
     }
