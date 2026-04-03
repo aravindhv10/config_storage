@@ -822,6 +822,15 @@
 
 ***** RUST
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn new_infer_slave(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
+      pub fn delete_infer_slave(in_: *mut ::std::os::raw::c_void);
+      pub fn run_infer_slave(
+          in_: *mut ::std::os::raw::c_void,
+          blob_source: *mut ::std::os::raw::c_void,
+          blob_destination: *mut ::std::os::raw::c_void,
+      );
+  }
 #+end_src
 
 *** Standard conversions from c++ types to torch types
