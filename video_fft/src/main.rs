@@ -15,6 +15,26 @@ use tch::IndexOp;
 
 const USE_GPU: bool = true;
 
+pub struct infer_slave {
+    slave: *mut ::std::os::raw::c_void,
+    batch_size: ::std::os::raw::c_uchar,
+}
+
+impl Drop for infer_slave {
+    fn drop(&mut self) {
+        export::delete_infer_slave(self.slave);
+    }
+}
+
+impl infer_slave {
+    pub fn new(batch_size: u8) -> Self {
+        Self {
+            slave: export::new_infer_slave(batch_size),
+            batch_size: batch_size,
+        }
+    }
+}
+
 fn video_tensor_2_fft_file_160(
     tensor_video_input: tch::Tensor,
     path_dir_output: &str,
