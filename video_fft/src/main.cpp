@@ -61,7 +61,13 @@ public:
 
   ~_MACRO_SELF_() {}
 
-  inline static _MACRO_SELF_ * NEW(std::size_t BATCH_SIZE) {}
+  inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+    BATCH_SIZE = std::max(BATCH_SIZE, 4);
+    std::string path_file_model("/root/.cache/model_6.pt2");
+    std::cout << "Checkpoint path: " << path_file_model;
+    path_file_model[19] = '0' + BATCH_SIZE;
+    return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+  }
 };
 
 #undef _MACRO_SELF_
