@@ -86,6 +86,7 @@ public:
   }
 };
 
+extern "C" {
 void *new_infer_slave(unsigned char batch_size) {
   return static_cast<void *>(
       _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
@@ -101,6 +102,7 @@ void run_infer_slave(void *in, void *blob_source, void *blob_destination) {
 
   tmp->infer(/*void *blob_source =*/blob_source,
              /*void *blob_destination =*/blob_destination);
+}
 }
 
 #undef _MACRO_SELF_

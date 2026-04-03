@@ -51,7 +51,7 @@ impl infer_slave {
         for i in (vals.chunks_exact_mut(self.batch_size as usize)) {
             let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
 
-            output.resize_with(self.batch_size as usize, Default::default);
+            // output.resize_with(self.batch_size as usize, Default::default);
 
             unsafe {
                 export::run_infer_slave(

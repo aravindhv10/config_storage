@@ -791,6 +791,7 @@
     }
   };
 
+  extern "C" {
   void *new_infer_slave(unsigned char batch_size) {
     return static_cast<void *>(
         _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
@@ -806,6 +807,7 @@
 
     tmp->infer(/*void *blob_source =*/blob_source,
                /*void *blob_destination =*/blob_destination);
+  }
   }
 
   #undef _MACRO_SELF_
@@ -2072,7 +2074,7 @@
           for i in (vals.chunks_exact_mut(self.batch_size as usize)) {
               let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
 
-              output.resize_with(self.batch_size as usize, Default::default);
+              // output.resize_with(self.batch_size as usize, Default::default);
 
               unsafe {
                   export::run_infer_slave(
