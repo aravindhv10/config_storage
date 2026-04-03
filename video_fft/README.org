@@ -746,10 +746,9 @@
 
       std::vector<torch::Tensor> outputs = loader.run(inputs);
 
-      torch::Tensor out_tensor = outputs[0].contiguous().cpu().to(options_output);
+      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
 
-      std::memcpy(blob_destination, out_tensor.data_ptr<outtype>(),
-                  bytes_to_copy);
+      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
     }
 
     _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
@@ -769,6 +768,23 @@
       return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
     }
   };
+
+  void *new_infer_slave(unsigned char batch_size) {
+    return static_cast<void *>(
+        _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+  }
+
+  void *delete_infer_slave(void *in) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+    delete tmp;
+  }
+
+  void run_infer_slave(void *in, void *blob_source, void *blob_destination) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+    tmp->infer(/*void *blob_source =*/blob_source,
+               /*void *blob_destination =*/blob_destination);
+  }
 
   #undef _MACRO_SELF_
 #+end_src
