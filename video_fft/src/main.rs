@@ -15,6 +15,12 @@ use tch::IndexOp;
 
 const USE_GPU: bool = true;
 
+pub struct infer_results {
+    p_calm: f32,
+    p_contraversial: f32,
+    p_rd: f32,
+}
+
 pub struct infer_slave {
     slave: *mut ::std::os::raw::c_void,
     batch_size: ::std::os::raw::c_uchar,
@@ -32,6 +38,22 @@ impl infer_slave {
             slave: unsafe { export::new_infer_slave(batch_size) },
             batch_size: batch_size,
         }
+    }
+
+    pub fn infer(
+        &mut self,
+        vals: Vec<videofftstats::fft_video>,
+    ) -> anyhow::Result<Vec<infer_results>> {
+        if (vals.len() % (self.batch_size as usize)) != 0 {
+            return Err(anyhow::format_err!(
+                "The input vector length should be a multiple of batch size"
+            ));
+        }
+
+        let ret = Vec::<infer_results>::with_capacity(vals.len());
+        for i in (vals.chunks(self.batch_size as usize)) {}
+
+        return Ok(ret);
     }
 }
 
