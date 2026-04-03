@@ -1,6 +1,7 @@
 use crate::export;
 use crate::videofft;
 
+#[derive(Clone)]
 pub struct infer_results {
     p_calm: f32,
     p_contraversial: f32,
@@ -48,11 +49,10 @@ impl infer_slave {
 
         let mut ret = Vec::<infer_results>::with_capacity(vals.len());
 
+        let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
+        output.resize_with(self.batch_size as usize, Default::default);
+
         for i in (vals.chunks_exact_mut(self.batch_size as usize)) {
-            let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
-
-            // output.resize_with(self.batch_size as usize, Default::default);
-
             unsafe {
                 export::run_infer_slave(
                     /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
@@ -63,9 +63,7 @@ impl infer_slave {
                 )
             };
 
-            for i in output.into_iter() {
-                ret.push(i);
-            }
+            ret.extend(output.iter().cloned());
         }
 
         return Ok(ret);
