@@ -40,10 +40,7 @@ impl infer_slave {
         }
     }
 
-    pub fn infer(
-        &mut self,
-        vals: Vec<videofftstats::fft_video>,
-    ) -> anyhow::Result<Vec<infer_results>> {
+    pub fn infer(&mut self, vals: Vec<videofft::fft_video>) -> anyhow::Result<Vec<infer_results>> {
         if (vals.len() % (self.batch_size as usize)) != 0 {
             return Err(anyhow::format_err!(
                 "The input vector length should be a multiple of batch size"
