@@ -2017,24 +2017,10 @@
   }
 #+end_src
 
-* Main rust code
-#+begin_src rust :mkdirp yes :tangle ./src/main.rs
-  use mimalloc::MiMalloc;
-
-  #[global_allocator]
-  static GLOBAL: MiMalloc = MiMalloc;
-
-  mod export;
-  mod videofft;
-  mod videofftstats;
-  mod videofn;
-  mod videoview;
-
-  use anyhow::Context;
-  use rayon::prelude::*;
-  use tch::IndexOp;
-
-  const USE_GPU: bool = true;
+* Rust code for safe inference wrapper
+#+begin_src rust :mkdirp yes :tangle ./src/inferencerelated.rs
+  use crate::export;
+  use crate::videofft;
 
   pub struct infer_results {
       p_calm: f32,
@@ -2106,6 +2092,30 @@
           return Ok(ret);
       }
   }
+#+end_src
+
+* Main rust code
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  use mimalloc::MiMalloc;
+
+  #[global_allocator]
+  static GLOBAL: MiMalloc = MiMalloc;
+
+  mod export;
+  mod inferencerelated;
+  mod videofft;
+  mod videofftstats;
+  mod videofn;
+  mod videoview;
+
+  use anyhow::Context;
+  use rayon::prelude::*;
+  use tch::IndexOp;
+
+  const USE_GPU: bool = true;
+
+
+
 
   fn video_tensor_2_fft_file_160(
       tensor_video_input: tch::Tensor,
