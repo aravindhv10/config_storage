@@ -60,6 +60,8 @@ public:
         bytes_to_copy(batch_size * 3 * sizeof(outtype)) {}
 
   ~_MACRO_SELF_() {}
+
+  inline static _MACRO_SELF_ * NEW(std::size_t BATCH_SIZE) {}
 };
 
 #undef _MACRO_SELF_
