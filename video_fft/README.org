@@ -1491,7 +1491,7 @@
           if total_video_length < 120 {
               return Err(anyhow::format_err!("Video too short..."));
           } else if (120 <= total_video_length) && (total_video_length < 176) {
-              return from_list_torch_video_tensor(
+              return Self::from_list_torch_video_tensor(
                   /*list_torch_video_tensor: Vec<tch::Tensor> =*/ vec![tensor_video_input],
                   /*use_gpu: bool =*/ use_gpu,
               );
@@ -1513,8 +1513,12 @@
               let mut list_torch_video_tensor = Vec::<tch::Tensor>::with_capacity(num_windows);
 
               for i in 1..=num_windows {
-                  let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
+                  let end = (((total_video_length - 160) * ((i as i64) - 1))
+                      / ((num_windows as i64) - 1))
+                      + 160;
+
                   let start = end - 160;
+
                   list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
               }
 
