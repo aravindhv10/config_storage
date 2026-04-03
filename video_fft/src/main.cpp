@@ -74,7 +74,7 @@ void *new_infer_slave(unsigned char batch_size) {
       _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
 }
 
-void *delete_infer_slave(void *in) {
+void delete_infer_slave(void *in) {
   _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
   delete tmp;
 }
