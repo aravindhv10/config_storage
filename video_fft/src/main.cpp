@@ -21,6 +21,21 @@ inline torch::TensorOptions get_output_device_and_dtype() {
   return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
 }
 
+class gpu_locker {
+
+private:
+  sem_t *gpu_semaphore;
+
+public:
+  gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
+  ~gpu_locker() { sem_close(gpu_semaphore); }
+
+  inline void l() { sem_wait(gpu_semaphore); }
+  inline void r() { sem_post(gpu_semaphore); }
+};
+
+static gpu_locker locker;
+
 #define _MACRO_SELF_ infer_slave
 
 class _MACRO_SELF_ {
@@ -56,9 +71,11 @@ public:
         options_compute(get_inference_device_and_dtype()),
         options_output(get_output_device_and_dtype()), loader(path_file_model),
         batch_size(BATCH_SIZE),
-        bytes_to_copy(batch_size * 3 * sizeof(outtype)) {}
+        bytes_to_copy(batch_size * 3 * sizeof(outtype)) {
+    locker.l();
+  }
 
-  ~_MACRO_SELF_() {}
+  ~_MACRO_SELF_() { locker.r(); }
 
   inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
     BATCH_SIZE = std::max(BATCH_SIZE, static_cast<std::size_t>(4));
@@ -87,21 +104,6 @@ void run_infer_slave(void *in, void *blob_source, void *blob_destination) {
 }
 
 #undef _MACRO_SELF_
-
-class gpu_locker {
-
-private:
-  sem_t *gpu_semaphore;
-
-public:
-  gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
-  ~gpu_locker() { sem_close(gpu_semaphore); }
-
-  inline void l() { sem_wait(gpu_semaphore); }
-  inline void r() { sem_post(gpu_semaphore); }
-};
-
-static gpu_locker locker;
 
 template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
 template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}

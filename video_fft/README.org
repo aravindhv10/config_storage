@@ -721,6 +721,24 @@
 
 *** Declare the global semaphore for gpu management and function to initialize
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  class gpu_locker {
+
+  private:
+    sem_t *gpu_semaphore;
+
+  public:
+    gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
+    ~gpu_locker() { sem_close(gpu_semaphore); }
+
+    inline void l() { sem_wait(gpu_semaphore); }
+    inline void r() { sem_post(gpu_semaphore); }
+  };
+
+  static gpu_locker locker;
+#+end_src
+
+*** Declare the global semaphore for gpu management and function to initialize
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #define _MACRO_SELF_ infer_slave
 
   class _MACRO_SELF_ {
@@ -756,9 +774,11 @@
           options_compute(get_inference_device_and_dtype()),
           options_output(get_output_device_and_dtype()), loader(path_file_model),
           batch_size(BATCH_SIZE),
-          bytes_to_copy(batch_size * 3 * sizeof(outtype)) {}
+          bytes_to_copy(batch_size * 3 * sizeof(outtype)) {
+      locker.l();
+    }
 
-    ~_MACRO_SELF_() {}
+    ~_MACRO_SELF_() { locker.r(); }
 
     inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
       BATCH_SIZE = std::max(BATCH_SIZE, static_cast<std::size_t>(4));
@@ -787,24 +807,6 @@
   }
 
   #undef _MACRO_SELF_
-#+end_src
-
-*** Declare the global semaphore for gpu management and function to initialize
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  class gpu_locker {
-
-  private:
-    sem_t *gpu_semaphore;
-
-  public:
-    gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
-    ~gpu_locker() { sem_close(gpu_semaphore); }
-
-    inline void l() { sem_wait(gpu_semaphore); }
-    inline void r() { sem_post(gpu_semaphore); }
-  };
-
-  static gpu_locker locker;
 #+end_src
 
 *** Standard conversions from c++ types to torch types
