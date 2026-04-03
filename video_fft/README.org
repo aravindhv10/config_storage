@@ -1,6 +1,6 @@
 * TODO
 
-** Implement C++ side of model inference
+** Implement C++ side of model inference                               :DONE:
 
 * Cargo.toml
 
