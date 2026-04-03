@@ -22,14 +22,14 @@ pub struct infer_slave {
 
 impl Drop for infer_slave {
     fn drop(&mut self) {
-        export::delete_infer_slave(self.slave);
+        unsafe { export::delete_infer_slave(self.slave) };
     }
 }
 
 impl infer_slave {
     pub fn new(batch_size: u8) -> Self {
         Self {
-            slave: export::new_infer_slave(batch_size),
+            slave: unsafe { export::new_infer_slave(batch_size) },
             batch_size: batch_size,
         }
     }
