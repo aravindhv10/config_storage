@@ -47,24 +47,47 @@ impl infer_slave {
             ));
         }
 
+        let num_batches: usize = vals.len() / (self.batch_size as usize);
+
         let mut ret = Vec::<infer_results>::with_capacity(vals.len());
 
-        let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
-        output.resize_with(self.batch_size as usize, Default::default);
+        let blob_source_base = vals.as_mut_ptr();
+        let blob_destination_base = ret.as_mut_ptr();
 
-        for i in (vals.chunks_exact_mut(self.batch_size as usize)) {
+        for i in 0..num_batches {
             unsafe {
                 export::run_infer_slave(
                     /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
                     /*blob_source: *mut ::std::os::raw::c_void =*/
-                    i.as_mut_ptr() as *mut ::std::os::raw::c_void,
+                    blob_source_base.add(i * (self.batch_size as usize))
+                        as *mut ::std::os::raw::c_void,
                     /*blob_destination: *mut ::std::os::raw::c_void =*/
-                    output.as_mut_ptr() as *mut ::std::os::raw::c_void,
+                    blob_destination_base.add(i * (self.batch_size as usize))
+                        as *mut ::std::os::raw::c_void,
                 )
             };
-
-            ret.extend(output.iter().cloned());
         }
+
+        unsafe {
+            ret.set_len(vals.len());
+        };
+
+        // let mut output = Vec::<infer_results>::with_capacity(self.batch_size as usize);
+        // output.resize_with(self.batch_size as usize, Default::default);
+
+        // for i in (vals.chunks_exact_mut(self.batch_size as usize)) {
+        //     unsafe {
+        //         export::run_infer_slave(
+        //             /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
+        //             /*blob_source: *mut ::std::os::raw::c_void =*/
+        //             i.as_mut_ptr() as *mut ::std::os::raw::c_void,
+        //             /*blob_destination: *mut ::std::os::raw::c_void =*/
+        //             output.as_mut_ptr() as *mut ::std::os::raw::c_void,
+        //         )
+        //     };
+
+        //     ret.extend(output.iter().cloned());
+        // }
 
         return Ok(ret);
     }
