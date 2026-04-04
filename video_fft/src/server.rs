@@ -25,6 +25,17 @@ struct inference_slave {
     receiver: flume::Receiver<message_input>,
 }
 
+impl inference_slave {
+    fn new() -> (Self, flume::Sender<message_input>) {
+        let (sender, receiver) = flume::unbounded::<message_input>();
+        return (Self { receiver: receive }, sender);
+    }
+
+    fn inference_loop(&self) {
+        loop {}
+    }
+}
+
 fn main() -> anyhow::Result<()> {
     let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
     let (sender, receiver) = flume::unbounded::<message_input>();
