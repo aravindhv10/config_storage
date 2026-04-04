@@ -2385,7 +2385,10 @@
                       return Ok(());
                   }
                   "i" => {
-                      infer_video_end_2_end(/*path_file_video_input: String =*/ args[2], /*use_gpu: bool =*/ true,)?;
+                      infer_video_end_2_end(
+                          /*path_file_video_input: String =*/ args[2],
+                          /*use_gpu: bool =*/ true,
+                      )?;
                       return Ok(());
                   }
                   _ => {
