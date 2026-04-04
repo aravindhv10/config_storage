@@ -31,17 +31,20 @@ fn infer_video_end_2_end(
 
     let video_tensor = slicer.get_video_tensor()?;
 
-    // Get fft tensor from this
-    //
     let list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
         /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
         /*use_gpu: bool =*/ use_gpu,
     )?;
 
-    let normalizer = videofftstats::fft_video_normalizer::new(
-        /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
-        /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
-    )?;
+    /* Normalize the video tensor */
+    {
+        let normalizer = videofftstats::fft_video_normalizer::new(
+            /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+            /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+        )?;
+
+        for i in list_video_fft_tensor {}
+    }
 
     let ret = Vec::<inferencerelated::infer_results>::new();
     return Ok(ret);
