@@ -445,13 +445,13 @@ impl fft_video_normalizer {
         path_file_bin64_mu: &str,
         path_file_bin64_sigma: &str,
     ) -> anyhow::Result<std::boxed::Box<Self>> {
+        let ret = std::boxed::Box::<Self>::new_uninit();
+
+        let mu_ptr = &(unsafe { *ret.as_mut_ptr() }.mu);
+        let sigma_ptr = &(unsafe { *ret.as_mut_ptr() }.sigma);
+
         let mu_data = std::fs::read(path_file_bin64_mu)?;
         let sigma_data = std::fs::read(path_file_bin64_sigma)?;
-
-        return Ok(Self {
-            mu: unsafe { std::ptr::read(mu_data.as_ptr() as *const fft_video_64) },
-            sigma: unsafe { std::ptr::read(sigma_data.as_ptr() as *const fft_video_64) },
-        });
     }
 
     pub fn normalize(&self, x: &mut videofft::fft_video) {

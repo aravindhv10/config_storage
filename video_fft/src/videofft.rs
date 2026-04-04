@@ -2,7 +2,6 @@ use crate::export;
 use anyhow::Context;
 use rayon::prelude::*;
 use std::io::Read;
-use std::io::Write;
 use tch::IndexOp;
 
 #[repr(C)]
