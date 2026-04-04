@@ -32,7 +32,7 @@ video.len() in:
 **** Single binary for fft and inference
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [[bin]]
-  name = "main"
+  name = "video_fft"
   path = "src/main.rs"
 #+end_src
 
