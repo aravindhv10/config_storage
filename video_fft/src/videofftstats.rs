@@ -451,18 +451,18 @@ impl fft_video_normalizer {
         let mut ret = std::boxed::Box::<Self>::new_uninit();
 
         {
-            let base_ptr = ret.as_mut_ptr();
+            let base_ref = &mut unsafe { *(ret.as_mut_ptr()) };
 
             {
                 let mut file = std::fs::File::open(path_file_bin64_mu)?;
-                let ptr = (&mut (unsafe { *base_ptr }.mu) as *mut fft_video_64) as *mut u8;
+                let ptr = (&mut (unsafe { &*base_ptr }.mu) as *mut fft_video_64) as *mut u8;
                 let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
                 file.read_exact(buffer)?;
             }
 
             {
                 let mut file = std::fs::File::open(path_file_bin64_sigma)?;
-                let ptr = (&mut (unsafe { *base_ptr }.sigma) as *mut fft_video_64) as *mut u8;
+                let ptr = (&mut (unsafe { &*base_ptr }.sigma) as *mut fft_video_64) as *mut u8;
                 let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
                 file.read_exact(buffer)?;
             }
