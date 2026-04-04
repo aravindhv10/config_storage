@@ -441,7 +441,10 @@ pub struct fft_video_normalizer {
 }
 
 impl fft_video_normalizer {
-    pub fn new(path_file_bin64_mu: &str, path_file_bin64_sigma: &str) -> anyhow::Result<Self> {
+    pub fn new(
+        path_file_bin64_mu: &str,
+        path_file_bin64_sigma: &str,
+    ) -> anyhow::Result<std::boxed::Box<Self>> {
         let mu_data = std::fs::read(path_file_bin64_mu)?;
         let sigma_data = std::fs::read(path_file_bin64_sigma)?;
 
