@@ -215,7 +215,7 @@ impl fft_video {
         }
     }
 
-    fn windowed_from_torch_video_tensor(
+    pub fn windowed_from_torch_video_tensor(
         tensor_video_input: &tch::Tensor,
         use_gpu: bool,
     ) -> anyhow::Result<Vec<Self>> {

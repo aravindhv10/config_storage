@@ -18,6 +18,7 @@ const USE_GPU: bool = true;
 
 fn infer_video_end_2_end(
     path_file_video_input: String,
+    use_gpu: bool,
 ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
     let slicer = videoview::video_slicer::new(
         /*path_file_video_input: String =*/ path_file_video_input,
@@ -29,6 +30,13 @@ fn infer_video_end_2_end(
     )?;
 
     let video_tensor = slicer.get_video_tensor()?;
+
+    // Get fft tensor from this
+    //
+    let list_video_fft_tensor = videofft::windowed_from_torch_video_tensor(
+        /*tensor_video_input: &tch::Tensor =*/ video_tensor,
+        /*use_gpu: bool =*/ use_gpu,
+    )?;
 
     let normalizer = videofftstats::fft_video_normalizer::new(
         /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
