@@ -447,12 +447,21 @@ impl fft_video_normalizer {
         path_file_bin64_sigma: &str,
     ) -> anyhow::Result<std::boxed::Box<Self>> {
         let ret = std::boxed::Box::<Self>::new_uninit();
+        const size: usize = std::mem::size_of::<fft_video_64>();
 
-        let mu_ptr = &(unsafe { *ret.as_mut_ptr() }.mu);
-        let sigma_ptr = &(unsafe { *ret.as_mut_ptr() }.sigma);
+        {
+            let mut file = std::fs::File::open(path_file_bin64_mu)?;
+            let ptr = (&mut (unsafe { *ret.as_mut_ptr() }.mu) as *mut fft_video_64) as *mut u8;
+            let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+            file.read_exact(buffer)?;
+        }
 
-        let mu_data = std::fs::read(path_file_bin64_mu)?;
-        let sigma_data = std::fs::read(path_file_bin64_sigma)?;
+        {
+            let mut file = std::fs::File::open(path_file_bin64_sigma)?;
+            let ptr = (&mut (unsafe { *ret.as_mut_ptr() }.sigma) as *mut fft_video_64) as *mut u8;
+            let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+            file.read_exact(buffer)?;
+        }
     }
 
     pub fn normalize(&self, x: &mut videofft::fft_video) {
