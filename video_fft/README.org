@@ -2610,7 +2610,7 @@ struct inference_loop {
       } else {
           let (inference_slave, request_sender) = inference_slave::new();
 
-          let handle_inference = std::thread::spawn(move || inference_slave.inference_loop());
+          // let handle_inference = std::thread::spawn(move || inference_slave.inference_loop());
 
           let slicer = videoview::video_slicer::new(
               /*path_file_video_input: String =*/ args[1].clone(),
@@ -2623,22 +2623,22 @@ struct inference_loop {
 
           let video_tensor = slicer.get_video_tensor()?;
 
-          // let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
-          //     /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-          //     /*use_gpu: bool =*/ true,
-          // )?;
+          let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+              /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+              /*use_gpu: bool =*/ true,
+          )?;
 
-          // /* Normalize the video tensor */
-          // {
-          //     let normalizer = videofftstats::fft_video_normalizer::new(
-          //         /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
-          //         /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
-          //     )?;
+          /* Normalize the video tensor */
+          {
+              let normalizer = videofftstats::fft_video_normalizer::new(
+                  /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+                  /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+              )?;
 
-          //     normalizer.normalize_vec(
-          //         /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
-          //     );
-          // }
+              normalizer.normalize_vec(
+                  /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
+              );
+          }
 
           // let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
 
