@@ -184,6 +184,7 @@ fn main() -> anyhow::Result<()> {
             eprintln!("Usage: <self> <s/f> <directory>");
             eprintln!("s: stats for bin files under <directory>");
             eprintln!("f: perform fft compression for videos under <directory>");
+            eprintln!("i: End to end file inference");
             return Err(anyhow::format_err!("Wrong invocation"));
         }
 
@@ -191,6 +192,7 @@ fn main() -> anyhow::Result<()> {
             eprintln!("Usage: {} <s/f> <directory>", args[0]);
             eprintln!("s: stats for bin files under <directory>");
             eprintln!("f: perform fft compression for videos under <directory>");
+            eprintln!("i: End to end file inference");
             return Err(anyhow::format_err!("Wrong invocation"));
         }
 
@@ -198,6 +200,7 @@ fn main() -> anyhow::Result<()> {
             eprintln!("Usage: {} <s/f> <directory>", args[0]);
             eprintln!("s: stats for bin files under <directory>");
             eprintln!("f: perform fft compression for videos under <directory>");
+            eprintln!("i: End to end file inference");
             return Err(anyhow::format_err!("Wrong invocation"));
         }
 
@@ -222,6 +225,7 @@ fn main() -> anyhow::Result<()> {
                     eprintln!("Usage: {} <s/f> <directory>", args[0]);
                     eprintln!("s: stats for bin files under <directory>");
                     eprintln!("f: perform fft compression for videos under <directory>");
+                    eprintln!("i: End to end file inference");
                     return Err(anyhow::format_err!("Wrong invocation"));
                 }
             };
@@ -232,6 +236,7 @@ fn main() -> anyhow::Result<()> {
             eprintln!("Usage: {} <s/f> <directory>", args[0]);
             eprintln!("s: stats for bin files under <directory>");
             eprintln!("f: perform fft compression for videos under <directory>");
+            eprintln!("i: End to end file inference");
             return Err(anyhow::format_err!("Wrong invocation"));
         }
     };
