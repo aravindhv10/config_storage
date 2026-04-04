@@ -83,6 +83,8 @@ fn main() -> anyhow::Result<()> {
     } else {
         let (inference_slave, request_sender) = inference_slave::new();
 
+        let handle_inference = std::thread::spawn(|| inference_slave.inference_loop());
+
         return Ok(());
     }
 }
