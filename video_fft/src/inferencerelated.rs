@@ -32,6 +32,7 @@ impl Drop for infer_slave {
 
 impl infer_slave {
     pub fn new(batch_size: u8) -> Self {
+        println!("batch size called with : {}", batch_size);
         Self {
             slave: unsafe { export::new_infer_slave(batch_size) },
             batch_size: batch_size,

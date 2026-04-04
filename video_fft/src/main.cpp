@@ -78,10 +78,10 @@ public:
   ~_MACRO_SELF_() { locker.r(); }
 
   inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
-    BATCH_SIZE = std::max(BATCH_SIZE, static_cast<std::size_t>(4));
+    BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
     std::string path_file_model("/root/.cache/model_6.pt2");
     path_file_model[19] = '0' + BATCH_SIZE;
-    std::cout << "Checkpoint path: " << path_file_model;
+    std::cout << "Checkpoint path: " << path_file_model << std::endl;
     return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
   }
 };
