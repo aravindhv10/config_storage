@@ -1,6 +1,19 @@
+* Logic for iterating over video:
+video.len() in:
+1. [0..120): break;
+2. [120..160]: compress(video).
+3. (160..): for end in range(160, video.len(), 40).
+   
+   y = y1 + ( (y2 - y1) * (x - x1) / (x2 - x1) )
+
+   end_current = 160 + ( (video_length - 160) * (i - 1) / (num_windows - 1) )
+
+
 * TODO
 
 ** Implement C++ side of model inference                               :DONE:
+** Implement the grpc endpoint
+*** Implement the protobuf convention
 
 * Cargo.toml
 
@@ -2474,15 +2487,7 @@
 #+begin_src rust :mkdirp yes :tangle ./src/server.rs
 #+end_src
 
-* Logic for iterating over video:
-video.len() in:
-1. [0..120): break;
-2. [120..160]: compress(video).
-3. (160..): for end in range(160, video.len(), 40).
-   
-   y = y1 + ( (y2 - y1) * (x - x1) / (x2 - x1) )
 
-   end_current = 160 + ( (video_length - 160) * (i - 1) / (num_windows - 1) )
 
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
