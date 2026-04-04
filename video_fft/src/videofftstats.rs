@@ -9,6 +9,12 @@ struct a_t_64 {
     t: [f64; 60],
 }
 
+fn normalize_a_t(x: &mut videofft::a_t, mu: &a_t_64, sigma: &a_t_64) {
+    for i in 0..60 {
+        x.t[i] = (x.t[i] - (mu.t[i] as f32)) / (sigma.t[i] as f32);
+    }
+}
+
 impl a_t_64 {
     fn take_sqrt(&mut self) {
         for i in 0..self.t.len() {
@@ -60,6 +66,12 @@ struct a_x_64 {
     x: [a_t_64; 160],
 }
 
+fn normalize_a_x(x: &mut videofft::a_x, mu: &a_x_64, sigma: &a_x_64) {
+    for i in 0..160 {
+        normalize_a_t(&mut x.x[i], &mu.x[i], &sigma.x[i]);
+    }
+}
+
 impl Default for a_x_64 {
     fn default() -> Self {
         Self {
@@ -104,6 +116,12 @@ impl a_x_64 {
 #[derive(Debug, Copy, Clone)]
 struct a_y_64 {
     y: [a_x_64; 160],
+}
+
+fn normalize_a_y(x: &mut videofft::a_y, mu: &a_y_64, sigma: &a_y_64) {
+    for i in 0..160 {
+        normalize_a_x(&mut x.y[i], &mu.y[i], &sigma.y[i]);
+    }
 }
 
 impl Default for a_y_64 {
@@ -152,6 +170,12 @@ struct a_p_64 {
     p: [a_y_64; 6],
 }
 
+fn normalize_a_p(x: &mut videofft::a_p, mu: &a_p_64, sigma: &a_p_64) {
+    for i in 0..6 {
+        normalize_a_y(&mut x.p[i], &mu.p[i], &sigma.p[i]);
+    }
+}
+
 impl Default for a_p_64 {
     fn default() -> Self {
         Self {
@@ -196,6 +220,10 @@ impl a_p_64 {
 #[derive(Debug, Default, Clone)]
 pub struct fft_video_64 {
     v: a_p_64,
+}
+
+fn normalize_fft_video(x: &mut videofft::fft_video, mu: &fft_video_64, sigma: &fft_video_64) {
+    normalize_a_p(&mut x.v, &mu.v, &sigma.v);
 }
 
 impl fft_video_64 {
@@ -405,4 +433,21 @@ pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
     });
 
     Ok(())
+}
+
+struct fft_video_normalizer {
+    mu: fft_video_64,
+    sigma: fft_video_64,
+}
+
+impl fft_video_normalizer {
+    fn new(path_file_bin64_mu: String, path_file_bin64_sigma: String) -> anyhow::Result<Self> {
+        let mu_data = std::fs::read(path_file_bin64_mu.as_str())?;
+        let sigma_data = std::fs::read(path_file_bin64_sigma.as_str())?;
+
+        return Ok(Self {
+            mu: unsafe { std::ptr::read(mu_data.as_ptr() as *const fft_video_64) },
+            sigma: unsafe { std::ptr::read(sigma_data.as_ptr() as *const fft_video_64) },
+        });
+    }
 }

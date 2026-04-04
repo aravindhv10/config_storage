@@ -1621,13 +1621,19 @@
       t: [f64; 60],
   }
 
+  fn normalize_a_t(x: &mut videofft::a_t, mu: &a_t_64, sigma: &a_t_64) {
+      for i in 0..60 {
+          x.t[i] = (x.t[i] - (mu.t[i] as f32)) / (sigma.t[i] as f32);
+      }
+  }
+
   impl a_t_64 {
       fn take_sqrt(&mut self) {
           for i in 0..self.t.len() {
-              self.t[i] = self.t[i].sqrt() ;
+              self.t[i] = self.t[i].sqrt();
           }
       }
-      
+
       fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_t) {
           for i in 0..self.t.len() {
               let d = (other.t[i] as f64) - mu.t[i];
@@ -1672,6 +1678,12 @@
       x: [a_t_64; 160],
   }
 
+  fn normalize_a_x(x: &mut videofft::a_x, mu: &a_x_64, sigma: &a_x_64) {
+      for i in 0..160 {
+          normalize_a_t(&mut x.x[i], &mu.x[i], &sigma.x[i]);
+      }
+  }
+
   impl Default for a_x_64 {
       fn default() -> Self {
           Self {
@@ -1713,9 +1725,15 @@
   }
 
   #[repr(C)]
- #[derive(Debug, Copy, Clone)]
+  #[derive(Debug, Copy, Clone)]
   struct a_y_64 {
       y: [a_x_64; 160],
+  }
+
+  fn normalize_a_y(x: &mut videofft::a_y, mu: &a_y_64, sigma: &a_y_64) {
+      for i in 0..160 {
+          normalize_a_x(&mut x.y[i], &mu.y[i], &sigma.y[i]);
+      }
   }
 
   impl Default for a_y_64 {
@@ -1764,6 +1782,12 @@
       p: [a_y_64; 6],
   }
 
+  fn normalize_a_p(x: &mut videofft::a_p, mu: &a_p_64, sigma: &a_p_64) {
+      for i in 0..6 {
+          normalize_a_y(&mut x.p[i], &mu.p[i], &sigma.p[i]);
+      }
+  }
+
   impl Default for a_p_64 {
       fn default() -> Self {
           Self {
@@ -1808,6 +1832,10 @@
   #[derive(Debug, Default, Clone)]
   pub struct fft_video_64 {
       v: a_p_64,
+  }
+
+  fn normalize_fft_video(x: &mut videofft::fft_video, mu: &fft_video_64, sigma: &fft_video_64) {
+      normalize_a_p(&mut x.v, &mu.v, &sigma.v);
   }
 
   impl fft_video_64 {
@@ -2000,7 +2028,8 @@
       let path_file_64bin_sigma = eval_sigma(
           /* target_dir: &str = */ path_dir_base,
           /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
-      ).await?;
+      )
+      .await?;
 
       Ok(())
   }
@@ -2016,6 +2045,23 @@
       });
 
       Ok(())
+  }
+
+  struct fft_video_normalizer {
+      mu: fft_video_64,
+      sigma: fft_video_64,
+  }
+
+  impl fft_video_normalizer {
+      fn new(path_file_bin64_mu: String, path_file_bin64_sigma: String) -> anyhow::Result<Self> {
+          let mu_data = std::fs::read(path_file_bin64_mu.as_str())?;
+          let sigma_data = std::fs::read(path_file_bin64_sigma.as_str())?;
+
+          return Ok(Self {
+              mu: unsafe { std::ptr::read(mu_data.as_ptr() as *const fft_video_64) },
+              sigma: unsafe { std::ptr::read(sigma_data.as_ptr() as *const fft_video_64) },
+          });
+      }
   }
 #+end_src
 
@@ -2136,6 +2182,22 @@
   use tch::IndexOp;
 
   const USE_GPU: bool = true;
+
+  fn infer_video_end_2_end(
+      path_file_video_input: String,
+  ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+      let slicer = videoview::video_slicer::new(
+          /*path_file_video_input: String =*/ path_file_video_input,
+          /*mut path_file_rawvideo_output: Option<String> =*/ None,
+          /*fps: f32 =*/ 8.0,
+          /*size_x: u16 =*/ 1280,
+          /*size_y: u16 =*/ 720,
+          /*size_c: u8 =*/ 3,
+      )?;
+
+      let ret = Vec::<inferencerelated::infer_results>::new();
+      return Ok(ret);
+  }
 
   fn video_tensor_2_fft_file_160(
       tensor_video_input: tch::Tensor,

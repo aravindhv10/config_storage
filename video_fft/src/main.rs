@@ -16,6 +16,22 @@ use tch::IndexOp;
 
 const USE_GPU: bool = true;
 
+fn infer_video_end_2_end(
+    path_file_video_input: String,
+) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+    let slicer = videoview::video_slicer::new(
+        /*path_file_video_input: String =*/ path_file_video_input,
+        /*mut path_file_rawvideo_output: Option<String> =*/ None,
+        /*fps: f32 =*/ 8.0,
+        /*size_x: u16 =*/ 1280,
+        /*size_y: u16 =*/ 720,
+        /*size_c: u8 =*/ 3,
+    )?;
+
+    let ret = Vec::<inferencerelated::infer_results>::new();
+    return Ok(ret);
+}
+
 fn video_tensor_2_fft_file_160(
     tensor_video_input: tch::Tensor,
     path_dir_output: &str,
