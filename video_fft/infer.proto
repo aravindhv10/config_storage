@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package myrdvideoinferinfer;
+
+message grpcvideodata {
+    bytes data = 1;
+}
+
+message grpcvideoprediction {
+    float pa = 1;
+    float pb = 2;
+    float pc = 3;
+}
+
+message grpcvideopredictionreply {
+    repeated grpcvideoprediction preds = 1;
+}
+
+service rdvideoinfer {
+  rpc doinfer(grpcvideodata) returns (grpcvideopredictionreply) {}
+}
