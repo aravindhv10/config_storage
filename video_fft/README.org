@@ -1344,7 +1344,6 @@
   use anyhow::Context;
   use crate::export;
   use rayon::prelude::*;
-  use std::io::Read;
   use tch::IndexOp;
 
   #[repr(C)]
@@ -1611,8 +1610,9 @@
 * rust code for class to evaluate video stats
 #+begin_src rust :mkdirp yes :tangle ./src/videofftstats.rs
   use crate::videofft;
-  use futures::stream;
   use futures::stream::StreamExt;
+  use futures::stream;
+  use std::io::Read;
   use tokio::io::AsyncWriteExt;
 
   #[repr(C)]
