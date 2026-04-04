@@ -60,13 +60,23 @@ impl inference_slave {
                     }
                 }
             }
+
+            eprintln!(
+                "Got messages with length {} and {}",
+                tensors.len(),
+                senders.len()
+            );
         }
     }
 }
 
 fn main() -> anyhow::Result<()> {
-    let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-    let (sender, receiver) = flume::unbounded::<message_input>();
+    if true {
+        let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+        let (sender, receiver) = flume::unbounded::<message_input>();
+    }
+
+    let (inference_slave, request_sender) = inference_slave::new();
 
     Ok(())
 }
