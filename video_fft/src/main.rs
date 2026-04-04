@@ -20,6 +20,15 @@ fn infer_video_end_2_end(
     path_file_video_input: String,
     use_gpu: bool,
 ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+    return Err(anyhow::format_err!(
+        "This is a tiny function for debugging only"
+    ));
+}
+
+fn infer_video_end_2_end_large(
+    path_file_video_input: String,
+    use_gpu: bool,
+) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
     let slicer = videoview::video_slicer::new(
         /*path_file_video_input: String =*/ path_file_video_input,
         /*mut path_file_rawvideo_output: Option<String> =*/ None,
