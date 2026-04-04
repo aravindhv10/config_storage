@@ -133,7 +133,7 @@ fn main() -> anyhow::Result<()> {
         //     res.p_calm, res.p_contraversial, res.p_rd
         // );
 
-        handle_inference.join();
+        // handle_inference.join();
 
         return Ok(());
     }
