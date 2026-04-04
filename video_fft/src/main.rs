@@ -31,7 +31,7 @@ fn infer_video_end_2_end(
 
     let video_tensor = slicer.get_video_tensor()?;
 
-    let list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+    let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
         /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
         /*use_gpu: bool =*/ use_gpu,
     )?;
@@ -43,10 +43,16 @@ fn infer_video_end_2_end(
             /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
         )?;
 
-        for i in list_video_fft_tensor {}
+        normalizer.normalize_vec(
+            /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
+        );
     }
 
-    let ret = Vec::<inferencerelated::infer_results>::new();
+    let mut infer_slave = inferencerelated::infer_slave::new(1);
+
+    let ret = infer_slave.infer(
+        /*vals: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
+    )?;
     return Ok(ret);
 }
 
