@@ -71,12 +71,18 @@ impl inference_slave {
 }
 
 fn main() -> anyhow::Result<()> {
-    if true {
+    if false {
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
         let (sender, receiver) = flume::unbounded::<message_input>();
     }
 
-    let (inference_slave, request_sender) = inference_slave::new();
+    let args: Vec<String> = std::env::args().collect();
 
-    Ok(())
+    if args.len() < 2 {
+        return Err(anyhow::format_err!("Need atleast 1 file name to work"));
+    } else {
+        let (inference_slave, request_sender) = inference_slave::new();
+
+        return Ok(());
+    }
 }
