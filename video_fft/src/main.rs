@@ -28,6 +28,13 @@ fn infer_video_end_2_end(
         /*size_c: u8 =*/ 3,
     )?;
 
+    let video_tensor = slicer.get_video_tensor()?;
+
+    let normalizer = videofftstats::fft_video_normalizer::new(
+        /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+        /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+    )?;
+
     let ret = Vec::<inferencerelated::infer_results>::new();
     return Ok(ret);
 }
