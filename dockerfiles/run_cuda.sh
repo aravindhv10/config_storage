@@ -15,7 +15,7 @@ sudo -A docker run \
     '--ipc' 'host' \
     '--tmpfs' '/tmp:size=107374182400,exec' \
     '--ulimit' 'memlock=-1' \
-    '--ulimit' 'stack=67108864' \
+    '--ulimit' 'stack=268435456' \
     '--gpus' 'all,"capabilities=compute,utility,video"' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
     -v "CACHE:/usr/local/cargo/registry" \
