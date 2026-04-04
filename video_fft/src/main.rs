@@ -16,7 +16,7 @@ use tch::IndexOp;
 
 const USE_GPU: bool = true;
 
-fn infer_video_end_2_end(
+fn infer_video_end_2_end_small_debug(
     path_file_video_input: String,
     use_gpu: bool,
 ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
@@ -40,7 +40,7 @@ fn infer_video_end_2_end(
     ));
 }
 
-fn infer_video_end_2_end_large(
+fn infer_video_end_2_end(
     path_file_video_input: String,
     use_gpu: bool,
 ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
