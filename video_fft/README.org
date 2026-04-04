@@ -21,6 +21,7 @@
   serde = { version = "1.0.228", features = ["derive"] }
   tokio = { version = "1.50.0", features = ["full"] }
   futures = "0.3.32"
+  oneshot = { version = "0.2.1", features = ["async", "std"] }
 #+end_src
 
 ** Torch-rs version
@@ -2544,7 +2545,7 @@ video.len() in:
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Started writing inference related class in rust'
+  git status ; git commit -m 'added oneshot library'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 

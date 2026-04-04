@@ -689,6 +689,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "oneshot"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfe21416a02c693fb9f980befcb230ecc70b0b3d1cc4abf88b9675c4c1457f0c"
+
+[[package]]
 name = "parking_lot"
 version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1203,6 +1209,7 @@ dependencies = [
  "jwalk",
  "memmap2 0.9.10",
  "mimalloc",
+ "oneshot",
  "rayon",
  "serde",
  "tch",
