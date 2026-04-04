@@ -115,6 +115,20 @@ fn main() -> anyhow::Result<()> {
 
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
 
+        let the_message = message_input {
+            tensor: list_video_fft_tensor[0],
+            oneshot_send_channel: sender,
+        };
+
+        request_sender.send(the_message);
+
+        let res = receiver.recv()?;
+
+        println!(
+            "Results 1st {} {} {}",
+            res.p_calm, res.p_contraversial, res.p_rd
+        );
+
         handle_inference.join();
 
         return Ok(());
