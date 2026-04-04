@@ -450,4 +450,18 @@ impl fft_video_normalizer {
             sigma: unsafe { std::ptr::read(sigma_data.as_ptr() as *const fft_video_64) },
         });
     }
+
+    pub fn normalize(&self, x: &mut videofft::fft_video) {
+        normalize_fft_video(
+            /*x: &mut videofft::fft_video =*/ x,
+            /*mu: &fft_video_64 =*/ &self.mu,
+            /*sigma: &fft_video_64 =*/ &self.sigma,
+        );
+    }
+
+    pub fn normalize_vec(&self, x: &mut Vec<videofft::fft_video>) {
+        for i in x.iter_mut() {
+            self.normalize(i);
+        }
+    }
 }
