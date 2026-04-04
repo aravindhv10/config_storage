@@ -2058,25 +2058,30 @@
           path_file_bin64_mu: &str,
           path_file_bin64_sigma: &str,
       ) -> anyhow::Result<std::boxed::Box<Self>> {
-          let mut ret = std::boxed::Box::<Self>::new_uninit();
           const size: usize = std::mem::size_of::<fft_video_64>();
 
-          {
-              let mut file = std::fs::File::open(path_file_bin64_mu)?;
-              let ptr = (&mut (unsafe { *ret.as_mut_ptr() }.mu) as *mut fft_video_64) as *mut u8;
-              let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
-              file.read_exact(buffer)?;
-          }
+          let mut ret = std::boxed::Box::<Self>::new_uninit();
 
           {
-              let mut file = std::fs::File::open(path_file_bin64_sigma)?;
-              let ptr = (&mut (unsafe { *ret.as_mut_ptr() }.sigma) as *mut fft_video_64) as *mut u8;
-              let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
-              file.read_exact(buffer)?;
+              let base_ptr = ret.as_mut_ptr();
+
+              {
+                  let mut file = std::fs::File::open(path_file_bin64_mu)?;
+                  let ptr = (&mut (unsafe { *base_ptr }.mu) as *mut fft_video_64) as *mut u8;
+                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+                  file.read_exact(buffer)?;
+              }
+
+              {
+                  let mut file = std::fs::File::open(path_file_bin64_sigma)?;
+                  let ptr = (&mut (unsafe { *base_ptr }.sigma) as *mut fft_video_64) as *mut u8;
+                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+                  file.read_exact(buffer)?;
+              }
           }
 
-          let ret = unsafe { ret.assume_init() };
-          return Ok(ret);
+          let ret_final = unsafe { ret.assume_init() };
+          return Ok(ret_final);
       }
 
       pub fn normalize(&self, x: &mut videofft::fft_video) {
