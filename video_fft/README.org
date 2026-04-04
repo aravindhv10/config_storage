@@ -22,6 +22,7 @@
   tokio = { version = "1.50.0", features = ["full"] }
   futures = "0.3.32"
   oneshot = { version = "0.2.1", features = ["async", "std"] }
+  flume = "0.12.0"
 #+end_src
 
 ** Torch-rs version
@@ -2545,7 +2546,7 @@ video.len() in:
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'added oneshot library'
+  git status ; git commit -m 'added flume library'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
