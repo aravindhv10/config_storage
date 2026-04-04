@@ -54,8 +54,8 @@ fn infer_video_end_2_end(
         /*vals: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
     )?;
 
-    for i in ret {
-        println!("{} {} {}",);
+    for i in ret.iter() {
+        println!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
     }
 
     return Ok(ret);
