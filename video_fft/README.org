@@ -2063,7 +2063,7 @@
           let mut ret = std::boxed::Box::<Self>::new_uninit();
 
           {
-              let base_ref = &mut unsafe {*(ret.as_mut_ptr())} ;
+              let base_ref = unsafe {&mut *(ret.as_mut_ptr())} ;
 
               {
                   let mut file = std::fs::File::open(path_file_bin64_mu)?;
