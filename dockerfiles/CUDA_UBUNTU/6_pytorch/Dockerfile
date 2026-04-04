@@ -7,7 +7,7 @@ RUN \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
             "huggingface_hub" \
-            "pytorch-image-models" \
+            "timm" \
             "transformers" \
             'accelerate' \
             'albumentations' \
