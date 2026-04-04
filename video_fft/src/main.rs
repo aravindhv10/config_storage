@@ -33,8 +33,8 @@ fn infer_video_end_2_end(
 
     // Get fft tensor from this
     //
-    let list_video_fft_tensor = videofft::windowed_from_torch_video_tensor(
-        /*tensor_video_input: &tch::Tensor =*/ video_tensor,
+    let list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+        /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
         /*use_gpu: bool =*/ use_gpu,
     )?;
 
