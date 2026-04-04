@@ -204,7 +204,7 @@ fn main() -> anyhow::Result<()> {
                 }
                 "i" => {
                     infer_video_end_2_end(
-                        /*path_file_video_input: String =*/ args[2],
+                        /*path_file_video_input: String =*/ args[2].clone(),
                         /*use_gpu: bool =*/ true,
                     )?;
                     return Ok(());
