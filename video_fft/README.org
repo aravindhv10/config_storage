@@ -2508,8 +2508,41 @@ video.len() in:
   }
 #+end_src
 
+* Inference loop algorithm
+
+struct message_input {
+tensor: fft_video,
+oneshot_send_channel <infer_results>,
+}
+
+struct inference_loop {
+  flume_receive_channel <message_input>
+}
+
+
 * Implementation for the server endpoint
 #+begin_src rust :mkdirp yes :tangle ./src/server.rs
+  use mimalloc::MiMalloc;
+
+  #[global_allocator]
+  static GLOBAL: MiMalloc = MiMalloc;
+
+  mod export;
+  mod inferencerelated;
+  mod videofft;
+  mod videofftstats;
+  mod videofn;
+  mod videoview;
+
+  use anyhow::Context;
+  use rayon::prelude::*;
+  use tch::IndexOp;
+
+  const USE_GPU: bool = true;
+
+  fn main() -> anyhow::Result<()> {
+      Ok(())
+  }
 #+end_src
 
 * gitignore
