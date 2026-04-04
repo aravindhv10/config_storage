@@ -3,6 +3,14 @@ name = "video_fft"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[[bin]]
+name = "infer-server"
+path = "src/server.rs"
+
 [dependencies]
 anyhow = "1.0.102"
 gxhash = "3.5.0"
