@@ -202,6 +202,13 @@ fn main() -> anyhow::Result<()> {
                     fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str())?;
                     return Ok(());
                 }
+                "i" => {
+                    infer_video_end_2_end(
+                        /*path_file_video_input: String =*/ args[2],
+                        /*use_gpu: bool =*/ true,
+                    )?;
+                    return Ok(());
+                }
                 _ => {
                     eprintln!("Usage: {} <s/f> <directory>", args[0]);
                     eprintln!("s: stats for bin files under <directory>");
