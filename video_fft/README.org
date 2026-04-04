@@ -2519,7 +2519,6 @@ struct inference_loop {
   flume_receive_channel <message_input>
 }
 
-
 * Implementation for the server endpoint
 #+begin_src rust :mkdirp yes :tangle ./src/server.rs
   use mimalloc::MiMalloc;
@@ -2540,7 +2539,19 @@ struct inference_loop {
 
   const USE_GPU: bool = true;
 
+  struct message_input {
+      tensor: videofft::fft_video,
+      oneshot_send_channel: oneshot::Receiver<inferencerelated::infer_results>,
+  }
+
+  struct inference_slave {
+      receiver: flume::Receiver<message_input>,
+  }
+
   fn main() -> anyhow::Result<()> {
+      let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+      let (sender, receiver) = flume::unbounded::<message_input>();
+
       Ok(())
   }
 #+end_src
