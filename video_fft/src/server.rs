@@ -28,7 +28,7 @@ struct inference_slave {
 impl inference_slave {
     pub fn new() -> (Self, flume::Sender<message_input>) {
         let (sender, receiver) = flume::unbounded::<message_input>();
-        return (Self { receiver: receive }, sender);
+        return (Self { receiver: receiver }, sender);
     }
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
