@@ -435,13 +435,13 @@ pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-struct fft_video_normalizer {
+pub struct fft_video_normalizer {
     mu: fft_video_64,
     sigma: fft_video_64,
 }
 
 impl fft_video_normalizer {
-    fn new(path_file_bin64_mu: &str, path_file_bin64_sigma: &str) -> anyhow::Result<Self> {
+    pub fn new(path_file_bin64_mu: &str, path_file_bin64_sigma: &str) -> anyhow::Result<Self> {
         let mu_data = std::fs::read(path_file_bin64_mu.as_str())?;
         let sigma_data = std::fs::read(path_file_bin64_sigma.as_str())?;
 
