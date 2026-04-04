@@ -53,6 +53,11 @@ fn infer_video_end_2_end(
     let ret = infer_slave.infer(
         /*vals: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
     )?;
+
+    for i in ret {
+        println!("{} {} {}",);
+    }
+
     return Ok(ret);
 }
 

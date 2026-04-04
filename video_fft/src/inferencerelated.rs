@@ -1,11 +1,11 @@
 use crate::export;
 use crate::videofft;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct infer_results {
-    p_calm: f32,
-    p_contraversial: f32,
-    p_rd: f32,
+    pub p_calm: f32,
+    pub p_contraversial: f32,
+    pub p_rd: f32,
 }
 
 impl Default for infer_results {
