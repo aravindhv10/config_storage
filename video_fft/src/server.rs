@@ -116,7 +116,7 @@ fn main() -> anyhow::Result<()> {
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
 
         let the_message = message_input {
-            tensor: list_video_fft_tensor[0],
+            tensor: std::boxed::Box::new(list_video_fft_tensor[0]),
             oneshot_send_channel: sender,
         };
 
