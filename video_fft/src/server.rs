@@ -17,7 +17,7 @@ use tch::IndexOp;
 const USE_GPU: bool = true;
 
 struct message_input {
-    tensor: videofft::fft_video,
+    tensor: std::boxed::Box<videofft::fft_video>,
     oneshot_send_channel: oneshot::Sender<inferencerelated::infer_results>,
 }
 
@@ -39,7 +39,7 @@ impl inference_slave {
             // Receive the 1st message
             if true {
                 let message_input = self.receiver.recv()?;
-                tensors.push(message_input.tensor);
+                tensors.push(*message_input.tensor);
                 senders.push(message_input.oneshot_send_channel);
             }
 
@@ -52,7 +52,7 @@ impl inference_slave {
 
                 match message_input {
                     Ok(o) => {
-                        tensors.push(o.tensor);
+                        tensors.push(*o.tensor);
                         senders.push(o.oneshot_send_channel);
                     }
                     Err(e) => {
