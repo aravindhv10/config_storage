@@ -2541,7 +2541,7 @@ struct inference_loop {
 
   struct message_input {
       tensor: videofft::fft_video,
-      oneshot_send_channel: oneshot::Receiver<inferencerelated::infer_results>,
+      oneshot_send_channel: oneshot::Sender<inferencerelated::infer_results>,
   }
 
   struct inference_slave {
@@ -2549,13 +2549,25 @@ struct inference_loop {
   }
 
   impl inference_slave {
-      fn new() -> (Self, flume::Sender<message_input>) {
+      pub fn new() -> (Self, flume::Sender<message_input>) {
           let (sender, receiver) = flume::unbounded::<message_input>();
           return (Self { receiver: receive }, sender);
       }
 
-      fn inference_loop(&self) {
-          loop {}
+      pub fn inference_loop(&self) -> anyhow::Result<()> {
+          loop {
+              let message_input = self.receiver.recv()?;
+              let mut tensors = Vec::<videofft::fft_video>::new();
+              let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
+              tensors.push(message_input.tensor);
+              senders.push(message_input.oneshot_send_channel);
+
+              loop {
+                  let message_input = self
+                      .receiver
+                      .recv_timeout(std::time::Duration::from_millis(200));
+              }
+          }
       }
   }
 
