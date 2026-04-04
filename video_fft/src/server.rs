@@ -83,7 +83,39 @@ fn main() -> anyhow::Result<()> {
     } else {
         let (inference_slave, request_sender) = inference_slave::new();
 
-        let handle_inference = std::thread::spawn(|| inference_slave.inference_loop());
+        let handle_inference = std::thread::spawn(move || inference_slave.inference_loop());
+
+        let slicer = videoview::video_slicer::new(
+            /*path_file_video_input: String =*/ args[1].clone(),
+            /*mut path_file_rawvideo_output: Option<String> =*/ None,
+            /*fps: f32 =*/ 8.0,
+            /*size_x: u16 =*/ 1280,
+            /*size_y: u16 =*/ 720,
+            /*size_c: u8 =*/ 3,
+        )?;
+
+        let video_tensor = slicer.get_video_tensor()?;
+
+        let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+            /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+            /*use_gpu: bool =*/ true,
+        )?;
+
+        /* Normalize the video tensor */
+        {
+            let normalizer = videofftstats::fft_video_normalizer::new(
+                /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+                /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+            )?;
+
+            normalizer.normalize_vec(
+                /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
+            );
+        }
+
+        let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+
+        handle_inference.join();
 
         return Ok(());
     }
