@@ -65,7 +65,7 @@ impl inference_communicator {
         }
 
         let msg = message_input {
-            tensor: list_video_fft_tensor,
+            tensor: tensors_input,
             oneshot_send_channel: oneshot_send_channel,
         };
 
@@ -234,48 +234,7 @@ fn main() -> anyhow::Result<()> {
             )?
         };
 
-        /* Normalize the video tensor */
-        {
-            let normalizer = videofftstats::fft_video_normalizer::new(
-                /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
-                /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
-            )?;
-
-            normalizer.normalize_vec(
-                /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
-            );
-        }
-
-        let mut oneshot_send_channel =
-            Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
-                list_video_fft_tensor.len(),
-            );
-
-        let mut oneshot_receive_channel =
-            Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
-                list_video_fft_tensor.len(),
-            );
-
-        for i in 0..list_video_fft_tensor.len() {
-            let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-            oneshot_send_channel.push(sender);
-            oneshot_receive_channel.push(receiver);
-        }
-
-        let msg = message_input {
-            tensor: list_video_fft_tensor,
-            oneshot_send_channel: oneshot_send_channel,
-        };
-
-        slave_sender.send(msg);
-
-        for i in oneshot_receive_channel.into_iter() {
-            let res = i.recv()?;
-            eprintln!(
-                "Received reply... {} {} {}",
-                res.p_calm, res.p_contraversial, res.p_rd
-            );
-        }
+        let res = slave_sender.do_infer_on_fft_tensor(list_video_fft_tensor)?;
 
         handle_inference.join();
 
