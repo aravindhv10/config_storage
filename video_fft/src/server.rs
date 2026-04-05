@@ -233,6 +233,9 @@ fn main() -> anyhow::Result<()> {
 
         let res = slave_sender.do_infer_on_fft_tensor(list_video_fft_tensor)?;
 
+        res.iter()
+            .for_each(|i| eprint!("probability {} {} {}", i.p_calm, i.p_contraversial, i.p_rd));
+
         handle_inference.join();
 
         return Ok(());
