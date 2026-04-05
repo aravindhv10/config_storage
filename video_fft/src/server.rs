@@ -161,6 +161,14 @@ fn main() -> anyhow::Result<()> {
 
         slave_sender.send(msg);
 
+        for i in oneshot_receive_channel.into_iter() {
+            let res = i.recv()?;
+            eprintln!(
+                "Received reply... {} {} {}",
+                res.p_calm, res.p_contraversial, res.p_rd
+            );
+        }
+
         handle_inference.join();
 
         return Ok(());
