@@ -1,6 +1,7 @@
 use crate::videofft;
 use futures::stream;
 use futures::stream::StreamExt;
+use rayon::prelude::*;
 use std::io::Read;
 use tokio::io::AsyncWriteExt;
 
@@ -481,7 +482,7 @@ impl fft_video_normalizer {
     }
 
     pub fn normalize_vec(&self, x: &mut Vec<videofft::fft_video>) {
-        for i in x.iter_mut() {
+        for i in x.par_iter_mut() {
             self.normalize(i);
         }
     }

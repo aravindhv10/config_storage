@@ -1652,6 +1652,7 @@ video.len() in:
   use crate::videofft;
   use futures::stream;
   use futures::stream::StreamExt;
+  use rayon::prelude::*;
   use std::io::Read;
   use tokio::io::AsyncWriteExt;
 
@@ -2102,7 +2103,7 @@ video.len() in:
           let mut ret = std::boxed::Box::<Self>::new_uninit();
 
           {
-              let base_ref = unsafe {&mut *(ret.as_mut_ptr())} ;
+              let base_ref = unsafe { &mut *(ret.as_mut_ptr()) };
 
               {
                   let mut file = std::fs::File::open(path_file_bin64_mu)?;
@@ -2132,7 +2133,7 @@ video.len() in:
       }
 
       pub fn normalize_vec(&self, x: &mut Vec<videofft::fft_video>) {
-          for i in x.iter_mut() {
+          for i in x.par_iter_mut() {
               self.normalize(i);
           }
       }
