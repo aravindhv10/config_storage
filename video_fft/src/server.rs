@@ -29,6 +29,10 @@ struct inference_communicator {
     sender: flume::Sender<message_input>,
 }
 
+impl inference_communicator {
+    fn do_infer_on_fft_tensor(tensors_input: Vec<videofft::fft_video>) {}
+}
+
 impl inference_slave {
     pub fn new() -> (Self, inference_communicator) {
         let (sender, receiver) = flume::unbounded::<message_input>();
