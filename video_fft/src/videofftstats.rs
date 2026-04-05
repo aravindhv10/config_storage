@@ -482,8 +482,6 @@ impl fft_video_normalizer {
     }
 
     pub fn normalize_vec(&self, x: &mut Vec<videofft::fft_video>) {
-        for i in x.par_iter_mut() {
-            self.normalize(i);
-        }
+        x.par_iter_mut().for_each(|i| self.normalize(i));
     }
 }
