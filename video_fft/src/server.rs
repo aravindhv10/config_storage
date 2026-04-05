@@ -11,6 +11,7 @@ mod videofn;
 mod videoview;
 
 use anyhow::Context;
+use copyless::VecHelper;
 use rayon::prelude::*;
 use tch::IndexOp;
 
@@ -41,6 +42,8 @@ impl inference_slave {
 
             if true {
                 let message_input = self.receiver.recv()?;
+                tensors.push(*(message_input.tensor));
+                senders.push(message_input.oneshot_send_channel);
             }
         }
         Ok(())
