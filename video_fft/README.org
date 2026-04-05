@@ -49,16 +49,17 @@ video.len() in:
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [dependencies]
   anyhow = "1.0.102"
+  copyless = "0.1.5"
+  flume = "0.12.0"
+  futures = "0.3.32"
   gxhash = "3.5.0"
   jwalk = "0.8.1"
   memmap2 = "0.9.10"
   mimalloc = "0.1.48"
+  oneshot = { version = "0.2.1", features = ["async", "std"] }
   rayon = "1.11.0"
   serde = { version = "1.0.228", features = ["derive"] }
   tokio = { version = "1.50.0", features = ["full"] }
-  futures = "0.3.32"
-  oneshot = { version = "0.2.1", features = ["async", "std"] }
-  flume = "0.12.0"
 #+end_src
 
 **** Torch-rs
@@ -2582,7 +2583,7 @@ struct inference_loop {
 
               if true {
                   let message_input = self.receiver.recv()?;
-                  tensors.push(*message_input.tensor);
+                  tensors.push(*(message_input.tensor));
                   senders.push(message_input.oneshot_send_channel);
               }
 
