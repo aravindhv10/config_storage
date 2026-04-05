@@ -141,12 +141,9 @@ impl inference_slave {
     }
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
-        eprintln!("1");
         loop {
             let mut tensors = Vec::<videofft::fft_video>::new();
             let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
-
-            eprintln!("2");
 
             if true {
                 let input_msg = self.receiver.recv()?;
@@ -155,9 +152,6 @@ impl inference_slave {
                     senders.push(i);
                 }
             }
-
-            // Receive the 1st message
-            eprintln!("3");
 
             // Try to receive the subsequent messages
             let mut do_loop = true;
@@ -181,12 +175,6 @@ impl inference_slave {
                 }
             }
 
-            eprintln!(
-                "Got messages with length {} and {}",
-                tensors.len(),
-                senders.len()
-            );
-
             if true {
                 let mut infer_slave = inferencerelated::infer_slave::new(1);
 
@@ -198,6 +186,7 @@ impl inference_slave {
                 }
             }
         }
+
         Ok(())
     }
 }
