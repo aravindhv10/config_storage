@@ -267,7 +267,7 @@ fn main() -> anyhow::Result<()> {
     if args.len() < 2 {
         return Err(anyhow::format_err!("Need atleast 1 file name to work"));
     } else {
-        tmpslave = inference_pair::new();
+        let tmpslave = inference_pair::new();
         let res = tmpslave
             .do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
         return Ok(());
