@@ -218,12 +218,14 @@ impl inference_slave {
 
 struct inference_pair {
     slave_sender: inference_communicator,
-    handle: std::thread::JoinHandle<anyhow::Result<()>>,
+    handle: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
 }
 
 impl Drop for inference_pair {
     fn drop(&mut self) {
-        self.handle.join();
+        if let Some(handle) = self.handle.take() {
+            let _ = handle.join();
+        }
     }
 }
 
@@ -234,7 +236,7 @@ impl inference_pair {
 
         Self {
             slave_sender: slave_sender,
-            handle: handle_inference,
+            handle: Some(handle_inference),
         }
     }
 

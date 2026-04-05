@@ -2752,12 +2752,14 @@ struct inference_loop {
 
   struct inference_pair {
       slave_sender: inference_communicator,
-      handle: std::thread::JoinHandle<anyhow::Result<()>>,
+      handle: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
   }
 
   impl Drop for inference_pair {
       fn drop(&mut self) {
-          self.handle.join();
+          if let Some(handle) = self.handle.take() {
+              let _ = handle.join();
+          }
       }
   }
 
@@ -2768,7 +2770,7 @@ struct inference_loop {
 
           Self {
               slave_sender: slave_sender,
-              handle: handle_inference,
+              handle: Some(handle_inference),
           }
       }
 
@@ -2800,7 +2802,8 @@ struct inference_loop {
           return Err(anyhow::format_err!("Need atleast 1 file name to work"));
       } else {
           tmpslave = inference_pair::new();
-          let res = tmpslave.do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
+          let res = tmpslave
+              .do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
           return Ok(());
       }
   }
