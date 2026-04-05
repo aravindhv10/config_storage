@@ -2820,7 +2820,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Some cleanups for cargo toml'
+  git status ; git commit -m 'Fully working inference loop + communicator'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
