@@ -85,12 +85,9 @@ impl inference_communicator {
         &self,
         mut tensors_input: Vec<videofft::fft_video>,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        let _ = tokio::task::spawn_blocking(|| {
-            self.normalizer.normalize_vec(
-                /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
-            )
-        })
-        .await?;
+        self.normalizer.normalize_vec(
+            /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
+        );
 
         let mut oneshot_send_channel =
             Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
@@ -109,7 +106,7 @@ impl inference_communicator {
         }
 
         let msg = message_input {
-            tensor: list_video_fft_tensor,
+            tensor: tensors_input,
             oneshot_send_channel: oneshot_send_channel,
         };
 
