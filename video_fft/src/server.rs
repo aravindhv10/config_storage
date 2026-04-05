@@ -43,7 +43,11 @@ impl inference_communicator {
             normalizer: normalizer,
         }
     }
-    fn do_infer_on_fft_tensor(tensors_input: Vec<videofft::fft_video>) {}
+
+    fn do_infer_on_fft_tensor(
+        tensors_input: Vec<videofft::fft_video>,
+    ) -> Vec<inferencerelated::infer_results> {
+    }
 }
 
 impl inference_slave {
