@@ -221,7 +221,15 @@ struct inference_pair {
     slave_sender: inference_communicator,
 }
 
-impl inference_pair {}
+impl inference_pair {
+    fn new() -> Self {
+        let (slave_inf, slave_sender) = inference_slave::new();
+        Self {
+            slave_inf: slave_inf,
+            slave_sender: slave_sender,
+        }
+    }
+}
 
 fn main() -> anyhow::Result<()> {
     if false {
