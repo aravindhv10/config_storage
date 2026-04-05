@@ -38,12 +38,6 @@ impl inference_slave {
             let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
 
             eprintln!("2");
-
-            if true {
-                let message_input = self.receiver.recv()?;
-                tensors.push(*message_input.tensor);
-                senders.push(message_input.oneshot_send_channel);
-            }
         }
         Ok(())
     }
