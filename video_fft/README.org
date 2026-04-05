@@ -2765,6 +2765,21 @@ struct inference_loop {
               handle: handle_inference,
           }
       }
+
+      fn do_infer_on_fft_tensor(
+          &self,
+          mut tensors_input: Vec<videofft::fft_video>,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          self.slave_sender.do_infer_on_fft_tensor(tensors_input)
+      }
+
+      fn do_infer_on_video_file(
+          &self,
+          path_file_video_input: &str,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          self.slave_sender
+              .do_infer_on_video_file(/*path_file_video_input: &str =*/ path_file_video_input)
+      }
   }
 
   fn main() -> anyhow::Result<()> {
