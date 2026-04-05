@@ -2623,7 +2623,7 @@ struct inference_loop {
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
           let mut list_video_fft_tensor = {
               let slicer = videoview::video_slicer::new(
-                  /*path_file_video_input: String =*/ args[1].clone(),
+                  /*path_file_video_input: String =*/ path_file_video_input.to_string(),
                   /*mut path_file_rawvideo_output: Option<String> =*/ None,
                   /*fps: f32 =*/ 8.0,
                   /*size_x: u16 =*/ 1280,
@@ -2765,7 +2765,8 @@ struct inference_loop {
 
           let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
-          let res = slave_sender.do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
+          let res = slave_sender
+              .do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
 
           res.iter()
               .for_each(|i| eprint!("probability {} {} {}", i.p_calm, i.p_contraversial, i.p_rd));
