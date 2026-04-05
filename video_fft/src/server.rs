@@ -83,6 +83,10 @@ impl inference_slave {
 
                 let ret = infer_slave
                     .infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
+
+                for (i, j) in ret.into_iter().zip(senders.into_iter()) {
+                    j.send(i);
+                }
             }
         }
         Ok(())
