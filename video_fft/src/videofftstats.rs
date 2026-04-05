@@ -11,6 +11,7 @@ struct a_t_64 {
     t: [f64; 60],
 }
 
+#[inline(always)]
 fn normalize_a_t(x: &mut videofft::a_t, mu: &a_t_64, sigma: &a_t_64) {
     for i in 0..60 {
         x.t[i] = (x.t[i] - (mu.t[i] as f32)) / (sigma.t[i] as f32);
@@ -18,12 +19,14 @@ fn normalize_a_t(x: &mut videofft::a_t, mu: &a_t_64, sigma: &a_t_64) {
 }
 
 impl a_t_64 {
+    #[inline(always)]
     fn take_sqrt(&mut self) {
         for i in 0..self.t.len() {
             self.t[i] = self.t[i].sqrt();
         }
     }
 
+    #[inline(always)]
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_t) {
         for i in 0..self.t.len() {
             let d = (other.t[i] as f64) - mu.t[i];
@@ -31,24 +34,28 @@ impl a_t_64 {
         }
     }
 
+    #[inline(always)]
     fn add_2_self(&mut self, other: &videofft::a_t) {
         for i in 0..self.t.len() {
             self.t[i] += other.t[i] as f64;
         }
     }
 
+    #[inline(always)]
     fn add_2_self_64(&mut self, other: &Self) {
         for i in 0..self.t.len() {
             self.t[i] += other.t[i] as f64;
         }
     }
 
+    #[inline(always)]
     fn divide_self(&mut self, val: f64) {
         for i in 0..self.t.len() {
             self.t[i] /= val;
         }
     }
 
+    #[inline(always)]
     fn new(val: f64) -> Self {
         Self { t: [val; 60] }
     }
@@ -68,6 +75,7 @@ struct a_x_64 {
     x: [a_t_64; 160],
 }
 
+#[inline(always)]
 fn normalize_a_x(x: &mut videofft::a_x, mu: &a_x_64, sigma: &a_x_64) {
     for i in 0..160 {
         normalize_a_t(&mut x.x[i], &mu.x[i], &sigma.x[i]);
@@ -83,30 +91,35 @@ impl Default for a_x_64 {
 }
 
 impl a_x_64 {
+    #[inline(always)]
     fn take_sqrt(&mut self) {
         for i in 0..self.x.len() {
             self.x[i].take_sqrt();
         }
     }
 
+    #[inline(always)]
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_x) {
         for i in 0..self.x.len() {
             self.x[i].add_unnormalized_sigma_2_self(&(mu.x[i]), &(other.x[i]));
         }
     }
 
+    #[inline(always)]
     fn add_2_self(&mut self, other: &videofft::a_x) {
         for i in 0..self.x.len() {
             self.x[i].add_2_self(&(other.x[i]));
         }
     }
 
+    #[inline(always)]
     fn add_2_self_64(&mut self, other: &Self) {
         for i in 0..self.x.len() {
             self.x[i].add_2_self_64(&(other.x[i]));
         }
     }
 
+    #[inline(always)]
     fn divide_self(&mut self, val: f64) {
         for i in 0..self.x.len() {
             self.x[i].divide_self(val);
@@ -120,6 +133,7 @@ struct a_y_64 {
     y: [a_x_64; 160],
 }
 
+#[inline(always)]
 fn normalize_a_y(x: &mut videofft::a_y, mu: &a_y_64, sigma: &a_y_64) {
     for i in 0..160 {
         normalize_a_x(&mut x.y[i], &mu.y[i], &sigma.y[i]);
@@ -135,30 +149,35 @@ impl Default for a_y_64 {
 }
 
 impl a_y_64 {
+    #[inline(always)]
     fn take_sqrt(&mut self) {
         for i in 0..self.y.len() {
             self.y[i].take_sqrt();
         }
     }
 
+    #[inline(always)]
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_y) {
         for i in 0..self.y.len() {
             self.y[i].add_unnormalized_sigma_2_self(&(mu.y[i]), &(other.y[i]));
         }
     }
 
+    #[inline(always)]
     fn add_2_self(&mut self, other: &videofft::a_y) {
         for i in 0..self.y.len() {
             self.y[i].add_2_self(&(other.y[i]));
         }
     }
 
+    #[inline(always)]
     fn add_2_self_64(&mut self, other: &Self) {
         for i in 0..self.y.len() {
             self.y[i].add_2_self_64(&(other.y[i]));
         }
     }
 
+    #[inline(always)]
     fn divide_self(&mut self, val: f64) {
         for i in 0..self.y.len() {
             self.y[i].divide_self(val);
@@ -172,6 +191,7 @@ struct a_p_64 {
     p: [a_y_64; 6],
 }
 
+#[inline(always)]
 fn normalize_a_p(x: &mut videofft::a_p, mu: &a_p_64, sigma: &a_p_64) {
     for i in 0..6 {
         normalize_a_y(&mut x.p[i], &mu.p[i], &sigma.p[i]);
@@ -187,30 +207,35 @@ impl Default for a_p_64 {
 }
 
 impl a_p_64 {
+    #[inline(always)]
     fn take_sqrt(&mut self) {
         for i in 0..self.p.len() {
             self.p[i].take_sqrt();
         }
     }
 
+    #[inline(always)]
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::a_p) {
         for i in 0..self.p.len() {
             self.p[i].add_unnormalized_sigma_2_self(&(mu.p[i]), &(other.p[i]));
         }
     }
 
+    #[inline(always)]
     fn add_2_self(&mut self, other: &videofft::a_p) {
         for i in 0..self.p.len() {
             self.p[i].add_2_self(&(other.p[i]));
         }
     }
 
+    #[inline(always)]
     fn add_2_self_64(&mut self, other: &Self) {
         for i in 0..self.p.len() {
             self.p[i].add_2_self_64(&(other.p[i]));
         }
     }
 
+    #[inline(always)]
     fn divide_self(&mut self, val: f64) {
         for i in 0..self.p.len() {
             self.p[i].divide_self(val);
@@ -224,27 +249,33 @@ pub struct fft_video_64 {
     v: a_p_64,
 }
 
+#[inline(always)]
 fn normalize_fft_video(x: &mut videofft::fft_video, mu: &fft_video_64, sigma: &fft_video_64) {
     normalize_a_p(&mut x.v, &mu.v, &sigma.v);
 }
 
 impl fft_video_64 {
+    #[inline(always)]
     fn take_sqrt(&mut self) {
         self.v.take_sqrt();
     }
 
+    #[inline(always)]
     fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &videofft::fft_video) {
         self.v.add_unnormalized_sigma_2_self(&(mu.v), &(other.v));
     }
 
+    #[inline(always)]
     fn add_2_self(&mut self, other: &videofft::fft_video) {
         self.v.add_2_self(&(other.v));
     }
 
+    #[inline(always)]
     fn add_2_self_64(&mut self, other: &Self) {
         self.v.add_2_self_64(&(other.v));
     }
 
+    #[inline(always)]
     fn divide_self(&mut self, val: f64) {
         self.v.divide_self(val);
     }
@@ -473,6 +504,7 @@ impl fft_video_normalizer {
         return Ok(ret_final);
     }
 
+    #[inline(always)]
     pub fn normalize(&self, x: &mut videofft::fft_video) {
         normalize_fft_video(
             /*x: &mut videofft::fft_video =*/ x,
@@ -481,6 +513,7 @@ impl fft_video_normalizer {
         );
     }
 
+    #[inline(always)]
     pub fn normalize_vec(&self, x: &mut Vec<videofft::fft_video>) {
         x.par_iter_mut().for_each(|i| self.normalize(i));
     }
