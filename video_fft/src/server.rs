@@ -216,6 +216,13 @@ impl inference_slave {
     }
 }
 
+struct inference_pair {
+    slave_inf: inference_slave,
+    slave_sender: inference_communicator,
+}
+
+impl inference_pair {}
+
 fn main() -> anyhow::Result<()> {
     if false {
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
