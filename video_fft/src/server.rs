@@ -101,8 +101,7 @@ impl inference_slave {
 
                 match message_input {
                     Ok(o) => {
-                        tensors.alloc().init(o.tensor);
-                        // tensors.push(*o.tensor);
+                        tensors.extend_from_slice(std::slice::from_ref(o.tensor.as_ref()));
                         senders.push(o.oneshot_send_channel);
                     }
                     Err(e) => {
