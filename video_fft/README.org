@@ -2529,11 +2529,21 @@ struct inference_loop {
 
   struct inference_communicator {
       sender: flume::Sender<message_input>,
+      normalizer: std::boxed::Box<videofftstats::fft_video_normalizer>,
   }
 
   impl inference_communicator {
       fn new(sender_in: flume::Sender<message_input>) -> Self {
-          Self { sender: sender_in }
+          let normalizer = videofftstats::fft_video_normalizer::new(
+              /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+              /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+          )
+          .unwrap();
+
+          Self {
+              sender: sender_in,
+              normalizer: normalizer,
+          }
       }
       fn do_infer_on_fft_tensor(tensors_input: Vec<videofft::fft_video>) {}
   }
