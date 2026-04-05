@@ -59,7 +59,7 @@ impl inference_slave {
 
             if true {
                 let message_input = self.receiver.recv()?;
-                tensors.push(*(message_input.tensor));
+                tensors.alloc().init(message_input.tensor);
                 senders.push(message_input.oneshot_send_channel);
             }
 
@@ -75,7 +75,8 @@ impl inference_slave {
 
                 match message_input {
                     Ok(o) => {
-                        tensors.push(*o.tensor);
+                        tensors.alloc().init(o.tensor);
+                        // tensors.push(*o.tensor);
                         senders.push(o.oneshot_send_channel);
                     }
                     Err(e) => {
