@@ -80,6 +80,47 @@ impl inference_communicator {
 
         return Ok(ret);
     }
+
+    async fn do_infer_on_fft_tensor_async(
+        &self,
+        mut tensors_input: Vec<videofft::fft_video>,
+    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+        self.normalizer.normalize_vec(
+            /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
+        );
+
+        let mut oneshot_send_channel =
+            Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
+                tensors_input.len(),
+            );
+
+        let mut oneshot_receive_channel =
+            Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
+                tensors_input.len(),
+            );
+
+        for i in 0..tensors_input.len() {
+            let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+            oneshot_send_channel.push(sender);
+            oneshot_receive_channel.push(receiver);
+        }
+
+        let msg = message_input {
+            tensor: list_video_fft_tensor,
+            oneshot_send_channel: oneshot_send_channel,
+        };
+
+        self.sender.send(msg);
+
+        let mut ret =
+            Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
+
+        for i in oneshot_receive_channel.into_iter() {
+            ret.push(i.recv()?);
+        }
+
+        return Ok(ret);
+    }
 }
 
 struct inference_slave {
