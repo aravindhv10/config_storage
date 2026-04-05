@@ -33,6 +33,18 @@ impl inference_slave {
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
         eprintln!("1");
+        loop {
+            let mut tensors = Vec::<videofft::fft_video>::new();
+            let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
+
+            eprintln!("2");
+
+            if true {
+                let message_input = self.receiver.recv()?;
+                tensors.push(*message_input.tensor);
+                senders.push(message_input.oneshot_send_channel);
+            }
+        }
         Ok(())
     }
 
@@ -41,15 +53,16 @@ impl inference_slave {
         loop {
             let mut tensors = Vec::<videofft::fft_video>::new();
             let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
+
             eprintln!("2");
 
-            // Receive the 1st message
             if true {
                 let message_input = self.receiver.recv()?;
                 tensors.push(*message_input.tensor);
                 senders.push(message_input.oneshot_send_channel);
             }
 
+            // Receive the 1st message
             eprintln!("3");
 
             // Try to receive the subsequent messages
@@ -122,7 +135,7 @@ fn main() -> anyhow::Result<()> {
             );
         }
 
-        // let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+        let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
 
         // let the_message = message_input {
         //     tensor: std::boxed::Box::new(list_video_fft_tensor[0]),
