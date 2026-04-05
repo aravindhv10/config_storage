@@ -52,6 +52,7 @@ impl inference_slave {
 
             // Try to receive the subsequent messages
             let mut do_loop = true;
+
             while do_loop {
                 let message_input = self
                     .receiver
@@ -76,6 +77,13 @@ impl inference_slave {
                 tensors.len(),
                 senders.len()
             );
+
+            if true {
+                let mut infer_slave = inferencerelated::infer_slave::new(1);
+
+                let ret = infer_slave
+                    .infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
+            }
         }
         Ok(())
     }

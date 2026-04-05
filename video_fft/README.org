@@ -2145,7 +2145,7 @@ video.len() in:
   use crate::videofft;
 
   #[repr(C)]
-  #[derive(Clone, Copy)]
+  #[derive(Clone, Copy, Default)]
   pub struct infer_results {
       pub p_calm: f32,
       pub p_contraversial: f32,
@@ -2241,28 +2241,6 @@ video.len() in:
   use tch::IndexOp;
 
   const USE_GPU: bool = true;
-
-  fn infer_video_end_2_end_small_debug(
-      path_file_video_input: String,
-      use_gpu: bool,
-  ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-      let slicer = videoview::video_slicer::new(
-          /*path_file_video_input: String =*/ path_file_video_input,
-          /*mut path_file_rawvideo_output: Option<String> =*/ None,
-          /*fps: f32 =*/ 8.0,
-          /*size_x: u16 =*/ 1280,
-          /*size_y: u16 =*/ 720,
-          /*size_c: u8 =*/ 3,
-      )?;
-
-      let video_tensor = slicer.get_video_tensor()?;
-
-      let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
-          /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-          /*use_gpu: bool =*/ use_gpu,
-      )?;
-      return Err(anyhow::format_err!("This is a tiny function for debugging only"));
-  }
 
   fn infer_video_end_2_end(
       path_file_video_input: String,
@@ -2576,6 +2554,7 @@ struct inference_loop {
 
               // Try to receive the subsequent messages
               let mut do_loop = true;
+
               while do_loop {
                   let message_input = self
                       .receiver
@@ -2600,6 +2579,13 @@ struct inference_loop {
                   tensors.len(),
                   senders.len()
               );
+
+              if true {
+                  let mut infer_slave = inferencerelated::infer_slave::new(1);
+
+                  let ret = infer_slave
+                      .infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
+              }
           }
           Ok(())
       }
