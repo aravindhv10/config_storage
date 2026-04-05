@@ -2804,6 +2804,13 @@ struct inference_loop {
           let tmpslave = inference_pair::new();
           let res = tmpslave
               .do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
+
+          res.into_iter().for_each(|i| {
+              eprintln!(
+                  "inference results: {} {} {}\n",
+                  i.p_calm, i.p_contraversial, i.p_rd
+              )
+          });
           return Ok(());
       }
   }
