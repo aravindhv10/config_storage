@@ -74,49 +74,6 @@ impl inference_slave {
         }
         Ok(())
     }
-
-    pub fn inference_loop_large(&self) -> anyhow::Result<()> {
-        eprintln!("1");
-        loop {
-            let mut tensors = Vec::<videofft::fft_video>::new();
-            let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
-
-            eprintln!("2");
-
-            if true {
-                let message_input = self.receiver.recv()?;
-                tensors.extend_from_slice(std::slice::from_ref(message_input.tensor.as_ref()));
-                senders.push(message_input.oneshot_send_channel);
-            }
-
-            // Receive the 1st message
-            eprintln!("3");
-
-            // Try to receive the subsequent messages
-            let mut do_loop = true;
-            while do_loop {
-                let message_input = self
-                    .receiver
-                    .recv_timeout(std::time::Duration::from_millis(200));
-
-                match message_input {
-                    Ok(o) => {
-                        tensors.extend_from_slice(std::slice::from_ref(o.tensor.as_ref()));
-                        senders.push(o.oneshot_send_channel);
-                    }
-                    Err(e) => {
-                        do_loop = false;
-                    }
-                }
-            }
-
-            eprintln!(
-                "Got messages with length {} and {}",
-                tensors.len(),
-                senders.len()
-            );
-        }
-    }
 }
 
 fn main() -> anyhow::Result<()> {
@@ -165,7 +122,7 @@ fn main() -> anyhow::Result<()> {
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
 
         let the_message = message_input {
-            tensor: std::boxed::Box::new(list_video_fft_tensor[0]),
+            tensor: std::boxed::Box::from(&list_video_fft_tensor[0..1]),
             oneshot_send_channel: sender,
         };
 
