@@ -2755,6 +2755,12 @@ struct inference_loop {
       handle: std::thread::JoinHandle<anyhow::Result<()>>,
   }
 
+  impl Drop for inference_pair {
+      fn drop(&mut self) {
+          self.handle.join();
+      }
+  }
+
   impl inference_pair {
       fn new() -> Self {
           let (slave_inf, slave_sender) = inference_slave::new();
@@ -2793,15 +2799,7 @@ struct inference_loop {
       if args.len() < 2 {
           return Err(anyhow::format_err!("Need atleast 1 file name to work"));
       } else {
-          let (slave_inf, slave_sender) = inference_slave::new();
-
-          let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
-
-          let res = slave_sender
-              .do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
-
-          res.iter()
-              .for_each(|i| eprint!("probability {} {} {}", i.p_calm, i.p_contraversial, i.p_rd));
+          tmpslave = inference_pair::new();
 
           return Ok(());
       }
