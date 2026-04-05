@@ -21,10 +21,6 @@ struct message_input {
     oneshot_send_channel: Vec<oneshot::Sender<inferencerelated::infer_results>>,
 }
 
-struct inference_slave {
-    receiver: flume::Receiver<message_input>,
-}
-
 struct inference_communicator {
     sender: flume::Sender<message_input>,
     normalizer: std::boxed::Box<videofftstats::fft_video_normalizer>,
@@ -47,7 +43,7 @@ impl inference_communicator {
     fn do_infer_on_fft_tensor(
         &self,
         mut tensors_input: Vec<videofft::fft_video>,
-    ) -> Vec<inferencerelated::infer_results> {
+    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
         self.normalizer.normalize_vec(
             /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
         );
@@ -75,14 +71,19 @@ impl inference_communicator {
 
         self.sender.send(msg);
 
+        let mut ret =
+            Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
+
         for i in oneshot_receive_channel.into_iter() {
-            let res = i.recv()?;
-            eprintln!(
-                "Received reply... {} {} {}",
-                res.p_calm, res.p_contraversial, res.p_rd
-            );
+            ret.push(i.recv()?);
         }
+
+        return Ok(ret);
     }
+}
+
+struct inference_slave {
+    receiver: flume::Receiver<message_input>,
 }
 
 impl inference_slave {
