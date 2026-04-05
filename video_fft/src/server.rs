@@ -119,6 +119,22 @@ fn main() -> anyhow::Result<()> {
             );
         }
 
+        let mut oneshot_send_channel =
+            Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
+                list_video_fft_tensor.len(),
+            );
+
+        let mut oneshot_receive_channel =
+            Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
+                list_video_fft_tensor.len(),
+            );
+
+        for i in 0..list_video_fft_tensor.len() {
+            let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+            oneshot_send_channel.push(sender);
+            oneshot_receive_channel.push(receiver);
+        }
+
         handle_inference.join();
 
         return Ok(());
