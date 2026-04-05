@@ -182,13 +182,16 @@ impl inference_slave {
             // Try to receive the subsequent messages
             let mut do_loop = true;
 
+            eprintln!("Starting the second loop");
             while do_loop {
+                eprintln!("Inside the second loop");
                 let message_input = self
                     .receiver
                     .recv_timeout(std::time::Duration::from_millis(200));
 
                 match message_input {
                     Ok(o) => {
+                        eprintln!("Found data in the second loop");
                         tensors.extend_from_slice(o.tensor.as_slice());
 
                         for i in o.oneshot_send_channel.into_iter() {
@@ -196,18 +199,22 @@ impl inference_slave {
                         }
                     }
                     Err(e) => {
+                        eprintln!("Done with second loop");
                         do_loop = false;
                     }
                 }
             }
 
             if true {
+                eprintln!("creating inference wrapper");
                 let mut infer_slave = inferencerelated::infer_slave::new(1);
 
+                eprintln!("running inference");
                 let ret = infer_slave
                     .infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
 
                 for (i, j) in ret.into_iter().zip(senders.into_iter()) {
+                    eprintln!("sending message");
                     j.send(i);
                 }
             }
