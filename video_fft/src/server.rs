@@ -31,12 +31,12 @@ impl inference_slave {
         return (Self { receiver: receiver }, sender);
     }
 
-    pub fn inference_loop_small_debug(&self) -> anyhow::Result<()> {
+    pub fn inference_loop(&self) -> anyhow::Result<()> {
         eprintln!("1");
         Ok(())
     }
 
-    pub fn inference_loop(&self) -> anyhow::Result<()> {
+    pub fn inference_loop_large(&self) -> anyhow::Result<()> {
         eprintln!("1");
         loop {
             let mut tensors = Vec::<videofft::fft_video>::new();
@@ -92,7 +92,7 @@ fn main() -> anyhow::Result<()> {
     } else {
         let (inference_slave, request_sender) = inference_slave::new();
 
-        let handle_inference = std::thread::spawn(move || inference_loop_small_debug());
+        let handle_inference = std::thread::spawn(move || inference_loop());
 
         let slicer = videoview::video_slicer::new(
             /*path_file_video_input: String =*/ args[1].clone(),
