@@ -2549,25 +2549,27 @@ struct inference_loop {
               /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
           );
 
-          let mut oneshot_send_channel =
-              Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
-                  tensors_input.len(),
-              );
-
           let mut oneshot_receive_channel =
               Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
                   tensors_input.len(),
               );
 
-          for i in 0..tensors_input.len() {
-              let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-              oneshot_send_channel.push(sender);
-              oneshot_receive_channel.push(receiver);
-          }
+          let msg = {
+              let mut oneshot_send_channel =
+                  Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
+                      tensors_input.len(),
+                  );
 
-          let msg = message_input {
-              tensor: tensors_input,
-              oneshot_send_channel: oneshot_send_channel,
+              for i in 0..tensors_input.len() {
+                  let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+                  oneshot_send_channel.push(sender);
+                  oneshot_receive_channel.push(receiver);
+              }
+
+              message_input {
+                  tensor: tensors_input,
+                  oneshot_send_channel: oneshot_send_channel,
+              }
           };
 
           self.sender.send(msg);
@@ -2590,25 +2592,27 @@ struct inference_loop {
               /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
           );
 
-          let mut oneshot_send_channel =
-              Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
-                  tensors_input.len(),
-              );
-
           let mut oneshot_receive_channel =
               Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
                   tensors_input.len(),
               );
 
-          for i in 0..tensors_input.len() {
-              let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-              oneshot_send_channel.push(sender);
-              oneshot_receive_channel.push(receiver);
-          }
+          let msg = {
+              let mut oneshot_send_channel =
+                  Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
+                      tensors_input.len(),
+                  );
 
-          let msg = message_input {
-              tensor: tensors_input,
-              oneshot_send_channel: oneshot_send_channel,
+              for i in 0..tensors_input.len() {
+                  let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
+                  oneshot_send_channel.push(sender);
+                  oneshot_receive_channel.push(receiver);
+              }
+
+              message_input {
+                  tensor: tensors_input,
+                  oneshot_send_channel: oneshot_send_channel,
+              }
           };
 
           self.sender.send(msg);
@@ -2736,8 +2740,6 @@ struct inference_loop {
 
           res.iter()
               .for_each(|i| eprint!("probability {} {} {}", i.p_calm, i.p_contraversial, i.p_rd));
-
-          handle_inference.join();
 
           return Ok(());
       }
