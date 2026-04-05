@@ -140,6 +140,13 @@ fn main() -> anyhow::Result<()> {
             oneshot_receive_channel.push(receiver);
         }
 
+        let msg = message_input {
+            tensor: list_video_fft_tensor,
+            oneshot_send_channel: oneshot_send_channel,
+        };
+
+        slave_sender.send(msg);
+
         handle_inference.join();
 
         return Ok(());
