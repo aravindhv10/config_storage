@@ -46,8 +46,11 @@ impl inference_communicator {
 
     fn do_infer_on_fft_tensor(
         &self,
-        tensors_input: Vec<videofft::fft_video>,
+        mut tensors_input: Vec<videofft::fft_video>,
     ) -> Vec<inferencerelated::infer_results> {
+        self.normalizer.normalize_vec(
+            /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
+        );
     }
 }
 
