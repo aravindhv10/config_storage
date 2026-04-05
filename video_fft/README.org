@@ -2562,6 +2562,10 @@ struct inference_loop {
 
               eprintln!("2");
 
+              if true {
+                  let message_input = self.receiver.recv()?;
+              }
+
               
           }
           Ok(())

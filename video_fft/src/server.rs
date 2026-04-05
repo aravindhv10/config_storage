@@ -38,6 +38,10 @@ impl inference_slave {
             let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
 
             eprintln!("2");
+
+            if true {
+                let message_input = self.receiver.recv()?;
+            }
         }
         Ok(())
     }
