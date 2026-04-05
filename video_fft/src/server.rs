@@ -42,7 +42,9 @@ impl inference_slave {
             if true {
                 let input_msg = self.receiver.recv()?;
                 tensors.extend_from_slice(input_msg.tensor.as_slice());
-                senders.extend_from_slice(input_msg.oneshot_send_channel.as_slice());
+                for i in input_msg.oneshot_send_channel.into_iter() {
+                    senders.push(i);
+                }
             }
 
             // Receive the 1st message
@@ -58,7 +60,10 @@ impl inference_slave {
                 match message_input {
                     Ok(o) => {
                         tensors.extend_from_slice(o.tensor.as_slice());
-                        senders.extend_from_slice(o.oneshot_send_channel.as_slice());
+
+                        for i in o.oneshot_send_channel.into_iter() {
+                            senders.push(i);
+                        }
                     }
                     Err(e) => {
                         do_loop = false;
