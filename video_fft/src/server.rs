@@ -169,7 +169,7 @@ fn main() -> anyhow::Result<()> {
             oneshot_send_channel: sender,
         };
 
-        request_sender.send(the_message);
+        slave_sender.send(the_message);
 
         let res = receiver.recv()?;
 
