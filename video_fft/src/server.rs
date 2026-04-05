@@ -90,9 +90,9 @@ fn main() -> anyhow::Result<()> {
     if args.len() < 2 {
         return Err(anyhow::format_err!("Need atleast 1 file name to work"));
     } else {
-        let (inference_slave, request_sender) = inference_slave::new();
+        let (slave_inf, slave_sender) = inference_slave::new();
 
-        let handle_inference = std::thread::spawn(move || inference_loop());
+        let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
         let slicer = videoview::video_slicer::new(
             /*path_file_video_input: String =*/ args[1].clone(),
@@ -138,7 +138,7 @@ fn main() -> anyhow::Result<()> {
         //     res.p_calm, res.p_contraversial, res.p_rd
         // );
 
-        // handle_inference.join();
+        handle_inference.join();
 
         return Ok(());
     }
