@@ -231,7 +231,8 @@ fn main() -> anyhow::Result<()> {
 
         let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
-        let res = slave_sender.do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1])
+        let res =
+            slave_sender.do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1])?;
 
         res.iter()
             .for_each(|i| eprint!("probability {} {} {}", i.p_calm, i.p_contraversial, i.p_rd));
