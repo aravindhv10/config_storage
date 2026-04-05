@@ -17,8 +17,8 @@ use tch::IndexOp;
 const USE_GPU: bool = true;
 
 struct message_input {
-    tensor: std::boxed::Box<videofft::fft_video>,
-    oneshot_send_channel: oneshot::Sender<inferencerelated::infer_results>,
+    tensor: Vec<videofft::fft_video>,
+    oneshot_send_channel: Vec<oneshot::Sender<inferencerelated::infer_results>>,
 }
 
 struct inference_slave {
@@ -40,9 +40,9 @@ impl inference_slave {
             eprintln!("2");
 
             if true {
-                let message_input = self.receiver.recv()?;
-                tensors.extend_from_slice(std::slice::from_ref(message_input.tensor.as_ref()));
-                senders.push(message_input.oneshot_send_channel);
+                let input_msg = self.receiver.recv()?;
+                tensors.extend_from_slice(input_msg.tensor.as_slice());
+                senders.extend_from_slice(input_msg.oneshot_send_channel.as_slice());
             }
 
             // Receive the 1st message
@@ -57,8 +57,8 @@ impl inference_slave {
 
                 match message_input {
                     Ok(o) => {
-                        tensors.extend_from_slice(std::slice::from_ref(o.tensor.as_ref()));
-                        senders.push(o.oneshot_send_channel);
+                        tensors.extend_from_slice(o.tensor.as_slice());
+                        senders.extend_from_slice(o.oneshot_send_channel.as_slice());
                     }
                     Err(e) => {
                         do_loop = false;
@@ -118,6 +118,8 @@ fn main() -> anyhow::Result<()> {
                 /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
             );
         }
+
+        for i in list_video_fft_tensor.into_iter() {}
 
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
 
