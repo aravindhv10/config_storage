@@ -11,7 +11,6 @@ mod videofn;
 mod videoview;
 
 use anyhow::Context;
-use copyless::VecHelper;
 use rayon::prelude::*;
 use tch::IndexOp;
 

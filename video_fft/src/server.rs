@@ -11,7 +11,6 @@ mod videofn;
 mod videoview;
 
 use anyhow::Context;
-use copyless::VecHelper;
 use rayon::prelude::*;
 use tch::IndexOp;
 
@@ -45,6 +44,33 @@ impl inference_slave {
                 tensors.extend_from_slice(std::slice::from_ref(message_input.tensor.as_ref()));
                 senders.push(message_input.oneshot_send_channel);
             }
+
+            // Receive the 1st message
+            eprintln!("3");
+
+            // Try to receive the subsequent messages
+            let mut do_loop = true;
+            while do_loop {
+                let message_input = self
+                    .receiver
+                    .recv_timeout(std::time::Duration::from_millis(200));
+
+                match message_input {
+                    Ok(o) => {
+                        tensors.extend_from_slice(std::slice::from_ref(o.tensor.as_ref()));
+                        senders.push(o.oneshot_send_channel);
+                    }
+                    Err(e) => {
+                        do_loop = false;
+                    }
+                }
+            }
+
+            eprintln!(
+                "Got messages with length {} and {}",
+                tensors.len(),
+                senders.len()
+            );
         }
         Ok(())
     }
@@ -59,7 +85,7 @@ impl inference_slave {
 
             if true {
                 let message_input = self.receiver.recv()?;
-                tensors.alloc().init(message_input.tensor);
+                tensors.extend_from_slice(std::slice::from_ref(message_input.tensor.as_ref()));
                 senders.push(message_input.oneshot_send_channel);
             }
 
