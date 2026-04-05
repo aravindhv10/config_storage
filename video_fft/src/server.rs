@@ -166,6 +166,7 @@ impl inference_slave {
     }
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
+        eprintln!("Starting the inference loop...");
         loop {
             let mut tensors = Vec::<videofft::fft_video>::new();
             let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
