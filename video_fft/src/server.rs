@@ -42,7 +42,7 @@ impl inference_slave {
 
             if true {
                 let message_input = self.receiver.recv()?;
-                tensors.alloc().init(message_input.tensor);
+                tensors.extend_from_slice(std::slice::from_ref(message_input.tensor.as_ref()));
                 senders.push(message_input.oneshot_send_channel);
             }
         }
