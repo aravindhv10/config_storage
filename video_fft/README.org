@@ -2567,6 +2567,21 @@ struct inference_loop {
               oneshot_send_channel.push(sender);
               oneshot_receive_channel.push(receiver);
           }
+
+          let msg = message_input {
+              tensor: list_video_fft_tensor,
+              oneshot_send_channel: oneshot_send_channel,
+          };
+
+          self.sender.send(msg);
+
+          for i in oneshot_receive_channel.into_iter() {
+              let res = i.recv()?;
+              eprintln!(
+                  "Received reply... {} {} {}",
+                  res.p_calm, res.p_contraversial, res.p_rd
+              );
+          }
       }
   }
 
