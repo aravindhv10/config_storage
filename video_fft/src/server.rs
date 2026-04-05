@@ -217,16 +217,18 @@ impl inference_slave {
 }
 
 struct inference_pair {
-    slave_inf: inference_slave,
     slave_sender: inference_communicator,
+    handle: std::thread::JoinHandle<anyhow::Result<()>>,
 }
 
 impl inference_pair {
     fn new() -> Self {
         let (slave_inf, slave_sender) = inference_slave::new();
+        let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
+
         Self {
-            slave_inf: slave_inf,
             slave_sender: slave_sender,
+            handle: handle_inference,
         }
     }
 }
