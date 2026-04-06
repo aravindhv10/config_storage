@@ -761,6 +761,51 @@ video.len() in:
   }
 #+end_src
 
+*** Class to mlock files
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #define _MACRO_SELF_ file_mlock
+  class _MACRO_SELF_ {
+  private:
+    int fd;
+    void *addr;
+    struct stat st;
+
+  public:
+    _MACRO_SELF_(char const *path_file_input)
+        : fd(open(path_file_input, O_RDONLY)) {
+
+      if (fd == -1) {
+        printf("Error opening file %s\n", path_file_input);
+        return 1;
+      }
+
+      if (fstat(fd, &st)) {
+        printf("fstat failed...\n");
+      }
+
+      // Map the file into memory
+      addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+      if (addr == MAP_FAILED) {
+        printf("mmap failed...\n");
+      }
+
+      // Lock the pages into RAM
+      if (mlock(addr, st.st_size) == 0) {
+        printf("File locked in RAM successfully.\n");
+      } else {
+        printf("mlock failed..."); // Often requires CAP_IPC_LOCK or sudo
+      }
+    }
+    ~_MACRO_SELF_() {
+      munmap(/*size_t length =*/st.st_size,
+             /*void addr[length] =*/addr);
+
+      close(fd);
+    }
+  };
+  #undef _MACRO_SELF_
+#+end_src
+
 *** Declare the global semaphore for gpu management and function to initialize
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   class gpu_locker {
