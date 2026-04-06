@@ -423,7 +423,7 @@ impl grpc_inferer {
     }
 }
 
-#[async_trait]
+#[tonic::async_trait]
 impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
     async fn doinfer(
         &self,
