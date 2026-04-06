@@ -3256,6 +3256,8 @@ struct inference_loop {
   GITADD 'generate_rs_bindings.sh'
   GITADD 'infer.proto'
   GITADD 'infer_client.py'
+  GITADD 'infer_pb2.py'
+  GITADD 'infer_pb2_grpc.py'
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
   GITADD 'out/myrdvideoinferinfer.rs'
