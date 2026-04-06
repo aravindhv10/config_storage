@@ -30,18 +30,21 @@ public:
   gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
   ~gpu_locker() { sem_close(gpu_semaphore); }
 
-  inline void conditionalClearCache() {
+  inline void l() {
 #ifdef TORCH_HAS_CUDA
     if (torch::cuda::is_available()) {
-      c10::cuda::CUDACachingAllocator::emptyCache();
+      sem_wait(gpu_semaphore);
     }
 #endif
   }
 
-  inline void l() { sem_wait(gpu_semaphore); }
   inline void r() {
-    sem_post(gpu_semaphore);
-    conditionalClearCache();
+#ifdef TORCH_HAS_CUDA
+    if (torch::cuda::is_available()) {
+      sem_post(gpu_semaphore);
+      c10::cuda::CUDACachingAllocator::emptyCache();
+    }
+#endif
   }
 };
 
