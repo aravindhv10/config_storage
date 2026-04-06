@@ -474,7 +474,7 @@ fn main() -> anyhow::Result<()> {
     let addr = std::net::SocketAddr::new(ip_v4, port);
 
     let rt = tokio::runtime::Builder::new_multi_thread()
-        .thread_stack_size(1 << 24)
+        .thread_stack_size(1 << 28)
         .enable_all()
         .build()
         .unwrap();
