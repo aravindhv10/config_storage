@@ -42,7 +42,7 @@ public:
 #ifdef TORCH_HAS_CUDA
     if (torch::cuda::is_available()) {
       sem_post(gpu_semaphore);
-      c10::cuda::CUDACachingAllocator::emptyCache();
+      // c10::cuda::CUDACachingAllocator::emptyCache();
     }
 #endif
   }
