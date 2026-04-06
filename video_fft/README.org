@@ -3035,7 +3035,14 @@ struct inference_loop {
       ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
           let video_data = request.into_inner().data;
           let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
-          tokio::fs::write("/dev/shm/video.mp4", video_data);
+          let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
+          tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
+          match self.infpair.do_infer_on_video_file(&path_file_video_output) {
+              Ok(o) => {}
+              Err(e) => {
+                  return Err(tonic::Status::internal("Internal error, inference failed"));
+              }
+          }
 
           Err(tonic::Status::ok("Done inference"))
       }
