@@ -168,9 +168,36 @@ impl inference_slave {
     fn efficient_infer(
         vals: &mut Vec<videofft::fft_video>,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        let mut infer_slave = inferencerelated::infer_slave::new(1);
-        let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
-        return Ok(ret);
+        match vals.len() {
+            0 => {
+                return Err(anyhow::format_err!("Input vector is empty..."));
+            }
+            1 => {
+                let mut infer_slave = inferencerelated::infer_slave::new(1);
+                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+                return Ok(ret);
+            }
+            2 => {
+                let mut infer_slave = inferencerelated::infer_slave::new(2);
+                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+                return Ok(ret);
+            }
+            3 => {
+                let mut infer_slave = inferencerelated::infer_slave::new(3);
+                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+                return Ok(ret);
+            }
+            4 => {
+                let mut infer_slave = inferencerelated::infer_slave::new(4);
+                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+                return Ok(ret);
+            }
+            _ => {
+                let mut infer_slave = inferencerelated::infer_slave::new(1);
+                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+                return Ok(ret);
+            }
+        }
     }
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
