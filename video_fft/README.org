@@ -2777,7 +2777,7 @@ struct inference_loop {
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                   return Ok(ret);
               }
-              3 | 6 | 9 => {
+              3 | 6 | 9 | 15 => {
                   eprintln!("Inferring for length 3");
                   let mut infer_slave = inferencerelated::infer_slave::new(3);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
@@ -2839,6 +2839,44 @@ struct inference_loop {
 
                   let mut ret_2 = {
                       let mut infer_slave = inferencerelated::infer_slave::new(3);
+                      infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals_2)?
+                  };
+
+                  ret.append(&mut ret_2);
+
+                  return Ok(ret);
+              }
+              13 => {
+                  eprintln!("Inferring for length 5");
+
+                  let mut vals_2 = vals.split_off(12);
+
+                  let mut ret = {
+                      let mut infer_slave = inferencerelated::infer_slave::new(4);
+                      infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?
+                  };
+
+                  let mut ret_2 = {
+                      let mut infer_slave = inferencerelated::infer_slave::new(1);
+                      infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals_2)?
+                  };
+
+                  ret.append(&mut ret_2);
+
+                  return Ok(ret);
+              }
+              14 => {
+                  eprintln!("Inferring for length 5");
+
+                  let mut vals_2 = vals.split_off(12);
+
+                  let mut ret = {
+                      let mut infer_slave = inferencerelated::infer_slave::new(4);
+                      infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?
+                  };
+
+                  let mut ret_2 = {
+                      let mut infer_slave = inferencerelated::infer_slave::new(2);
                       infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals_2)?
                   };
 
