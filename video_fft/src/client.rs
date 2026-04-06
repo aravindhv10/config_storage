@@ -17,8 +17,10 @@ async fn main() -> anyhow::Result<()> {
     let mut client =
         infer::rdvideoinfer_client::RdvideoinferClient::connect("http://127.0.0.1:8001").await?;
 
-    let res = client.doinfer(payload).await?;
-    println!("{:?}", res);
+    let res = client.doinfer(payload).await?.into_inner();
+    for i in res.preds.iter() {
+        println!("{:?}", res);
+    }
 
     return Ok(());
 }
