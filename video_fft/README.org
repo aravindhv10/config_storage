@@ -43,6 +43,13 @@ video.len() in:
   path = "src/server.rs"
 #+end_src
 
+**** The inference client sample implementation
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [[bin]]
+  name = "infer-client"
+  path = "src/client.rs"
+#+end_src
+
 *** Dependencies
 
 **** build dependencies
@@ -3081,6 +3088,30 @@ struct inference_loop {
   }
 #+end_src
 
+* Code for client
+#+begin_src rust :mkdirp yes :tangle ./src/client.rs
+  pub mod infer {
+      tonic::include_proto!("myrdvideoinferinfer");
+  }
+
+  use std::fs;
+
+  #[tokio::main]
+  async fn main() -> Result<(), Box<dyn std::error::Error>> {
+      let args: Vec<String> = std::env::args().collect();
+      if args.len() < 2 {
+          return Err("Need atleast 1 commandline argument for the video file");
+      } else {
+          let data = fs::read(args[1]).expect("Failed reading image file");
+          let img = infer::Image { image_data: data };
+          let mut client = infer::infer_client::InferClient::connect("http://127.0.0.1:8001").await?;
+          let res = client.do_infer(img).await?;
+          println!("{:?}", res);
+          return Ok(());
+      }
+  }
+#+end_src
+
 * gitignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
   /build/
@@ -3138,6 +3169,7 @@ struct inference_loop {
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
+  GITADD 'src/client.rs'
   GITADD 'src/export.cpp'
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'

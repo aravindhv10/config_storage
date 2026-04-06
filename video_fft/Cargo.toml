@@ -11,6 +11,10 @@ path = "src/main.rs"
 name = "infer-server"
 path = "src/server.rs"
 
+[[bin]]
+name = "infer-client"
+path = "src/client.rs"
+
 [build-dependencies]
 tonic-prost-build = "0.14.2"
 
