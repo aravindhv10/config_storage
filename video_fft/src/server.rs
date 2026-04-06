@@ -432,9 +432,25 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         let video_data = request.into_inner().data;
         let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
         let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
+
         tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
-        match self.infpair.do_infer_on_video_file(&path_file_video_output) {
-            Ok(o) => {}
+        let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+        tokio::fs::remove_file(path_file_video_output.as_str());
+
+        match res {
+            Ok(o) => {
+                let preds: Vec<infer::Grpcvideoprediction> = o
+                    .iter()
+                    .map(|i| infer::Grpcvideoprediction {
+                        pa: i.p_calm,
+                        pb: i.p_contraversial,
+                        pc: i.p_rd,
+                    })
+                    .collect();
+                return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
+                    preds: preds,
+                }));
+            }
             Err(e) => {
                 return Err(tonic::Status::internal("Internal error, inference failed"));
             }
