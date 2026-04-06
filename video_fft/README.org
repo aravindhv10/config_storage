@@ -82,6 +82,7 @@ video.len() in:
 * build.rs
 #+begin_src rust :mkdirp yes :tangle ./build.rs
   fn main() -> Result<(), Box<dyn std::error::Error>> {
+      tonic_prost_build::compile_protos("./infer.proto")?;
       println!("cargo:rustc-link-arg=-lmytorch");
       Ok(())
   }
