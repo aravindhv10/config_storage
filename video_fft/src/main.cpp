@@ -34,7 +34,6 @@ public:
 
     if (fd == -1) {
       printf("Error opening file %s\n", path_file_input);
-      return 1;
     }
 
     if (fstat(fd, &st)) {
@@ -56,9 +55,7 @@ public:
   }
 
   ~_MACRO_SELF_() {
-    munmap(/*size_t length =*/st.st_size,
-           /*void addr[length] =*/addr);
-
+    munmap(addr, st.st_size);
     close(fd);
   }
 };
