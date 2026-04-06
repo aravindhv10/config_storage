@@ -234,6 +234,25 @@ impl inference_slave {
 
                 return Ok(ret);
             }
+            10 => {
+                eprintln!("Inferring for length 5");
+
+                let mut vals_2 = vals.split_off(8);
+
+                let mut ret = {
+                    let mut infer_slave = inferencerelated::infer_slave::new(4);
+                    infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?
+                };
+
+                let mut ret_2 = {
+                    let mut infer_slave = inferencerelated::infer_slave::new(2);
+                    infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals_2)?
+                };
+
+                ret.append(&mut ret_2);
+
+                return Ok(ret);
+            }
             11 => {
                 eprintln!("Inferring for length 5");
 
