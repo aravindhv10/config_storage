@@ -169,10 +169,8 @@ impl inference_slave {
         vals: &mut Vec<videofft::fft_video>,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
         let mut infer_slave = inferencerelated::infer_slave::new(1);
-
-        let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
-
-        ret
+        let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals)?;
+        return Ok(ret);
     }
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
