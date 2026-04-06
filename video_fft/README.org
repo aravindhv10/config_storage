@@ -2929,7 +2929,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               19 => {
                   eprintln!("Inferring for length 19");
 
@@ -2945,7 +2944,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               22 => {
                   eprintln!("Inferring for length 19");
 
@@ -2961,7 +2959,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               23 => {
                   eprintln!("Inferring for length 23");
 
@@ -2977,7 +2974,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               25 => {
                   eprintln!("Inferring for length 25");
 
@@ -2993,7 +2989,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               26 => {
                   eprintln!("Inferring for length 26");
 
@@ -3009,7 +3004,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               29 => {
                   eprintln!("Inferring for length 29");
 
@@ -3025,7 +3019,6 @@ struct inference_loop {
 
                   return Ok(ret);
               }
-
               _ => {
                   eprintln!("Inferring for length 29");
 

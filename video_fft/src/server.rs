@@ -305,7 +305,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             19 => {
                 eprintln!("Inferring for length 19");
 
@@ -321,7 +320,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             22 => {
                 eprintln!("Inferring for length 19");
 
@@ -337,7 +335,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             23 => {
                 eprintln!("Inferring for length 23");
 
@@ -353,7 +350,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             25 => {
                 eprintln!("Inferring for length 25");
 
@@ -369,7 +365,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             26 => {
                 eprintln!("Inferring for length 26");
 
@@ -385,7 +380,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             29 => {
                 eprintln!("Inferring for length 29");
 
@@ -401,7 +395,6 @@ impl inference_slave {
 
                 return Ok(ret);
             }
-
             _ => {
                 eprintln!("Inferring for length 29");
 
