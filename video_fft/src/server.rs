@@ -305,6 +305,7 @@ impl inference_slave {
 
                 return Ok(ret);
             }
+
             19 => {
                 eprintln!("Inferring for length 19");
 
@@ -320,6 +321,7 @@ impl inference_slave {
 
                 return Ok(ret);
             }
+
             22 => {
                 eprintln!("Inferring for length 19");
 
@@ -384,9 +386,35 @@ impl inference_slave {
                 return Ok(ret);
             }
 
+            29 => {
+                eprintln!("Inferring for length 29");
+
+                let split_off_point = 28 as usize;
+
+                let mut vals_2 = vals.split_off(split_off_point);
+
+                let mut ret = Self::efficient_infer(vals)?;
+
+                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
+
+                ret.append(&mut ret_2);
+
+                return Ok(ret);
+            }
+
             _ => {
-                let mut infer_slave = inferencerelated::infer_slave::new(1);
-                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+                eprintln!("Inferring for length 29");
+
+                let split_off_point = 30 as usize;
+
+                let mut vals_2 = vals.split_off(split_off_point);
+
+                let mut ret = Self::efficient_infer(vals)?;
+
+                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
+
+                ret.append(&mut ret_2);
+
                 return Ok(ret);
             }
         }
