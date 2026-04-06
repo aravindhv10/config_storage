@@ -2959,6 +2959,55 @@ struct inference_loop {
 
                   return Ok(ret);
               }
+
+              23 => {
+                  eprintln!("Inferring for length 23");
+
+                  let split_off_point = 20 as usize;
+
+                  let mut vals_2 = vals.split_off(split_off_point);
+
+                  let mut ret = Self::efficient_infer(vals)?;
+
+                  let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
+
+                  ret.append(&mut ret_2);
+
+                  return Ok(ret);
+              }
+
+              25 => {
+                  eprintln!("Inferring for length 25");
+
+                  let split_off_point = 24 as usize;
+
+                  let mut vals_2 = vals.split_off(split_off_point);
+
+                  let mut ret = Self::efficient_infer(vals)?;
+
+                  let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
+
+                  ret.append(&mut ret_2);
+
+                  return Ok(ret);
+              }
+
+              26 => {
+                  eprintln!("Inferring for length 26");
+
+                  let split_off_point = 24 as usize;
+
+                  let mut vals_2 = vals.split_off(split_off_point);
+
+                  let mut ret = Self::efficient_infer(vals)?;
+
+                  let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
+
+                  ret.append(&mut ret_2);
+
+                  return Ok(ret);
+              }
+
               _ => {
                   let mut infer_slave = inferencerelated::infer_slave::new(1);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
