@@ -3064,30 +3064,20 @@ struct inference_loop {
       }
   }
 
-  fn main() -> anyhow::Result<()> {
-      if false {
-          let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-          let (sender, receiver) = flume::unbounded::<message_input>();
-      }
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
+      let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
+      let port: u16 = 8001;
+      let addr = std::net::SocketAddr::new(ip_v4, port);
 
-      let args: Vec<String> = std::env::args().collect();
+      tonic::transport::Server::builder()
+          .add_service(infer::rdvideoinfer_server::RdvideoinferServer::new(
+              grpc_inferer::new(),
+          ))
+          .serve(addr)
+          .await;
 
-      if args.len() < 2 {
-          return Err(anyhow::format_err!("Need atleast 1 file name to work"));
-      } else {
-          let tmpslave = inference_pair::new();
-          let res = tmpslave
-              .do_infer_on_video_file(/*path_file_video_input: &str =*/ args[1].as_str())?;
-
-          res.into_iter().for_each(|i| {
-              eprintln!(
-                  "inference results: {} {} {}\n",
-                  i.p_calm, i.p_contraversial, i.p_rd
-              )
-          });
-
-          return Ok(());
-      }
+      Ok(())
   }
 #+end_src
 
