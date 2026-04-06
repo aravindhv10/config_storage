@@ -2564,23 +2564,23 @@ video.len() in:
 #+begin_src rust :tangle ./infer.proto
   syntax = "proto3";
 
-  package myrdvideoinferinfer;
+  package Myrdvideoinferinfer;
 
-  message grpcvideodata {
+  message Grpcvideodata {
       bytes data = 1;
   }
 
-  message grpcvideoprediction {
+  message Grpcvideoprediction {
       float pa = 1;
       float pb = 2;
       float pc = 3;
   }
 
-  message grpcvideopredictionreply {
+  message Grpcvideopredictionreply {
       repeated grpcvideoprediction preds = 1;
   }
 
-  service rdvideoinfer {
+  service Rdvideoinfer {
     rpc doinfer(grpcvideodata) returns (grpcvideopredictionreply) {}
   }
 #+end_src
