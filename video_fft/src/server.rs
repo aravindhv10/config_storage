@@ -15,7 +15,7 @@ use rayon::prelude::*;
 use tch::IndexOp;
 
 pub mod infer {
-    tonic::include_proto!("infer");
+    tonic::include_proto!("myrdvideoinferinfer");
 }
 
 const USE_GPU: bool = true;
