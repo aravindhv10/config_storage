@@ -388,7 +388,6 @@ impl inference_slave {
                 let mut vals_2 = vals.split_off(split_off_point);
 
                 let mut ret = Self::efficient_infer(vals)?;
-
                 let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
 
                 ret.append(&mut ret_2);
