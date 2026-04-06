@@ -14,11 +14,12 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <ATen/cuda/CUDACachingAllocator.h>
 #include <ATen/ops/sum.h>
 #include <c10/core/TensorOptions.h>
-#include <c10/cuda/CUDACachingAllocator.h>
 #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
 #include <torch/fft.h>
 #include <torch/torch.h>
+// #include <c10/cuda/CUDACachingAllocator.h>
 
 #endif
