@@ -2614,6 +2614,10 @@ struct inference_loop {
   use rayon::prelude::*;
   use tch::IndexOp;
 
+  pub mod infer {
+      tonic::include_proto!("infer");
+  }
+
   const USE_GPU: bool = true;
 
   struct message_input {
@@ -3087,6 +3091,7 @@ struct inference_loop {
   GITADD 'infer.proto'
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
+  GITADD 'out/myrdvideoinferinfer.rs'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'

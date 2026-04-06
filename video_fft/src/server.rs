@@ -14,6 +14,10 @@ use anyhow::Context;
 use rayon::prelude::*;
 use tch::IndexOp;
 
+pub mod infer {
+    tonic::include_proto!("infer");
+}
+
 const USE_GPU: bool = true;
 
 struct message_input {
