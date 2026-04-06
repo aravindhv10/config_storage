@@ -2812,7 +2812,7 @@ struct inference_loop {
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                   return Ok(ret);
               }
-              3 | 6 | 9 | 15 | 18 | 21 => {
+              3 | 6 | 9 | 15 | 18 | 21 | 27 | 30 => {
                   eprintln!("Inferring for length 3");
                   let mut infer_slave = inferencerelated::infer_slave::new(3);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
@@ -2947,7 +2947,7 @@ struct inference_loop {
               22 => {
                   eprintln!("Inferring for length 19");
 
-                  let split_off_point = 22 as usize;
+                  let split_off_point = 20 as usize;
 
                   let mut vals_2 = vals.split_off(split_off_point);
 
