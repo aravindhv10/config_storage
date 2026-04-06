@@ -468,8 +468,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
     }
 }
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
     let port: u16 = 8001;
     let addr = std::net::SocketAddr::new(ip_v4, port);
