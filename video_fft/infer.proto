@@ -1,6 +1,10 @@
 syntax = "proto3";
 
-package Myrdvideoinferinfer;
+package myrdvideoinferinfer;
+
+service Rdvideoinfer {
+  rpc Doinfer(Grpcvideodata) returns (Grpcvideopredictionreply) {}
+}
 
 message Grpcvideodata {
     bytes data = 1;
@@ -14,8 +18,4 @@ message Grpcvideoprediction {
 
 message Grpcvideopredictionreply {
     repeated Grpcvideoprediction preds = 1;
-}
-
-service Rdvideoinfer {
-  rpc Doinfer(Grpcvideodata) returns (Grpcvideopredictionreply) {}
 }

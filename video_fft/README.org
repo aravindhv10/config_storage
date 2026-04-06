@@ -2567,7 +2567,11 @@ video.len() in:
 #+begin_src rust :tangle ./infer.proto
   syntax = "proto3";
 
-  package Myrdvideoinferinfer;
+  package myrdvideoinferinfer;
+
+  service Rdvideoinfer {
+    rpc Doinfer(Grpcvideodata) returns (Grpcvideopredictionreply) {}
+  }
 
   message Grpcvideodata {
       bytes data = 1;
@@ -2583,9 +2587,6 @@ video.len() in:
       repeated Grpcvideoprediction preds = 1;
   }
 
-  service Rdvideoinfer {
-    rpc Doinfer(Grpcvideodata) returns (Grpcvideopredictionreply) {}
-  }
 #+end_src
 
 * Inference loop algorithm
