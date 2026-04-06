@@ -31,7 +31,10 @@ public:
   ~gpu_locker() { sem_close(gpu_semaphore); }
 
   inline void l() { sem_wait(gpu_semaphore); }
-  inline void r() { sem_post(gpu_semaphore); }
+  inline void r() {
+    sem_post(gpu_semaphore);
+    c10::cuda::CUDACachingAllocator::emptyCache();
+  }
 };
 
 static gpu_locker locker;
