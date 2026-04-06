@@ -3118,7 +3118,7 @@ struct inference_loop {
 
       let res = client.doinfer(payload).await?.into_inner();
       for i in res.preds.iter() {
-          println!("{:?}", res);
+          println!("{:?}", i);
       }
 
       return Ok(());

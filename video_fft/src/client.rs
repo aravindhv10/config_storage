@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
 
     let res = client.doinfer(payload).await?.into_inner();
     for i in res.preds.iter() {
-        println!("{:?}", res);
+        println!("{:?}", i);
     }
 
     return Ok(());
