@@ -20,8 +20,4 @@
 #include <torch/fft.h>
 #include <torch/torch.h>
 
-#ifdef TORCH_HAS_CUDA
-    #include <c10/cuda/CUDACachingAllocator.h>
-#endif
-
 #endif
