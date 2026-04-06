@@ -184,13 +184,13 @@ impl inference_slave {
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                 return Ok(ret);
             }
-            3 => {
+            3 | 6 | 9 => {
                 eprintln!("Inferring for length 3");
                 let mut infer_slave = inferencerelated::infer_slave::new(3);
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                 return Ok(ret);
             }
-            4 => {
+            4 | 8 | 12 | 16 => {
                 eprintln!("Inferring for length 4");
                 let mut infer_slave = inferencerelated::infer_slave::new(4);
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
@@ -208,6 +208,25 @@ impl inference_slave {
 
                 let mut ret_2 = {
                     let mut infer_slave = inferencerelated::infer_slave::new(1);
+                    infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals_2)?
+                };
+
+                ret.append(&mut ret_2);
+
+                return Ok(ret);
+            }
+            7 => {
+                eprintln!("Inferring for length 5");
+
+                let mut vals_2 = vals.split_off(4);
+
+                let mut ret = {
+                    let mut infer_slave = inferencerelated::infer_slave::new(4);
+                    infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?
+                };
+
+                let mut ret_2 = {
+                    let mut infer_slave = inferencerelated::infer_slave::new(3);
                     infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut vals_2)?
                 };
 
