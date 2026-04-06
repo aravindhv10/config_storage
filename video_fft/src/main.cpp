@@ -50,7 +50,7 @@ public:
     if (mlock(addr, st.st_size) == 0) {
       printf("File locked in RAM successfully.\n");
     } else {
-      printf("mlock failed..."); // Often requires CAP_IPC_LOCK or sudo
+      printf("mlock failed...\n"); // Often requires CAP_IPC_LOCK or sudo
     }
   }
 
@@ -65,12 +65,15 @@ class gpu_locker {
 
 private:
   sem_t *gpu_semaphore;
+  file_mlock l1, l2, l3, l4;
 
 public:
-  gpu_locker() : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)) {}
-  ~gpu_locker() { sem_close(gpu_semaphore); }
+  gpu_locker()
+      : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)),
+        l1("/root/.cache/model_1.pt2"), l2("/root/.cache/model_3.pt2"),
+        l3("/root/.cache/model_2.pt2"), l4("/root/.cache/model_4.pt2") {}
 
-  // inline void cleancache() { c10::cuda::CUDACachingAllocator::emptyCache(); }
+  ~gpu_locker() { sem_close(gpu_semaphore); }
 
   inline void l() {
     if (torch::cuda::is_available()) {
