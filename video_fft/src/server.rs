@@ -423,11 +423,12 @@ impl grpc_inferer {
     }
 }
 
+#[async_trait]
 impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
     async fn doinfer(
         &self,
-        request: tonic::Request<super::Grpcvideodata>,
-    ) -> std::result::Result<tonic::Response<super::Grpcvideopredictionreply>, tonic::Status> {
+        request: tonic::Request<infer::Grpcvideodata>,
+    ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
     }
 }
 
