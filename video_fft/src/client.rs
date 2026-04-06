@@ -11,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
         ));
     }
 
-    let data = tokio::fs::read(args[1]).await?;
+    let data = tokio::fs::read(args[1].as_str()).await?;
     let payload = infer::Grpcvideodata { data: data };
 
     let mut client =
