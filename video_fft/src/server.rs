@@ -165,7 +165,9 @@ impl inference_slave {
         );
     }
 
-    fn efficient_infer(vals: &mut Vec<videofft::fft_video>) -> Vec<infer_results> {
+    fn efficient_infer(
+        vals: &mut Vec<videofft::fft_video>,
+    ) -> Vec<inferencerelated::infer_results> {
         let mut infer_slave = inferencerelated::infer_slave::new(1);
 
         let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
