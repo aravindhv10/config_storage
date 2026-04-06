@@ -429,16 +429,22 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         &self,
         request: tonic::Request<infer::Grpcvideodata>,
     ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
-        let video_data = request.into_inner().data;
+        eprintln!("1");
+        let video_data = &(request.into_inner().data);
+        eprintln!("2");
         let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
+        eprintln!("3");
         let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
-
+        eprintln!("4");
         tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
+        eprintln!("5");
         let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+        eprintln!("6");
         tokio::fs::remove_file(path_file_video_output.as_str());
-
+        eprintln!("7");
         match res {
             Ok(o) => {
+                eprintln!("8");
                 let preds: Vec<infer::Grpcvideoprediction> = o
                     .iter()
                     .map(|i| infer::Grpcvideoprediction {
@@ -447,11 +453,13 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                         pc: i.p_rd,
                     })
                     .collect();
+                eprintln!("9");
                 return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
                     preds: preds,
                 }));
             }
             Err(e) => {
+                eprintln!("9");
                 return Err(tonic::Status::internal("Internal error, inference failed"));
             }
         }
