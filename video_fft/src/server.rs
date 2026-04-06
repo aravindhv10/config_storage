@@ -165,6 +165,14 @@ impl inference_slave {
         );
     }
 
+    fn efficient_infer(vals: &mut Vec<videofft::fft_video>) -> Vec<infer_results> {
+        let mut infer_slave = inferencerelated::infer_slave::new(1);
+
+        let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
+
+        ret
+    }
+
     pub fn inference_loop(&self) -> anyhow::Result<()> {
         loop {
             let mut tensors = Vec::<videofft::fft_video>::new();
@@ -201,11 +209,7 @@ impl inference_slave {
             }
 
             if true {
-                let mut infer_slave = inferencerelated::infer_slave::new(1);
-
-                let ret = infer_slave
-                    .infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)?;
-
+                let ret = efficient_infer(/*vals: &mut Vec<videofft::fft_video> =*/ tensors);
                 for (i, j) in ret.into_iter().zip(senders.into_iter()) {
                     j.send(i);
                 }
