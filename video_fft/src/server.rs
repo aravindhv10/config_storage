@@ -423,8 +423,12 @@ impl grpc_inferer {
     }
 }
 
-impl Rdvideoinfer for grpc_inferer {
-    async fn Doinfer() {}
+impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
+    async fn doinfer(
+        &self,
+        request: tonic::Request<super::Grpcvideodata>,
+    ) -> std::result::Result<tonic::Response<super::Grpcvideopredictionreply>, tonic::Status> {
+    }
 }
 
 fn main() -> anyhow::Result<()> {
