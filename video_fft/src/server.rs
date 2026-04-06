@@ -423,6 +423,10 @@ impl grpc_inferer {
     }
 }
 
+impl Rdvideoinfer for grpc_inferer {
+    async fn Doinfer() {}
+}
+
 fn main() -> anyhow::Result<()> {
     if false {
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
