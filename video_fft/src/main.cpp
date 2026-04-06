@@ -31,18 +31,14 @@ public:
   ~gpu_locker() { sem_close(gpu_semaphore); }
 
   inline void l() {
-#ifdef USE_CUDA
     if (torch::cuda::is_available()) {
       sem_wait(gpu_semaphore);
     }
-#endif
   }
   inline void r() {
-#ifdef USE_CUDA
     if (torch::cuda::is_available()) {
       sem_post(gpu_semaphore);
     }
-#endif
   }
 };
 
