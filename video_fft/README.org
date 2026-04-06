@@ -2577,11 +2577,11 @@ video.len() in:
   }
 
   message Grpcvideopredictionreply {
-      repeated grpcvideoprediction preds = 1;
+      repeated Grpcvideoprediction preds = 1;
   }
 
   service Rdvideoinfer {
-    rpc doinfer(grpcvideodata) returns (grpcvideopredictionreply) {}
+    rpc Doinfer(Grpcvideodata) returns (Grpcvideopredictionreply) {}
   }
 #+end_src
 
