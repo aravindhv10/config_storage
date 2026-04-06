@@ -11,6 +11,9 @@ path = "src/main.rs"
 name = "infer-server"
 path = "src/server.rs"
 
+[build-dependencies]
+tonic-prost-build = "0.14.2"
+
 [dependencies]
 anyhow = "1.0.102"
 copyless = "0.1.5"

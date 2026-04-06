@@ -45,6 +45,12 @@ video.len() in:
 
 *** Dependencies
 
+**** build dependencies
+#+begin_src toml :mkdirp yes :tangle ./Cargo.toml
+  [build-dependencies]
+  tonic-prost-build = "0.14.2"
+#+end_src
+
 **** Basic common stuff
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [dependencies]
