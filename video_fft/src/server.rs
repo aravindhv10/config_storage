@@ -440,7 +440,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         eprintln!("5");
         let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
         eprintln!("6");
-        tokio::fs::remove_file(path_file_video_output.as_str());
+        tokio::fs::remove_file(path_file_video_output.as_str()).await?;
         eprintln!("7");
         match res {
             Ok(o) => {
