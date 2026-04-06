@@ -429,6 +429,11 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         &self,
         request: tonic::Request<infer::Grpcvideodata>,
     ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
+        let video_data = request.into_inner().data;
+        let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
+        tokio::fs::write("/dev/shm/video.mp4", video_data);
+
+        Err(tonic::Status::ok("Done inference"))
     }
 }
 
