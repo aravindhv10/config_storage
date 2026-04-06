@@ -411,6 +411,18 @@ impl inference_pair {
     }
 }
 
+struct grpc_inferer {
+    infpair: std::sync::Arc<inference_pair>,
+}
+
+impl grpc_inferer {
+    fn new() -> Self {
+        Self {
+            infpair: std::sync::Arc::<inference_pair>::new(inference_pair::new()),
+        }
+    }
+}
+
 fn main() -> anyhow::Result<()> {
     if false {
         let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
