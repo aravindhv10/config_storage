@@ -209,8 +209,9 @@ impl inference_slave {
             }
 
             if true {
-                let ret =
-                    Self::efficient_infer(/*vals: &mut Vec<videofft::fft_video> =*/ tensors);
+                let ret = Self::efficient_infer(
+                    /*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors,
+                );
                 for (i, j) in ret.into_iter().zip(senders.into_iter()) {
                     j.send(i);
                 }
