@@ -54,6 +54,7 @@ public:
       printf("mlock failed..."); // Often requires CAP_IPC_LOCK or sudo
     }
   }
+
   ~_MACRO_SELF_() {
     munmap(/*size_t length =*/st.st_size,
            /*void addr[length] =*/addr);
