@@ -3094,21 +3094,25 @@ struct inference_loop {
       tonic::include_proto!("myrdvideoinferinfer");
   }
 
-  use std::fs;
-
   #[tokio::main]
-  async fn main() -> Result<(), Box<dyn std::error::Error>> {
+  async fn main() -> anyhow::Result<()> {
       let args: Vec<String> = std::env::args().collect();
       if args.len() < 2 {
-          return Err("Need atleast 1 commandline argument for the video file");
-      } else {
-          let data = fs::read(args[1]).expect("Failed reading image file");
-          let img = infer::Image { image_data: data };
-          let mut client = infer::infer_client::InferClient::connect("http://127.0.0.1:8001").await?;
-          let res = client.do_infer(img).await?;
-          println!("{:?}", res);
-          return Ok(());
+          return Err(anyhow::format_err!(
+              "Need atleast 1 commandline argument for the video file"
+          ));
       }
+
+      let data = tokio::fs::read(args[1]).await?;
+      let payload = infer::Grpcvideodata { data: data };
+
+      let mut client =
+          infer::rdvideoinfer_client::RdvideoinferClient::connect("http://127.0.0.1:8001").await?;
+
+      let res = client.doinfer(payload).await?;
+      // println!("{:?}", res);
+
+      return Ok(());
   }
 #+end_src
 
