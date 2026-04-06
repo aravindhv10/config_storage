@@ -474,12 +474,20 @@ async fn main() -> anyhow::Result<()> {
     let port: u16 = 8001;
     let addr = std::net::SocketAddr::new(ip_v4, port);
 
-    tonic::transport::Server::builder()
-        .add_service(infer::rdvideoinfer_server::RdvideoinferServer::new(
-            grpc_inferer::new(),
-        ))
-        .serve(addr)
-        .await;
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .thread_stack_size(1 << 24)
+        .enable_all()
+        .build()
+        .unwrap();
+
+    rt.block_on(async {
+        tonic::transport::Server::builder()
+            .add_service(infer::rdvideoinfer_server::RdvideoinferServer::new(
+                grpc_inferer::new(),
+            ))
+            .serve(addr)
+            .await;
+    });
 
     Ok(())
 }
