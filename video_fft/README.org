@@ -3192,6 +3192,10 @@ struct inference_loop {
 
       rt.block_on(async {
           tonic::transport::Server::builder()
+              // Set the limit for receiving (decoding)
+              .max_decoding_message_size(1 << 25) 
+              // Set the limit for sending (encoding)
+              .max_encoding_message_size(1 << 25) 
               .add_service(infer::rdvideoinfer_server::RdvideoinferServer::new(
                   grpc_inferer::new(),
               ))
@@ -3360,7 +3364,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Fully working inference loop + communicator'
+  git status ; git commit -m 'More optimizations on batched inference function'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
