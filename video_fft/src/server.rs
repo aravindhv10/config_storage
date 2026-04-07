@@ -428,7 +428,7 @@ impl inference_slave {
             }
 
             // Try to receive the subsequent messages
-            let mut do_loop = true;
+            let mut do_loop = tensors.len() <= 30;
 
             while do_loop {
                 let message_input = self
@@ -442,6 +442,8 @@ impl inference_slave {
                         for i in o.oneshot_send_channel.into_iter() {
                             senders.push(i);
                         }
+
+                        do_loop = tensors.len() <= 30;
                     }
                     Err(e) => {
                         do_loop = false;
