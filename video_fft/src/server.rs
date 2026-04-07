@@ -564,7 +564,7 @@ fn main() -> anyhow::Result<()> {
         .unwrap();
 
     let service = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
         .build_v1()
         .unwrap();
 
