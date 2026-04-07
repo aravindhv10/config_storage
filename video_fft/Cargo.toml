@@ -34,5 +34,6 @@ serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.50.0", features = ["full"] }
 tonic = { version = "0.14.5", features = ["zstd"] }
 tonic-prost = "0.14.5"
+tonic-reflection = "0.14.5"
 
 tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }

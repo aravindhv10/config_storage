@@ -76,6 +76,7 @@ video.len() in:
   tokio = { version = "1.50.0", features = ["full"] }
   tonic = { version = "0.14.5", features = ["zstd"] }
   tonic-prost = "0.14.5"
+  tonic-reflection = "0.14.5"
 #+end_src
 
 **** Torch-rs
