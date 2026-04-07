@@ -561,11 +561,11 @@ fn main() -> anyhow::Result<()> {
 
     rt.block_on(async {
         tonic::transport::Server::builder()
-            // Set the limit for receiving (decoding)
-            .max_encoding_message_size(1 << 25)
-            .add_service(infer::rdvideoinfer_server::RdvideoinferServer::new(
-                grpc_inferer::new(),
-            ))
+            .add_service(
+                infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
+                    .max_encoding_message_size(1 << 25)
+                    .max_decoding_message_size(1 << 25),
+            )
             .serve(addr)
             .await;
     });
