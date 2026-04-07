@@ -563,8 +563,14 @@ fn main() -> anyhow::Result<()> {
         .build()
         .unwrap();
 
+    let service = tonic_reflection::server::Builder::configure()
+        .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
+        .build_v1()
+        .unwrap();
+
     rt.block_on(async {
         tonic::transport::Server::builder()
+            .add_service(service)
             .add_service(
                 infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
                     .max_encoding_message_size(1 << 25)
