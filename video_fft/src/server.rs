@@ -16,6 +16,8 @@ use tch::IndexOp;
 
 pub mod infer {
     tonic::include_proto!("myrdvideoinferinfer");
+
+    pub(crate) const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("infer");
 }
 
 const USE_GPU: bool = true;
