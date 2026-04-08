@@ -526,7 +526,13 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         let video_data = &(request.into_inner().data);
         let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
         let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
-        tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
+        if (tokio::fs::try_exists(path_file_video_output).await?) {
+            return Err(tonic::Status::internal(
+                "Same file is already being processed...",
+            ));
+        } else {
+            tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
+        }
         let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
         tokio::fs::remove_file(path_file_video_output.as_str()).await?;
         match res {
