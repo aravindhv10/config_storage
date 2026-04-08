@@ -194,6 +194,8 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
 
   try {
 
+    c10::InferenceMode mode;
+
     uint16_t len_max, len_min;
     if (len_x > len_y) {
       len_max = len_x;
