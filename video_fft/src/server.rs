@@ -428,7 +428,7 @@ impl inference_slave {
             }
 
             // Try to receive the subsequent messages
-            let mut do_loop = tensors.len() <= 30;
+            let mut do_loop = tensors.len() <= 20;
 
             while do_loop {
                 let message_input = self
@@ -443,7 +443,7 @@ impl inference_slave {
                             senders.push(i);
                         }
 
-                        do_loop = tensors.len() <= 30;
+                        do_loop = tensors.len() <= 20;
                     }
                     Err(e) => {
                         do_loop = false;
