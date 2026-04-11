@@ -1299,19 +1299,6 @@
 
       zsh = {
         enable = true;
-        ohMyZsh = {
-          enable = true;
-          plugins = [
-            "eza"
-            "fzf"
-            "git"
-            "procs"
-            "starship"
-            "systemd"
-            "zoxide"
-          ];
-          theme = "robbyrussell";
-        };
       };
     };
   }
@@ -1533,7 +1520,7 @@
   GITADD 'README.org'
   GITADD 'setup.sh'
 
-  git status ; git commit -m 'Updated zswap arguments'
+  git status ; git commit -m 'Some zsh cleanups'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
