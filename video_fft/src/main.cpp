@@ -132,7 +132,9 @@ public:
     locker.l();
   }
 
-  ~_MACRO_SELF_() { locker.r(); }
+  ~_MACRO_SELF_() {
+    locker.r();
+  }
 
   inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
     BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));

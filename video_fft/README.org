@@ -757,6 +757,8 @@ video.len() in:
 
 **** torch
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
+  #define USE_CUDA 1
+
   #include <ATen/ops/sum.h>
   #include <c10/core/TensorOptions.h>
   #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
@@ -889,7 +891,6 @@ video.len() in:
 
   static gpu_locker locker;
 #+end_src
-c10::cuda::CUDACachingAllocator::emptyCache();
 
 *** Main inference class
 
@@ -934,7 +935,9 @@ c10::cuda::CUDACachingAllocator::emptyCache();
       locker.l();
     }
 
-    ~_MACRO_SELF_() { locker.r(); }
+    ~_MACRO_SELF_() {
+      locker.r();
+    }
 
     inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
       BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
