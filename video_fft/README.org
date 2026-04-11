@@ -762,6 +762,10 @@ video.len() in:
   #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
   #include <torch/fft.h>
   #include <torch/torch.h>
+
+  #ifdef USE_CUDA
+  #include <c10/cuda/CUDACachingAllocator.h>
+  #endif
 #+end_src
 
 *** End guard
@@ -874,6 +878,10 @@ video.len() in:
     }
     inline void r() {
       if (torch::cuda::is_available()) {
+  #ifdef USE_CUDA
+        c10::cuda::CUDACachingAllocator::emptyCache();
+        printf("Cleaned cuda cache...\n");
+  #endif
         sem_post(gpu_semaphore);
       }
     }
@@ -881,6 +889,7 @@ video.len() in:
 
   static gpu_locker locker;
 #+end_src
+c10::cuda::CUDACachingAllocator::emptyCache();
 
 *** Main inference class
 

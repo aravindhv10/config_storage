@@ -82,6 +82,10 @@ public:
   }
   inline void r() {
     if (torch::cuda::is_available()) {
+#ifdef USE_CUDA
+      c10::cuda::CUDACachingAllocator::emptyCache();
+      printf("Cleaned cuda cache...\n");
+#endif
       sem_post(gpu_semaphore);
     }
   }

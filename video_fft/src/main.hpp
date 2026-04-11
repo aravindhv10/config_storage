@@ -23,4 +23,8 @@
 #include <torch/fft.h>
 #include <torch/torch.h>
 
+#ifdef USE_CUDA
+#include <c10/cuda/CUDACachingAllocator.h>
+#endif
+
 #endif
