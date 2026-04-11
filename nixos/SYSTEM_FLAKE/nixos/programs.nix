@@ -37,19 +37,6 @@
 
     zsh = {
       enable = true;
-      ohMyZsh = {
-        enable = true;
-        plugins = [
-          "eza"
-          "fzf"
-          "git"
-          "procs"
-          "starship"
-          "systemd"
-          "zoxide"
-        ];
-        theme = "robbyrussell";
-      };
     };
   };
 }
