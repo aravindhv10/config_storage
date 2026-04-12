@@ -622,7 +622,6 @@
       get_helix_editor
       # get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
 
-      get_rust_package 'https://github.com/chmln/sd.git'
       get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
       get_rust_package 'https://github.com/BurntSushi/xsv.git'
       get_rust_package 'https://github.com/ClementTsang/bottom.git'
@@ -637,9 +636,11 @@
       get_rust_package 'https://github.com/astral-sh/uv.git'
       get_rust_package 'https://github.com/atuinsh/atuin.git'
       get_rust_package 'https://github.com/bootandy/dust.git'
+      get_rust_package 'https://github.com/chmln/sd.git'
       get_rust_package 'https://github.com/dalance/procs.git'
       get_rust_package 'https://github.com/darakian/ddh.git'
       get_rust_package 'https://github.com/denisidoro/navi.git'
+      get_rust_package 'https://github.com/deuxfleurs-org/garage.git'
       get_rust_package 'https://github.com/eza-community/eza.git'
       get_rust_package 'https://github.com/fish-shell/fish-shell.git'
       get_rust_package 'https://github.com/gblach/imge.git'
