@@ -38,6 +38,12 @@
   exit '0'
 #+end_src
 
+* Script to start garage
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./server.sh
+  cd "$(dirname -- "${0}")"
+  /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" server
+#+end_src
+
 * Main script to manage git stuff
 
 ** Source common functions
