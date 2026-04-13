@@ -1,0 +1,37 @@
+
+* Main script to manage git stuff
+
+** Source common functions
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** change dir to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** Clean tmp files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  CLEAN '.git.sh'
+#+end_src
+
+** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD 'README.org'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  git status ; git commit -m 'Added template dir to the repo'
+  "${HOME}/SSH/K/P/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the file
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src
