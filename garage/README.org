@@ -28,6 +28,7 @@
   rpc_secret = "75a369782e28408900fc674c01c07ddacd40977f509931012809bdff949e8a6a"
 
   bootstrap_peers = [
+      "b5d5fa0f915c8b4bd94ff5ccc86d79b862e9a5cebd059ec207ecb09516096dda@192.168.1.7:11111",
   ]
 
   [s3_api]
