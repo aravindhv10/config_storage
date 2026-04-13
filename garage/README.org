@@ -1,3 +1,10 @@
+* git ignore file
+#+begin_src conf :mkdirp yes :tangle ./.gitignore
+  /data/
+  /garage.toml
+  /meta/
+#+end_src
+
 * Config file
 
 ** Generate random secret
@@ -74,6 +81,7 @@
 
 ** Add files to git
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD '.gitignore'
   GITADD 'README.org'
   GITADD 'garage_template.toml'
   GITADD 'gen_config.sh'
@@ -96,3 +104,4 @@
           './.git.sh'
   " "log" "err")
 #+end_src
+
