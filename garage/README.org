@@ -6,9 +6,11 @@
 #+end_src
 
 ** Actual config
-#+begin_src conf :mkdirp yes :tangle ./garage_template.toml
   metadata_dir = "/var/lib/garage/meta"
   data_dir = "/var/lib/garage/data"
+#+begin_src conf :mkdirp yes :tangle ./garage_template.toml
+  metadata_dir = "./meta"
+  data_dir = "./data"
 
   replication_factor = 2
   consistency_mode = "consistent"

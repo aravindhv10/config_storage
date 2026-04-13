@@ -1,5 +1,5 @@
-metadata_dir = "/var/lib/garage/meta"
-data_dir = "/var/lib/garage/data"
+metadata_dir = "./meta"
+data_dir = "./data"
 
 replication_factor = 2
 consistency_mode = "consistent"
