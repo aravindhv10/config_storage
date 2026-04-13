@@ -61,6 +61,12 @@
   /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" node id
 #+end_src
 
+** Create key
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./key_create.sh
+  cd "$(dirname -- "${0}")"
+  /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" key create mykey
+#+end_src
+
 * Main script to manage git stuff
 
 ** Source common functions
@@ -81,12 +87,13 @@
 
 ** Add files to git
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD '.gitignore'
-  GITADD 'README.org'
   GITADD 'garage_template.toml'
   GITADD 'gen_config.sh'
   GITADD 'gen_secret.sh'
+  GITADD '.gitignore'
+  GITADD 'key_create.sh'
   GITADD 'node_id.sh'
+  GITADD 'README.org'
   GITADD 'server.sh'
 #+end_src
 
@@ -104,4 +111,3 @@
           './.git.sh'
   " "log" "err")
 #+end_src
-
