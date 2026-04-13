@@ -889,15 +889,26 @@
 #+end_src
 
 * Do the basic stuff
+
+** Source the functions file
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . './important_functions.sh'
+#+end_src
 
+** Clean the bad files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   CLEAN '.git.sh'
   CLEAN 'important_functions.org~'
+#+end_src
 
+** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   GITADD 'important_functions.org'
   GITADD 'important_functions.sh'
+#+end_src
 
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   git commit -m 'Updated home_config' ; git status
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
