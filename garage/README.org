@@ -1,3 +1,36 @@
+* Config file
+
+** Generate random secret
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./gen_secret.sh
+  openssl rand -hex 32
+#+end_src
+
+** Actual config
+#+begin_src conf :mkdirp yes :tangle ./garage_template.toml
+  metadata_dir = "/var/lib/garage/meta"
+  data_dir = "/var/lib/garage/data"
+
+  replication_factor = 2
+  consistency_mode = "consistent"
+  compression_level = 2
+
+  rpc_bind_addr = "[::]:11111"
+  rpc_public_addr = "#IP#:11111"
+  rpc_secret = "<RPC secret>"
+
+  bootstrap_peers = []
+
+  [s3_api]
+  s3_region = "garage"
+  api_bind_addr = "[::]:3900"
+  root_domain = ".s3.garage"
+
+  [s3_web]
+  bind_addr = "[::]:3902"
+  root_domain = ".web.garage"
+  index = "index.html"
+
+#+end_src
 
 * Main script to manage git stuff
 
