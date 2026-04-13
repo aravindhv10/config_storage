@@ -1,4 +1,3 @@
-
 * infer
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.config.py
 #+end_src
