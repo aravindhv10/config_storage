@@ -918,7 +918,6 @@
 ** Basic add
 #+begin_src elisp :results silent
   (save-buffer)
-  (save-some-buffers)
   (org-babel-tangle)
   (async-shell-command "
       './.git.sh'
