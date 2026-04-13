@@ -70,6 +70,7 @@
   GITADD 'garage_template.toml'
   GITADD 'gen_config.sh'
   GITADD 'gen_secret.sh'
+  GITADD 'server.sh'
 #+end_src
 
 ** Commit and push
