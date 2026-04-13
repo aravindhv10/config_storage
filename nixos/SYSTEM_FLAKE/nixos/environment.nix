@@ -160,6 +160,7 @@
     swww
     television
     texlab
+    texstudio
     tmux
     uv
     wezterm
