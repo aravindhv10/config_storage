@@ -1,24 +1,3 @@
-* Main script to manage git stuff
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  . "${HOME}/important_functions.sh"
-
-  cd "$(dirname -- "${0}")"
-
-  CLEAN '.git.sh'
-
-  PREPARE_PYTHON_FILE 'endpoint'
-  PREPARE_PYTHON_FILE 'infer'
-  PREPARE_PYTHON_FILE 'main'
-  PREPARE_PYTHON_FILE 'worker'
-
-  cp './main.py' '__init__.py'
-
-  GITADD 'README.org'
-  GITADD '__init__.py'
-
-  git status ; git commit -m 'Added template dir to the repo'
-  "${HOME}/SSH/K/P/setup.sh" ; git push
-#+end_src
 
 * infer
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.config.py
@@ -118,7 +97,50 @@
   import torch
 #+end_src
 
-* COMMENT WORK SPACE
+* Main script to manage git stuff
+
+** Source common functions
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** change dir to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** Clean tmp files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  CLEAN '.git.sh'
+  CLEAN 'README.org~'
+#+end_src
+
+** Prepare python files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  PREPARE_PYTHON_FILE 'endpoint'
+  PREPARE_PYTHON_FILE 'infer'
+  PREPARE_PYTHON_FILE 'main'
+  PREPARE_PYTHON_FILE 'worker'
+#+end_src
+
+** Prepare init
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cp './main.py' '__init__.py'
+#+end_src
+
+** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD 'README.org'
+  GITADD '__init__.py'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  git status ; git commit -m 'Added template dir to the repo'
+  "${HOME}/SSH/K/P/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the file
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)
