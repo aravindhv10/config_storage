@@ -41,9 +41,17 @@
 #+end_src
 
 * Script to start garage
+
+** Server
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./server.sh
   cd "$(dirname -- "${0}")"
   /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" server
+#+end_src
+
+** Node id
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./node_id.sh
+  cd "$(dirname -- "${0}")"
+  /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" node id
 #+end_src
 
 * Main script to manage git stuff
