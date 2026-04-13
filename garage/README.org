@@ -14,6 +14,7 @@
 ** Clean tmp files
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   CLEAN '.git.sh'
+  CLEAN 'README.org~'
 #+end_src
 
 ** Add files to git
