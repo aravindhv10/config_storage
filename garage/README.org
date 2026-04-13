@@ -67,6 +67,13 @@
   /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" key create mykey
 #+end_src
 
+** Assign layout
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./layout_assign.sh
+  cd "$(dirname -- "${0}")"
+  /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" layout assign <NODE_ID_1> --zone home --capacity 1
+  /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" layout assign <NODE_ID_2> --zone home --capacity 1
+#+end_src
+
 * Main script to manage git stuff
 
 ** Source common functions
