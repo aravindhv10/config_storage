@@ -27,7 +27,10 @@
   rpc_public_addr = "#IP#:11111"
   rpc_secret = "75a369782e28408900fc674c01c07ddacd40977f509931012809bdff949e8a6a"
 
-  bootstrap_peers = []
+  bootstrap_peers = [
+      "c57609e0e166901bc84750021b6dded40b83628e0c50b1bcd9ca2e153a36ff3c@192.168.1.6:11111",
+      "52b6b2917d3d92c9279b104cdd2d070c6d67b6662cf5128daa935e6ad8845e44@192.168.1.7:11111"
+  ]
 
   [s3_api]
   s3_region = "garage"
