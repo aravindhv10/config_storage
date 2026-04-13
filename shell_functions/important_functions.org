@@ -640,7 +640,6 @@
       get_rust_package 'https://github.com/dalance/procs.git'
       get_rust_package 'https://github.com/darakian/ddh.git'
       get_rust_package 'https://github.com/denisidoro/navi.git'
-      get_rust_package 'https://github.com/deuxfleurs-org/garage.git'
       get_rust_package 'https://github.com/eza-community/eza.git'
       get_rust_package 'https://github.com/fish-shell/fish-shell.git'
       get_rust_package 'https://github.com/gblach/imge.git'
@@ -666,6 +665,8 @@
       get_rust_package 'https://github.com/whitfin/runiq.git'
       get_rust_package 'https://github.com/your-tools/ruplacer.git'
       get_rust_package 'https://github.com/zellij-org/zellij.git'
+
+      get_repo 'https://github.com/deuxfleurs-org/garage.git' ; git checkout 'tags/v2.2.0' ; build_rust_package_in_cwd
 
       get_tmux
       get_byobu
