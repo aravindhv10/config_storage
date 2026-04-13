@@ -445,8 +445,8 @@ get_byobu () {
     mkdir -pv -- '/var/tmp/byobu/lib'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/byobu/lib/ld-linux-x86-64.so.2'
     "${HOME}/GITHUB/dustinkirkland/byobu/configure" '--prefix=/var/tmp/byobu'
-    make -j
-    make -j install
+    make
+    make install
 }
 
 get_tmux () {
