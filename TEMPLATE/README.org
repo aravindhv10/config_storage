@@ -136,7 +136,7 @@
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   git status ; git commit -m 'Added template dir to the repo'
-  "${HOME}/SSH/K/P/setup.sh" ; git push
+  "${HOME}/SSH/K/W/setup.sh" ; git push
 #+end_src
 
 ** COMMENT Run the file
