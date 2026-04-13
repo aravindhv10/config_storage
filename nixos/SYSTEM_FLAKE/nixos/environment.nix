@@ -129,6 +129,7 @@
     fd
     ffmpeg_8-full
     fzf
+    garage_2
     gitui
     gptfdisk
     helix
