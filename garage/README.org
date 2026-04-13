@@ -16,21 +16,28 @@
 
   rpc_bind_addr = "[::]:11111"
   rpc_public_addr = "#IP#:11111"
-  rpc_secret = "<RPC secret>"
+  rpc_secret = "75a369782e28408900fc674c01c07ddacd40977f509931012809bdff949e8a6a"
 
   bootstrap_peers = []
 
   [s3_api]
   s3_region = "garage"
-  api_bind_addr = "[::]:3900"
+  api_bind_addr = "[::]:11110"
   root_domain = ".s3.garage"
 
   [s3_web]
-  bind_addr = "[::]:3902"
+  bind_addr = "[::]:11112"
   root_domain = ".web.garage"
   index = "index.html"
-
 #+end_src
+
+** Prepare the config file
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./gen_config.sh
+  cd "$(dirname -- "${0}")"
+  sed "s/#IP#/${1}/g" './garage_template.toml' > './garage.toml'
+  exit '0'
+#+end_src
+
 
 * Main script to manage git stuff
 
