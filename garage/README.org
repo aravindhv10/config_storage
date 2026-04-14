@@ -123,14 +123,18 @@
 
 ** Add files to git
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD '.gitignore'
-  GITADD 'README.org'
+  GITADD 'garage_headers.toml'
+  GITADD 'garage_peers.toml'
+  GITADD 'garage_s3.toml'
   GITADD 'garage_template.toml'
   GITADD 'gen_config.sh'
   GITADD 'gen_secret.sh'
+  GITADD '.gitignore'
   GITADD 'key_create.sh'
   GITADD 'layout_assign.sh'
   GITADD 'node_id.sh'
+  GITADD 'README.org'
+  GITADD 'secret.txt'
   GITADD 'server.sh'
 #+end_src
 

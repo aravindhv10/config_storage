@@ -1,0 +1,12 @@
+metadata_dir = "./garage/meta"
+data_dir = "./garage/data"
+
+replication_factor = 2
+consistency_mode = "consistent"
+compression_level = 2
+
+rpc_bind_addr = "[::]:11111"
+rpc_public_addr = "#IP#:11111"
+rpc_secret = "#KEY#"
+
+bootstrap_peers = [
