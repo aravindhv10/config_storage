@@ -1,3 +1,3 @@
 #!/bin/sh
 cd "$(dirname -- "${0}")"
-sha512sum './secret.txt' | cut -b 1-64 -f1
+sha512sum './secret.txt' | cut -b 1-64

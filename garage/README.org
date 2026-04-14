@@ -24,7 +24,7 @@
 **** Script to generate
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./gen_secret.sh
   cd "$(dirname -- "${0}")"
-  sha512sum './secret.txt' | cut -b 1-64 -f1
+  sha512sum './secret.txt' | cut -b 1-64
 #+end_src
 
 ** Actual config
