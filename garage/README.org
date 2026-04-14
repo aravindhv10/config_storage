@@ -103,9 +103,6 @@
   /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" layout assign 'b5d5fa0f915c8b4bd94ff5ccc86d79b862e9a5cebd059ec207ecb09516096dda' --zone home --capacity 10737418240
 #+end_src
 
-      
-      
-
 * Main script to manage git stuff
 
 ** Source common functions
