@@ -1000,6 +1000,7 @@ in {
             python-multipart
             requests
             safetensors
+            scikit-learn
             tensorboard
             tensorboardx
             torch
