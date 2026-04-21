@@ -88,7 +88,8 @@ fn video_tensor_2_fft_file_160(
 
             return Ok("Successfully encoded the the whole video into a single file".to_string());
         } else {
-            let float_val = (((total_video_length - 160) as f32) / 40.0) as f32;
+            let stride = 80.0 as f32;
+            let float_val = (((total_video_length - 160) as f32) / stride) as f32;
 
             let diff = float_val - float_val.floor();
 
@@ -153,7 +154,7 @@ fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
     }
 
     let pool = rayon::ThreadPoolBuilder::new()
-        .num_threads(8)
+        .num_threads(4)
         .build()
         .unwrap();
 

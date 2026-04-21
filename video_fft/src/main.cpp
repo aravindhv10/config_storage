@@ -21,44 +21,110 @@ inline torch::TensorOptions get_output_device_and_dtype() {
   return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
 }
 
+inline std::string get_compiled_model_path(unsigned char i) {
+  switch (i) {
+  case 1:
+    return std::string("/root/.cache/model_1.pt2");
+  case 2:
+    return std::string("/root/.cache/model_2.pt2");
+  case 3:
+    return std::string("/root/.cache/model_3.pt2");
+  case 4:
+    return std::string("/root/.cache/model_4.pt2");
+  default:
+    return std::string("/root/.cache/model_1.pt2");
+  }
+}
+
+void clear_cuda_cache() {
+#ifdef USE_CUDA
+  c10::cuda::CUDACachingAllocator::emptyCache();
+  printf("Cleaned cuda cache...\n");
+#endif
+}
+
 #define _MACRO_SELF_ file_mlock
 class _MACRO_SELF_ {
 private:
   int fd;
   void *addr;
   struct stat st;
+  bool initialized;
 
 public:
   _MACRO_SELF_(char const *path_file_input)
-      : fd(open(path_file_input, O_RDONLY)) {
-
+      : fd(open(path_file_input, O_RDONLY)), initialized(false) {
     if (fd == -1) {
       printf("Error opening file %s\n", path_file_input);
-    }
-
-    if (fstat(fd, &st)) {
-      printf("fstat failed...\n");
-    }
-
-    // Map the file into memory
-    addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-    if (addr == MAP_FAILED) {
-      printf("mmap failed...\n");
-    }
-
-    // Lock the pages into RAM
-    if (mlock(addr, st.st_size) == 0) {
-      printf("File locked in RAM successfully.\n");
     } else {
-      printf("mlock failed...\n"); // Often requires CAP_IPC_LOCK or sudo
+      if (fstat(fd, &st)) {
+        printf("fstat failed...\n");
+      } else {
+        addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        if (addr == MAP_FAILED) {
+          printf("mmap failed...\n");
+        } else {
+          if (mlock(addr, st.st_size) == 0) {
+            printf("File locked in RAM successfully.\n");
+            initialized = true;
+          } else {
+            printf("mlock failed...\n");
+          }
+        }
+      }
     }
   }
 
   ~_MACRO_SELF_() {
-    munmap(addr, st.st_size);
-    close(fd);
+    if (addr != MAP_FAILED) {
+      munmap(addr, st.st_size);
+    }
+    if (fd != -1) {
+      close(fd);
+    }
+
+    initialized = false;
   }
 };
+#undef _MACRO_SELF_
+
+#define _MACRO_SELF_ named_semaphore
+class _MACRO_SELF_ {
+private:
+  sem_t *main_sem;
+
+public:
+  _MACRO_SELF_(char const *name, int const num)
+      : main_sem(sem_open(name, O_CREAT, S_IRWXU, num)) {}
+
+  ~_MACRO_SELF_() { sem_close(main_sem); }
+
+  inline void l() { sem_wait(main_sem); }
+  inline void r() { sem_post(main_sem); }
+
+  static inline _MACRO_SELF_ *NEW(char const *name, int const num) {
+    return new _MACRO_SELF_(/*char const *name =*/name, /*int const num =*/num);
+  }
+
+  static inline void DELETE(_MACRO_SELF_ *in) { delete in; }
+};
+
+extern "C" {
+
+void *named_semaphore_new(char const *name, int const num) {
+  return static_cast<void *>(
+      _MACRO_SELF_::NEW(/*char const *name =*/name, /*int const num =*/num));
+}
+
+void named_semaphore_delete(void *in) {
+  delete static_cast<_MACRO_SELF_ *>(in);
+}
+
+void named_semaphore_l(void *in) { static_cast<_MACRO_SELF_ *>(in)->l(); }
+
+void named_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
+}
+
 #undef _MACRO_SELF_
 
 class gpu_locker {
@@ -82,10 +148,6 @@ public:
   }
   inline void r() {
     if (torch::cuda::is_available()) {
-#ifdef USE_CUDA
-      c10::cuda::CUDACachingAllocator::emptyCache();
-      printf("Cleaned cuda cache...\n");
-#endif
       sem_post(gpu_semaphore);
     }
   }
@@ -234,6 +296,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             .item()
             .to<uint16_t>();
 
+    printf("Acquiring lock\n");
     locker.l();
 
     torch::Tensor tensor_video_padded =
@@ -302,6 +365,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             .contiguous();
 
     locker.r();
+    printf("Released lock\n");
 
     std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
                 compressed_tensor_video_fft.nbytes());

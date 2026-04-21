@@ -5,6 +5,10 @@ pub type intype = u8;
 pub type outtype = float32_t;
 
 unsafe extern "C" {
+    pub fn clear_cuda_cache();
+}
+
+unsafe extern "C" {
     pub fn new_infer_slave(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
     pub fn delete_infer_slave(in_: *mut ::std::os::raw::c_void);
     pub fn run_infer_slave(
