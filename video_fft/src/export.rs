@@ -9,6 +9,31 @@ unsafe extern "C" {
 }
 
 unsafe extern "C" {
+    pub fn unnamed_semaphore_new(num: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_void;
+    pub fn unnamed_semaphore_delete(in_: *mut ::std::os::raw::c_void);
+    pub fn unnamed_semaphore_l(in_: *mut ::std::os::raw::c_void);
+    pub fn unnamed_semaphore_r(in_: *mut ::std::os::raw::c_void);
+}
+
+unsafe extern "C" {
+    pub fn named_semaphore_new(
+        name: *const ::std::os::raw::c_char,
+        num: ::std::os::raw::c_int,
+    ) -> *mut ::std::os::raw::c_void;
+
+    pub fn named_semaphore_delete(in_: *mut ::std::os::raw::c_void);
+
+    pub fn named_semaphore_l(in_: *mut ::std::os::raw::c_void);
+
+    pub fn named_semaphore_r(in_: *mut ::std::os::raw::c_void);
+}
+
+unsafe extern "C" {
+    pub fn locker_to_inference_mode();
+    pub fn locker_to_preprocessing_mode();
+}
+
+unsafe extern "C" {
     pub fn new_infer_slave(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
     pub fn delete_infer_slave(in_: *mut ::std::os::raw::c_void);
     pub fn run_infer_slave(

@@ -5,6 +5,7 @@ static GLOBAL: MiMalloc = MiMalloc;
 
 mod export;
 mod inferencerelated;
+mod lockssync;
 mod videofft;
 mod videofftstats;
 mod videofn;
@@ -34,11 +35,14 @@ struct inference_communicator {
 
 impl inference_communicator {
     fn new(sender_in: flume::Sender<message_input>) -> Self {
+        println!("Building inference communicator");
         let normalizer = videofftstats::fft_video_normalizer::new(
             /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
             /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
         )
         .unwrap();
+
+        println!("Built inference communicator");
 
         Self {
             sender: sender_in,
@@ -164,7 +168,9 @@ struct inference_slave {
 
 impl inference_slave {
     pub fn new() -> (Self, inference_communicator) {
+        println!("Building inference_slave");
         let (sender, receiver) = flume::unbounded::<message_input>();
+        println!("Built inference_slave");
         return (
             Self { receiver: receiver },
             inference_communicator::new(sender),
@@ -415,20 +421,33 @@ impl inference_slave {
     }
 
     pub fn inference_loop(&self) -> anyhow::Result<()> {
+        println!("Started inference_loop");
         loop {
             let mut tensors = Vec::<videofft::fft_video>::new();
             let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
+            let mut do_loop = true;
+            let mut do_infer = false;
 
             if true {
-                let input_msg = self.receiver.recv()?;
-                tensors.extend_from_slice(input_msg.tensor.as_slice());
-                for i in input_msg.oneshot_send_channel.into_iter() {
-                    senders.push(i);
+                let input_msg = self.receiver.recv();
+
+                match input_msg {
+                    Ok(o) => {
+                        tensors.extend_from_slice(o.tensor.as_slice());
+
+                        for i in o.oneshot_send_channel.into_iter() {
+                            senders.push(i);
+                        }
+
+                        do_loop = tensors.len() <= 20;
+                        do_infer = true;
+                    }
+                    Err(e) => {
+                        do_loop = false;
+                        do_infer = false;
+                    }
                 }
             }
-
-            // Try to receive the subsequent messages
-            let mut do_loop = tensors.len() <= 20;
 
             while do_loop {
                 let message_input = self
@@ -444,6 +463,7 @@ impl inference_slave {
                         }
 
                         do_loop = tensors.len() <= 20;
+                        do_infer = true;
                     }
                     Err(e) => {
                         do_loop = false;
@@ -451,7 +471,7 @@ impl inference_slave {
                 }
             }
 
-            if true {
+            if do_infer {
                 let ret = Self::efficient_infer(
                     /*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors,
                 )?;
@@ -480,9 +500,11 @@ impl Drop for inference_pair {
 
 impl inference_pair {
     fn new() -> Self {
+        println!("Building inference_pair");
         let (slave_inf, slave_sender) = inference_slave::new();
         let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
+        println!("Built inference_pair");
         Self {
             slave_sender: slave_sender,
             handle: Some(handle_inference),
@@ -511,9 +533,12 @@ struct grpc_inferer {
 
 impl grpc_inferer {
     fn new() -> Self {
-        Self {
+        println!("Building grpc_inferer");
+        let ret = Self {
             infpair: std::sync::Arc::<inference_pair>::new(inference_pair::new()),
-        }
+        };
+        println!("Returning grpc_inferer");
+        return ret;
     }
 }
 
@@ -523,6 +548,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         &self,
         request: tonic::Request<infer::Grpcvideodata>,
     ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
+        println!("Called doinfer");
         let video_data = &(request.into_inner().data);
         let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
         let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
@@ -559,23 +585,31 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
 }
 
 fn main() -> anyhow::Result<()> {
+    println!("Setting to inference mode");
+    unsafe { export::locker_to_inference_mode() };
+
+    println!("Setting address");
     let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
     let port: u16 = 8001;
     let addr = std::net::SocketAddr::new(ip_v4, port);
 
+    println!("Building the runtime");
     let rt = tokio::runtime::Builder::new_multi_thread()
         .thread_stack_size(1 << 28)
         .enable_all()
         .build()
         .unwrap();
 
+    println!("Tonic reflection parts");
     let service = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
         .build_v1()
         .unwrap();
 
+    println!("Starting the tonic service");
     rt.block_on(async {
-        tonic::transport::Server::builder()
+        println!("Server attempting to bind to {}", addr);
+        let result = tonic::transport::Server::builder()
             .add_service(service)
             .add_service(
                 infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
@@ -584,6 +618,10 @@ fn main() -> anyhow::Result<()> {
             )
             .serve(addr)
             .await;
+
+        if let Err(e) = result {
+            eprintln!("Server exited with error: {}", e);
+        }
     });
 
     Ok(())

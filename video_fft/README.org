@@ -906,6 +906,67 @@ video.len() in:
   #undef _MACRO_SELF_
 #+end_src
 
+*** Unnamed semaphor interface
+
+**** Actual class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #define _MACRO_SELF_ unnamed_semaphore
+
+  class _MACRO_SELF_ {
+  private:
+    sem_t main_sem;
+
+  public:
+    _MACRO_SELF_(int const num) { sem_init(&main_sem, 0, num); }
+    ~_MACRO_SELF_() { sem_destroy(&main_sem); }
+    inline void l() { sem_wait(&main_sem); }
+    inline void r() { sem_post(&main_sem); }
+
+    static inline _MACRO_SELF_ *NEW(int const num) {
+      return new _MACRO_SELF_(/*int const num =*/num);
+    }
+
+    static inline void DELETE(_MACRO_SELF_ *in) { delete in; }
+  };
+
+  extern "C" {
+
+  void *unnamed_semaphore_new(int const num) {
+    return static_cast<void *>(_MACRO_SELF_::NEW(/*int const num =*/num));
+  }
+
+  void unnamed_semaphore_delete(void *in) {
+    delete static_cast<_MACRO_SELF_ *>(in);
+  }
+
+  void unnamed_semaphore_l(void *in) { static_cast<_MACRO_SELF_ *>(in)->l(); }
+
+  void unnamed_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
+  }
+
+  #undef _MACRO_SELF_
+#+end_src
+
+**** Export the class interface functions
+
+***** C++
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void *unnamed_semaphore_new(int const num);
+  void unnamed_semaphore_delete(void *in);
+  void unnamed_semaphore_l(void *in);
+  void unnamed_semaphore_r(void *in);
+#+end_src
+
+***** RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn unnamed_semaphore_new(num: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_void;
+      pub fn unnamed_semaphore_delete(in_: *mut ::std::os::raw::c_void);
+      pub fn unnamed_semaphore_l(in_: *mut ::std::os::raw::c_void);
+      pub fn unnamed_semaphore_r(in_: *mut ::std::os::raw::c_void);
+  }
+#+end_src
+
 *** Named semaphor interface
 
 **** Actual class
@@ -960,36 +1021,124 @@ video.len() in:
   void named_semaphore_r(void *in);
 #+end_src
 
+***** RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn named_semaphore_new(
+          name: *const ::std::os::raw::c_char,
+          num: ::std::os::raw::c_int,
+      ) -> *mut ::std::os::raw::c_void;
+
+      pub fn named_semaphore_delete(in_: *mut ::std::os::raw::c_void);
+
+      pub fn named_semaphore_l(in_: *mut ::std::os::raw::c_void);
+
+      pub fn named_semaphore_r(in_: *mut ::std::os::raw::c_void);
+  }
+#+end_src
+
 *** Declare the global semaphore for gpu management and function to initialize
+
+**** Header
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  class gpu_locker {
+  #define _MACRO_SELF_ gpu_locker
+#+end_src
+
+**** Named semaphore for cooperative serving
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  class _MACRO_SELF_ {
 
   private:
-    sem_t *gpu_semaphore;
-    file_mlock l1, l2, l3, l4;
+    named_semaphore gpu_semaphore_named;
+    unnamed_semaphore gpu_semaphore;
+    bool for_inference_server;
+
+    std::vector<file_mlock> mem_locks;
 
   public:
-    gpu_locker()
-        : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)),
-          l1("/root/.cache/model_1.pt2"), l2("/root/.cache/model_3.pt2"),
-          l3("/root/.cache/model_2.pt2"), l4("/root/.cache/model_4.pt2") {}
+    _MACRO_SELF_()
+        : gpu_semaphore_named("/gpuLock", 2), gpu_semaphore(2),
+          for_inference_server(false) {}
 
-    ~gpu_locker() { sem_close(gpu_semaphore); }
+    ~_MACRO_SELF_() {}
+
+    inline void configure_for_preprocessing() { for_inference_server = false; }
+
+    inline void configure_for_inference() {
+      printf("Configuring for inference\n");
+      for_inference_server = true;
+
+      printf("Locking compiled models into memory\n");
+      if (mem_locks.size() == 0) {
+        mem_locks.reserve(4);
+
+        mem_locks.push_back(
+            get_compiled_model_path(/*unsigned char i =*/1).c_str());
+        mem_locks.push_back(
+            get_compiled_model_path(/*unsigned char i =*/2).c_str());
+        mem_locks.push_back(
+            get_compiled_model_path(/*unsigned char i =*/3).c_str());
+        mem_locks.push_back(
+            get_compiled_model_path(/*unsigned char i =*/4).c_str());
+      }
+    }
 
     inline void l() {
       if (torch::cuda::is_available()) {
-        sem_wait(gpu_semaphore);
+        if (for_inference_server) {
+          gpu_semaphore_named.l();
+        } else {
+          gpu_semaphore.l();
+        }
       }
     }
     inline void r() {
       if (torch::cuda::is_available()) {
-        sem_post(gpu_semaphore);
+        if (for_inference_server) {
+          clear_cuda_cache();
+          gpu_semaphore_named.r();
+        } else {
+          gpu_semaphore.r();
+        }
       }
     }
   };
-
-  static gpu_locker locker;
 #+end_src
+
+**** Declare a local copy
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  static _MACRO_SELF_ locker;
+#+end_src
+
+**** Functions to switch the modes
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  extern "C" {
+  void locker_to_inference_mode() { locker.configure_for_inference(); }
+  void locker_to_preprocessing_mode() { locker.configure_for_preprocessing(); }
+  }
+#+end_src
+
+**** Footer
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #undef _MACRO_SELF_
+#+end_src
+
+**** Export the functions
+
+***** C++
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void locker_to_inference_mode();
+  void locker_to_preprocessing_mode();
+#+end_src
+
+***** RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn locker_to_inference_mode();
+      pub fn locker_to_preprocessing_mode();
+  }
+#+end_src
+
 
 *** Main inference class
 
@@ -1011,18 +1160,25 @@ video.len() in:
 
   public:
     inline void infer(void *blob_source, void *blob_destination) {
+      try {
+        torch::Tensor cpu_tensor = torch::from_blob(
+            blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
+            options_input);
 
-      torch::Tensor cpu_tensor = torch::from_blob(
-          blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
-          options_input);
+        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
 
-      std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+        std::vector<torch::Tensor> outputs = loader.run(inputs);
 
-      std::vector<torch::Tensor> outputs = loader.run(inputs);
+        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
 
-      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+        std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
 
-      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+      } catch (const std::exception &e) {
+
+        std::memset(blob_destination, 0, bytes_to_copy);
+
+        printf("Error: %s\n", e.what());
+      }
     }
 
     _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
@@ -1034,9 +1190,7 @@ video.len() in:
       locker.l();
     }
 
-    ~_MACRO_SELF_() {
-      locker.r();
-    }
+    ~_MACRO_SELF_() { locker.r(); }
 
     inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
       BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
@@ -1121,6 +1275,7 @@ video.len() in:
     }
   }
 #+end_src
+
 
 *** Main functions for FFT
 
@@ -1248,6 +1403,7 @@ video.len() in:
       return 0;
 
     } catch (const std::exception &e) {
+      std::memset(dest, 0, 6 * 160 * 160 * 60 * 4);
       printf("Error: %s\n", e.what());
       return -1; // Error
     }
@@ -1280,6 +1436,79 @@ video.len() in:
           dest: *mut ::std::os::raw::c_void,
           use_gpu: bool,
       ) -> ::std::os::raw::c_int;
+  }
+#+end_src
+
+* Implementing locks related
+#+begin_src rust :mkdirp yes :tangle ./src/lockssync.rs
+  use crate::export;
+
+  pub struct named_semaphore {
+      slave: *mut ::std::os::raw::c_void,
+  }
+
+  impl Drop for named_semaphore {
+      fn drop(&mut self) {
+          unsafe { export::named_semaphore_delete(self.slave) };
+      }
+  }
+
+  impl named_semaphore {
+      pub fn new(name: &str, num: i32) -> anyhow::Result<Self> {
+          let name = std::ffi::CString::new(name)?;
+          return Ok(Self {
+              slave: unsafe {
+                  export::named_semaphore_new(
+                      /*name: *const ::std::os::raw::c_char =*/ name.as_ptr(),
+                      /*num: ::std::os::raw::c_int =*/ num,
+                  )
+              },
+          });
+      }
+
+      pub fn l(&mut self) {
+          unsafe {
+              export::named_semaphore_l(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
+          };
+      }
+
+      pub fn r(&mut self) {
+          unsafe {
+              export::named_semaphore_r(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
+          };
+      }
+  }
+
+  pub struct unnamed_semaphore {
+      slave: *mut ::std::os::raw::c_void,
+  }
+
+  impl Drop for unnamed_semaphore {
+      fn drop(&mut self) {
+          unsafe { export::unnamed_semaphore_delete(self.slave) };
+      }
+  }
+
+  impl unnamed_semaphore {
+      pub fn new(num: i32) -> anyhow::Result<Self> {
+          return Ok(Self {
+              slave: unsafe {
+                  export::unnamed_semaphore_new(/*num: ::std::os::raw::c_int =*/ num)
+              },
+          });
+      }
+
+      pub fn l(&mut self) {
+          unsafe {
+              export::unnamed_semaphore_l(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
+          };
+      }
+
+      pub fn r(&mut self) {
+          unsafe {
+              export::unnamed_semaphore_r(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
+          };
+      }
   }
 #+end_src
 
@@ -2549,11 +2778,13 @@ video.len() in:
       if total_video_length < 120 {
           return Err(anyhow::format_err!("Video too short..."));
       } else {
-          std::fs::create_dir_all(path_dir_output)?;
 
+          std::fs::create_dir_all(path_dir_output)?;
+          let stride = 120 as i32;
+          let threshold = ((3 * (160 + stride)) / 4) as i32 ;
           let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
-          if (120 <= total_video_length) && (total_video_length < 176) {
+          if (120 <= total_video_length) && (total_video_length < threshold) {
               let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
 
               if !std::fs::exists(path_file_video_bin_output.as_str())? {
@@ -2567,8 +2798,7 @@ video.len() in:
 
               return Ok("Successfully encoded the the whole video into a single file".to_string());
           } else {
-              let stride = 80.0 as f32;
-              let float_val = (((total_video_length - 160) as f32) / stride) as f32;
+              let float_val = (((total_video_length - 160) as f32) / (stride as f32)) as f32;
 
               let diff = float_val - float_val.floor();
 
@@ -2762,6 +2992,7 @@ struct inference_loop {
 
   mod export;
   mod inferencerelated;
+  mod lockssync;
   mod videofft;
   mod videofftstats;
   mod videofn;
@@ -2791,11 +3022,14 @@ struct inference_loop {
 
   impl inference_communicator {
       fn new(sender_in: flume::Sender<message_input>) -> Self {
+          println!("Building inference communicator");
           let normalizer = videofftstats::fft_video_normalizer::new(
               /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
               /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
           )
           .unwrap();
+
+          println!("Built inference communicator");
 
           Self {
               sender: sender_in,
@@ -2921,7 +3155,9 @@ struct inference_loop {
 
   impl inference_slave {
       pub fn new() -> (Self, inference_communicator) {
+          println!("Building inference_slave");
           let (sender, receiver) = flume::unbounded::<message_input>();
+          println!("Built inference_slave");
           return (
               Self { receiver: receiver },
               inference_communicator::new(sender),
@@ -3172,20 +3408,33 @@ struct inference_loop {
       }
 
       pub fn inference_loop(&self) -> anyhow::Result<()> {
+          println!("Started inference_loop");
           loop {
               let mut tensors = Vec::<videofft::fft_video>::new();
               let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
+              let mut do_loop = true;
+              let mut do_infer = false;
 
               if true {
-                  let input_msg = self.receiver.recv()?;
-                  tensors.extend_from_slice(input_msg.tensor.as_slice());
-                  for i in input_msg.oneshot_send_channel.into_iter() {
-                      senders.push(i);
+                  let input_msg = self.receiver.recv();
+
+                  match input_msg {
+                      Ok(o) => {
+                          tensors.extend_from_slice(o.tensor.as_slice());
+
+                          for i in o.oneshot_send_channel.into_iter() {
+                              senders.push(i);
+                          }
+
+                          do_loop = tensors.len() <= 20;
+                          do_infer = true;
+                      }
+                      Err(e) => {
+                          do_loop = false;
+                          do_infer = false;
+                      }
                   }
               }
-
-              // Try to receive the subsequent messages
-              let mut do_loop = tensors.len() <= 20;
 
               while do_loop {
                   let message_input = self
@@ -3201,6 +3450,7 @@ struct inference_loop {
                           }
 
                           do_loop = tensors.len() <= 20;
+                          do_infer = true;
                       }
                       Err(e) => {
                           do_loop = false;
@@ -3208,7 +3458,7 @@ struct inference_loop {
                   }
               }
 
-              if true {
+              if do_infer {
                   let ret = Self::efficient_infer(
                       /*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors,
                   )?;
@@ -3237,9 +3487,11 @@ struct inference_loop {
 
   impl inference_pair {
       fn new() -> Self {
+          println!("Building inference_pair");
           let (slave_inf, slave_sender) = inference_slave::new();
           let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
+          println!("Built inference_pair");
           Self {
               slave_sender: slave_sender,
               handle: Some(handle_inference),
@@ -3268,9 +3520,12 @@ struct inference_loop {
 
   impl grpc_inferer {
       fn new() -> Self {
-          Self {
+          println!("Building grpc_inferer");
+          let ret = Self {
               infpair: std::sync::Arc::<inference_pair>::new(inference_pair::new()),
-          }
+          } ;
+          println!("Returning grpc_inferer");
+          return ret;
       }
   }
 
@@ -3280,6 +3535,7 @@ struct inference_loop {
           &self,
           request: tonic::Request<infer::Grpcvideodata>,
       ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
+          println!("Called doinfer");
           let video_data = &(request.into_inner().data);
           let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
           let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
@@ -3316,23 +3572,31 @@ struct inference_loop {
   }
 
   fn main() -> anyhow::Result<()> {
+      println!("Setting to inference mode");
+      unsafe { export::locker_to_inference_mode() };
+
+      println!("Setting address");
       let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
       let port: u16 = 8001;
       let addr = std::net::SocketAddr::new(ip_v4, port);
 
+      println!("Building the runtime");
       let rt = tokio::runtime::Builder::new_multi_thread()
           .thread_stack_size(1 << 28)
           .enable_all()
           .build()
           .unwrap();
 
+      println!("Tonic reflection parts");
       let service = tonic_reflection::server::Builder::configure()
           .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
           .build_v1()
           .unwrap();
 
+      println!("Starting the tonic service");
       rt.block_on(async {
-          tonic::transport::Server::builder()
+          println!("Server attempting to bind to {}", addr);
+          let result = tonic::transport::Server::builder()
               .add_service(service)
               .add_service(
                   infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
@@ -3341,6 +3605,10 @@ struct inference_loop {
               )
               .serve(addr)
               .await;
+
+          if let Err(e) = result {
+              eprintln!("Server exited with error: {}", e);
+          }
       });
 
       Ok(())
@@ -3454,18 +3722,16 @@ struct inference_loop {
 
 ** Add all the important files
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD '.gitignore'
-  GITADD 'CMakeLists.txt'
-  GITADD 'Cargo.lock'
-  GITADD 'Cargo.toml'
-  GITADD 'README.org'
   GITADD 'all_build.sh'
   GITADD 'all_install.sh'
   GITADD 'build.rs'
   GITADD 'cargo_build.sh'
+  GITADD 'Cargo.lock'
   GITADD 'cargo_run.sh'
+  GITADD 'Cargo.toml'
   GITADD 'cargo_watch.sh'
   GITADD 'cmake_build.sh'
+  GITADD 'CMakeLists.txt'
   GITADD 'compile_commands.json'
   GITADD 'compile_proto.sh'
   GITADD 'convert_video_2_raw.sh'
@@ -3474,13 +3740,15 @@ struct inference_loop {
   GITADD 'flake.lock'
   GITADD 'flake.nix'
   GITADD 'generate_rs_bindings.sh'
-  GITADD 'infer.proto'
+  GITADD '.gitignore'
   GITADD 'infer_client.py'
-  GITADD 'infer_pb2.py'
   GITADD 'infer_pb2_grpc.py'
+  GITADD 'infer_pb2.py'
+  GITADD 'infer.proto'
   GITADD 'init.sh'
   GITADD 'nix_develop.sh'
   GITADD 'out/myrdvideoinferinfer.rs'
+  GITADD 'README.org'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
@@ -3490,6 +3758,7 @@ struct inference_loop {
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'
   GITADD 'src/inferencerelated.rs'
+  GITADD 'src/lockssync.rs'
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'

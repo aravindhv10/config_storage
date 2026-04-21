@@ -88,6 +88,42 @@ public:
 };
 #undef _MACRO_SELF_
 
+#define _MACRO_SELF_ unnamed_semaphore
+
+class _MACRO_SELF_ {
+private:
+  sem_t main_sem;
+
+public:
+  _MACRO_SELF_(int const num) { sem_init(&main_sem, 0, num); }
+  ~_MACRO_SELF_() { sem_destroy(&main_sem); }
+  inline void l() { sem_wait(&main_sem); }
+  inline void r() { sem_post(&main_sem); }
+
+  static inline _MACRO_SELF_ *NEW(int const num) {
+    return new _MACRO_SELF_(/*int const num =*/num);
+  }
+
+  static inline void DELETE(_MACRO_SELF_ *in) { delete in; }
+};
+
+extern "C" {
+
+void *unnamed_semaphore_new(int const num) {
+  return static_cast<void *>(_MACRO_SELF_::NEW(/*int const num =*/num));
+}
+
+void unnamed_semaphore_delete(void *in) {
+  delete static_cast<_MACRO_SELF_ *>(in);
+}
+
+void unnamed_semaphore_l(void *in) { static_cast<_MACRO_SELF_ *>(in)->l(); }
+
+void unnamed_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
+}
+
+#undef _MACRO_SELF_
+
 #define _MACRO_SELF_ named_semaphore
 class _MACRO_SELF_ {
 private:
@@ -127,33 +163,74 @@ void named_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
 
 #undef _MACRO_SELF_
 
-class gpu_locker {
+#define _MACRO_SELF_ gpu_locker
+
+class _MACRO_SELF_ {
 
 private:
-  sem_t *gpu_semaphore;
-  file_mlock l1, l2, l3, l4;
+  named_semaphore gpu_semaphore_named;
+  unnamed_semaphore gpu_semaphore;
+  bool for_inference_server;
+
+  std::vector<file_mlock> mem_locks;
 
 public:
-  gpu_locker()
-      : gpu_semaphore(sem_open("/gpuLock", O_CREAT, S_IRWXU, 2)),
-        l1("/root/.cache/model_1.pt2"), l2("/root/.cache/model_3.pt2"),
-        l3("/root/.cache/model_2.pt2"), l4("/root/.cache/model_4.pt2") {}
+  _MACRO_SELF_()
+      : gpu_semaphore_named("/gpuLock", 2), gpu_semaphore(2),
+        for_inference_server(false) {}
 
-  ~gpu_locker() { sem_close(gpu_semaphore); }
+  ~_MACRO_SELF_() {}
+
+  inline void configure_for_preprocessing() { for_inference_server = false; }
+
+  inline void configure_for_inference() {
+    printf("Configuring for inference\n");
+    for_inference_server = true;
+
+    printf("Locking compiled models into memory\n");
+    if (mem_locks.size() == 0) {
+      mem_locks.reserve(4);
+
+      mem_locks.push_back(
+          get_compiled_model_path(/*unsigned char i =*/1).c_str());
+      mem_locks.push_back(
+          get_compiled_model_path(/*unsigned char i =*/2).c_str());
+      mem_locks.push_back(
+          get_compiled_model_path(/*unsigned char i =*/3).c_str());
+      mem_locks.push_back(
+          get_compiled_model_path(/*unsigned char i =*/4).c_str());
+    }
+  }
 
   inline void l() {
     if (torch::cuda::is_available()) {
-      sem_wait(gpu_semaphore);
+      if (for_inference_server) {
+        gpu_semaphore_named.l();
+      } else {
+        gpu_semaphore.l();
+      }
     }
   }
   inline void r() {
     if (torch::cuda::is_available()) {
-      sem_post(gpu_semaphore);
+      if (for_inference_server) {
+        clear_cuda_cache();
+        gpu_semaphore_named.r();
+      } else {
+        gpu_semaphore.r();
+      }
     }
   }
 };
 
-static gpu_locker locker;
+static _MACRO_SELF_ locker;
+
+extern "C" {
+void locker_to_inference_mode() { locker.configure_for_inference(); }
+void locker_to_preprocessing_mode() { locker.configure_for_preprocessing(); }
+}
+
+#undef _MACRO_SELF_
 
 #define _MACRO_SELF_ infer_slave
 
@@ -171,18 +248,25 @@ private:
 
 public:
   inline void infer(void *blob_source, void *blob_destination) {
+    try {
+      torch::Tensor cpu_tensor = torch::from_blob(
+          blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
+          options_input);
 
-    torch::Tensor cpu_tensor = torch::from_blob(
-        blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
-        options_input);
+      std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
 
-    std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+      std::vector<torch::Tensor> outputs = loader.run(inputs);
 
-    std::vector<torch::Tensor> outputs = loader.run(inputs);
+      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
 
-    torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
 
-    std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+    } catch (const std::exception &e) {
+
+      std::memset(blob_destination, 0, bytes_to_copy);
+
+      printf("Error: %s\n", e.what());
+    }
   }
 
   _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
@@ -194,9 +278,7 @@ public:
     locker.l();
   }
 
-  ~_MACRO_SELF_() {
-    locker.r();
-  }
+  ~_MACRO_SELF_() { locker.r(); }
 
   inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
     BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
@@ -373,6 +455,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
     return 0;
 
   } catch (const std::exception &e) {
+    std::memset(dest, 0, 6 * 160 * 160 * 60 * 4);
     printf("Error: %s\n", e.what());
     return -1; // Error
   }

@@ -6,10 +6,18 @@ using outtype = float;
 
 void clear_cuda_cache();
 
+void *unnamed_semaphore_new(int const num);
+void unnamed_semaphore_delete(void *in);
+void unnamed_semaphore_l(void *in);
+void unnamed_semaphore_r(void *in);
+
 void *named_semaphore_new(char const *name, int const num);
 void named_semaphore_delete(void *in);
 void named_semaphore_l(void *in);
 void named_semaphore_r(void *in);
+
+void locker_to_inference_mode();
+void locker_to_preprocessing_mode();
 
 void *new_infer_slave(unsigned char batch_size);
 void delete_infer_slave(void *in);
