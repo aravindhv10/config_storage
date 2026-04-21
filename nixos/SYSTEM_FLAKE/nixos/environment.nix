@@ -160,6 +160,7 @@
     swww
     television
     texlab
+    texstudio
     tmux
     uv
     wezterm
@@ -999,6 +1000,7 @@ in {
             python-multipart
             requests
             safetensors
+            scikit-learn
             tensorboard
             tensorboardx
             torch

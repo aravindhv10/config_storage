@@ -8,14 +8,31 @@
 * Config file
 
 ** Generate random secret
+
+*** COMMENT Secure
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./gen_secret.sh
   openssl rand -hex 32
+#+end_src
+
+*** Reproducible
+
+**** Shared secret
+#+begin_src conf :mkdirp yes :tangle ./secret.txt
+  MyAbsoluteSecret
+#+end_src
+
+**** Script to generate
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./gen_secret.sh
+  cd "$(dirname -- "${0}")"
+  sha512sum './secret.txt' | cut -b 1-64
 #+end_src
 
 ** Actual config
   metadata_dir = "/var/lib/garage/meta"
   data_dir = "/var/lib/garage/data"
-#+begin_src conf :mkdirp yes :tangle ./garage_template.toml
+
+*** Headers
+#+begin_src conf :mkdirp yes :tangle ./garage_headers.toml
   metadata_dir = "./garage/meta"
   data_dir = "./garage/data"
 
@@ -25,11 +42,17 @@
 
   rpc_bind_addr = "[::]:11111"
   rpc_public_addr = "#IP#:11111"
-  rpc_secret = "75a369782e28408900fc674c01c07ddacd40977f509931012809bdff949e8a6a"
+  rpc_secret = "#KEY#"
 
   bootstrap_peers = [
-      "2a605e9dbeffb269d94e7a45fb48074230dda6ef6eda428ac1332a878df6b1ac@192.168.1.6:11111",
-      "b5d5fa0f915c8b4bd94ff5ccc86d79b862e9a5cebd059ec207ecb09516096dda@192.168.1.7:11111",
+#+end_src
+
+*** Peers
+#+begin_src conf :mkdirp yes :tangle ./garage_peers.toml
+#+end_src
+
+*** S3 Related
+#+begin_src conf :mkdirp yes :tangle ./garage_s3.toml
   ]
 
   [s3_api]
@@ -46,7 +69,9 @@
 ** Prepare the config file
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./gen_config.sh
   cd "$(dirname -- "${0}")"
-  sed "s/#IP#/${1}/g" './garage_template.toml' > './garage.toml'
+  sed "s/#IP#/${1}/g ; s/#KEY#/${2}/g" './garage_headers.toml' > './garage.toml'
+  cat './garage_peers.toml' >> './garage.toml'
+  cat './garage_s3.toml' >> './garage.toml'
   exit '0'
 #+end_src
 
@@ -78,9 +103,6 @@
   /var/tmp/garage/bin/garage -c "$(realpath ./garage.toml)" layout assign 'b5d5fa0f915c8b4bd94ff5ccc86d79b862e9a5cebd059ec207ecb09516096dda' --zone home --capacity 10737418240
 #+end_src
 
-      
-      
-
 * Main script to manage git stuff
 
 ** Source common functions
@@ -101,14 +123,18 @@
 
 ** Add files to git
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD '.gitignore'
-  GITADD 'README.org'
+  GITADD 'garage_headers.toml'
+  GITADD 'garage_peers.toml'
+  GITADD 'garage_s3.toml'
   GITADD 'garage_template.toml'
   GITADD 'gen_config.sh'
   GITADD 'gen_secret.sh'
+  GITADD '.gitignore'
   GITADD 'key_create.sh'
   GITADD 'layout_assign.sh'
   GITADD 'node_id.sh'
+  GITADD 'README.org'
+  GITADD 'secret.txt'
   GITADD 'server.sh'
 #+end_src
 

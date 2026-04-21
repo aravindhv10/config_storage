@@ -1,2 +1,3 @@
 #!/bin/sh
-openssl rand -hex 32
+cd "$(dirname -- "${0}")"
+sha512sum './secret.txt' | cut -b 1-64

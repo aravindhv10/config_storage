@@ -546,7 +546,7 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/your-tools/ruplacer.git'
     get_rust_package 'https://github.com/zellij-org/zellij.git'
 
-    get_repo 'https://github.com/deuxfleurs-org/garage.git' ; git checkout 'tags/v2.2.0' ; build_rust_package_in_cwd
+    get_repo 'https://github.com/deuxfleurs-org/garage.git' ; git checkout 'tags/v2.3.0' ; build_rust_package_in_cwd
 
     get_tmux
     get_byobu
@@ -601,7 +601,7 @@ INSTALL_ALL_GOOD_PACKAGES () {
     INSTALL_ZST_ZRCHIVE 'bcc47b69aa74153a4f9d8cf5f4ddc9f223772cdc18419933193d67e0bc8533abc0a4c6fb74ce5433325fda29d6ea4435c3a134f69f2e28f3ee60518b525c89c1' 'ripgrep'
     INSTALL_ZST_ZRCHIVE 'c11a3e29844d311887ecf526508c07fa4dfc0b23fc86f86e7b680c41412a460916b0b763787cef8bf45f78c211218dbfdd121e43506ffcd051400ba06dcec2b2' 'reflicate'
     INSTALL_ZST_ZRCHIVE 'c7f4f29c3e14f5754abd7cfde0a9e1dcaf27978534490d1c329ef56052c4ecc4966b54c773cf32a1291bac894a4067780bb3cf029cc6a05bf9d98bc1d8e0710a' 'runiq'
-    INSTALL_ZST_ZRCHIVE '4899322635683a9a2aae1572cfeda4186940b750a32b98b31454a55b60dcc2dee18d7c03ec3c2d317e0bba848416e0ea977042c5fd9323e309e6886a3b41ba51' 'garage'
+    INSTALL_ZST_ZRCHIVE '3f600cf12a027f0d967e7ab35ddda8533038a78032b788ed9ea2ff72c94f785cee6185c6c0cd3e6b5371843419a6022b7a6464e5654d72bb7c24a45a328e9059' 'garage'
     INSTALL_ZST_ZRCHIVE 'cc2f60f73ebc6b084bdce9991a94c9be674b5fb8dd33dd0723f82574c0dbf9ba089342fc03f0d0eb88be7e6a7248d657c9c94e60ca3e162cf8a670644157dbfb' 'evil-helix'
     INSTALL_ZST_ZRCHIVE 'cfffaed9795393d6b5333aadec7b615a56b1391aede5bbe68ba301639f135c461b8839d5584ee7223012b8b0c381fa264a23157ea9f561e451172589c31ac5c9' 'byobu'
     INSTALL_ZST_ZRCHIVE 'd657f48a845b009862e728c27910182be49767a1fddccc646aff4aa8c44bd566c4c4764b9b508f448fdb3857cb87fce87be0b137e246fe8a66df5df8b993383f' 'difftastic'
