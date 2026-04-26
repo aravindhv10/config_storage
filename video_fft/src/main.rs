@@ -20,9 +20,8 @@ fn infer_video_end_2_end(
     path_file_video_input: String,
     use_gpu: bool,
 ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-    let slicer = videoview::video_slicer::new(
+    let slicer = videoview::video_slicer_piped::new(
         /*path_file_video_input: String =*/ path_file_video_input,
-        /*mut path_file_rawvideo_output: Option<String> =*/ None,
         /*fps: f32 =*/ 8.0,
         /*size_x: u16 =*/ 1280,
         /*size_y: u16 =*/ 720,
@@ -124,7 +123,7 @@ fn video_tensor_2_fft_file_160(
 }
 
 fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
-    let res = videoview::video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
+    let res = videoview::video_slicer_piped::new(path_file_video_input.clone(), 8.0, 1280, 720, 3)?;
     let full_tensor = res.get_video_tensor()?;
 
     let path_dir_output = path_file_video_input + ".dir";
