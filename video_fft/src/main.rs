@@ -71,11 +71,11 @@ fn video_tensor_2_fft_file_160(
         return Err(anyhow::format_err!("Video too short..."));
     } else {
         std::fs::create_dir_all(path_dir_output)?;
-        let stride = 120 as i32;
+        let stride = 160 as i32;
         let threshold = ((3 * (160 + stride)) / 4) as i32;
         let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
-        if (120 <= total_video_length) && (total_video_length < threshold) {
+        if (120 <= total_video_length) && (total_video_length < (threshold as i64)) {
             let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
 
             if !std::fs::exists(path_file_video_bin_output.as_str())? {

@@ -756,14 +756,9 @@ video.len() in:
 #+end_src
 
 **** torch
-
-***** COMMENT Define macro to indicate running on nvidia gpu
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #define USE_CUDA 1
-#+end_src
 
-***** Actual include files
-#+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <ATen/ops/sum.h>
   #include <c10/core/TensorOptions.h>
   #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
@@ -1595,6 +1590,7 @@ video.len() in:
       size_y: u16,
       size_c: u8,
   ) -> anyhow::Result<Vec<u8>> {
+
       assert!(
           size_c == 3,
           "Currently only implemented for 3 channel color videos..."
@@ -2839,11 +2835,11 @@ video.len() in:
       } else {
 
           std::fs::create_dir_all(path_dir_output)?;
-          let stride = 120 as i32;
+          let stride = 160 as i32;
           let threshold = ((3 * (160 + stride)) / 4) as i32 ;
           let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
-          if (120 <= total_video_length) && (total_video_length < threshold) {
+          if (120 <= total_video_length) && (total_video_length < (threshold as i64)) {
               let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
 
               if !std::fs::exists(path_file_video_bin_output.as_str())? {
