@@ -17,8 +17,6 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
-#define USE_CUDA 1
-
 #include <ATen/ops/sum.h>
 #include <c10/core/TensorOptions.h>
 #include <torch/csrc/inductor/aoti_package/model_package_loader.h>

@@ -756,9 +756,14 @@ video.len() in:
 #+end_src
 
 **** torch
+
+***** COMMENT Define macro to indicate running on nvidia gpu
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #define USE_CUDA 1
+#+end_src
 
+***** Actual include files
+#+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
   #include <ATen/ops/sum.h>
   #include <c10/core/TensorOptions.h>
   #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
