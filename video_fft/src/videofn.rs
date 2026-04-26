@@ -1,5 +1,4 @@
 use std::io::{Read, Write};
-use std::process::Command;
 
 pub fn convert_encoded_video_to_raw(
     path_file_video_input: &str,

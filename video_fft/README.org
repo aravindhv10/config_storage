@@ -1515,7 +1515,6 @@ video.len() in:
 * Rust functions for ffmpeg and name hashing
 #+begin_src rust :mkdirp yes :tangle ./src/videofn.rs
   use std::io::{Read, Write};
-  use std::process::Command;
 
   pub fn convert_encoded_video_to_raw(
       path_file_video_input: &str,
