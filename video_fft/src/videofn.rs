@@ -73,6 +73,7 @@ pub fn convert_encoded_video_to_raw_piped(
     size_y: u16,
     size_c: u8,
 ) -> anyhow::Result<Vec<u8>> {
+
     assert!(
         size_c == 3,
         "Currently only implemented for 3 channel color videos..."
@@ -80,16 +81,11 @@ pub fn convert_encoded_video_to_raw_piped(
 
     let mut child = std::process::Command::new("ffmpeg")
         .args([
-            "-i",
-            "pipe:0",
-            "-r",
-            fps.to_string().as_str(),
-            "-f",
-            "rawvideo",
-            "-pix_fmt",
-            "rgb24",
-            "-vf",
-            format!("scale={}:{}", size_x, size_y).as_str(),
+            "-i", "pipe:0",
+            "-r", fps.to_string().as_str(),
+            "-f", "rawvideo",
+            "-pix_fmt", "rgb24",
+            "-vf", format!("scale={}:{}", size_x, size_y).as_str(),
             "pipe:1",
         ])
         .stdin(std::process::Stdio::piped())

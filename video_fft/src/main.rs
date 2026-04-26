@@ -70,9 +70,10 @@ fn video_tensor_2_fft_file_160(
     if total_video_length < 120 {
         return Err(anyhow::format_err!("Video too short..."));
     } else {
+
         std::fs::create_dir_all(path_dir_output)?;
         let stride = 160 as i32;
-        let threshold = ((3 * (160 + stride)) / 4) as i32;
+        let threshold = ((3 * (160 + stride)) / 4) as i32 ;
         let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
         if (120 <= total_video_length) && (total_video_length < (threshold as i64)) {

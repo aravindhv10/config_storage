@@ -1796,7 +1796,7 @@ video.len() in:
   }
 
   impl video_slicer_piped {
-      pub fn new(
+      pub fn new_from_bin(
           binary_video_input: Vec<u8>,
           fps: f32,
           size_x: u16,
@@ -1839,6 +1839,22 @@ video.len() in:
           };
 
           return Ok(ret);
+      }
+
+      pub fn new(
+          path_file_video_input: String,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+          size_c: u8,
+      ) -> anyhow::Result<Self> {
+          Self::new_from_bin(
+              /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?;,
+              /*fps: f32 =*/ fps,
+              /*size_x: u16 =*/ size_x,
+              /*size_y: u16 =*/ size_y,
+              /*size_c: u8 =*/ size_c,
+          )
       }
 
       #[inline(always)]
