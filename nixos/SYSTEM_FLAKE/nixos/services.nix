@@ -99,8 +99,8 @@
     };
 
     k3s = {
-        enable = false;
-        role = "server";
-    } ;
+      enable = false;
+      role = "server";
+    };
   };
 }
