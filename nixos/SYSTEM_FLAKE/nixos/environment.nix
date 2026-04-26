@@ -985,7 +985,6 @@ in {
             h5py
             inotify-simple
             ipython
-            jax
             matplotlib
             multiprocess
             numpy
