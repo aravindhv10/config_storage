@@ -1,3 +1,6 @@
+use std::io::{Read, Write};
+use std::process::Command;
+
 pub fn convert_encoded_video_to_raw(
     path_file_video_input: &str,
     path_file_video_output: &str,
@@ -62,4 +65,60 @@ pub fn get_str_hash(path_file_input: &str) -> u64 {
         /* input = */ path_file_input.as_bytes(),
         /* seed = */ 12345,
     )
+}
+
+pub fn convert_encoded_video_to_raw_piped(
+    input_buffer: Vec<u8>,
+    fps: f32,
+    size_x: u16,
+    size_y: u16,
+    size_c: u8,
+) -> anyhow::Result<Vec<u8>> {
+    assert!(
+        size_c == 3,
+        "Currently only implemented for 3 channel color videos..."
+    );
+
+    let mut child = std::process::Command::new("ffmpeg")
+        .args([
+            "-i",
+            "pipe:0", // Read from stdin
+            "-r",
+            fps.to_string().as_str(),
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "rgb24",
+            "-vf",
+            format!("scale={}:{}", size_x, size_y).as_str(),
+            "pipe:1", // Write to stdout
+        ])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped()) // Capture stderr to debug if it fails
+        .spawn()?;
+
+    // 2. Take the stdin handle and write our buffer to it in a separate block/scope
+    // so that it closes automatically, signaling EOF to FFmpeg
+    if let Some(mut stdin) = child.stdin.take() {
+        stdin.write_all(&input_buffer)?;
+    }
+
+    // 3. Read the resulting output from stdout
+    let mut output_buffer = Vec::<u8>::new();
+    if let Some(mut stdout) = child.stdout.take() {
+        stdout.read_to_end(&mut output_buffer)?;
+    }
+
+    // 4. Wait for the process to exit and check status
+    let status = child.wait()?;
+    if !status.success() {
+        let mut err_msg = String::new();
+        if let Some(mut stderr) = child.stderr.take() {
+            stderr.read_to_string(&mut err_msg)?;
+        }
+        return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
+    }
+
+    Ok(output_buffer)
 }
