@@ -106,8 +106,8 @@ pub fn convert_encoded_video_to_raw_piped(
         stdout.read_to_end(&mut output_buffer)?;
     }
 
-    // 4. Wait for the process to exit and check status
     let status = child.wait()?;
+
     if !status.success() {
         let mut err_msg = String::new();
         if let Some(mut stderr) = child.stderr.take() {
