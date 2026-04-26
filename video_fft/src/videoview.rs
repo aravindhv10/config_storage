@@ -249,7 +249,7 @@ impl video_slicer_piped {
 
         let tensor_data: tch::Tensor = unsafe {
             tch::Tensor::from_blob(
-                /* data = */ self.raw_video.as_slice(),
+                /* data = */ self.raw_video.as_ptr(),
                 /* size = */ &size,
                 /* strides = */ &strides,
                 tch::Kind::Uint8,
