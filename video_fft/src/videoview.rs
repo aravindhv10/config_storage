@@ -173,7 +173,7 @@ impl video_slicer_piped {
             /*size_x: u16 =*/ size_x,
             /*size_y: u16 =*/ size_y,
             /*size_c: u8 =*/ size_c,
-        );
+        )?;
 
         let size_t: u16 =
             (raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
