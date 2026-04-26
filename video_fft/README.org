@@ -1849,7 +1849,7 @@ video.len() in:
           size_c: u8,
       ) -> anyhow::Result<Self> {
           Self::new_from_bin(
-              /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?;,
+              /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?,
               /*fps: f32 =*/ fps,
               /*size_x: u16 =*/ size_x,
               /*size_y: u16 =*/ size_y,

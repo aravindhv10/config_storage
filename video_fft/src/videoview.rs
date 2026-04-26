@@ -167,17 +167,16 @@ impl video_slicer_piped {
         size_y: u16,
         size_c: u8,
     ) -> anyhow::Result<Self> {
-
         let raw_video = videofn::convert_encoded_video_to_raw_piped(
             /*input_buffer: Vec<u8> =*/ binary_video_input,
             /*fps: f32 =*/ fps,
             /*size_x: u16 =*/ size_x,
             /*size_y: u16 =*/ size_y,
             /*size_c: u8 =*/ size_c,
-        )? ;
+        )?;
 
         let size_t: u16 =
-            ( raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
+            (raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
         let dist_c: i32 = 1;
 
@@ -213,7 +212,7 @@ impl video_slicer_piped {
         size_c: u8,
     ) -> anyhow::Result<Self> {
         Self::new_from_bin(
-            /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?;,
+            /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?,
             /*fps: f32 =*/ fps,
             /*size_x: u16 =*/ size_x,
             /*size_y: u16 =*/ size_y,

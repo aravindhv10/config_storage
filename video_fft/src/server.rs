@@ -536,7 +536,7 @@ impl grpc_inferer {
         println!("Building grpc_inferer");
         let ret = Self {
             infpair: std::sync::Arc::<inference_pair>::new(inference_pair::new()),
-        } ;
+        };
         println!("Returning grpc_inferer");
         return ret;
     }
