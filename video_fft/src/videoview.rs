@@ -167,7 +167,7 @@ impl video_slicer_piped {
         size_y: u16,
         size_c: u8,
     ) -> anyhow::Result<Self> {
-        let raw_video = convert_encoded_video_to_raw_piped(
+        let raw_video = videofn::convert_encoded_video_to_raw_piped(
             /*input_buffer: Vec<u8> =*/ binary_video_input,
             /*fps: f32 =*/ fps,
             /*size_x: u16 =*/ size_x,
