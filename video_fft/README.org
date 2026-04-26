@@ -1797,7 +1797,7 @@ video.len() in:
 
   impl video_slicer_piped {
       pub fn new(
-          binary_video_input: Vec<u8>
+          binary_video_input: Vec<u8>,
           fps: f32,
           size_x: u16,
           size_y: u16,
