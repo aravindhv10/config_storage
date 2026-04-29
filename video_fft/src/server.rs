@@ -98,8 +98,9 @@ impl inference_communicator {
         path_file_video_input: &str,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
         let mut list_video_fft_tensor = {
-            let slicer = videoview::video_slicer_piped::new(
+            let slicer = videoview::video_slicer::new(
                 /*path_file_video_input: String =*/ path_file_video_input.to_string(),
+                None,
                 /*fps: f32 =*/ 8.0,
                 /*size_x: u16 =*/ 1280,
                 /*size_y: u16 =*/ 720,

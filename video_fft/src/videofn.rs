@@ -73,10 +73,14 @@ pub fn convert_encoded_video_to_raw_piped(
     size_y: u16,
     size_c: u8,
 ) -> anyhow::Result<Vec<u8>> {
+    eprintln!("convert_encoded_video_to_raw_piped entered");
+
     assert!(
         size_c == 3,
         "Currently only implemented for 3 channel color videos..."
     );
+
+    eprintln!(" Passed size_c check ");
 
     let mut child = std::process::Command::new("ffmpeg")
         .args([
@@ -97,24 +101,48 @@ pub fn convert_encoded_video_to_raw_piped(
         .stderr(std::process::Stdio::piped())
         .spawn()?;
 
-    if let Some(mut stdin) = child.stdin.take() {
-        stdin.write_all(&input_buffer)?;
-    }
+    eprintln!(" Spawned ffmpeg ");
 
     let mut output_buffer = Vec::<u8>::new();
-    if let Some(mut stdout) = child.stdout.take() {
-        stdout.read_to_end(&mut output_buffer)?;
+    if let Some(mut stdin) = child.stdin.take() {
+        eprintln!(" Writing the video into stdin ");
+
+        let handle = std::thread::spawn(move || {
+            stdin.write_all(&input_buffer);
+        });
+
+        eprintln!(" Forked the thread, moving to reading the data ");
+
+        if let Some(mut stdout) = child.stdout.take() {
+            eprintln!(" Reading data from stdout ");
+            stdout.read_to_end(&mut output_buffer)?;
+        }
+
+        eprintln!(" Joining the thread now ");
+
+        match handle.join() {
+            Ok(_) => println!("Writer thread finished successfully"),
+            Err(e) => eprintln!("Writer thread panicked: {:?}", e),
+        };
+
+        eprintln!(" Joined the thread now ");
     }
 
+    eprintln!("Waiting for ffmpeg to return");
     let status = child.wait()?;
+    eprintln!("ffmpeg returned");
 
     if !status.success() {
+        eprintln!("Checking error status");
         let mut err_msg = String::new();
         if let Some(mut stderr) = child.stderr.take() {
+            eprintln!("Checking stderr");
             stderr.read_to_string(&mut err_msg)?;
         }
+        eprintln!("FFmpeg failed: {}", err_msg);
         return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
     }
 
+    eprintln!("Everything done, returning");
     Ok(output_buffer)
 }
