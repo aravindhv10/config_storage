@@ -315,6 +315,17 @@
 
 *** Main function:
 
+**** Install from current working directory as rust source with static cargo zigbuild
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  zigbuild_rust_package_in_cwd(){
+      PKG_NAME="$('basename' "$(realpath .)")"
+      export RUSTFLAGS="-C target-cpu=x86-64-v3"
+      cargo clean
+      cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl.v3'
+  }
+#+end_src
+
+
 **** Install from target directory as rust source 
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   build_rust_package_in_cwd(){

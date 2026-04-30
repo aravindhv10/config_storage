@@ -229,6 +229,13 @@ get_squashfs_tools () {
     mv -vf -- ../bin/lib*.so* ./
 }
 
+zigbuild_rust_package_in_cwd(){
+    PKG_NAME="$('basename' "$(realpath .)")"
+    export RUSTFLAGS="-C target-cpu=x86-64-v3"
+    cargo clean
+    cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl.v3'
+}
+
 build_rust_package_in_cwd(){
     PKG_NAME="$('basename' "$(realpath .)")"
 
