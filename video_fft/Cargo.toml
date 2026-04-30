@@ -25,15 +25,16 @@ flume = "0.12.0"
 futures = "0.3.32"
 gxhash = "3.5.0"
 jwalk = "0.8.1"
+log = { version = "0.4.29", features = ["std"] }
 memmap2 = "0.9.10"
-mimalloc = "0.1.48"
+mimalloc = "0.1.50"
 oneshot = { version = "0.2.1", features = ["async", "std"] }
 prost = "0.14.3"
 rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.50.0", features = ["full"] }
+tonic = { version = "0.14.5", features = ["zstd"] }
 tonic-prost = "0.14.5"
 tonic-reflection = "0.14.5"
-tonic = { version = "0.14.5", features = ["zstd"] }
 
 tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }

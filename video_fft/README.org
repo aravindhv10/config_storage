@@ -67,16 +67,17 @@ video.len() in:
   futures = "0.3.32"
   gxhash = "3.5.0"
   jwalk = "0.8.1"
+  log = { version = "0.4.29", features = ["std"] }
   memmap2 = "0.9.10"
-  mimalloc = "0.1.48"
+  mimalloc = "0.1.50"
   oneshot = { version = "0.2.1", features = ["async", "std"] }
   prost = "0.14.3"
   rayon = "1.11.0"
   serde = { version = "1.0.228", features = ["derive"] }
   tokio = { version = "1.50.0", features = ["full"] }
+  tonic = { version = "0.14.5", features = ["zstd"] }
   tonic-prost = "0.14.5"
   tonic-reflection = "0.14.5"
-  tonic = { version = "0.14.5", features = ["zstd"] }
 #+end_src
 
 **** Torch-rs
@@ -1590,10 +1591,14 @@ video.len() in:
       size_c: u8,
   ) -> anyhow::Result<Vec<u8>> {
 
+      eprintln!("convert_encoded_video_to_raw_piped entered");
+
       assert!(
           size_c == 3,
           "Currently only implemented for 3 channel color videos..."
       );
+
+      eprintln!(" Passed size_c check ");
 
       let mut child = std::process::Command::new("ffmpeg")
           .args([
@@ -1609,25 +1614,49 @@ video.len() in:
           .stderr(std::process::Stdio::piped())
           .spawn()?;
 
-      if let Some(mut stdin) = child.stdin.take() {
-          stdin.write_all(&input_buffer)?;
-      }
+      eprintln!(" Spawned ffmpeg ");
 
       let mut output_buffer = Vec::<u8>::new();
-      if let Some(mut stdout) = child.stdout.take() {
-          stdout.read_to_end(&mut output_buffer)?;
+      if let Some(mut stdin) = child.stdin.take() {
+          eprintln!(" Writing the video into stdin ");
+
+          let handle = std::thread::spawn(move || {
+              stdin.write_all(&input_buffer);
+          });
+
+          eprintln!(" Forked the thread, moving to reading the data ");
+
+          if let Some(mut stdout) = child.stdout.take() {
+              eprintln!(" Reading data from stdout ");
+              stdout.read_to_end(&mut output_buffer)?;
+          }
+
+          eprintln!(" Joining the thread now ");
+
+          match handle.join() {
+              Ok(_) => println!("Writer thread finished successfully"),
+              Err(e) => eprintln!("Writer thread panicked: {:?}", e), 
+          } ;
+
+          eprintln!(" Joined the thread now ");
       }
 
+      eprintln!("Waiting for ffmpeg to return");
       let status = child.wait()?;
+      eprintln!("ffmpeg returned");
 
       if !status.success() {
+          eprintln!("Checking error status");
           let mut err_msg = String::new();
           if let Some(mut stderr) = child.stderr.take() {
+              eprintln!("Checking stderr");
               stderr.read_to_string(&mut err_msg)?;
           }
+          eprintln!("FFmpeg failed: {}", err_msg);
           return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
       }
 
+      eprintln!("Everything done, returning");
       Ok(output_buffer)
   }
 #+end_src
@@ -2914,8 +2943,9 @@ video.len() in:
       path_file_video_input: String,
       use_gpu: bool,
   ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-      let slicer = videoview::video_slicer_piped::new(
+      let slicer = videoview::video_slicer::new(
           /*path_file_video_input: String =*/ path_file_video_input,
+          None,
           /*fps: f32 =*/ 8.0,
           /*size_x: u16 =*/ 1280,
           /*size_y: u16 =*/ 720,
@@ -2963,10 +2993,9 @@ video.len() in:
       if total_video_length < 120 {
           return Err(anyhow::format_err!("Video too short..."));
       } else {
-
           std::fs::create_dir_all(path_dir_output)?;
           let stride = 160 as i32;
-          let threshold = ((3 * (160 + stride)) / 4) as i32 ;
+          let threshold = ((3 * (160 + stride)) / 4) as i32;
           let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
           if (120 <= total_video_length) && (total_video_length < (threshold as i64)) {
@@ -3018,15 +3047,28 @@ video.len() in:
   }
 
   fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
-      let res = videoview::video_slicer_piped::new(path_file_video_input.clone(), 8.0, 1280, 720, 3)?;
-      let full_tensor = res.get_video_tensor()?;
+      let path_dir_output = path_file_video_input.clone() + ".dir";
+      let out_dir = std::path::Path::new(path_dir_output.as_str());
 
-      let path_dir_output = path_file_video_input + ".dir";
+      if out_dir.exists() {
+          eprintln!(
+              "{:?} already exists, not working on the input file {:?}",
+              out_dir, path_file_video_input
+          );
 
-      return video_tensor_2_fft_file_160(
-          /*tensor_video_input: tch::Tensor =*/ full_tensor,
-          /*path_dir_output: &str =*/ path_dir_output.as_str(),
-      );
+          return Err(anyhow::format_err!(
+              "{:?} already exists, not working on the input file {:?}",
+              out_dir,
+              path_file_video_input
+          ));
+      } else {
+          let res = videoview::video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
+          let full_tensor = res.get_video_tensor()?;
+          return video_tensor_2_fft_file_160(
+              /*tensor_video_input: tch::Tensor =*/ full_tensor,
+              /*path_dir_output: &str =*/ path_dir_output.as_str(),
+          );
+      }
   }
 
   fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
@@ -3270,8 +3312,9 @@ struct inference_loop {
           path_file_video_input: &str,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
           let mut list_video_fft_tensor = {
-              let slicer = videoview::video_slicer_piped::new(
+              let slicer = videoview::video_slicer::new(
                   /*path_file_video_input: String =*/ path_file_video_input.to_string(),
+                  None,
                   /*fps: f32 =*/ 8.0,
                   /*size_x: u16 =*/ 1280,
                   /*size_y: u16 =*/ 720,
