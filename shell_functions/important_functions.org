@@ -318,7 +318,7 @@
 **** Install from current working directory as rust source with static cargo zigbuild
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   zigbuild_rust_package_in_cwd(){
-      export RUSTFLAGS="-C target-cpu=x86-64-v3"
+      export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+crt-static"
       export ZIG_CC_FLAGS="-march=x86-64-v3"
       cargo clean
       cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl'

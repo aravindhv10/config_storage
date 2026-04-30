@@ -230,7 +230,7 @@ get_squashfs_tools () {
 }
 
 zigbuild_rust_package_in_cwd(){
-    export RUSTFLAGS="-C target-cpu=x86-64-v3"
+    export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+crt-static"
     export ZIG_CC_FLAGS="-march=x86-64-v3"
     cargo clean
     cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl'
