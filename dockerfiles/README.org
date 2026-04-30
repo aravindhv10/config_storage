@@ -717,9 +717,8 @@ adown \
     "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
 ;
 
-
 cd "${HOME}/ZIG/"
 
 tar -xf "./zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz"
 
-"${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d/zig" cc -target  x86_64-linux-musl  -static  ./main.c
+"${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d/zig" cc -target  x86_64-linux-musl  -static -O3 -march=x86-64-v3 -mtune=native  ./main.c
