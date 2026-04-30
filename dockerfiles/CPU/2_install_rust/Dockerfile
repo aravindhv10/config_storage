@@ -37,5 +37,5 @@ RUN \
     && cd "${HOME}/ZIG/" \
     && tar -xf "./zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
     && cd './zig-x86_64-linux-0.17.0-dev.135+9df02121d/' \
-    && mv * /usr/local/bin/
-    && echo 'DONE Download and install zig'
+    && mv * /usr/local/bin/ \
+    && echo 'DONE Download and install zig' ;
