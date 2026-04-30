@@ -22,3 +22,20 @@ RUN \
 RUN rustup component add rust-src
 RUN rustup component add rust-analyzer
 RUN rustup component add rustfmt
+RUN rustup target add x86_64-unknown-linux-musl
+
+RUN \
+    --mount=target=/root/SHA512SUM,type=cache \
+    --mount=target=/root/TMP,type=cache \
+    echo 'START Download and install zig' \
+    && . "${HOME}/important_functions.sh" \
+    && adown \
+        'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz' \
+        'zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz' \
+        'e27651509bc4f7f316d29a8c4dfa459c72fcbe340d0c4aed3bab4d229c46ea3ff33131de1b382d1440b132d5e8fb43a080d950d809bc9d833b619f2728b622eb' \
+        "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
+    && cd "${HOME}/ZIG/" \
+    && tar -xf "./zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
+    && cd './zig-x86_64-linux-0.17.0-dev.135+9df02121d/' \
+    && mv * /usr/local/bin/
+    && echo 'DONE Download and install zig'
