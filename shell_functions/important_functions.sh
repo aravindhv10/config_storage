@@ -229,6 +229,10 @@ get_squashfs_tools () {
     mv -vf -- ../bin/lib*.so* ./
 }
 
+zigbuild_prepare_rust_package_in_cwd(){
+    cargo add mimalloc
+    rustup target add x86_64-unknown-linux-musl
+}
 zigbuild_rust_package_in_cwd(){
     export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+crt-static"
     export ZIG_CC_FLAGS="-march=x86-64-v3"
