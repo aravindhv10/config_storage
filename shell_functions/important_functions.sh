@@ -236,7 +236,7 @@ zigbuild_prepare_rust_package_in_cwd(){
 zigbuild_rust_package_in_cwd(){
     export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+crt-static"
     export ZIG_CC_FLAGS="-march=x86-64-v3"
-    cargo clean
+    rustup target add 'x86_64-unknown-linux-musl'
     cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl'
 }
 
