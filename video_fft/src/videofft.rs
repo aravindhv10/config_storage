@@ -230,7 +230,7 @@ impl fft_video {
                 /*use_gpu: bool =*/ use_gpu,
             );
         } else {
-            let float_val = (((total_video_length - 160) as f64) / 40.0) as f64;
+            let float_val = (((total_video_length - 160) as f64) / 160.0) as f64;
 
             let floor_val = float_val.floor();
 

@@ -139,13 +139,38 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
             path_file_video_input
         ));
     } else {
-        let res =
-            videoview::video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
-        let full_tensor = res.get_video_tensor()?;
-        return video_tensor_2_fft_file_160(
-            /*tensor_video_input: tch::Tensor =*/ full_tensor,
-            /*path_dir_output: &str =*/ path_dir_output.as_str(),
-        );
+        if true {
+            let res = videoview::video_slicer_piped::new(
+                /*path_file_video_input: String =*/ path_file_video_input.clone(),
+                /*fps: f32 =*/ 8 as f32,
+                /*size_x: u16 =*/ 1280 as u16,
+                /*size_y: u16 =*/ 720 as u16,
+                /*size_c: u8 =*/ 3 as u8,
+            )?;
+
+            let full_tensor = res.get_video_tensor()?;
+
+            return video_tensor_2_fft_file_160(
+                /*tensor_video_input: tch::Tensor =*/ full_tensor,
+                /*path_dir_output: &str =*/ path_dir_output.as_str(),
+            );
+        } else {
+            let res = videoview::video_slicer::new(
+                path_file_video_input.clone(),
+                None,
+                8.0,
+                1280,
+                720,
+                3,
+            )?;
+
+            let full_tensor = res.get_video_tensor()?;
+
+            return video_tensor_2_fft_file_160(
+                /*tensor_video_input: tch::Tensor =*/ full_tensor,
+                /*path_dir_output: &str =*/ path_dir_output.as_str(),
+            );
+        }
     }
 }
 

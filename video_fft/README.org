@@ -1517,6 +1517,19 @@ video.len() in:
 #+begin_src rust :mkdirp yes :tangle ./src/videofn.rs
   use std::io::{Read, Write};
 
+  pub fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
+      let file: std::fs::File = std::fs::File::open(path_file_input)?;
+      let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
+      Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
+  }
+
+  pub fn get_str_hash(path_file_input: &str) -> u64 {
+      gxhash::gxhash64(
+          /* input = */ path_file_input.as_bytes(),
+          /* seed = */ 12345,
+      )
+  }
+
   pub fn convert_encoded_video_to_raw(
       path_file_video_input: &str,
       path_file_video_output: &str,
@@ -1539,19 +1552,13 @@ video.len() in:
           .args([
               "-i",
               path_file_video_input,
-              "-r",
-              fps.to_string().as_str(),
+              "-vf",
+              format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
               "-nostdin",
               "-f",
               "rawvideo",
               "-pix_fmt",
               "rgb24",
-              "-vf",
-              ("scale=".to_string()
-                  + size_x.to_string().as_str()
-                  + ":"
-                  + size_y.to_string().as_str())
-              .as_str(),
               path_file_video_output,
           ])
           .status()?;
@@ -1568,19 +1575,6 @@ video.len() in:
               }
           }
       };
-  }
-
-  pub fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
-      let file: std::fs::File = std::fs::File::open(path_file_input)?;
-      let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
-      Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
-  }
-
-  pub fn get_str_hash(path_file_input: &str) -> u64 {
-      gxhash::gxhash64(
-          /* input = */ path_file_input.as_bytes(),
-          /* seed = */ 12345,
-      )
   }
 
   pub fn convert_encoded_video_to_raw_piped(
@@ -1603,10 +1597,11 @@ video.len() in:
       let mut child = std::process::Command::new("ffmpeg")
           .args([
               "-i", "pipe:0",
+              "-vf",
+              format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
               "-r", fps.to_string().as_str(),
               "-f", "rawvideo",
               "-pix_fmt", "rgb24",
-              "-vf", format!("scale={}:{}", size_x, size_y).as_str(),
               "pipe:1",
           ])
           .stdin(std::process::Stdio::piped())
@@ -1659,7 +1654,133 @@ video.len() in:
       eprintln!("Everything done, returning");
       Ok(output_buffer)
   }
+
+  pub fn convert_encoded_video_to_raw_outpipe(
+      path_file_video_input: &str,
+      fps: f32,
+      size_x: u16,
+      size_y: u16,
+      size_c: u8,
+  ) -> anyhow::Result<Vec<u8>> {
+
+      assert!(
+          size_c == 3,
+          "Currently only implemented for 3 channel color videos..."
+      );
+
+      let mut child = std::process::Command::new("ffmpeg")
+          .args([
+              "-i", path_file_video_input,
+              "-vf", format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
+              "-nostdin", "-f", "rawvideo",
+              "-pix_fmt", "rgb24",
+              "pipe:1",
+          ])
+          .stdout(std::process::Stdio::piped())
+          .stderr(std::process::Stdio::piped())
+          .spawn()?;
+
+      let mut output_buffer = Vec::<u8>::new();
+
+      if let Some(mut stdout) = child.stdout.take() {
+          eprintln!(" Reading data from stdout ");
+          stdout.read_to_end(&mut output_buffer)?;
+      }
+
+      let status = child.wait()?;
+
+      if !status.success() {
+          eprintln!("Checking error status");
+          let mut err_msg = String::new();
+          if let Some(mut stderr) = child.stderr.take() {
+              eprintln!("Checking stderr");
+              stderr.read_to_string(&mut err_msg)?;
+          }
+          eprintln!("FFmpeg failed: {}", err_msg);
+          return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
+      }
+
+      Ok(output_buffer)
+  }
 #+end_src
+
+  pub fn convert_encoded_video_to_raw_piped(
+      input_buffer: Vec<u8>,
+      fps: f32,
+      size_x: u16,
+      size_y: u16,
+      size_c: u8,
+  ) -> anyhow::Result<Vec<u8>> {
+
+      eprintln!("convert_encoded_video_to_raw_piped entered");
+
+      assert!(
+          size_c == 3,
+          "Currently only implemented for 3 channel color videos..."
+      );
+
+      eprintln!(" Passed size_c check ");
+
+      let mut child = std::process::Command::new("ffmpeg")
+          .args([
+              "-i", "pipe:0",
+              "-vf", format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
+              "-r", fps.to_string().as_str(),
+              "-f", "rawvideo",
+              "-pix_fmt", "rgb24",
+              "pipe:1",
+          ])
+          .stdin(std::process::Stdio::piped())
+          .stdout(std::process::Stdio::piped())
+          .stderr(std::process::Stdio::piped())
+          .spawn()?;
+
+      eprintln!(" Spawned ffmpeg ");
+
+      let mut output_buffer = Vec::<u8>::new();
+
+      if let Some(mut stdin) = child.stdin.take() {
+          eprintln!(" Writing the video into stdin ");
+
+          let handle = std::thread::spawn(move || {
+              stdin.write_all(&input_buffer);
+          });
+
+          eprintln!(" Forked the thread, moving to reading the data ");
+
+          if let Some(mut stdout) = child.stdout.take() {
+              eprintln!(" Reading data from stdout ");
+              stdout.read_to_end(&mut output_buffer)?;
+          }
+
+          eprintln!(" Joining the thread now ");
+
+          match handle.join() {
+              Ok(_) => println!("Writer thread finished successfully"),
+              Err(e) => eprintln!("Writer thread panicked: {:?}", e), 
+          } ;
+
+          eprintln!(" Joined the thread now ");
+      }
+
+      eprintln!("Waiting for ffmpeg to return");
+      let status = child.wait()?;
+      eprintln!("ffmpeg returned");
+
+      if !status.success() {
+          eprintln!("Checking error status");
+          let mut err_msg = String::new();
+          if let Some(mut stderr) = child.stderr.take() {
+              eprintln!("Checking stderr");
+              stderr.read_to_string(&mut err_msg)?;
+          }
+          eprintln!("FFmpeg failed: {}", err_msg);
+          return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
+      }
+
+      eprintln!("Everything done, returning");
+      Ok(output_buffer)
+  }
 
 * Rust class for interpreting video as torch tensor
 #+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
@@ -1717,8 +1838,9 @@ video.len() in:
           )?;
 
           let file: std::fs::File = std::fs::File::open(path_file_rawvideo_output.as_str())?;
-          let mmap: memmap2::Mmap =
-              unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+          let mmap_result = unsafe { memmap2::Mmap::map(&file) };
+          let _ = std::fs::remove_file(path_file_rawvideo_output.as_str());
+          let mmap: memmap2::Mmap = mmap_result?;
 
           let size_t: u16 =
               (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
@@ -1877,13 +1999,43 @@ video.len() in:
           size_y: u16,
           size_c: u8,
       ) -> anyhow::Result<Self> {
-          Self::new_from_bin(
-              /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?,
-              /*fps: f32 =*/ fps,
-              /*size_x: u16 =*/ size_x,
-              /*size_y: u16 =*/ size_y,
-              /*size_c: u8 =*/ size_c,
-          )
+
+          let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
+              /*path_file_video_input: &str =*/ path_file_video_input.as_str(),
+              /*fps: f32 =*/ fps as f32,
+              /*size_x: u16 =*/ size_x as u16,
+              /*size_y: u16 =*/ size_y as u16,
+              /*size_c: u8 =*/ size_c as u8,
+          )?;
+
+          let size_t: u16 =
+              ( raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
+
+          let dist_c: i32 = 1;
+
+          let dist_c: usize = 1;
+          let dist_x: usize = dist_c * (size_c as usize);
+          let dist_y: usize = dist_x * (size_x as usize);
+          let dist_t: usize = dist_y * (size_y as usize);
+
+          let ret: Self = Self {
+              fps: fps,
+
+              size_t: size_t,
+              size_x: size_x,
+              size_y: size_y,
+              size_c: size_c,
+
+              dist_t: dist_t,
+              dist_x: dist_x,
+              dist_y: dist_y,
+              dist_c: dist_c,
+
+              raw_video: raw_video,
+          };
+
+          return Ok(ret);
+
       }
 
       #[inline(always)]
@@ -2277,7 +2429,7 @@ video.len() in:
                   /*use_gpu: bool =*/ use_gpu,
               );
           } else {
-              let float_val = (((total_video_length - 160) as f64) / 40.0) as f64;
+              let float_val = (((total_video_length - 160) as f64) / 160.0) as f64;
 
               let floor_val = float_val.floor();
 
@@ -3062,12 +3214,35 @@ video.len() in:
               path_file_video_input
           ));
       } else {
-          let res = videoview::video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
-          let full_tensor = res.get_video_tensor()?;
-          return video_tensor_2_fft_file_160(
-              /*tensor_video_input: tch::Tensor =*/ full_tensor,
-              /*path_dir_output: &str =*/ path_dir_output.as_str(),
-          );
+          if true {
+
+              let res =  videoview::video_slicer_piped::new(
+                  /*path_file_video_input: String =*/ path_file_video_input.clone(),
+                  /*fps: f32 =*/ 8 as f32,
+                  /*size_x: u16 =*/ 1280 as u16,
+                  /*size_y: u16 =*/ 720 as u16,
+                  /*size_c: u8 =*/ 3 as u8,
+              )?;
+
+              let full_tensor = res.get_video_tensor()?;
+
+              return video_tensor_2_fft_file_160(
+                  /*tensor_video_input: tch::Tensor =*/ full_tensor,
+                  /*path_dir_output: &str =*/ path_dir_output.as_str(),
+              );
+
+          } else {
+
+              let res = videoview::video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
+
+              let full_tensor = res.get_video_tensor()?;
+
+              return video_tensor_2_fft_file_160(
+                  /*tensor_video_input: tch::Tensor =*/ full_tensor,
+                  /*path_dir_output: &str =*/ path_dir_output.as_str(),
+              );
+
+          }
       }
   }
 
@@ -4000,7 +4175,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Added a check to ensure repetedly getting the same file does not cause a race condition'
+  git status ; git commit -m 'Working stream output only for ffmpeg'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 

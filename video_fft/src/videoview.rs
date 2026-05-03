@@ -52,8 +52,9 @@ impl video_slicer {
         )?;
 
         let file: std::fs::File = std::fs::File::open(path_file_rawvideo_output.as_str())?;
-        let mmap: memmap2::Mmap =
-            unsafe { memmap2::Mmap::map(&file).expect("failed to map the file") };
+        let mmap_result = unsafe { memmap2::Mmap::map(&file) };
+        let _ = std::fs::remove_file(path_file_rawvideo_output.as_str());
+        let mmap: memmap2::Mmap = mmap_result?;
 
         let size_t: u16 =
             (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
@@ -211,13 +212,41 @@ impl video_slicer_piped {
         size_y: u16,
         size_c: u8,
     ) -> anyhow::Result<Self> {
-        Self::new_from_bin(
-            /*binary_video_input: Vec<u8> =*/ std::fs::read(path_file_video_input)?,
-            /*fps: f32 =*/ fps,
-            /*size_x: u16 =*/ size_x,
-            /*size_y: u16 =*/ size_y,
-            /*size_c: u8 =*/ size_c,
-        )
+        let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
+            /*path_file_video_input: &str =*/ path_file_video_input.as_str(),
+            /*fps: f32 =*/ fps as f32,
+            /*size_x: u16 =*/ size_x as u16,
+            /*size_y: u16 =*/ size_y as u16,
+            /*size_c: u8 =*/ size_c as u8,
+        )?;
+
+        let size_t: u16 =
+            (raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
+
+        let dist_c: i32 = 1;
+
+        let dist_c: usize = 1;
+        let dist_x: usize = dist_c * (size_c as usize);
+        let dist_y: usize = dist_x * (size_x as usize);
+        let dist_t: usize = dist_y * (size_y as usize);
+
+        let ret: Self = Self {
+            fps: fps,
+
+            size_t: size_t,
+            size_x: size_x,
+            size_y: size_y,
+            size_c: size_c,
+
+            dist_t: dist_t,
+            dist_x: dist_x,
+            dist_y: dist_y,
+            dist_c: dist_c,
+
+            raw_video: raw_video,
+        };
+
+        return Ok(ret);
     }
 
     #[inline(always)]
