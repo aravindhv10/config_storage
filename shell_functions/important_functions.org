@@ -826,6 +826,96 @@
 #+end_src
 
 ** Install all important apt packages
+
+*** Host
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
+  get_apt_packages_on_host() {
+      apt update
+      apt install \
+          'aria2' \
+          'automake' \
+          'bear' \
+          'bison' \
+          'build-essential' \
+          'clang' \
+          'clangd' \
+          'clang-format' \
+          'clang-tidy' \
+          'clang-tools' \
+          'cmake' \
+          'conntrack' \
+          'curl' \
+          'elfutils' \
+          'ffmpeg' \
+          'fish' \
+          'fzf' \
+          'g++' \
+          'gawk' \
+          'gcc' \
+          'gettext' \
+          'gettext-base' \
+          'git' \
+          'git-lfs' \
+          'graphicsmagick-imagemagick-compat' \
+          'haproxy' \
+          'haproxy-doc' \
+          'ipython3' \
+          'irqbalance' \
+          'jq' \
+          'libasound2-dev' \
+          'libevent-dev' \
+          'libfontconfig-dev' \
+          'libgit2-dev' \
+          'liblz4-dev' \
+          'liblzo2-dev' \
+          'libncurses-dev' \
+          'libopencv-dev' \
+          'libpcre2-16-0' \
+          'libpcre2-32-0' \
+          'libpcre2-8-0' \
+          'libpcre2-dev' \
+          'libpcre2-posix3' \
+          'libsqlite3-dev' \
+          'libssl-dev' \
+          'libstdc++-12-dev' \
+          'libstdc++-13-dev' \
+          'libstdc++-14-dev' \
+          'libvulkan1' \
+          'libwayland-dev' \
+          'libx11-xcb-dev' \
+          'libxkbcommon-x11-dev' \
+          'libzstd-dev' \
+          'make' \
+          'mold' \
+          'musl-dev' \
+          'musl-tools' \
+          'mysql-client' \
+          'nasm' \
+          'neovim' \
+          'ninja-build' \
+          'pkg-config' \
+          'protobuf-compiler' \
+          'python3-dev' \
+          'python3-newt' \
+          'python3-opencv' \
+          'python3-pip' \
+          'python3-setuptools' \
+          'python3-sphinx' \
+          'python3-venv' \
+          'rclone' \
+          'socat' \
+          'squashfs-tools' \
+          'unzip' \
+          'wget' \
+          'yacc' \
+          'zip' \
+          'zsh' \
+          'zstd' \
+      ;
+  }
+#+end_src
+
+*** Container
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_apt_packages() {
       apt-get -y install \
