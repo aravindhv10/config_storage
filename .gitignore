@@ -4,6 +4,8 @@
 /debootstrap/#README.org#
 /debootstrap/README.org~
 /dnsmasq/README.org~
+/dockerfiles/#README.org#
+/dockerfiles/.#README.org
 /emacs.d/early-init.el~
 /emacs.d/.early-init.el.~undo-tree~
 /emacs.d/#init.el#

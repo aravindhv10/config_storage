@@ -39,4 +39,4 @@ GET_EMACS_PKG 'https://github.com/Wilfred/elisp-refs.git'
 GET_EMACS_PKG 'https://github.com/Wilfred/helpful.git'
 GET_EMACS_PKG 'https://github.com/Wilfred/ht.el.git'
 
-get_repo 'https://github.com/emacsmirror/auctex.git' ; make -j4
+# get_repo 'https://github.com/emacsmirror/auctex.git' ; make -j4
