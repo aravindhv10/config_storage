@@ -1,5 +1,9 @@
 export SUDO_ASKPASS="${HOME}/SUDO_ASKPASS"
 export EDITOR='hx'
+export RUSTUP_HOME="${HOME}/rustup"
+export CARGO_HOME="${HOME}/cargo"
+export PATH="${CARGO_HOME}/bin:${HOME}/bin:${PATH}"
+export TERM='xterm-256color'
 
 test -e  "${HOME}/.cargo/env" && . "${HOME}/.cargo/env"
 test -e  "${HOME}/important_functions.sh" && . "${HOME}/important_functions.sh"
@@ -17,4 +21,3 @@ y() {
 		 "/tmp/yazi-cwd-${$}" \
 	;
 }
-

@@ -32,6 +32,7 @@
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
   compress.sh
+  dockerfiles/README.org
   emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
@@ -60,6 +61,7 @@
   home_config/src/helix_config.toml
   home_config/src/main.rs
   home_config/src/mysync.rs
+  home_config/src/shrc
   nixos/SYSTEM/configuration.nix
   nixos/SYSTEM/hardware-configuration.nix
   nixos/SYSTEM/README.org

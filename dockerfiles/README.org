@@ -130,8 +130,6 @@
   ENV PATH="/usr/local/cargo/bin:${PATH}"
 #+end_src
 
-
-
 *** Download and install rust
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN \
@@ -766,16 +764,3 @@ echo 'START Download and install zig' \
       './.git.sh'
   " "log" "err")
 #+end_src
-
-adown \
-    'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz' \
-    'zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz' \
-    'e27651509bc4f7f316d29a8c4dfa459c72fcbe340d0c4aed3bab4d229c46ea3ff33131de1b382d1440b132d5e8fb43a080d950d809bc9d833b619f2728b622eb' \
-    "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
-;
-
-cd "${HOME}/ZIG/"
-
-tar -xf "./zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz"
-
-"${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d/zig" cc -target  x86_64-linux-musl  -static -O3 -march=x86-64-v3 -mtune=native  ./main.c
