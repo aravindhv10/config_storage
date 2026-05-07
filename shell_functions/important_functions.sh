@@ -851,9 +851,9 @@ get_apt_packages() {
         # 'libstdc++-10-dev' \
 
 prepare_rust_zig_on_host(){
-    RUSTUP_HOME="${HOME}/rustup"
-    CARGO_HOME="${HOME}/cargo"
-    PATH="${CARGO_HOME}/bin:${HOME}/bin:${PATH}"
+    export RUSTUP_HOME="${HOME}/rustup"
+    export CARGO_HOME="${HOME}/cargo"
+    export PATH="${CARGO_HOME}/bin:${HOME}/bin:${PATH}"
     mkdir -pv -- "${HOME}/bin/"
 
     echo 'START Download and install rust' \
