@@ -58,6 +58,7 @@
   GIT.org
   GIT/pull.sh
   home_config/Cargo.toml
+  home_config/src/fish_config.fish
   home_config/src/helix_config.toml
   home_config/src/main.rs
   home_config/src/mysync.rs

@@ -1,6 +1,12 @@
 export SHELL=fish
 export SUDO_ASKPASS="$HOME/SUDO_ASKPASS"
 export EDITOR='hx'
+export RUSTUP_HOME="$HOME/rustup"
+export CARGO_HOME="$HOME/cargo"
+export TERM='xterm-256color'
+
+set PATH $HOME/bin $HOME/cargo/bin $PATH
+export PATH
 
 fish_vi_key_bindings
 
