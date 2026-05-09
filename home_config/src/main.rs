@@ -134,6 +134,23 @@ async fn get_content_ghostty_config() -> std::string::String {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+async fn get_path_ghostty_modus_vivandi(
+    HOME: std::string::String,
+) -> anyhow::Result<std::string::String> {
+    let path_str = HOME + "/.config/ghostty/themes";
+    let path = std::path::Path::new(path_str.as_str());
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/modus-vivendi")
+}
+
+async fn get_content_ghostty_modus_vivandi() -> std::string::String {
+    std::string::String::from(include_str!("ghostty_modus-vivendi"))
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 async fn get_path_fish_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/fish";
     let path = std::path::Path::new(path_str.as_str());
@@ -327,6 +344,7 @@ struct configurator {
     path_bashrc: std::string::String,
     path_helix_config: std::string::String,
     path_ghostty_config: std::string::String,
+    path_ghostty_modus_vivendi: std::string::String,
     path_fish_config: std::string::String,
     path_alacritty_config: std::string::String,
     path_foot_config: std::string::String,
@@ -346,6 +364,7 @@ impl configurator {
             path_bashrc,
             path_helix_config,
             path_ghostty_config,
+            path_ghostty_modus_vivendi,
             path_fish_config,
             path_alacritty_config,
             path_foot_config,
@@ -358,6 +377,7 @@ impl configurator {
             get_path_bashrc(path_home.clone()),
             get_path_helix_config(path_home.clone()),
             get_path_ghostty_config(path_home.clone()),
+            get_path_ghostty_modus_vivandi(path_home.clone()),
             get_path_fish_config(path_home.clone()),
             get_path_alacritty_config(path_home.clone()),
             get_path_foot_config(path_home.clone()),
@@ -374,6 +394,7 @@ impl configurator {
             path_bashrc: path_bashrc,
             path_helix_config: path_helix_config?,
             path_ghostty_config: path_ghostty_config?,
+            path_ghostty_modus_vivendi: path_ghostty_modus_vivendi?,
             path_fish_config: path_fish_config?,
             path_alacritty_config: path_alacritty_config?,
             path_foot_config: path_foot_config?,
@@ -496,6 +517,10 @@ impl configurator {
             tokio::fs::write(
                 &self.path_ghostty_config,
                 get_content_ghostty_config().await
+            ),
+            tokio::fs::write(
+                &self.path_ghostty_modus_vivendi,
+                get_content_ghostty_modus_vivandi().await
             ),
             tokio::fs::write(&self.path_fish_config, get_content_fish_config().await),
             tokio::fs::write(&self.path_mako_config, get_content_mako_config().await),
