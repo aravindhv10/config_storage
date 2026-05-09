@@ -11,6 +11,7 @@
   GITADD 'main.org'
   GITADD 'src/alacritty.toml'
   GITADD 'src/bashrc'
+  GITADD 'src/config.ghostty'
   GITADD 'src/fish_config.fish'
   GITADD 'src/foot.ini'
   GITADD 'src/helix_config.toml'
@@ -28,3 +29,4 @@
       './.git.sh'
   " "log" "err")
 #+end_src
+

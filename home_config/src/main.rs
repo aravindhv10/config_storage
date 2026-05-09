@@ -1,6 +1,5 @@
-use mimalloc::MiMalloc;
 #[global_allocator]
-static GLOBAL: MiMalloc = MiMalloc;
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use std::str::FromStr;
 
@@ -114,6 +113,21 @@ async fn get_path_helix_config(HOME: std::string::String) -> anyhow::Result<std:
 
 async fn get_content_helix_config() -> std::string::String {
     std::string::String::from(include_str!("helix_config.toml"))
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+async fn get_path_ghostty_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
+    let path_str = HOME + "/.config/ghostty";
+    let path = std::path::Path::new(path_str.as_str());
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/config.ghostty")
+}
+
+async fn get_content_ghostty_config() -> std::string::String {
+    std::string::String::from(include_str!("config.ghostty"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -312,6 +326,7 @@ struct configurator {
     path_github: std::string::String,
     path_bashrc: std::string::String,
     path_helix_config: std::string::String,
+    path_ghostty_config: std::string::String,
     path_fish_config: std::string::String,
     path_alacritty_config: std::string::String,
     path_foot_config: std::string::String,
@@ -330,6 +345,7 @@ impl configurator {
             path_github,
             path_bashrc,
             path_helix_config,
+            path_ghostty_config,
             path_fish_config,
             path_alacritty_config,
             path_foot_config,
@@ -341,6 +357,7 @@ impl configurator {
             get_path_github(path_home.clone()),
             get_path_bashrc(path_home.clone()),
             get_path_helix_config(path_home.clone()),
+            get_path_ghostty_config(path_home.clone()),
             get_path_fish_config(path_home.clone()),
             get_path_alacritty_config(path_home.clone()),
             get_path_foot_config(path_home.clone()),
@@ -356,6 +373,7 @@ impl configurator {
             path_github: path_github?,
             path_bashrc: path_bashrc,
             path_helix_config: path_helix_config?,
+            path_ghostty_config: path_ghostty_config?,
             path_fish_config: path_fish_config?,
             path_alacritty_config: path_alacritty_config?,
             path_foot_config: path_foot_config?,
@@ -475,6 +493,10 @@ impl configurator {
             tokio::fs::write(&self.path_zshrc, get_content_zshrc().await),
             tokio::fs::write(&self.path_bashrc, get_content_bashrc().await),
             tokio::fs::write(&self.path_helix_config, get_content_helix_config().await),
+            tokio::fs::write(
+                &self.path_ghostty_config,
+                get_content_ghostty_config().await
+            ),
             tokio::fs::write(&self.path_fish_config, get_content_fish_config().await),
             tokio::fs::write(&self.path_mako_config, get_content_mako_config().await),
             tokio::fs::write(
