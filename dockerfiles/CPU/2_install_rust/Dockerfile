@@ -19,10 +19,10 @@ RUN \
     && './rustup-init.sh' '-y' '--no-modify-path' \
     && echo 'DONE Download and install rust'
 
+RUN rustup default stable
 RUN rustup component add rust-src
 RUN rustup component add rust-analyzer
 RUN rustup component add rustfmt
-RUN rustup default stable
 
 RUN \
     --mount=target=/root/SHA512SUM,type=cache \
