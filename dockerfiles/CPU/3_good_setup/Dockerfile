@@ -14,3 +14,8 @@ RUN \
     echo 'START Delete tar files after installing' \
     fd '\.tar$' '/var/tmp' -t f -x unlink '{}' \
     echo 'DONE Delete tar files after installing' ;
+
+RUN rustup default stable
+RUN rustup component add rust-src
+RUN rustup component add rust-analyzer
+RUN rustup component add rustfmt
