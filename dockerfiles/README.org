@@ -153,6 +153,7 @@
   RUN rustup component add rust-src
   RUN rustup component add rust-analyzer
   RUN rustup component add rustfmt
+  RUN rustup default stable
 #+end_src
 
   RUN rustup target add x86_64-unknown-linux-musl

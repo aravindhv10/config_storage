@@ -22,6 +22,7 @@ RUN \
 RUN rustup component add rust-src
 RUN rustup component add rust-analyzer
 RUN rustup component add rustfmt
+RUN rustup default stable
 
 RUN \
     --mount=target=/root/SHA512SUM,type=cache \
