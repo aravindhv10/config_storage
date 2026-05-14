@@ -130,6 +130,12 @@
   ENV PATH="/usr/local/cargo/bin:${PATH}"
 #+end_src
 
+*** Link to home dir
+#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
+  RUN ln '-vfs' '--' '/usr/local/rustup' "${HOME}/rustup"
+  RUN ln '-vfs' '--' '/usr/local/cargo' "${HOME}/cargo"
+#+end_src
+
 *** Download and install rust
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN \
@@ -240,13 +246,10 @@ echo 'START Download and install zig' \
       echo 'DONE Delete tar files after installing' ;
 #+end_src
 
-*** Install additional rust components
-#+begin_src conf :mkdirp yes :tangle ./CPU/3_good_setup/Dockerfile
-  RUN rustup default stable
-  RUN rustup component add rust-src
-  RUN rustup component add rust-analyzer
-  RUN rustup component add rustfmt
-#+end_src
+  rustup default stable
+  rustup component add rust-src
+  rustup component add rust-analyzer
+  rustup component add rustfmt
 
 ** 4_python
 
