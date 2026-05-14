@@ -147,6 +147,7 @@ pub fn convert_encoded_video_to_raw_outpipe(
     size_x: u16,
     size_y: u16,
     size_c: u8,
+    clean_video: bool,
 ) -> anyhow::Result<Vec<u8>> {
     assert!(
         size_c == 3,
@@ -188,6 +189,10 @@ pub fn convert_encoded_video_to_raw_outpipe(
         }
         eprintln!("FFmpeg failed: {}", err_msg);
         return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
+    }
+
+    if clean_video {
+        let _ = std::fs::remove_file(path_file_video_input);
     }
 
     Ok(output_buffer)

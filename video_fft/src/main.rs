@@ -146,6 +146,7 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
                 /*size_x: u16 =*/ 1280 as u16,
                 /*size_y: u16 =*/ 720 as u16,
                 /*size_c: u8 =*/ 3 as u8,
+                /*clean_video: bool =*/ true,
             )?;
 
             let full_tensor = res.get_video_tensor()?;

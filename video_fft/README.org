@@ -1661,7 +1661,9 @@ video.len() in:
       size_x: u16,
       size_y: u16,
       size_c: u8,
+      clean_video: bool,
   ) -> anyhow::Result<Vec<u8>> {
+
 
       assert!(
           size_c == 3,
@@ -1698,6 +1700,10 @@ video.len() in:
           }
           eprintln!("FFmpeg failed: {}", err_msg);
           return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
+      }
+
+      if clean_video {
+          let _ = std::fs::remove_file(path_file_video_input);
       }
 
       Ok(output_buffer)
@@ -1998,6 +2004,7 @@ video.len() in:
           size_x: u16,
           size_y: u16,
           size_c: u8,
+          clean_video: bool,
       ) -> anyhow::Result<Self> {
 
           let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
@@ -2006,6 +2013,7 @@ video.len() in:
               /*size_x: u16 =*/ size_x as u16,
               /*size_y: u16 =*/ size_y as u16,
               /*size_c: u8 =*/ size_c as u8,
+              /*clean_video: bool =*/ clean_video as bool,
           )?;
 
           let size_t: u16 =
@@ -2420,6 +2428,8 @@ video.len() in:
       ) -> anyhow::Result<Vec<Self>> {
           let total_video_length = tensor_video_input.size()[0];
 
+          const stride: f64 = 80 as f64;
+
           if total_video_length < 120 {
               return Err(anyhow::format_err!("Video too short..."));
           } else if (120 <= total_video_length) && (total_video_length < 176) {
@@ -2429,7 +2439,7 @@ video.len() in:
                   /*use_gpu: bool =*/ use_gpu,
               );
           } else {
-              let float_val = (((total_video_length - 160) as f64) / 160.0) as f64;
+              let float_val = (((total_video_length - 160) as f64) / stride) as f64;
 
               let floor_val = float_val.floor();
 
@@ -3222,6 +3232,7 @@ video.len() in:
                   /*size_x: u16 =*/ 1280 as u16,
                   /*size_y: u16 =*/ 720 as u16,
                   /*size_c: u8 =*/ 3 as u8,
+                  /*clean_video: bool =*/ true,
               )?;
 
               let full_tensor = res.get_video_tensor()?;
@@ -3486,14 +3497,16 @@ struct inference_loop {
           &self,
           path_file_video_input: &str,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+
           let mut list_video_fft_tensor = {
-              let slicer = videoview::video_slicer::new(
+
+              let slicer = videoview::video_slicer_piped::new(
                   /*path_file_video_input: String =*/ path_file_video_input.to_string(),
-                  None,
-                  /*fps: f32 =*/ 8.0,
-                  /*size_x: u16 =*/ 1280,
-                  /*size_y: u16 =*/ 720,
-                  /*size_c: u8 =*/ 3,
+                  /*fps: f32 =*/ 8 as f32,
+                  /*size_x: u16 =*/ 1280 as u16,
+                  /*size_y: u16 =*/ 720 as u16,
+                  /*size_c: u8 =*/ 3 as u8,
+                  /*clean_video: bool =*/ true,
               )?;
 
               let video_tensor = slicer.get_video_tensor()?;
@@ -3511,6 +3524,7 @@ struct inference_loop {
           &self,
           mut tensors_input: Vec<videofft::fft_video>,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+
           self.normalizer.normalize_vec(
               /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
           );
@@ -3521,6 +3535,7 @@ struct inference_loop {
               );
 
           let msg = {
+
               let mut oneshot_send_channel =
                   Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
                       tensors_input.len(),
@@ -3536,6 +3551,7 @@ struct inference_loop {
                   tensor: tensors_input,
                   oneshot_send_channel: oneshot_send_channel,
               }
+
           };
 
           self.sender.send(msg);
@@ -3949,7 +3965,7 @@ struct inference_loop {
               tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
           }
           let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
-          tokio::fs::remove_file(path_file_video_output.as_str()).await?;
+          // tokio::fs::remove_file(path_file_video_output.as_str()).await?;
           match res {
               Ok(o) => {
                   let preds: Vec<infer::Grpcvideoprediction> = o
@@ -4175,7 +4191,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Working stream output only for ffmpeg'
+  git status ; git commit -m 'experimenting with stride values'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 

@@ -211,6 +211,7 @@ impl video_slicer_piped {
         size_x: u16,
         size_y: u16,
         size_c: u8,
+        clean_video: bool,
     ) -> anyhow::Result<Self> {
         let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
             /*path_file_video_input: &str =*/ path_file_video_input.as_str(),
@@ -218,6 +219,7 @@ impl video_slicer_piped {
             /*size_x: u16 =*/ size_x as u16,
             /*size_y: u16 =*/ size_y as u16,
             /*size_c: u8 =*/ size_c as u8,
+            /*clean_video: bool =*/ clean_video as bool,
         )?;
 
         let size_t: u16 =

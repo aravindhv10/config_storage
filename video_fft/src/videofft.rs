@@ -221,6 +221,8 @@ impl fft_video {
     ) -> anyhow::Result<Vec<Self>> {
         let total_video_length = tensor_video_input.size()[0];
 
+        const stride: f64 = 80 as f64;
+
         if total_video_length < 120 {
             return Err(anyhow::format_err!("Video too short..."));
         } else if (120 <= total_video_length) && (total_video_length < 176) {
@@ -230,7 +232,7 @@ impl fft_video {
                 /*use_gpu: bool =*/ use_gpu,
             );
         } else {
-            let float_val = (((total_video_length - 160) as f64) / 160.0) as f64;
+            let float_val = (((total_video_length - 160) as f64) / stride) as f64;
 
             let floor_val = float_val.floor();
 

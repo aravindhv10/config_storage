@@ -98,13 +98,13 @@ impl inference_communicator {
         path_file_video_input: &str,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
         let mut list_video_fft_tensor = {
-            let slicer = videoview::video_slicer::new(
+            let slicer = videoview::video_slicer_piped::new(
                 /*path_file_video_input: String =*/ path_file_video_input.to_string(),
-                None,
-                /*fps: f32 =*/ 8.0,
-                /*size_x: u16 =*/ 1280,
-                /*size_y: u16 =*/ 720,
-                /*size_c: u8 =*/ 3,
+                /*fps: f32 =*/ 8 as f32,
+                /*size_x: u16 =*/ 1280 as u16,
+                /*size_y: u16 =*/ 720 as u16,
+                /*size_c: u8 =*/ 3 as u8,
+                /*clean_video: bool =*/ true,
             )?;
 
             let video_tensor = slicer.get_video_tensor()?;
@@ -560,7 +560,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
             tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
         }
         let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
-        tokio::fs::remove_file(path_file_video_output.as_str()).await?;
+        // tokio::fs::remove_file(path_file_video_output.as_str()).await?;
         match res {
             Ok(o) => {
                 let preds: Vec<infer::Grpcvideoprediction> = o
