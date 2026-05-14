@@ -1,11 +1,8 @@
 FROM 1_install_packages
 
-ENV RUSTUP_HOME='/usr/local/rustup'
-ENV CARGO_HOME='/usr/local/cargo'
-ENV PATH="/usr/local/cargo/bin:${PATH}"
-
-RUN ln '-vfs' '--' '/usr/local/rustup' "${HOME}/rustup"
-RUN ln '-vfs' '--' '/usr/local/cargo' "${HOME}/cargo"
+ENV CARGO_HOME="${HOME}/cargo"
+ENV RUSTUP_HOME="${HOME}/rustup"
+ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 
 RUN \
     --mount=target=/root/SHA512SUM,type=cache \

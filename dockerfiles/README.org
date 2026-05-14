@@ -125,15 +125,9 @@
 
 *** Setting env
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  ENV RUSTUP_HOME='/usr/local/rustup'
-  ENV CARGO_HOME='/usr/local/cargo'
-  ENV PATH="/usr/local/cargo/bin:${PATH}"
-#+end_src
-
-*** Link to home dir
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  RUN ln '-vfs' '--' '/usr/local/rustup' "${HOME}/rustup"
-  RUN ln '-vfs' '--' '/usr/local/cargo' "${HOME}/cargo"
+  ENV CARGO_HOME="${HOME}/cargo"
+  ENV RUSTUP_HOME="${HOME}/rustup"
+  ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 #+end_src
 
 *** Download and install rust
