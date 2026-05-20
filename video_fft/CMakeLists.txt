@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=x86-64-v3 -flto")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=x86-64-v3 -flto")
 set(CMAKE_INSTALL_PREFIX "/usr")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 

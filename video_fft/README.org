@@ -124,8 +124,8 @@ video.len() in:
 
 ** Important variables
 #+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=x86-64-v3 -flto")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=x86-64-v3 -flto")
   set(CMAKE_INSTALL_PREFIX "/usr")
   set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 #+end_src
@@ -469,7 +469,7 @@ video.len() in:
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
   export LIBTORCH_BYPASS_VERSION_CHECK='1'
   export LIBTORCH_USE_PYTORCH=1
-  export RUSTFLAGS="-C target-cpu=native"
+  export RUSTFLAGS="-C target-cpu=x86-64-v3"
 #+end_src
 
 *** init
