@@ -560,7 +560,6 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
             tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
         }
         let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
-        // tokio::fs::remove_file(path_file_video_output.as_str()).await?;
         match res {
             Ok(o) => {
                 let preds: Vec<infer::Grpcvideoprediction> = o
@@ -571,8 +570,10 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                         pc: i.p_rd,
                     })
                     .collect();
+                let avg = o.iter().map(|i| i.majority() as f32).sum::<f32>() / (o.len() as f32);
                 return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
                     preds: preds,
+                    majority: avg,
                 }));
             }
             Err(e) => {

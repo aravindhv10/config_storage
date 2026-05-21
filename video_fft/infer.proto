@@ -18,4 +18,5 @@ message Grpcvideoprediction {
 
 message Grpcvideopredictionreply {
     repeated Grpcvideoprediction preds = 1;
+    float majority = 2;
 }

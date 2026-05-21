@@ -221,7 +221,7 @@ impl fft_video {
     ) -> anyhow::Result<Vec<Self>> {
         let total_video_length = tensor_video_input.size()[0];
 
-        const stride: f64 = 80 as f64;
+        const stride: f64 = 160 as f64;
 
         if total_video_length < 120 {
             return Err(anyhow::format_err!("Video too short..."));
