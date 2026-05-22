@@ -12,8 +12,16 @@ video.len() in:
 * TODO
 
 ** Implement C++ side of model inference                               :DONE:
-** Implement the grpc endpoint
-*** Implement the protobuf convention
+** Implement the grpc endpoint                                         :DONE:
+*** Implement the protobuf convention                                  :DONE:
+** Unlink and memory optimization                                      :DONE:
+*** Check when is the video unlinked                                   :DONE:
+- convert_encoded_video_to_raw_outpipe cleans the video when it is called with the argument to clean.
+- do_infer_on_video_file in the server.rs calls the fft construction function which in turn calls the decoder with clean option.
+- It is optimal.
+*** Check when is the huge tensor dropped and try to optimize.         :DONE:
+- do_infer_on_video_file in server.rs does this.
+- It is optimal.
 
 * Cargo.toml
 
@@ -759,7 +767,7 @@ video.len() in:
 
 **** torch
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
-  #define USE_CUDA 1
+  // #define USE_CUDA 1
 
   #include <ATen/ops/sum.h>
   #include <c10/core/TensorOptions.h>
@@ -2433,7 +2441,7 @@ video.len() in:
 
           if total_video_length < 120 {
               return Err(anyhow::format_err!("Video too short..."));
-          } else if (120 <= total_video_length) && (total_video_length < 176) {
+          } else if (120 <= total_video_length) && (total_video_length < 180) {
               return Self::from_list_torch_video_tensor(
                   /*list_torch_video_tensor: Vec<tch::Tensor> =*/
                   vec![tensor_video_input.shallow_clone()],
@@ -2448,9 +2456,9 @@ video.len() in:
 
               let num_windows: usize = {
                   if diff < 0.25 {
-                      (floor_val as usize) + 1
+                      ((floor_val as usize) + 1).min(2)
                   } else {
-                      (floor_val as usize) + 2
+                      ((floor_val as usize) + 2).min(2)
                   }
               };
 
@@ -2465,6 +2473,7 @@ video.len() in:
 
                   list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
               }
+
 
               return Self::from_list_torch_video_tensor(
                   /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
@@ -4212,7 +4221,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Started working on majority voting function'
+  git status ; git commit -m 'Fixed division by 0 issue'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 

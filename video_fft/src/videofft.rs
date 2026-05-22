@@ -225,7 +225,7 @@ impl fft_video {
 
         if total_video_length < 120 {
             return Err(anyhow::format_err!("Video too short..."));
-        } else if (120 <= total_video_length) && (total_video_length < 176) {
+        } else if (120 <= total_video_length) && (total_video_length < 180) {
             return Self::from_list_torch_video_tensor(
                 /*list_torch_video_tensor: Vec<tch::Tensor> =*/
                 vec![tensor_video_input.shallow_clone()],
@@ -240,9 +240,9 @@ impl fft_video {
 
             let num_windows: usize = {
                 if diff < 0.25 {
-                    (floor_val as usize) + 1
+                    ((floor_val as usize) + 1).min(2)
                 } else {
-                    (floor_val as usize) + 2
+                    ((floor_val as usize) + 2).min(2)
                 }
             };
 
