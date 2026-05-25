@@ -559,7 +559,15 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         } else {
             tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
         }
-        let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+
+        let infpair = self.infpair.clone();
+        let path = path_file_video_output.clone();
+        let res = tokio::task::spawn_blocking(move || infpair.do_infer_on_video_file(&path))
+            .await
+            .expect("The blocking task panicked");
+
+        // let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+
         match res {
             Ok(o) => {
                 let preds: Vec<infer::Grpcvideoprediction> = o
