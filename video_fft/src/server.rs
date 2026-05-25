@@ -611,6 +611,7 @@ fn main() -> anyhow::Result<()> {
     rt.block_on(async {
         println!("Server attempting to bind to {}", addr);
         let result = tonic::transport::Server::builder()
+            .max_concurrent_streams(Some(4))
             .add_service(service)
             .add_service(
                 infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())

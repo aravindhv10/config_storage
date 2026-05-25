@@ -20,20 +20,8 @@ impl Default for infer_results {
 }
 
 impl infer_results {
-    pub fn majority(&self) -> u8 {
-        if self.p_calm > self.p_contraversial {
-            if self.p_calm > self.p_rd {
-                return 0;
-            } else {
-                return 1;
-            }
-        } else {
-            if self.p_contraversial > self.p_rd {
-                return 0;
-            } else {
-                return 1;
-            }
-        }
+    pub fn majority(&self) -> f32 {
+        return self.p_rd;
     }
 }
 
