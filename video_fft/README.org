@@ -4258,7 +4258,7 @@ struct inference_loop {
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   git status ; git commit -m 'Fixed division by 0 issue'
-  "${HOME}/SSH/K/W/setup.sh" ; git push
+  "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
 ** COMMENT Run the script
