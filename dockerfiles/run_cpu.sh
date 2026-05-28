@@ -19,7 +19,7 @@ podman run \
     '--device' '/dev/dri' \
     '--security-opt' 'seccomp=unconfined' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
-    -v "CACHE:/usr/local/cargo/registry" \
+    -v "CACHE:/root/cargo/registry" \
     -v "CACHE:/root/.cache" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;
