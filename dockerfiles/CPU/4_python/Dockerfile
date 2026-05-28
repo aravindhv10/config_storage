@@ -6,3 +6,16 @@ ENV VIRTUAL_ENV="${HOME}/venv"
 ENV VIRTUAL_ENV_PROMPT='venv'
 
 COPY './important_functions.sh' '/root/important_functions.sh'
+
+RUN \
+    echo 'START pip' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install -U \
+        'ipython' \
+        'ninja' \
+        'packaging' \
+        'pip' \
+        'psutil' \
+        'setuptools' \
+        'wheel' \
+    && echo 'DONE pip' ;
