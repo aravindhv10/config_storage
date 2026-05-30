@@ -1272,28 +1272,27 @@
       virt-manager.enable = true;
 
       niri = {
-        enable = false;
+        enable = true;
         package = unstable.niri;
       };
 
-      hyprland = {
-        enable = false;
-        package = unstable.hyprland;
-        withUWSM = true;
-        # withUWSM = false;
-        xwayland.enable = true;
-      };
+      # hyprland = {
+      #   enable = false;
+      #   package = unstable.hyprland;
+      #   withUWSM = true;
+      #   xwayland.enable = true;
+      # };
 
-      wayfire = {
-        enable = false;
-        package = unstable.wayfire;
-        # package = pkgs.wayfire;
-        plugins = [
-          unstable.wayfirePlugins.wayfire-plugins-extra
-          unstable.wayfirePlugins.wcm
-          unstable.wayfirePlugins.wf-shell
-        ];
-      };
+      # wayfire = {
+      #   enable = false;
+      #   package = unstable.wayfire;
+      #   # package = pkgs.wayfire;
+      #   plugins = [
+      #     unstable.wayfirePlugins.wayfire-plugins-extra
+      #     unstable.wayfirePlugins.wcm
+      #     unstable.wayfirePlugins.wf-shell
+      #   ];
+      # };
 
       fish = {
         enable = true;
