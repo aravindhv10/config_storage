@@ -1,0 +1,440 @@
+[ActivityManager][Global Shortcuts]
+switch-to-activity-e74f8016-4b8a-41e8-a6e8-c0a335c501c6=
+
+[Custom Commands][net.local.M_C_A.desktop]
+Exec=M_C_A
+Name=M_C_A
+
+[Custom Commands][net.local.M_C_D.desktop]
+Exec=M_C_D
+Name=M_C_D
+
+[Custom Commands][net.local.M_C_F.desktop]
+Exec=M_C_F
+Name=M_C_F
+
+[Custom Commands][net.local.M_C_G.desktop]
+Exec=M_C_G
+Name=M_C_G
+
+[Custom Commands][net.local.M_C_Q.desktop]
+Exec=M_C_Q
+Name=M_C_Q
+
+[Custom Commands][net.local.M_C_S.desktop]
+Exec=M_C_S
+Name=M_C_S
+
+[Custom Commands][net.local.M_C_T.desktop]
+Exec=M_C_T
+Name=M_C_T
+
+[KDE Keyboard Layout Switcher][Global Shortcuts]
+Switch to Last-Used Keyboard Layout=Meta+Alt+L
+Switch to Next Keyboard Layout=Meta+Alt+K
+
+[StandardShortcuts]
+AboutApp=
+AboutKDE=
+Activate Next Tab=Ctrl+]; Ctrl+PgDown
+Activate Previous Tab=Ctrl+PgUp; Ctrl+[
+ActualSize=Ctrl+0
+AddBookmark=Ctrl+B
+Back=Alt+Left; Back
+BackwardWord=Ctrl+Left
+Begin=Ctrl+Home
+BeginningOfLine=Home
+Clear=
+Close=Ctrl+Esc; Ctrl+W
+ConfigureNotifications=
+ConfigureToolbars=
+Copy=Ctrl+C; Ctrl+Ins
+CreateFolder=Ctrl+Shift+N
+Cut=Shift+Del; Ctrl+X
+DeleteFile=Shift+Del
+DeleteWordBack=Ctrl+Backspace
+DeleteWordForward=Ctrl+Del
+Deselect=Ctrl+Shift+A
+DocumentBack=Alt+Shift+Left
+DocumentForward=Alt+Shift+Right
+Donate=
+EditBookmarks=
+End=Ctrl+End
+EndOfLine=End
+Find=Ctrl+F
+FindNext=F3
+FindPrev=Shift+F3
+FitToHeight=
+FitToPage=
+FitToWidth=
+Forward=Alt+Right; Forward
+ForwardWord=Ctrl+Right
+FullScreen=Ctrl+Shift+F
+Goto=
+GotoLine=Ctrl+G
+GotoPage=
+Help=F1
+Home=Home Page; Alt+Home
+KeyBindings=Ctrl+Alt+,
+Mail=
+MoveToTrash=Del
+New=Ctrl+N
+Next=PgDown
+NextCompletion=Ctrl+Down
+Open=Ctrl+O
+OpenContextMenu=Menu; Shift+F10
+OpenMainMenu=F10
+OpenRecent=
+Paste=Ctrl+V; Shift+Ins
+Paste Selection=Ctrl+Shift+Ins
+Preferences=Ctrl+Shift+,
+PrevCompletion=Ctrl+Up
+Print=Ctrl+P
+PrintPreview=
+Prior=PgUp
+Quit=Ctrl+Q
+Redo=Ctrl+Shift+Z
+Reload=F5; Refresh
+RenameFile=F2
+Replace=Ctrl+R
+ReportBug=
+Revert=
+RotateDown=Down
+RotateUp=Up
+Save=Ctrl+S
+SaveAs=Ctrl+Shift+S
+SelectAll=Ctrl+A
+ShowHideHiddenFiles=Alt+.; Ctrl+H
+ShowMenubar=Ctrl+M
+ShowStatusbar=
+ShowToolbar=
+Spelling=
+SubstringCompletion=Ctrl+T
+SwitchApplicationLanguage=
+TextCompletion=Ctrl+E
+Undo=Ctrl+Z
+Up=Alt+Up
+WhatsThis=Shift+F1
+Zoom=
+ZoomIn=Ctrl+=; Ctrl++
+ZoomOut=Ctrl+-
+
+[kaccess][Global Shortcuts]
+Toggle Screen Reader On and Off=Meta+Alt+S
+
+[kmix][Global Shortcuts]
+decrease_microphone_volume=Microphone Volume Down
+decrease_volume=Volume Down
+decrease_volume_small=Shift+Volume Down
+increase_microphone_volume=Microphone Volume Up
+increase_volume=Volume Up
+increase_volume_small=Shift+Volume Up
+mic_mute=Meta+Volume Mute; Microphone Mute
+mute=Volume Mute
+
+[ksmserver][Global Shortcuts]
+Halt Without Confirmation=
+Lock Session=Screensaver
+Log Out=Ctrl+Alt+Del
+Log Out Without Confirmation=
+LogOut=
+Reboot=
+Reboot Without Confirmation=
+Shut Down=
+
+[kwin][Global Shortcuts]
+Activate Window Demanding Attention=
+Cycle Overview=
+Cycle Overview Opposite=
+Decrease Opacity=
+Edit Tiles=
+Expose=Meta+Space
+ExposeAll=Meta+Esc
+ExposeClass=
+ExposeClassCurrentDesktop=
+Grid View=
+Increase Opacity=
+Invert=
+Invert Screen Colors=
+InvertWindow=Meta+V
+Kill Window=Meta+Ctrl+C
+Move Tablet to Next LogicalOutput=
+MoveMouseToCenter=
+MoveMouseToFocus=
+MoveZoomDown=
+MoveZoomLeft=
+MoveZoomRight=
+MoveZoomUp=
+Overview=Meta+`
+Setup Window Shortcut=
+Show Desktop=
+Switch One Desktop Down=Meta+Down
+Switch One Desktop Up=Meta+Up
+Switch One Desktop to the Left=Meta+Left
+Switch One Desktop to the Right=Meta+Right
+Switch Window Down=
+Switch Window Left=
+Switch Window Right=
+Switch Window Up=
+Switch to Desktop 1=Meta+1
+Switch to Desktop 10=Meta+0
+Switch to Desktop 11=Meta+Q
+Switch to Desktop 12=Meta+W
+Switch to Desktop 13=Meta+E
+Switch to Desktop 14=Meta+R
+Switch to Desktop 15=Meta+T
+Switch to Desktop 16=Meta+A
+Switch to Desktop 17=Meta+S
+Switch to Desktop 18=Meta+D
+Switch to Desktop 19=Meta+F
+Switch to Desktop 2=Meta+2
+Switch to Desktop 20=Meta+G
+Switch to Desktop 21=
+Switch to Desktop 22=
+Switch to Desktop 23=
+Switch to Desktop 24=
+Switch to Desktop 25=
+Switch to Desktop 3=Meta+3
+Switch to Desktop 4=Meta+4
+Switch to Desktop 5=Meta+5
+Switch to Desktop 6=Meta+6
+Switch to Desktop 7=Meta+7
+Switch to Desktop 8=Meta+8
+Switch to Desktop 9=Meta+9
+Switch to Next Desktop=
+Switch to Next Screen=
+Switch to Previous Desktop=
+Switch to Previous Screen=
+Switch to Screen 0=
+Switch to Screen 1=
+Switch to Screen 2=
+Switch to Screen 3=
+Switch to Screen 4=
+Switch to Screen 5=
+Switch to Screen 6=
+Switch to Screen 7=
+Switch to Screen Above=
+Switch to Screen Below=
+Switch to Screen to the Left=
+Switch to Screen to the Right=
+Toggle Night Color=
+Toggle Window Raise/Lower=
+Walk Through Windows=Meta+Tab
+Walk Through Windows (Reverse)=
+Walk Through Windows Alternative=
+Walk Through Windows Alternative (Reverse)=
+Walk Through Windows of Current Application=
+Walk Through Windows of Current Application (Reverse)=
+Walk Through Windows of Current Application Alternative=
+Walk Through Windows of Current Application Alternative (Reverse)=
+Window Above Other Windows=
+Window Below Other Windows=
+Window Close=Meta+C
+Window Custom Quick Tile Bottom=
+Window Custom Quick Tile Left=
+Window Custom Quick Tile Right=
+Window Custom Quick Tile Top=
+Window Fullscreen=Meta+Z
+Window Grow Horizontal=
+Window Grow Vertical=
+Window Lower=Meta+B
+Window Maximize=Meta+X
+Window Maximize Horizontal=
+Window Maximize Vertical=
+Window Minimize=
+Window Move=
+Window Move Center=
+Window No Border=
+Window On All Desktops=
+Window One Desktop Down=Meta+Shift+Down
+Window One Desktop Up=Meta+Shift+Up
+Window One Desktop to the Left=Meta+Shift+Left
+Window One Desktop to the Right=Meta+Shift+Right
+Window One Screen Down=
+Window One Screen Up=
+Window One Screen to the Left=
+Window One Screen to the Right=
+Window Operations Menu=Meta+F4
+Window Pack Down=
+Window Pack Left=
+Window Pack Right=
+Window Pack Up=
+Window Quick Tile Bottom=Meta+J
+Window Quick Tile Bottom Left=Meta+N
+Window Quick Tile Bottom Right=Meta+M
+Window Quick Tile Left=Meta+H
+Window Quick Tile Right=Meta+L
+Window Quick Tile Top=Meta+K
+Window Quick Tile Top Left=Meta+U
+Window Quick Tile Top Right=Meta+I
+Window Raise=
+Window Resize=
+Window Shrink Horizontal=
+Window Shrink Vertical=
+Window to Desktop 1=Meta+Shift+1
+Window to Desktop 10=Meta+Shift+0
+Window to Desktop 11=Meta+Shift+Q
+Window to Desktop 12=Meta+Shift+W
+Window to Desktop 13=Meta+Shift+E
+Window to Desktop 14=Meta+Shift+R
+Window to Desktop 15=Meta+Shift+T
+Window to Desktop 16=Meta+Shift+A
+Window to Desktop 17=Meta+Shift+S
+Window to Desktop 18=Meta+Shift+D
+Window to Desktop 19=Meta+Shift+F
+Window to Desktop 2=Meta+Shift+2
+Window to Desktop 20=Meta+Shift+G
+Window to Desktop 21=
+Window to Desktop 22=
+Window to Desktop 23=
+Window to Desktop 24=
+Window to Desktop 25=
+Window to Desktop 3=Meta+Shift+3
+Window to Desktop 4=Meta+Shift+4
+Window to Desktop 5=Meta+Shift+5
+Window to Desktop 6=Meta+Shift+6
+Window to Desktop 7=Meta+Shift+7
+Window to Desktop 8=Meta+Shift+8
+Window to Desktop 9=Meta+Shift+9
+Window to Next Desktop=
+Window to Next Screen=
+Window to Previous Desktop=
+Window to Previous Screen=
+Window to Screen 0=
+Window to Screen 1=
+Window to Screen 2=
+Window to Screen 3=
+Window to Screen 4=
+Window to Screen 5=
+Window to Screen 6=
+Window to Screen 7=
+disableInputCapture=
+view_actual_size=Meta+Backspace
+view_zoom_in=Meta+=
+view_zoom_out=Meta+-
+
+[mediacontrol][Global Shortcuts]
+mediavolumedown=
+mediavolumeup=
+nextmedia=Media Next
+pausemedia=Media Pause
+playmedia=
+playpausemedia=Media Play
+previousmedia=Media Previous
+seekbackwardmedia=Media Rewind
+seekbackwardmedialong=
+seekforwardmedia=Media Fast Forward
+seekforwardmedialong=
+stopmedia=Media Stop
+
+[net.local.M_C_A.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+A
+
+[net.local.M_C_D.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+D
+
+[net.local.M_C_F.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+F
+
+[net.local.M_C_G.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_C_Q.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+Q
+
+[net.local.M_C_S.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+S
+
+[net.local.M_C_T.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+T
+
+[org.kde.dolphin.desktop][Global Shortcuts]
+_launch=
+
+[org.kde.konsole.desktop][Global Shortcuts]
+NewTab=
+NewWindow=
+_launch=Ctrl+Alt+T
+
+[org.kde.krunner.desktop][Global Shortcuts]
+RunClipboard=Alt+Shift+F2
+_launch=Alt+F2; Search
+
+[org.kde.kscreen.desktop][Global Shortcuts]
+ShowOSD=Display; Meta+P
+
+[org.kde.plasma-systemmonitor.desktop][Global Shortcuts]
+_launch=
+
+[org.kde.plasma.emojier.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+Alt+Shift+Space; Meta+.
+
+[org.kde.spectacle.desktop][Global Shortcuts]
+ActiveWindowScreenShot=Meta+Print
+CurrentMonitorScreenShot=
+FullScreenScreenShot=Shift+Print
+OpenWithoutScreenshot=
+RecordRegion=
+RecordScreen=Meta+Alt+R
+RecordWindow=Meta+Ctrl+R
+RectangularRegionScreenShot=Meta+Shift+Print
+WindowUnderCursorScreenShot=Meta+Ctrl+Print
+_launch=Print
+
+[org.kde.touchpadshortcuts.desktop][Global Shortcuts]
+DisableTouchpad=Touchpad Off
+EnableTouchpad=Touchpad On
+ToggleTouchpad=Meta+Ctrl+Touchpad Toggle; Meta+Ctrl+Zenkaku Hankaku; Touchpad Toggle
+
+[org_kde_powerdevil][Global Shortcuts]
+Decrease Keyboard Brightness=Keyboard Brightness Down
+Decrease Screen Brightness=Monitor Brightness Down
+Decrease Screen Brightness Small=Shift+Monitor Brightness Down
+Hibernate=Hibernate
+Increase Keyboard Brightness=Keyboard Brightness Up
+Increase Screen Brightness=Monitor Brightness Up
+Increase Screen Brightness Small=Shift+Monitor Brightness Up
+PowerDown=Power Down
+PowerOff=Power Off
+Sleep=Sleep
+Toggle Keyboard Backlight=Keyboard Light On/Off
+Turn Off Screen=
+powerProfile=Battery
+
+[plasmashell][Global Shortcuts]
+Slideshow Wallpaper Next Image=
+activate application launcher=Alt+F1; Meta
+activate task manager entry 1=
+activate task manager entry 10=
+activate task manager entry 2=
+activate task manager entry 3=
+activate task manager entry 4=
+activate task manager entry 5=
+activate task manager entry 6=
+activate task manager entry 7=
+activate task manager entry 8=
+activate task manager entry 9=
+clear-history=
+clipboard_action=Meta+Ctrl+X
+cycle-panels=Meta+Alt+P
+cycleNextAction=
+cyclePrevAction=
+edit_clipboard=
+manage activities=
+next activity=
+previous activity=
+repeat_action=
+show dashboard=Ctrl+F12
+show-barcode=
+show-on-mouse-pos=
+switch to next activity=
+switch to previous activity=
+toggle do not disturb=
+
+[systemsettings.desktop][Global Shortcuts]
+_launch=Tools
+kcm-kscreen=
+kcm-lookandfeel=
+kcm-powerdevilprofilesconfig=
+kcm-screenlocker=
+kcm-users=
