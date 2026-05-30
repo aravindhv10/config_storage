@@ -8,7 +8,7 @@
     virt-manager.enable = true;
 
     niri = {
-      enable = true;
+      enable = false;
       package = unstable.niri;
     };
 
@@ -23,6 +23,7 @@
     wayfire = {
       enable = true;
       # package = unstable.wayfire;
+      package = pkgs.wayfire;
       plugins = [
         pkgs.wayfirePlugins.wayfire-plugins-extra
         pkgs.wayfirePlugins.wcm
