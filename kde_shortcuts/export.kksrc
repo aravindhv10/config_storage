@@ -1,6 +1,46 @@
 [ActivityManager][Global Shortcuts]
 switch-to-activity-e74f8016-4b8a-41e8-a6e8-c0a335c501c6=
 
+[Custom Commands][net.local.M_A_0.desktop]
+Exec=M_A_0
+Name=M_A_0
+
+[Custom Commands][net.local.M_A_1.desktop]
+Exec=M_A_1
+Name=M_A_1
+
+[Custom Commands][net.local.M_A_2.desktop]
+Exec=M_A_2
+Name=M_A_2
+
+[Custom Commands][net.local.M_A_3.desktop]
+Exec=M_A_3
+Name=M_A_3
+
+[Custom Commands][net.local.M_A_4.desktop]
+Exec=M_A_4
+Name=M_A_4
+
+[Custom Commands][net.local.M_A_5.desktop]
+Exec=M_A_5
+Name=M_A_5
+
+[Custom Commands][net.local.M_A_6.desktop]
+Exec=M_A_6
+Name=M_A_6
+
+[Custom Commands][net.local.M_A_7.desktop]
+Exec=M_A_7
+Name=M_A_7
+
+[Custom Commands][net.local.M_A_8.desktop]
+Exec=M_A_8
+Name=M_A_8
+
+[Custom Commands][net.local.M_A_9.desktop]
+Exec=M_A_9
+Name=M_A_9
+
 [Custom Commands][net.local.M_C_A.desktop]
 Exec=M_C_A
 Name=M_C_A
@@ -36,11 +76,11 @@ Switch to Next Keyboard Layout=Meta+Alt+K
 [StandardShortcuts]
 AboutApp=
 AboutKDE=
-Activate Next Tab=Ctrl+]; Ctrl+PgDown
+Activate Next Tab=Ctrl+PgDown; Ctrl+]
 Activate Previous Tab=Ctrl+PgUp; Ctrl+[
 ActualSize=Ctrl+0
 AddBookmark=Ctrl+B
-Back=Alt+Left; Back
+Back=Back; Alt+Left
 BackwardWord=Ctrl+Left
 Begin=Ctrl+Home
 BeginningOfLine=Home
@@ -48,9 +88,9 @@ Clear=
 Close=Ctrl+Esc; Ctrl+W
 ConfigureNotifications=
 ConfigureToolbars=
-Copy=Ctrl+C; Ctrl+Ins
+Copy=Ctrl+Ins; Ctrl+C
 CreateFolder=Ctrl+Shift+N
-Cut=Shift+Del; Ctrl+X
+Cut=Ctrl+X; Shift+Del
 DeleteFile=Shift+Del
 DeleteWordBack=Ctrl+Backspace
 DeleteWordForward=Ctrl+Del
@@ -74,7 +114,7 @@ Goto=
 GotoLine=Ctrl+G
 GotoPage=
 Help=F1
-Home=Home Page; Alt+Home
+Home=Alt+Home; Home Page
 KeyBindings=Ctrl+Alt+,
 Mail=
 MoveToTrash=Del
@@ -104,7 +144,7 @@ RotateUp=Up
 Save=Ctrl+S
 SaveAs=Ctrl+Shift+S
 SelectAll=Ctrl+A
-ShowHideHiddenFiles=Alt+.; Ctrl+H
+ShowHideHiddenFiles=Ctrl+H; Alt+.
 ShowMenubar=Ctrl+M
 ShowStatusbar=
 ShowToolbar=
@@ -327,6 +367,33 @@ seekforwardmedia=Media Fast Forward
 seekforwardmedialong=
 stopmedia=Media Stop
 
+[net.local.M_A_0.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_1.desktop][Global Shortcuts]
+_launch=Meta+Alt+1
+
+[net.local.M_A_3.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_4.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_5.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_6.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_7.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_8.desktop][Global Shortcuts]
+_launch=
+
+[net.local.M_A_9.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+9
+
 [net.local.M_C_A.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+A
 
@@ -361,13 +428,13 @@ RunClipboard=Alt+Shift+F2
 _launch=Alt+F2; Search
 
 [org.kde.kscreen.desktop][Global Shortcuts]
-ShowOSD=Display; Meta+P
+ShowOSD=Meta+P; Display
 
 [org.kde.plasma-systemmonitor.desktop][Global Shortcuts]
 _launch=
 
 [org.kde.plasma.emojier.desktop][Global Shortcuts]
-_launch=Meta+Ctrl+Alt+Shift+Space; Meta+.
+_launch=Meta+.; Meta+Ctrl+Alt+Shift+Space
 
 [org.kde.spectacle.desktop][Global Shortcuts]
 ActiveWindowScreenShot=Meta+Print
