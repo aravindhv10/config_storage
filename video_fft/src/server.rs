@@ -559,8 +559,15 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         } else {
             tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
         }
-        let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
-        // tokio::fs::remove_file(path_file_video_output.as_str()).await?;
+
+        let infpair = self.infpair.clone();
+        let path = path_file_video_output.clone();
+        let res = tokio::task::spawn_blocking(move || infpair.do_infer_on_video_file(&path))
+            .await
+            .expect("The blocking task panicked");
+
+        // let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+
         match res {
             Ok(o) => {
                 let preds: Vec<infer::Grpcvideoprediction> = o
@@ -571,8 +578,10 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                         pc: i.p_rd,
                     })
                     .collect();
+                let avg = o.iter().map(|i| i.majority() as f32).sum::<f32>() / (o.len() as f32);
                 return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
                     preds: preds,
+                    majority: avg,
                 }));
             }
             Err(e) => {
@@ -610,6 +619,7 @@ fn main() -> anyhow::Result<()> {
     rt.block_on(async {
         println!("Server attempting to bind to {}", addr);
         let result = tonic::transport::Server::builder()
+            .max_concurrent_streams(Some(4))
             .add_service(service)
             .add_service(
                 infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())

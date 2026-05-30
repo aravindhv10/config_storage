@@ -205,6 +205,7 @@ public:
   inline void l() {
     if (torch::cuda::is_available()) {
       if (for_inference_server) {
+        // gpu_semaphore.l();
         gpu_semaphore_named.l();
       } else {
         gpu_semaphore.l();
@@ -216,6 +217,7 @@ public:
       if (for_inference_server) {
         clear_cuda_cache();
         gpu_semaphore_named.r();
+        // gpu_semaphore.r();
       } else {
         gpu_semaphore.r();
       }

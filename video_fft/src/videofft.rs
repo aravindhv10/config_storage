@@ -4,6 +4,38 @@ use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
 
+#[inline(always)]
+fn get_num_windows(total_video_length: u64) -> u8 {
+    const ideal_length: u16 = 160 as u16;
+
+    const min_length: u16 = (ideal_length * 3) >> 2;
+
+    if total_video_length < (min_length as u64) {
+        return 0 as u8;
+    } else if total_video_length <= (ideal_length as u64) {
+        return 1 as u8;
+    } else {
+        const stride: u16 = ideal_length;
+
+        let float_val =
+            (((total_video_length - (ideal_length as u64)) as f64) / (stride as f64)) as f64;
+
+        let floor_val = float_val.floor();
+
+        let diff = float_val - floor_val;
+
+        let num_windows: u8 = {
+            if diff < 0.25 {
+                (floor_val as u8) + 1
+            } else {
+                (floor_val as u8) + 2
+            }
+        };
+
+        return num_windows;
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct a_t {
@@ -220,48 +252,53 @@ impl fft_video {
         use_gpu: bool,
     ) -> anyhow::Result<Vec<Self>> {
         let total_video_length = tensor_video_input.size()[0];
+        let num_windows: u8 =
+            get_num_windows(/*total_video_length: u64 =*/ total_video_length as u64);
+        eprintln!("num_windows = {}", num_windows);
 
-        const stride: f64 = 80 as f64;
-
-        if total_video_length < 120 {
-            return Err(anyhow::format_err!("Video too short..."));
-        } else if (120 <= total_video_length) && (total_video_length < 176) {
-            return Self::from_list_torch_video_tensor(
-                /*list_torch_video_tensor: Vec<tch::Tensor> =*/
-                vec![tensor_video_input.shallow_clone()],
-                /*use_gpu: bool =*/ use_gpu,
-            );
-        } else {
-            let float_val = (((total_video_length - 160) as f64) / stride) as f64;
-
-            let floor_val = float_val.floor();
-
-            let diff = float_val - floor_val;
-
-            let num_windows: usize = {
-                if diff < 0.25 {
-                    (floor_val as usize) + 1
-                } else {
-                    (floor_val as usize) + 2
-                }
-            };
-
-            let mut list_torch_video_tensor = Vec::<tch::Tensor>::with_capacity(num_windows);
-
-            for i in 1..=num_windows {
-                let end = (((total_video_length - 160) * ((i as i64) - 1))
-                    / ((num_windows as i64) - 1))
-                    + 160;
-
-                let start = end - 160;
-
-                list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
+        match num_windows {
+            0 => {
+                eprintln!("Video too short...");
+                return Err(anyhow::format_err!("Video too short..."));
             }
+            1 => {
+                eprintln!(
+                    "window_length = 1, total_video_length = {}",
+                    total_video_length
+                );
+                return Self::from_list_torch_video_tensor(
+                    /*list_torch_video_tensor: Vec<tch::Tensor> =*/
+                    vec![tensor_video_input.shallow_clone()],
+                    /*use_gpu: bool =*/ use_gpu,
+                );
+            }
+            _ => {
+                let mut list_torch_video_tensor =
+                    Vec::<tch::Tensor>::with_capacity(num_windows as usize);
 
-            return Self::from_list_torch_video_tensor(
-                /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
-                /*use_gpu: bool =*/ use_gpu,
-            );
+                for i in 1..=num_windows {
+                    let end = ((((total_video_length - 160) * ((i as i64) - 1))
+                        / ((num_windows as i64) - 1))
+                        + 160)
+                        .min(total_video_length);
+
+                    let start = (end - 160).max(0);
+
+                    eprintln!(
+                        "i = {} , num_windows = {} , total_video_length = {}",
+                        i, num_windows, total_video_length
+                    );
+
+                    eprintln!("start = {} , end = {}", start, end);
+
+                    list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
+                }
+
+                return Self::from_list_torch_video_tensor(
+                    /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
+                    /*use_gpu: bool =*/ use_gpu,
+                );
+            }
         }
     }
 }

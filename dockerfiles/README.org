@@ -52,27 +52,27 @@
 
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
-  FROM nvidia/cuda:13.0.2-cudnn-devel-ubuntu24.04
+  FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
 #+end_src
 
 *** AMDGPU
 
 **** Main base image
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
-  FROM rocm/pytorch:rocm7.2.1_ubuntu24.04_py3.12_pytorch_release_2.9.1
+  FROM rocm/dev-ubuntu-24.04:7.2.3-complete
 #+end_src
 
-**** provide default python venv for use later
+**** COMMENT provide default python venv for use later
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   RUN ln -vfs -- '../opt/venv' '/root/venv'
 #+end_src
 
-**** Copy important functions script
+**** COMMENT Copy important functions script
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-**** Install essential rocm packages
+**** COMMENT Install essential rocm packages
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
@@ -263,6 +263,19 @@ echo 'START Download and install zig' \
 *** Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
+
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'ipython' \
+          'ninja' \
+          'packaging' \
+          'pip' \
+          'psutil' \
+          'setuptools' \
+          'wheel' \
+      && echo 'DONE pip' ;
 #+end_src
 
 *** COMMENT Download important codes
@@ -308,24 +321,16 @@ echo 'START Download and install zig' \
 
 ** 5_libtorch
 
+*** Disabled packages
+    'tensorrt' \
+    'torchcodec' \
+    'torch-tensorrt' \
+
 *** CPU
 #+begin_src conf :mkdirp yes :tangle ./CPU/5_libtorch/Dockerfile
   FROM 4_python
 
   COPY './important_functions.sh' '/root/important_functions.sh'
-
-  RUN \
-      echo 'START pip' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
-          'ipython' \
-          'ninja' \
-          'packaging' \
-          'pip' \
-          'psutil' \
-          'setuptools' \
-          'wheel' \
-      && echo 'DONE pip' ;
 
   RUN \
       echo 'START pip' \
@@ -349,19 +354,6 @@ echo 'START Download and install zig' \
   COPY './important_functions.sh' '/root/important_functions.sh'
 
   RUN \
-      echo 'START pip' \
-      && . "${HOME}/venv/bin/activate" \
-      && uv pip install -U \
-          'ipython' \
-          'ninja' \
-          'packaging' \
-          'pip' \
-          'psutil' \
-          'setuptools' \
-          'wheel' \
-      && echo 'DONE pip' ;
-
-  RUN \
       echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
@@ -377,33 +369,27 @@ echo 'START Download and install zig' \
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
 
-**** Disabled packages
-              'tensorrt' \
-              'torchcodec' \
-              'torch-tensorrt' \
 
 *** AMDGPU
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/5_libtorch/Dockerfile
   FROM 4_python
-  COPY './important_functions.sh' '/root/important_functions.sh'
-  ENV LIBTORCH='/opt/venv/lib/python3.12/site-packages/torch'
-  ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
-  ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
   RUN \
-      echo 'START pip' \
+      echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          'ipython' \
-          'ninja' \
-          'packaging' \
-          'pip' \
-          'psutil' \
-          'setuptools' \
-          'wheel' \
-      && echo 'DONE pip' ;
+          '--extra-index-url' 'https://download.pytorch.org/whl/rocm7.2' \
+              'torch' \
+              'torchao' \
+              'torchvision' \
+              'xformers' \
+      && echo 'DONE pytorch' ;
+
+  ENV LIBTORCH='/root/venv/lib/python3.12/site-packages/torch'
+  ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
+  ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
 
 ** 6_pytorch
@@ -656,7 +642,7 @@ echo 'START Download and install zig' \
       '--device' '/dev/dri' \
       '--security-opt' 'seccomp=unconfined' \
       -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
-      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/cargo/registry" \
       -v "CACHE:/root/.cache" \
       "${IMAGE_NAME}" "${IMAGE_CMD}" \
   ;
@@ -686,7 +672,7 @@ echo 'START Download and install zig' \
       '--device' '/dev/dri' \
       '--security-opt' 'seccomp=unconfined' \
       -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
-      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/cargo/registry" \
       -v "CACHE:/root/.cache" \
       "${IMAGE_NAME}" "${IMAGE_CMD}" \
   ;
@@ -713,7 +699,7 @@ echo 'START Download and install zig' \
       '--ulimit' 'stack=268435456' \
       '--gpus' 'all,"capabilities=compute,utility,video"' \
       -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
-      -v "CACHE:/usr/local/cargo/registry" \
+      -v "CACHE:/root/cargo/registry" \
       -v "CACHE:/root/.cache" \
       "${IMAGE_NAME}" "${IMAGE_CMD}" \
   ;

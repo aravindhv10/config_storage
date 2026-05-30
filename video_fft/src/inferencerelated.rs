@@ -19,6 +19,12 @@ impl Default for infer_results {
     }
 }
 
+impl infer_results {
+    pub fn majority(&self) -> f32 {
+        return self.p_rd;
+    }
+}
+
 pub struct infer_slave {
     slave: *mut ::std::os::raw::c_void,
     batch_size: ::std::os::raw::c_uchar,

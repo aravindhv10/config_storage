@@ -18,7 +18,7 @@ sudo -A docker run \
     '--ulimit' 'stack=268435456' \
     '--gpus' 'all,"capabilities=compute,utility,video"' \
     -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
-    -v "CACHE:/usr/local/cargo/registry" \
+    -v "CACHE:/root/cargo/registry" \
     -v "CACHE:/root/.cache" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;

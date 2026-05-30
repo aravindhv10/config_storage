@@ -12,8 +12,16 @@ video.len() in:
 * TODO
 
 ** Implement C++ side of model inference                               :DONE:
-** Implement the grpc endpoint
-*** Implement the protobuf convention
+** Implement the grpc endpoint                                         :DONE:
+*** Implement the protobuf convention                                  :DONE:
+** Unlink and memory optimization                                      :DONE:
+*** Check when is the video unlinked                                   :DONE:
+- convert_encoded_video_to_raw_outpipe cleans the video when it is called with the argument to clean.
+- do_infer_on_video_file in the server.rs calls the fft construction function which in turn calls the decoder with clean option.
+- It is optimal.
+*** Check when is the huge tensor dropped and try to optimize.         :DONE:
+- do_infer_on_video_file in server.rs does this.
+- It is optimal.
 
 * Cargo.toml
 
@@ -124,8 +132,8 @@ video.len() in:
 
 ** Important variables
 #+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O3 -mtune=native -march=native -flto")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=x86-64-v3 -flto")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=x86-64-v3 -flto")
   set(CMAKE_INSTALL_PREFIX "/usr")
   set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 #+end_src
@@ -469,7 +477,8 @@ video.len() in:
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
   export LIBTORCH_BYPASS_VERSION_CHECK='1'
   export LIBTORCH_USE_PYTORCH=1
-  export RUSTFLAGS="-C target-cpu=native"
+  export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+aes,+sse2"
+
 #+end_src
 
 *** init
@@ -1087,6 +1096,7 @@ video.len() in:
     inline void l() {
       if (torch::cuda::is_available()) {
         if (for_inference_server) {
+          // gpu_semaphore.l();
           gpu_semaphore_named.l();
         } else {
           gpu_semaphore.l();
@@ -1098,6 +1108,7 @@ video.len() in:
         if (for_inference_server) {
           clear_cuda_cache();
           gpu_semaphore_named.r();
+          // gpu_semaphore.r();
         } else {
           gpu_semaphore.r();
         }
@@ -2211,6 +2222,46 @@ video.len() in:
   use std::io::Write;
   use tch::IndexOp;
 
+  #[inline(always)]
+  fn get_num_windows(total_video_length: u64) -> u8 {
+
+      const ideal_length: u16 = 160 as u16;
+
+      const min_length: u16 = (ideal_length * 3) >> 2 ;
+
+      if total_video_length < (min_length as u64) {
+
+          return 0 as u8;
+
+      } else if total_video_length <= (ideal_length as u64) {
+
+          return 1 as u8;
+
+      } else {
+
+          const stride: u16 = ideal_length;
+
+          let float_val = (((total_video_length - (ideal_length as u64)) as f64)
+                          / (stride as f64) ) as f64;
+
+          let floor_val = float_val.floor();
+
+          let diff = float_val - floor_val;
+
+          let num_windows: u8 = {
+              if diff < 0.25 {
+                  (floor_val as u8) + 1
+              } else {
+                  (floor_val as u8) + 2
+              }
+          };
+
+          return num_windows;
+
+      }
+
+  }
+
   #[repr(C)]
   #[derive(Debug, Copy, Clone)]
   pub struct a_t {
@@ -2422,53 +2473,51 @@ video.len() in:
           }
       }
 
+      
       pub fn windowed_from_torch_video_tensor(
           tensor_video_input: &tch::Tensor,
           use_gpu: bool,
       ) -> anyhow::Result<Vec<Self>> {
           let total_video_length = tensor_video_input.size()[0];
+          let num_windows: u8 = get_num_windows(/*total_video_length: u64 =*/ total_video_length as u64);
+          eprintln!("num_windows = {}",num_windows);
 
-          const stride: f64 = 80 as f64;
+          match num_windows {
+              0 => {
+                  eprintln!("Video too short...");
+                  return Err(anyhow::format_err!("Video too short..."));
+              },
+              1 => {
+                  eprintln!("window_length = 1, total_video_length = {}",total_video_length);
+                  return Self::from_list_torch_video_tensor(
+                      /*list_torch_video_tensor: Vec<tch::Tensor> =*/
+                      vec![tensor_video_input.shallow_clone()],
+                      /*use_gpu: bool =*/ use_gpu,
+                  );
+              },
+              _ => {
+                  let mut list_torch_video_tensor = Vec::<tch::Tensor>::with_capacity(num_windows as usize);
 
-          if total_video_length < 120 {
-              return Err(anyhow::format_err!("Video too short..."));
-          } else if (120 <= total_video_length) && (total_video_length < 176) {
-              return Self::from_list_torch_video_tensor(
-                  /*list_torch_video_tensor: Vec<tch::Tensor> =*/
-                  vec![tensor_video_input.shallow_clone()],
-                  /*use_gpu: bool =*/ use_gpu,
-              );
-          } else {
-              let float_val = (((total_video_length - 160) as f64) / stride) as f64;
+                  for i in 1..=num_windows {
+                      let end = ((((total_video_length - 160) * ((i as i64) - 1))
+                          / ((num_windows as i64) - 1))
+                          + 160).min(total_video_length);
 
-              let floor_val = float_val.floor();
+                      let start = (end - 160).max(0);
 
-              let diff = float_val - floor_val;
+                      eprintln!("i = {} , num_windows = {} , total_video_length = {}",
+                                i,num_windows,total_video_length);
 
-              let num_windows: usize = {
-                  if diff < 0.25 {
-                      (floor_val as usize) + 1
-                  } else {
-                      (floor_val as usize) + 2
+                      eprintln!("start = {} , end = {}",start,end);
+
+                      list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
                   }
-              };
 
-              let mut list_torch_video_tensor = Vec::<tch::Tensor>::with_capacity(num_windows);
-
-              for i in 1..=num_windows {
-                  let end = (((total_video_length - 160) * ((i as i64) - 1))
-                      / ((num_windows as i64) - 1))
-                      + 160;
-
-                  let start = end - 160;
-
-                  list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
-              }
-
-              return Self::from_list_torch_video_tensor(
-                  /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
-                  /*use_gpu: bool =*/ use_gpu,
-              );
+                  return Self::from_list_torch_video_tensor(
+                      /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
+                      /*use_gpu: bool =*/ use_gpu,
+                  );
+              },
           }
       }
   }
@@ -3021,6 +3070,12 @@ video.len() in:
       }
   }
 
+  impl infer_results {
+      pub fn majority(&self) -> f32 {
+          return self.p_rd;
+      }
+  }
+
   pub struct infer_slave {
       slave: *mut ::std::os::raw::c_void,
       batch_size: ::std::os::raw::c_uchar,
@@ -3381,8 +3436,8 @@ video.len() in:
 
   message Grpcvideopredictionreply {
       repeated Grpcvideoprediction preds = 1;
+      float majority = 2;
   }
-
 #+end_src
 
 * Inference loop algorithm
@@ -3964,8 +4019,15 @@ struct inference_loop {
           } else {
               tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
           }
-          let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
-          // tokio::fs::remove_file(path_file_video_output.as_str()).await?;
+
+          let infpair = self.infpair.clone(); 
+          let path = path_file_video_output.clone();
+          let res = tokio::task::spawn_blocking(move || {
+              infpair.do_infer_on_video_file(&path)
+          }).await.expect("The blocking task panicked");
+
+          // let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+
           match res {
               Ok(o) => {
                   let preds: Vec<infer::Grpcvideoprediction> = o
@@ -3976,8 +4038,11 @@ struct inference_loop {
                           pc: i.p_rd,
                       })
                       .collect();
+                  let avg = o.iter().map(|i| i.majority() as f32).sum::<f32>() /
+                            (o.len() as f32) ;
                   return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
                       preds: preds,
+                      majority: avg,
                   }));
               }
               Err(e) => {
@@ -4015,6 +4080,7 @@ struct inference_loop {
       rt.block_on(async {
           println!("Server attempting to bind to {}", addr);
           let result = tonic::transport::Server::builder()
+              .max_concurrent_streams(Some(4))
               .add_service(service)
               .add_service(
                   infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
@@ -4191,7 +4257,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'experimenting with stride values'
+  git status ; git commit -m 'Fixed division by 0 issue'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
