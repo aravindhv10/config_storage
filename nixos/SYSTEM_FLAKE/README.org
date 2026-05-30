@@ -40,18 +40,19 @@
   {pkgs, ...}: {
     boot = {
       loader = {
+
+        systemd-boot.enable = true;
+        
         efi = {
           canTouchEfiVariables = true;
           efiSysMountPoint = "/boot/efi";
         };
 
-        grub = {
-          device = "/dev/nvme0n1";
-          efiInstallAsRemovable = false;
-          efiSupport = true;
-        };
-
-        systemd-boot.enable = false;
+        # grub = {
+        #   device = "/dev/nvme0n1";
+        #   efiInstallAsRemovable = false;
+        #   efiSupport = true;
+        # };
       };
 
       tmp = {
