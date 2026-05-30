@@ -103,7 +103,7 @@
     waybar
     wayland
     wayland-protocols
-    wf-recorder
+    # wf-recorder
     wget
     wl-clipboard
     wlogout

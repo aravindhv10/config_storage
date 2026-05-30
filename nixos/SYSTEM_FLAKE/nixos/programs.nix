@@ -21,13 +21,13 @@
     };
 
     wayfire = {
-      enable = true;
+      enable = false;
       package = unstable.wayfire;
       # package = pkgs.wayfire;
       plugins = [
-        pkgs.wayfirePlugins.wayfire-plugins-extra
-        pkgs.wayfirePlugins.wcm
-        pkgs.wayfirePlugins.wf-shell
+        unstable.wayfirePlugins.wayfire-plugins-extra
+        unstable.wayfirePlugins.wcm
+        unstable.wayfirePlugins.wf-shell
       ];
     };
 

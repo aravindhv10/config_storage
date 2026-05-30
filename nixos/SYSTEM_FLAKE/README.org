@@ -177,7 +177,7 @@
       };
 
       displayManager = {
-        gdm.enable = false;
+        gdm.enable = true;
         sddm = {
           enable = false;
           wayland.enable = false;
@@ -186,7 +186,7 @@
       };
 
       greetd = {
-        enable = true;
+        enable = false;
         settings = rec {
           initial_session = {
             command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
@@ -348,7 +348,7 @@
       waybar
       wayland
       wayland-protocols
-      wf-recorder
+      # wf-recorder
       wget
       wl-clipboard
       wlogout
@@ -1285,13 +1285,13 @@
       };
 
       wayfire = {
-        enable = true;
+        enable = false;
         package = unstable.wayfire;
         # package = pkgs.wayfire;
         plugins = [
-          pkgs.wayfirePlugins.wayfire-plugins-extra
-          pkgs.wayfirePlugins.wcm
-          pkgs.wayfirePlugins.wf-shell
+          unstable.wayfirePlugins.wayfire-plugins-extra
+          unstable.wayfirePlugins.wcm
+          unstable.wayfirePlugins.wf-shell
         ];
       };
 

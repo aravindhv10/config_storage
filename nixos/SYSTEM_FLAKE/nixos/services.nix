@@ -42,7 +42,7 @@
     };
 
     displayManager = {
-      gdm.enable = false;
+      gdm.enable = true;
       sddm = {
         enable = false;
         wayland.enable = false;
@@ -51,7 +51,7 @@
     };
 
     greetd = {
-      enable = true;
+      enable = false;
       settings = rec {
         initial_session = {
           command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
