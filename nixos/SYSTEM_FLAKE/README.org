@@ -42,11 +42,12 @@
       loader = {
 
         systemd-boot.enable = true;
-        
-        efi = {
-          canTouchEfiVariables = true;
-          efiSysMountPoint = "/boot/efi";
-        };
+        efi.canTouchEfiVariables = true;      
+
+        # efi = {
+        #   canTouchEfiVariables = true;
+        #   efiSysMountPoint = "/boot/efi";
+        # };
 
         # grub = {
         #   device = "/dev/nvme0n1";
@@ -140,7 +141,7 @@
     ...
   }: {
     services = {
-      # displayManager.sessionPackages = [pkgs.wayfire];
+
       chrony.enable = true;
       openssh.enable = true;
       printing.enable = true;
