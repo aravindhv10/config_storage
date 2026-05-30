@@ -24,7 +24,7 @@ mute=Volume Mute,Volume Mute,Mute
 
 [ksmserver]
 Halt Without Confirmation=,,Shut Down Without Confirmation
-Lock Session=Meta+L\tScreensaver,Meta+L\tScreensaver,Lock Session
+Lock Session=Screensaver,Meta+L\tScreensaver,Lock Session
 Log Out=Ctrl+Alt+Del,Ctrl+Alt+Del,Show Logout Screen
 Log Out Without Confirmation=,,Log Out Without Confirmation
 LogOut=,,Log Out
@@ -48,7 +48,7 @@ Increase Opacity=,,Increase Opacity of Active Window by 5%
 Invert=,Meta+Ctrl+I,Toggle Invert Effect
 Invert Screen Colors=none,none,Invert Screen Colors
 InvertWindow=Meta+V,Meta+Ctrl+U,Toggle Invert Effect on Window
-Kill Window=Meta+Ctrl+Esc,Meta+Ctrl+Esc,Kill Window
+Kill Window=Meta+Ctrl+C,Meta+Ctrl+Esc,Kill Window
 Move Tablet to Next LogicalOutput=none,none,Move the tablet to the next output
 MoveMouseToCenter=Meta+F6,Meta+F6,Move Mouse to Center
 MoveMouseToFocus=Meta+F5,Meta+F5,Move Mouse to Focus
@@ -120,16 +120,16 @@ Walk Through Windows of Current Application Alternative=none,none,Walk Through W
 Walk Through Windows of Current Application Alternative (Reverse)=none,none,Walk Through Windows of Current Application Alternative (Reverse)
 Window Above Other Windows=,,Keep Window Above Others
 Window Below Other Windows=,,Keep Window Below Others
-Window Close=Alt+F4\tMeta+C,Alt+F4,Close Window
+Window Close=Meta+C,Alt+F4,Close Window
 Window Custom Quick Tile Bottom=,,Custom Quick Tile Window to the Bottom
 Window Custom Quick Tile Left=,,Custom Quick Tile Window to the Left
 Window Custom Quick Tile Right=,,Custom Quick Tile Window to the Right
 Window Custom Quick Tile Top=,,Custom Quick Tile Window to the Top
-Window Fullscreen=,,Make Window Fullscreen
+Window Fullscreen=Meta+Z,,Make Window Fullscreen
 Window Grow Horizontal=,,Expand Window Horizontally
 Window Grow Vertical=,,Expand Window Vertically
-Window Lower=,,Lower Window
-Window Maximize=Meta+PgUp,Meta+PgUp,Maximize Window
+Window Lower=Meta+B,,Lower Window
+Window Maximize=Meta+X,Meta+PgUp,Maximize Window
 Window Maximize Horizontal=,,Maximize Window Horizontally
 Window Maximize Vertical=,,Maximize Window Vertically
 Window Minimize=Meta+PgDown,Meta+PgDown,Minimize Window
@@ -150,14 +150,14 @@ Window Pack Down=,,Move Window Down
 Window Pack Left=,,Move Window Left
 Window Pack Right=,,Move Window Right
 Window Pack Up=,,Move Window Up
-Window Quick Tile Bottom=Meta+Down,Meta+Down,Quick Tile Window to the Bottom
-Window Quick Tile Bottom Left=,,Quick Tile Window to the Bottom Left
-Window Quick Tile Bottom Right=,,Quick Tile Window to the Bottom Right
-Window Quick Tile Left=Meta+Left,Meta+Left,Quick Tile Window to the Left
-Window Quick Tile Right=Meta+Right,Meta+Right,Quick Tile Window to the Right
-Window Quick Tile Top=Meta+Up,Meta+Up,Quick Tile Window to the Top
-Window Quick Tile Top Left=,,Quick Tile Window to the Top Left
-Window Quick Tile Top Right=,,Quick Tile Window to the Top Right
+Window Quick Tile Bottom=Meta+J,Meta+Down,Quick Tile Window to the Bottom
+Window Quick Tile Bottom Left=Meta+N,,Quick Tile Window to the Bottom Left
+Window Quick Tile Bottom Right=Meta+M,,Quick Tile Window to the Bottom Right
+Window Quick Tile Left=Meta+H,Meta+Left,Quick Tile Window to the Left
+Window Quick Tile Right=Meta+L,Meta+Right,Quick Tile Window to the Right
+Window Quick Tile Top=Meta+K,Meta+Up,Quick Tile Window to the Top
+Window Quick Tile Top Left=Meta+U,,Quick Tile Window to the Top Left
+Window Quick Tile Top Right=Meta+I,,Quick Tile Window to the Top Right
 Window Raise=,,Raise Window
 Window Resize=,,Resize Window
 Window Shrink Horizontal=,,Shrink Window Horizontally
@@ -200,7 +200,7 @@ Window to Screen 5=,,Move Window to Screen 5
 Window to Screen 6=,,Move Window to Screen 6
 Window to Screen 7=,,Move Window to Screen 7
 _k_friendly_name=KWin
-disableInputCapture=Meta+Shift+Esc,Meta+Shift+Esc,Disable Active Input Capture
+disableInputCapture=none,Meta+Shift+Esc,Disable Active Input Capture
 view_actual_size=Meta+Backspace,Meta+0,Zoom to Actual Size
 view_zoom_in=Meta+=\t,Meta++\tMeta+=,Zoom In
 view_zoom_out=Meta+-,Meta+-,Zoom Out
@@ -234,7 +234,7 @@ Sleep=Sleep,Sleep,Suspend
 Toggle Keyboard Backlight=Keyboard Light On/Off,Keyboard Light On/Off,Toggle Keyboard Backlight
 Turn Off Screen=none,none,Turn Off Screen
 _k_friendly_name=Power Management
-powerProfile=Battery\tMeta+B,Battery\tMeta+B,Switch Power Profile
+powerProfile=Battery,Battery\tMeta+B,Switch Power Profile
 
 [plasmashell]
 Slideshow Wallpaper Next Image=,,Next Wallpaper Image
@@ -275,3 +275,6 @@ _launch=\tAlt+F2\tSearch
 
 [services][org.kde.spectacle.desktop]
 RecordRegion=Meta+Shift+R\t
+
+[services][systemsettings.desktop]
+_launch=Tools
