@@ -22,8 +22,8 @@
 
     wayfire = {
       enable = true;
-      # package = unstable.wayfire;
-      package = pkgs.wayfire;
+      package = unstable.wayfire;
+      # package = pkgs.wayfire;
       plugins = [
         pkgs.wayfirePlugins.wayfire-plugins-extra
         pkgs.wayfirePlugins.wcm
