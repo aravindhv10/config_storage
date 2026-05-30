@@ -939,11 +939,11 @@
   ];
 in {
   environment = {
-    etc."greetd/environments".text = ''
-      wayfire
-      fish
-      bash
-    '';
+    # etc."greetd/environments".text = ''
+    #   wayfire
+    #   fish
+    #   bash
+    # '';
 
     variables = {
       ROC_ENABLE_PRE_VEGA = "1";

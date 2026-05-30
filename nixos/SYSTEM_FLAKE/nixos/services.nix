@@ -4,7 +4,7 @@
   ...
 }: {
   services = {
-    displayManager.sessionPackages = [pkgs.wayfire];
+    # displayManager.sessionPackages = [pkgs.wayfire];
     chrony.enable = true;
     openssh.enable = true;
     printing.enable = true;
@@ -50,16 +50,16 @@
       };
     };
 
-    greetd = {
-      enable = false;
-      settings = rec {
-        initial_session = {
-          command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-          user = "asd";
-        };
-        default_session = initial_session;
-      };
-    };
+    # greetd = {
+    #   enable = false;
+    #   settings = rec {
+    #     initial_session = {
+    #       command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
+    #       user = "asd";
+    #     };
+    #     default_session = initial_session;
+    #   };
+    # };
 
     dnsmasq = {
       enable = true;
