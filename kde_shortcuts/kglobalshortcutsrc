@@ -300,6 +300,33 @@ _launch=Meta+Alt+9
 [services][net.local.M_A_Q.desktop]
 _launch=Meta+Alt+Q
 
+[services][net.local.M_A_W.desktop]
+_launch=Meta+Alt+W
+
+[services][net.local.M_A_E.desktop]
+_launch=Meta+Alt+E
+
+[services][net.local.M_A_R.desktop]
+_launch=Meta+Alt+R
+
+[services][net.local.M_A_T.desktop]
+_launch=Meta+Alt+T
+
+[services][net.local.M_A_Y.desktop]
+_launch=Meta+Alt+Y
+
+[services][net.local.M_A_U.desktop]
+_launch=Meta+Alt+U
+
+[services][net.local.M_A_I.desktop]
+_launch=Meta+Alt+I
+
+[services][net.local.M_A_O.desktop]
+_launch=Meta+Alt+O
+
+[services][net.local.M_A_P.desktop]
+_launch=Meta+Alt+P
+
 [services][net.local.M_C_A.desktop]
 _launch=Meta+Ctrl+A
 
