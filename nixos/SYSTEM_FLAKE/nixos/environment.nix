@@ -552,11 +552,19 @@
           return ret;
       }
 
+      int swayosd_server () {
+          static char * const args[] = {"swayosd-server" , NULL};
+          int ret = execvp(args[0], args);
+          return ret;
+      }
+
       int both () {
           pid_t p_foot;
           pid_t p_alacritty;
+          pid_t p_swayosd;
           int ret_foot;
           int ret_alacritty;
+          int ret_swayosd;
 
           p_foot = fork();
           if(p_foot == 0){
@@ -570,8 +578,15 @@
               return ret_alacritty;
           }
 
+          p_swayosd = fork();
+          if(p_swayosd == 0){
+              ret_swayosd = swayosd_server();
+              return ret_swayosd;
+          }
+
           waitpid(p_foot, NULL, 0);
           waitpid(p_alacritty, NULL, 0);
+          waitpid(p_swayosd, NULL, 0);
 
           return 0;
       }
