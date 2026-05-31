@@ -44,7 +44,7 @@ Expose=Meta+Space,Meta+F9\tCtrl+F9,Toggle Present Windows (Current desktop)
 ExposeAll=Meta+Esc,Meta+F10\tLaunch (C)\tCtrl+F10,Toggle Present Windows (All desktops)
 ExposeClass=,Meta+F7\tCtrl+F7,Toggle Present Windows (Window class)
 ExposeClassCurrentDesktop=,none,Toggle Present Windows (Window class on current desktop)
-Grid View=,Meta+G,Toggle Grid View
+Grid View=Meta+`,Meta+G,Toggle Grid View
 Increase Opacity=,,Increase Opacity of Active Window by 5%
 Invert=,Meta+Ctrl+I,Toggle Invert Effect
 Invert Screen Colors=,none,Invert Screen Colors
@@ -57,7 +57,7 @@ MoveZoomDown=,none,Move Zoomed Area Downwards
 MoveZoomLeft=,none,Move Zoomed Area to Left
 MoveZoomRight=,none,Move Zoomed Area to Right
 MoveZoomUp=,none,Move Zoomed Area Upwards
-Overview=Meta+`,Meta+W,Toggle Overview
+Overview=,Meta+W,Toggle Overview
 Setup Window Shortcut=,,Setup Window Shortcut
 Show Desktop=,Meta+D,Peek at Desktop
 Switch One Desktop Down=Meta+Down,Meta+Ctrl+Down,Switch One Desktop Down
@@ -200,7 +200,7 @@ Window to Screen 4=,,Move Window to Screen 4
 Window to Screen 5=,,Move Window to Screen 5
 Window to Screen 6=,,Move Window to Screen 6
 Window to Screen 7=,,Move Window to Screen 7
-_k_friendly_name=KWin
+_k_friendly_name=System Settings
 disableInputCapture=,Meta+Shift+Esc,Disable Active Input Capture
 view_actual_size=Meta+Backspace,Meta+0,Zoom to Actual Size
 view_zoom_in=Meta+=,Meta++\tMeta+=,Zoom In
@@ -240,7 +240,7 @@ powerProfile=Battery,Battery\tMeta+B,Switch Power Profile
 [plasmashell]
 Slideshow Wallpaper Next Image=,,Next Wallpaper Image
 _k_friendly_name=plasmashell
-activate application launcher=Meta\tAlt+F1,Meta\tAlt+F1,Activate Application Launcher
+activate application launcher=Alt+F1,Meta\tAlt+F1,Activate Application Launcher
 activate task manager entry 1=,Meta+1,Activate Task Manager Entry 1
 activate task manager entry 10=,,Activate Task Manager Entry 10
 activate task manager entry 2=,Meta+2,Activate Task Manager Entry 2
@@ -253,7 +253,7 @@ activate task manager entry 8=,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=,Meta+9,Activate Task Manager Entry 9
 clear-history=,,Clear Clipboard History
 clipboard_action=Meta+Ctrl+X,Meta+Ctrl+X,Automatic Action Popup Menu
-cycle-panels=Meta+Alt+P,Meta+Alt+P,Move keyboard focus between panels
+cycle-panels=none,Meta+Alt+P,Move keyboard focus between panels
 cycleNextAction=,,Next History Item
 cyclePrevAction=,,Previous History Item
 edit_clipboard=,,Edit Contents…
@@ -306,6 +306,9 @@ _launch=Meta+Alt+I
 
 [services][net.local.M_A_O.desktop]
 _launch=Meta+Alt+O
+
+[services][net.local.M_A_P.desktop]
+_launch=Meta+Alt+P
 
 [services][net.local.M_A_Q.desktop]
 _launch=Meta+Alt+Q
