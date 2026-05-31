@@ -1,5 +1,6 @@
 [ActivityManager]
 _k_friendly_name=Activity Manager
+switch-to-activity-86481063-e19b-4afe-a9f5-4e47982e2056=none,none,Switch to activity "Default"
 switch-to-activity-e74f8016-4b8a-41e8-a6e8-c0a335c501c6=,none,Switch to activity "Default"
 
 [KDE Keyboard Layout Switcher]
@@ -297,26 +298,8 @@ _launch=Meta+Alt+8
 [services][net.local.M_A_9.desktop]
 _launch=Meta+Alt+9
 
-[services][net.local.M_A_Q.desktop]
-_launch=Meta+Alt+Q
-
-[services][net.local.M_A_W.desktop]
-_launch=Meta+Alt+W
-
 [services][net.local.M_A_E.desktop]
 _launch=Meta+Alt+E
-
-[services][net.local.M_A_R.desktop]
-_launch=Meta+Alt+R
-
-[services][net.local.M_A_T.desktop]
-_launch=Meta+Alt+T
-
-[services][net.local.M_A_Y.desktop]
-_launch=Meta+Alt+Y
-
-[services][net.local.M_A_U.desktop]
-_launch=Meta+Alt+U
 
 [services][net.local.M_A_I.desktop]
 _launch=Meta+Alt+I
@@ -324,8 +307,23 @@ _launch=Meta+Alt+I
 [services][net.local.M_A_O.desktop]
 _launch=Meta+Alt+O
 
-[services][net.local.M_A_P.desktop]
-_launch=Meta+Alt+P
+[services][net.local.M_A_Q.desktop]
+_launch=Meta+Alt+Q
+
+[services][net.local.M_A_R.desktop]
+_launch=Meta+Alt+R
+
+[services][net.local.M_A_T.desktop]
+_launch=Meta+Alt+T
+
+[services][net.local.M_A_U.desktop]
+_launch=Meta+Alt+U
+
+[services][net.local.M_A_W.desktop]
+_launch=Meta+Alt+W
+
+[services][net.local.M_A_Y.desktop]
+_launch=Meta+Alt+Y
 
 [services][net.local.M_C_A.desktop]
 _launch=Meta+Ctrl+A
@@ -342,6 +340,9 @@ _launch=Meta+F1
 [services][net.local.M_F2.desktop]
 _launch=Meta+F2
 
+[services][net.local.M_F3.desktop]
+_launch=Meta+F3
+
 [services][org.kde.dolphin.desktop]
 _launch=
 
@@ -352,7 +353,10 @@ _launch=Search\tAlt+F2
 _launch=
 
 [services][org.kde.spectacle.desktop]
+CurrentMonitorScreenShot=
+OpenWithoutScreenshot=
 RecordRegion=
+RecordScreen=none
 _launch=Print
 
 [services][systemsettings.desktop]
