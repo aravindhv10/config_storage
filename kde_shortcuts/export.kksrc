@@ -41,6 +41,46 @@ Name=M_A_8
 Exec=M_A_9
 Name=M_A_9
 
+[Custom Commands][net.local.M_A_Q.desktop]
+Exec=M_A_Q
+Name=M_A_Q
+
+[Custom Commands][net.local.M_A_W.desktop]
+Exec=M_A_W
+Name=M_A_W
+
+[Custom Commands][net.local.M_A_E.desktop]
+Exec=M_A_E
+Name=M_A_E
+
+[Custom Commands][net.local.M_A_R.desktop]
+Exec=M_A_R
+Name=M_A_R
+
+[Custom Commands][net.local.M_A_T.desktop]
+Exec=M_A_T
+Name=M_A_T
+
+[Custom Commands][net.local.M_A_Y.desktop]
+Exec=M_A_Y
+Name=M_A_Y
+
+[Custom Commands][net.local.M_A_U.desktop]
+Exec=M_A_U
+Name=M_A_U
+
+[Custom Commands][net.local.M_A_I.desktop]
+Exec=M_A_I
+Name=M_A_I
+
+[Custom Commands][net.local.M_A_O.desktop]
+Exec=M_A_O
+Name=M_A_O
+
+[Custom Commands][net.local.M_A_P.desktop]
+Exec=M_A_P
+Name=M_A_P
+
 [Custom Commands][net.local.M_C_A.desktop]
 Exec=M_C_A
 Name=M_C_A
