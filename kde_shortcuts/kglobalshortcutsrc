@@ -202,7 +202,7 @@ Window to Screen 7=,,Move Window to Screen 7
 _k_friendly_name=KWin
 disableInputCapture=,Meta+Shift+Esc,Disable Active Input Capture
 view_actual_size=Meta+Backspace,Meta+0,Zoom to Actual Size
-view_zoom_in=Meta+=\t,Meta++\tMeta+=,Zoom In
+view_zoom_in=Meta+=,Meta++\tMeta+=,Zoom In
 view_zoom_out=Meta+-,Meta+-,Zoom Out
 
 [mediacontrol]
@@ -267,42 +267,64 @@ switch to next activity=,,Switch to Next Activity
 switch to previous activity=,,Switch to Previous Activity
 toggle do not disturb=,,Toggle do not disturb
 
-[services][net.local.M_A_9.desktop]
-_launch=Meta+Ctrl+9
+[services][net.local.M_A_0.desktop]
+_launch=Meta+Alt+0
 
-[services][net.local.M_C_A-2.desktop]
+[services][net.local.M_A_1.desktop]
+_launch=Meta+Alt+1
+
+[services][net.local.M_A_2.desktop]
+_launch=Meta+Alt+2
+
+[services][net.local.M_A_3.desktop]
+_launch=Meta+Alt+3
+
+[services][net.local.M_A_4.desktop]
+_launch=Meta+Alt+4
+
+[services][net.local.M_A_5.desktop]
+_launch=Meta+Alt+5
+
+[services][net.local.M_A_6.desktop]
+_launch=Meta+Alt+6
+
+[services][net.local.M_A_7.desktop]
+_launch=Meta+Alt+7
+
+[services][net.local.M_A_8.desktop]
+_launch=Meta+Alt+8
+
+[services][net.local.M_A_9.desktop]
+_launch=Meta+Alt+9
+
+[services][net.local.M_A_Q.desktop]
+_launch=Meta+Alt+Q
+
+[services][net.local.M_C_A.desktop]
 _launch=Meta+Ctrl+A
 
-[services][net.local.M_C_D-2.desktop]
-_launch=Meta+Ctrl+D
-
-[services][net.local.M_C_F-2.desktop]
-_launch=Meta+Ctrl+F
-
-[services][net.local.M_C_G-2.desktop]
-_launch=Meta+Ctrl+G
-
-[services][net.local.M_C_Q-2.desktop]
-_launch=Meta+Ctrl+Q
-
-[services][net.local.M_C_S-2.desktop]
+[services][net.local.M_C_S.desktop]
 _launch=Meta+Ctrl+S
 
-[services][net.local.M_C_T-2.desktop]
+[services][net.local.M_C_T.desktop]
 _launch=Meta+Ctrl+T
+
+[services][net.local.M_F1.desktop]
+_launch=Meta+F1
+
+[services][net.local.M_F2.desktop]
+_launch=Meta+F2
 
 [services][org.kde.dolphin.desktop]
 _launch=
 
 [services][org.kde.krunner.desktop]
-_launch=\tAlt+F2\tSearch
+_launch=Search\tAlt+F2
 
 [services][org.kde.plasma-systemmonitor.desktop]
 _launch=
 
 [services][org.kde.spectacle.desktop]
-CurrentMonitorScreenShot=
-OpenWithoutScreenshot=
 RecordRegion=
 _launch=Print
 
