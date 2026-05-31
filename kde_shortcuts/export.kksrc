@@ -109,6 +109,14 @@ Name=M_C_S
 Exec=M_C_T
 Name=M_C_T
 
+[Custom Commands][net.local.M_F1.desktop]
+Exec=M_F1
+Name=M_F1
+
+[Custom Commands][net.local.M_F2.desktop]
+Exec=M_F2
+Name=M_F2
+
 [Custom Commands][net.local.M_F3.desktop]
 Exec=M_F3
 Name=M_F3
