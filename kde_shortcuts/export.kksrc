@@ -69,6 +69,10 @@ Name=M_C_S
 Exec=M_C_T
 Name=M_C_T
 
+[Custom Commands][net.local.M_F3.desktop]
+Exec=M_F3
+Name=M_F3
+
 [KDE Keyboard Layout Switcher][Global Shortcuts]
 Switch to Last-Used Keyboard Layout=Meta+Alt+L
 Switch to Next Keyboard Layout=Meta+Alt+K
@@ -368,31 +372,34 @@ seekforwardmedialong=
 stopmedia=Media Stop
 
 [net.local.M_A_0.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+0
 
 [net.local.M_A_1.desktop][Global Shortcuts]
 _launch=Meta+Alt+1
 
+[net.local.M_A_2.desktop][Global Shortcuts]
+_launch=Meta+Alt+2
+
 [net.local.M_A_3.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+3
 
 [net.local.M_A_4.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+4
 
 [net.local.M_A_5.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+5
 
 [net.local.M_A_6.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+6
 
 [net.local.M_A_7.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+7
 
 [net.local.M_A_8.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Alt+8
 
 [net.local.M_A_9.desktop][Global Shortcuts]
-_launch=Meta+Ctrl+9
+_launch=Meta+Alt+9
 
 [net.local.M_C_A.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+A
@@ -404,7 +411,7 @@ _launch=Meta+Ctrl+D
 _launch=Meta+Ctrl+F
 
 [net.local.M_C_G.desktop][Global Shortcuts]
-_launch=
+_launch=Meta+Ctrl+G
 
 [net.local.M_C_Q.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+Q
@@ -414,6 +421,15 @@ _launch=Meta+Ctrl+S
 
 [net.local.M_C_T.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+T
+
+[net.local.M_F1.desktop][Global Shortcuts]
+_launch=Meta+F1
+
+[net.local.M_F2.desktop][Global Shortcuts]
+_launch=Meta+F2
+
+[net.local.M_F3.desktop][Global Shortcuts]
+_launch=Meta+F3
 
 [org.kde.dolphin.desktop][Global Shortcuts]
 _launch=
