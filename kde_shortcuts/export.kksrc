@@ -1,4 +1,5 @@
 [ActivityManager][Global Shortcuts]
+switch-to-activity-86481063-e19b-4afe-a9f5-4e47982e2056=
 switch-to-activity-e74f8016-4b8a-41e8-a6e8-c0a335c501c6=
 
 [Custom Commands][net.local.M_A_0.desktop]
@@ -41,33 +42,9 @@ Name=M_A_8
 Exec=M_A_9
 Name=M_A_9
 
-[Custom Commands][net.local.M_A_Q.desktop]
-Exec=M_A_Q
-Name=M_A_Q
-
-[Custom Commands][net.local.M_A_W.desktop]
-Exec=M_A_W
-Name=M_A_W
-
 [Custom Commands][net.local.M_A_E.desktop]
 Exec=M_A_E
 Name=M_A_E
-
-[Custom Commands][net.local.M_A_R.desktop]
-Exec=M_A_R
-Name=M_A_R
-
-[Custom Commands][net.local.M_A_T.desktop]
-Exec=M_A_T
-Name=M_A_T
-
-[Custom Commands][net.local.M_A_Y.desktop]
-Exec=M_A_Y
-Name=M_A_Y
-
-[Custom Commands][net.local.M_A_U.desktop]
-Exec=M_A_U
-Name=M_A_U
 
 [Custom Commands][net.local.M_A_I.desktop]
 Exec=M_A_I
@@ -80,6 +57,30 @@ Name=M_A_O
 [Custom Commands][net.local.M_A_P.desktop]
 Exec=M_A_P
 Name=M_A_P
+
+[Custom Commands][net.local.M_A_Q.desktop]
+Exec=M_A_Q
+Name=M_A_Q
+
+[Custom Commands][net.local.M_A_R.desktop]
+Exec=M_A_R
+Name=M_A_R
+
+[Custom Commands][net.local.M_A_T.desktop]
+Exec=M_A_T
+Name=M_A_T
+
+[Custom Commands][net.local.M_A_U.desktop]
+Exec=M_A_U
+Name=M_A_U
+
+[Custom Commands][net.local.M_A_W.desktop]
+Exec=M_A_W
+Name=M_A_W
+
+[Custom Commands][net.local.M_A_Y.desktop]
+Exec=M_A_Y
+Name=M_A_Y
 
 [Custom Commands][net.local.M_C_A.desktop]
 Exec=M_C_A
@@ -96,6 +97,10 @@ Name=M_C_F
 [Custom Commands][net.local.M_C_G.desktop]
 Exec=M_C_G
 Name=M_C_G
+
+[Custom Commands][net.local.M_C_Q-4.desktop]
+Exec=M_C_Q
+Name=M_C_Q
 
 [Custom Commands][net.local.M_C_Q.desktop]
 Exec=M_C_Q
@@ -129,7 +134,7 @@ Switch to Next Keyboard Layout=Meta+Alt+K
 AboutApp=
 AboutKDE=
 Activate Next Tab=Ctrl+PgDown; Ctrl+]
-Activate Previous Tab=Ctrl+PgUp; Ctrl+[
+Activate Previous Tab=Ctrl+[; Ctrl+PgUp
 ActualSize=Ctrl+0
 AddBookmark=Ctrl+B
 Back=Back; Alt+Left
@@ -142,7 +147,7 @@ ConfigureNotifications=
 ConfigureToolbars=
 Copy=Ctrl+Ins; Ctrl+C
 CreateFolder=Ctrl+Shift+N
-Cut=Ctrl+X; Shift+Del
+Cut=Shift+Del; Ctrl+X
 DeleteFile=Shift+Del
 DeleteWordBack=Ctrl+Backspace
 DeleteWordForward=Ctrl+Del
@@ -244,7 +249,7 @@ Expose=Meta+Space
 ExposeAll=Meta+Esc
 ExposeClass=
 ExposeClassCurrentDesktop=
-Grid View=
+Grid View=Meta+`
 Increase Opacity=
 Invert=
 Invert Screen Colors=
@@ -257,7 +262,7 @@ MoveZoomDown=
 MoveZoomLeft=
 MoveZoomRight=
 MoveZoomUp=
-Overview=Meta+`
+Overview=
 Setup Window Shortcut=
 Show Desktop=
 Switch One Desktop Down=Meta+Down
@@ -363,8 +368,8 @@ Window Raise=
 Window Resize=
 Window Shrink Horizontal=
 Window Shrink Vertical=
-Window to Desktop 1=Meta+Shift+1
-Window to Desktop 10=Meta+Shift+0
+Window to Desktop 1=Meta+!
+Window to Desktop 10=Meta+)
 Window to Desktop 11=Meta+Shift+Q
 Window to Desktop 12=Meta+Shift+W
 Window to Desktop 13=Meta+Shift+E
@@ -374,20 +379,20 @@ Window to Desktop 16=Meta+Shift+A
 Window to Desktop 17=Meta+Shift+S
 Window to Desktop 18=Meta+Shift+D
 Window to Desktop 19=Meta+Shift+F
-Window to Desktop 2=Meta+Shift+2
+Window to Desktop 2=Meta+@
 Window to Desktop 20=Meta+Shift+G
 Window to Desktop 21=
 Window to Desktop 22=
 Window to Desktop 23=
 Window to Desktop 24=
 Window to Desktop 25=
-Window to Desktop 3=Meta+Shift+3
-Window to Desktop 4=Meta+Shift+4
-Window to Desktop 5=Meta+Shift+5
-Window to Desktop 6=Meta+Shift+6
-Window to Desktop 7=Meta+Shift+7
-Window to Desktop 8=Meta+Shift+8
-Window to Desktop 9=Meta+Shift+9
+Window to Desktop 3=Meta+#
+Window to Desktop 4=Meta+$
+Window to Desktop 5=Meta+%
+Window to Desktop 6=Meta+^
+Window to Desktop 7=Meta+&
+Window to Desktop 8=Meta+*
+Window to Desktop 9=Meta+(
 Window to Next Desktop=
 Window to Next Screen=
 Window to Previous Desktop=
@@ -449,26 +454,8 @@ _launch=Meta+Alt+8
 [net.local.M_A_9.desktop][Global Shortcuts]
 _launch=Meta+Alt+9
 
-[net.local.M_A_Q.desktop][Global Shortcuts]
-_launch=Meta+Alt+Q
-
-[net.local.M_A_W.desktop][Global Shortcuts]
-_launch=Meta+Alt+W
-
 [net.local.M_A_E.desktop][Global Shortcuts]
 _launch=Meta+Alt+E
-
-[net.local.M_A_R.desktop][Global Shortcuts]
-_launch=Meta+Alt+R
-
-[net.local.M_A_T.desktop][Global Shortcuts]
-_launch=Meta+Alt+T
-
-[net.local.M_A_Y.desktop][Global Shortcuts]
-_launch=Meta+Alt+Y
-
-[net.local.M_A_U.desktop][Global Shortcuts]
-_launch=Meta+Alt+U
 
 [net.local.M_A_I.desktop][Global Shortcuts]
 _launch=Meta+Alt+I
@@ -478,6 +465,24 @@ _launch=Meta+Alt+O
 
 [net.local.M_A_P.desktop][Global Shortcuts]
 _launch=Meta+Alt+P
+
+[net.local.M_A_Q.desktop][Global Shortcuts]
+_launch=Meta+Alt+Q
+
+[net.local.M_A_R.desktop][Global Shortcuts]
+_launch=Meta+Alt+R
+
+[net.local.M_A_T.desktop][Global Shortcuts]
+_launch=Meta+Alt+T
+
+[net.local.M_A_U.desktop][Global Shortcuts]
+_launch=Meta+Alt+U
+
+[net.local.M_A_W.desktop][Global Shortcuts]
+_launch=Meta+Alt+W
+
+[net.local.M_A_Y.desktop][Global Shortcuts]
+_launch=Meta+Alt+Y
 
 [net.local.M_C_A.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+A
@@ -490,6 +495,9 @@ _launch=Meta+Ctrl+F
 
 [net.local.M_C_G.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+G
+
+[net.local.M_C_Q-4.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+Q
 
 [net.local.M_C_Q.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+Q
@@ -522,7 +530,7 @@ RunClipboard=Alt+Shift+F2
 _launch=Alt+F2; Search
 
 [org.kde.kscreen.desktop][Global Shortcuts]
-ShowOSD=Meta+P; Display
+ShowOSD=Display; Meta+P
 
 [org.kde.plasma-systemmonitor.desktop][Global Shortcuts]
 _launch=
@@ -536,7 +544,7 @@ CurrentMonitorScreenShot=
 FullScreenScreenShot=Shift+Print
 OpenWithoutScreenshot=
 RecordRegion=
-RecordScreen=Meta+Alt+R
+RecordScreen=
 RecordWindow=Meta+Ctrl+R
 RectangularRegionScreenShot=Meta+Shift+Print
 WindowUnderCursorScreenShot=Meta+Ctrl+Print
@@ -545,7 +553,7 @@ _launch=Print
 [org.kde.touchpadshortcuts.desktop][Global Shortcuts]
 DisableTouchpad=Touchpad Off
 EnableTouchpad=Touchpad On
-ToggleTouchpad=Meta+Ctrl+Touchpad Toggle; Meta+Ctrl+Zenkaku Hankaku; Touchpad Toggle
+ToggleTouchpad=Touchpad Toggle; Meta+Ctrl+Zenkaku Hankaku; Meta+Ctrl+Touchpad Toggle
 
 [org_kde_powerdevil][Global Shortcuts]
 Decrease Keyboard Brightness=Keyboard Brightness Down
@@ -564,7 +572,7 @@ powerProfile=Battery
 
 [plasmashell][Global Shortcuts]
 Slideshow Wallpaper Next Image=
-activate application launcher=Alt+F1; Meta
+activate application launcher=Alt+F1
 activate task manager entry 1=
 activate task manager entry 10=
 activate task manager entry 2=
@@ -577,7 +585,7 @@ activate task manager entry 8=
 activate task manager entry 9=
 clear-history=
 clipboard_action=Meta+Ctrl+X
-cycle-panels=Meta+Alt+P
+cycle-panels=
 cycleNextAction=
 cyclePrevAction=
 edit_clipboard=

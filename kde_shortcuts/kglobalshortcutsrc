@@ -163,8 +163,8 @@ Window Raise=,,Raise Window
 Window Resize=,,Resize Window
 Window Shrink Horizontal=,,Shrink Window Horizontally
 Window Shrink Vertical=,,Shrink Window Vertically
-Window to Desktop 1=Meta+Shift+1,,Window to Desktop 1
-Window to Desktop 10=Meta+Shift+0,,Window to Desktop 10
+Window to Desktop 1=Meta+!,,Window to Desktop 1
+Window to Desktop 10=Meta+),,Window to Desktop 10
 Window to Desktop 11=Meta+Shift+Q,,Window to Desktop 11
 Window to Desktop 12=Meta+Shift+W,,Window to Desktop 12
 Window to Desktop 13=Meta+Shift+E,,Window to Desktop 13
@@ -174,20 +174,20 @@ Window to Desktop 16=Meta+Shift+A,,Window to Desktop 16
 Window to Desktop 17=Meta+Shift+S,,Window to Desktop 17
 Window to Desktop 18=Meta+Shift+D,,Window to Desktop 18
 Window to Desktop 19=Meta+Shift+F,,Window to Desktop 19
-Window to Desktop 2=Meta+Shift+2,,Window to Desktop 2
+Window to Desktop 2=Meta+@,,Window to Desktop 2
 Window to Desktop 20=Meta+Shift+G,,Window to Desktop 20
 Window to Desktop 21=,,Window to Desktop 21
 Window to Desktop 22=,,Window to Desktop 22
 Window to Desktop 23=,,Window to Desktop 23
 Window to Desktop 24=,,Window to Desktop 24
 Window to Desktop 25=,,Window to Desktop 25
-Window to Desktop 3=Meta+Shift+3,,Window to Desktop 3
-Window to Desktop 4=Meta+Shift+4,,Window to Desktop 4
-Window to Desktop 5=Meta+Shift+5,,Window to Desktop 5
-Window to Desktop 6=Meta+Shift+6,,Window to Desktop 6
-Window to Desktop 7=Meta+Shift+7,,Window to Desktop 7
-Window to Desktop 8=Meta+Shift+8,,Window to Desktop 8
-Window to Desktop 9=Meta+Shift+9,,Window to Desktop 9
+Window to Desktop 3=Meta+#,,Window to Desktop 3
+Window to Desktop 4=Meta+$,,Window to Desktop 4
+Window to Desktop 5=Meta+%,,Window to Desktop 5
+Window to Desktop 6=Meta+^,,Window to Desktop 6
+Window to Desktop 7=Meta+&,,Window to Desktop 7
+Window to Desktop 8=Meta+*,,Window to Desktop 8
+Window to Desktop 9=Meta+(,,Window to Desktop 9
 Window to Next Desktop=,,Window to Next Desktop
 Window to Next Screen=,Meta+Shift+Right,Move Window to Next Screen
 Window to Previous Desktop=,,Window to Previous Desktop
@@ -200,7 +200,7 @@ Window to Screen 4=,,Move Window to Screen 4
 Window to Screen 5=,,Move Window to Screen 5
 Window to Screen 6=,,Move Window to Screen 6
 Window to Screen 7=,,Move Window to Screen 7
-_k_friendly_name=System Settings
+_k_friendly_name=KWin
 disableInputCapture=,Meta+Shift+Esc,Disable Active Input Capture
 view_actual_size=Meta+Backspace,Meta+0,Zoom to Actual Size
 view_zoom_in=Meta+=,Meta++\tMeta+=,Zoom In
@@ -331,6 +331,9 @@ _launch=Meta+Alt+Y
 [services][net.local.M_C_A.desktop]
 _launch=Meta+Ctrl+A
 
+[services][net.local.M_C_Q-4.desktop]
+_launch=Meta+Ctrl+Q
+
 [services][net.local.M_C_S.desktop]
 _launch=Meta+Ctrl+S
 
@@ -356,8 +359,6 @@ _launch=Search\tAlt+F2
 _launch=
 
 [services][org.kde.spectacle.desktop]
-CurrentMonitorScreenShot=
-OpenWithoutScreenshot=
 RecordRegion=
 RecordScreen=none
 _launch=Print
