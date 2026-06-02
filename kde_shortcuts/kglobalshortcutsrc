@@ -331,7 +331,7 @@ _launch=Meta+Alt+Y
 [services][net.local.M_C_A.desktop]
 _launch=Meta+Ctrl+A
 
-[services][net.local.M_C_Q-4.desktop]
+[services][net.local.M_C_Q.desktop]
 _launch=Meta+Ctrl+Q
 
 [services][net.local.M_C_S.desktop]

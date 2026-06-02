@@ -98,7 +98,7 @@ Name=M_C_F
 Exec=M_C_G
 Name=M_C_G
 
-[Custom Commands][net.local.M_C_Q-4.desktop]
+[Custom Commands][net.local.M_C_Q.desktop]
 Exec=M_C_Q
 Name=M_C_Q
 
@@ -496,7 +496,7 @@ _launch=Meta+Ctrl+F
 [net.local.M_C_G.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+G
 
-[net.local.M_C_Q-4.desktop][Global Shortcuts]
+[net.local.M_C_Q.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+Q
 
 [net.local.M_C_Q.desktop][Global Shortcuts]
