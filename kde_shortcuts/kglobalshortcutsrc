@@ -301,6 +301,9 @@ _launch=Meta+Alt+9
 [services][net.local.M_A_E.desktop]
 _launch=Meta+Alt+E
 
+[services][net.local.M_A_GRAVE.desktop]
+_launch=Meta+Alt+`
+
 [services][net.local.M_A_I.desktop]
 _launch=Meta+Alt+I
 
@@ -327,6 +330,9 @@ _launch=Meta+Alt+W
 
 [services][net.local.M_A_Y.desktop]
 _launch=Meta+Alt+Y
+
+[services][net.local.M_C_1.desktop]
+_launch=Meta+Ctrl+1
 
 [services][net.local.M_C_A.desktop]
 _launch=Meta+Ctrl+A

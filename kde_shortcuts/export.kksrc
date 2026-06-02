@@ -46,6 +46,10 @@ Name=M_A_9
 Exec=M_A_E
 Name=M_A_E
 
+[Custom Commands][net.local.M_A_GRAVE.desktop]
+Exec=M_A_GRAVE
+Name=M_A_GRAVE
+
 [Custom Commands][net.local.M_A_I.desktop]
 Exec=M_A_I
 Name=M_A_I
@@ -81,6 +85,10 @@ Name=M_A_W
 [Custom Commands][net.local.M_A_Y.desktop]
 Exec=M_A_Y
 Name=M_A_Y
+
+[Custom Commands][net.local.M_C_1.desktop]
+Exec=M_C_1
+Name=M_C_1
 
 [Custom Commands][net.local.M_C_A.desktop]
 Exec=M_C_A
@@ -142,7 +150,7 @@ BackwardWord=Ctrl+Left
 Begin=Ctrl+Home
 BeginningOfLine=Home
 Clear=
-Close=Ctrl+W; Ctrl+Esc
+Close=Ctrl+Esc; Ctrl+W
 ConfigureNotifications=
 ConfigureToolbars=
 Copy=Ctrl+C; Ctrl+Ins
@@ -171,7 +179,7 @@ Goto=
 GotoLine=Ctrl+G
 GotoPage=
 Help=F1
-Home=Home Page; Alt+Home
+Home=Alt+Home; Home Page
 KeyBindings=Ctrl+Alt+,
 Mail=
 MoveToTrash=Del
@@ -179,10 +187,10 @@ New=Ctrl+N
 Next=PgDown
 NextCompletion=Ctrl+Down
 Open=Ctrl+O
-OpenContextMenu=Shift+F10; Menu
+OpenContextMenu=Menu; Shift+F10
 OpenMainMenu=F10
 OpenRecent=
-Paste=Shift+Ins; Ctrl+V
+Paste=Ctrl+V; Shift+Ins
 Paste Selection=Ctrl+Shift+Ins
 Preferences=Ctrl+Shift+,
 PrevCompletion=Ctrl+Up
@@ -457,6 +465,9 @@ _launch=Meta+Alt+9
 [net.local.M_A_E.desktop][Global Shortcuts]
 _launch=Meta+Alt+E
 
+[net.local.M_A_GRAVE.desktop][Global Shortcuts]
+_launch=Meta+Alt+`
+
 [net.local.M_A_I.desktop][Global Shortcuts]
 _launch=Meta+Alt+I
 
@@ -483,6 +494,9 @@ _launch=Meta+Alt+W
 
 [net.local.M_A_Y.desktop][Global Shortcuts]
 _launch=Meta+Alt+Y
+
+[net.local.M_C_1.desktop][Global Shortcuts]
+_launch=Meta+Ctrl+1
 
 [net.local.M_C_A.desktop][Global Shortcuts]
 _launch=Meta+Ctrl+A
@@ -553,7 +567,7 @@ _launch=Print
 [org.kde.touchpadshortcuts.desktop][Global Shortcuts]
 DisableTouchpad=Touchpad Off
 EnableTouchpad=Touchpad On
-ToggleTouchpad=Touchpad Toggle; Meta+Ctrl+Zenkaku Hankaku; Meta+Ctrl+Touchpad Toggle
+ToggleTouchpad=Touchpad Toggle; Meta+Ctrl+Touchpad Toggle; Meta+Ctrl+Zenkaku Hankaku
 
 [org_kde_powerdevil][Global Shortcuts]
 Decrease Keyboard Brightness=Keyboard Brightness Down
@@ -561,7 +575,7 @@ Decrease Screen Brightness=Meta+Ctrl+-; Monitor Brightness Down
 Decrease Screen Brightness Small=Shift+Monitor Brightness Down
 Hibernate=Hibernate
 Increase Keyboard Brightness=Keyboard Brightness Up
-Increase Screen Brightness=Meta+Ctrl+=; Monitor Brightness Up
+Increase Screen Brightness=Monitor Brightness Up; Meta+Ctrl+=
 Increase Screen Brightness Small=Shift+Monitor Brightness Up
 PowerDown=Power Down
 PowerOff=Power Off
