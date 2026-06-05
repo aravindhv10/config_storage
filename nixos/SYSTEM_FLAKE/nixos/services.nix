@@ -10,6 +10,11 @@
     thermald.enable = true;
     libinput.enable = true;
 
+    services.onlyoffice = {
+      enable = true;
+      hostname = "localhost";
+    };
+
     nfs = {
       server = {
         enable = true;
