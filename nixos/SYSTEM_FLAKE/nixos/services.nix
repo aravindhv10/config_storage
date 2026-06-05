@@ -10,7 +10,7 @@
     thermald.enable = true;
     libinput.enable = true;
 
-    services.onlyoffice = {
+    onlyoffice = {
       enable = true;
       hostname = "localhost";
     };
