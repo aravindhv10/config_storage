@@ -73,6 +73,8 @@
     nh
     nix-index
     nix-ld
+    onlyoffice-desktopeditors
+    onlyoffice-documentserver
     openconnect
     openssl
     parted
