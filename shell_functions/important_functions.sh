@@ -466,10 +466,18 @@ get_tmux () {
     sh './autogen.sh'
     mkdir -pv -- "${HOME}/build/tmux"
     cd "${HOME}/build/tmux"
-    export CC='gcc'
-    export CXX='g++'
-    export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
-    export LDFLAGS='-Wl,-rpath=/var/tmp/tmux/lib64 -Wl,--dynamic-linker=/var/tmp/tmux/lib64/ld-linux-x86-64.so.2'
+
+    # export CC='gcc'
+    # export CXX='g++'
+    # export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+    # export LDFLAGS='-Wl,-rpath=/var/tmp/tmux/lib64 -Wl,--dynamic-linker=/var/tmp/tmux/lib64/ld-linux-x86-64.so.2'
+    # export LDFLAGS='-Wl,-rpath=/var/tmp/tmux/lib64 -Wl,--dynamic-linker=/var/tmp/tmux/lib64/ld-linux-x86-64.so.2'
+
+    export CC='zig cc'
+    export CXX='zig c++'
+    export CFLAGS='-march=x86_64_v3 -static'
+    export CXXFLAGS='-march=x86_64_v3 -static'
+
     mkdir -pv -- '/var/tmp/tmux/lib64'
     cp -vf -- '/lib64/ld-linux-x86-64.so.2' '/var/tmp/tmux/lib64/ld-linux-x86-64.so.2'
     "${HOME}/GITHUB/tmux/tmux/configure" '--prefix=/var/tmp/tmux' '--enable-sixel'
