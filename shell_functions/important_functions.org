@@ -436,6 +436,7 @@
       export CC='clang'
       export CXX='clang++'
       export CFLAGS='-O3 -march=x86-64-v3 -mtune=native'
+      export CXXFLAGS="${CFLAGS}"
       export LDFLAGS="-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
       export RUSTFLAGS="-C target-cpu=x86-64-v3 -C link-args=-Wl,-rpath=/var/tmp/${PKG_NAME}/lib64 -C link-args=-Wl,--dynamic-linker=/var/tmp/${PKG_NAME}/lib64/ld-linux-x86-64.so.2"
 
@@ -778,7 +779,7 @@
       INSTALL_ZST_ZRCHIVE '75d774faf861ba34c66e0de8f8368c2654ba9361c71cc30ead6f9d1139909aee6d90fd51c527650e40022ac48afb077f321e6e91e28ae5e002df87abdc2f1154' 'alacritty'
       INSTALL_ZST_ZRCHIVE 'ff9fae841fa487900d0048b58d4ce8e5ccaaecf1e661dccd17b409eb9c31f62d2736a408e95669e600787d94fe374d412204c1df81153e774571774b74850dc2' 'xsv'
 
-      INSTALL_ZST_ZRCHIVE '3064a2ddd5b436b3424639ddaf92d5833abb798b733350e49d7d4ffa4c747aac7199acc6dcf9ac1cb681811b9385660498ceea3c055057ac67274d137612c94e' 'STATIC_ZIG_RUST'
+      INSTALL_ZST_ZRCHIVE '7d4e7cf45ac55cf553ad45d2dab46e6d550f3aafe9beb9af414d5523c8a686a4df9b8afaa1cc5e2b0e03df3d9ed2d5d95d0fccd7fdc237b9fb442a75c0478fae' 'STATIC_ZIG_RUST'
 
       INSTALL_ZST_ZRCHIVE '7cb8070019fe64253d4ef6417dfd4a3e073ffe22eb1bd12726a3bed222a5a183737aedc0f5ca1af1c553a0c4f6d1ed7b6cb02ca30712e2609befa51ad2fa57a4' 'helix'
   }
