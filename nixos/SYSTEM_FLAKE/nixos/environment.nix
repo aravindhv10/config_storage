@@ -995,6 +995,7 @@ in {
         (unstable.python313.withPackages (ps:
           with ps; [
             albumentations
+            blake3
             datafusion
             einops
             fastapi
