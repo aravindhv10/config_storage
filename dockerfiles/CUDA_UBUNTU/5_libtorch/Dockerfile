@@ -6,7 +6,7 @@ RUN \
     echo 'START pytorch' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
+        '--extra-index-url' 'https://download.pytorch.org/whl/cu132' \
             'torch' \
             'torchao' \
             'torchvision' \
