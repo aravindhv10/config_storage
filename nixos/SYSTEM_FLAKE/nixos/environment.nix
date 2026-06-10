@@ -54,6 +54,7 @@
     libcap
     libgcc
     libinput
+    libreoffice-qt6
     librsvg
     libseccomp
     libxml2
