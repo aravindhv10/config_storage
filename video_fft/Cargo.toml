@@ -20,6 +20,7 @@ tonic-prost-build = "0.14.2"
 
 [dependencies]
 anyhow = "1.0.102"
+blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
 copyless = "0.1.5"
 flume = "0.12.0"
 futures = "0.3.32"
@@ -33,8 +34,8 @@ prost = "0.14.3"
 rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.50.0", features = ["full"] }
-tonic = { version = "0.14.5", features = ["zstd"] }
 tonic-prost = "0.14.5"
 tonic-reflection = "0.14.5"
+tonic = { version = "0.14.5", features = ["zstd"] }
 
-tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
+tch = { version = "0.24.0", features = ["serde_json", "regex", "memmap2", "image"] }

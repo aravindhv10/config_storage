@@ -185,7 +185,7 @@ impl fft_video {
 
             let data: *mut Self = store.as_mut_ptr();
 
-            unsafe {
+            let status: i32 = unsafe {
                 export::do_fft_compress_efficient(
                     /*blob: *mut ::std::os::raw::c_void =*/
                     tensor_video_input.data_ptr(),
@@ -198,7 +198,15 @@ impl fft_video {
                     /*dest: *mut ::std::os::raw::c_void =*/
                     data as *mut ::std::os::raw::c_void,
                     /*bool use_gpu =*/ use_gpu,
-                );
+                )
+            } as i32;
+
+            if status != 0 {
+                eprintln!("FFT step failed with exit status {}...", status);
+                return Err(anyhow::format_err!(
+                    "FFT step failed with exit status {}...",
+                    status
+                ));
             }
         }
 

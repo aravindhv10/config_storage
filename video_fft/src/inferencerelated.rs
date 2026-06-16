@@ -63,7 +63,7 @@ impl infer_slave {
         let blob_destination_base = ret.as_mut_ptr();
 
         for i in 0..num_batches {
-            unsafe {
+            let status = unsafe {
                 export::run_infer_slave(
                     /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
                     /*blob_source: *mut ::std::os::raw::c_void =*/
@@ -73,7 +73,11 @@ impl infer_slave {
                     blob_destination_base.add(i * (self.batch_size as usize))
                         as *mut ::std::os::raw::c_void,
                 )
-            };
+            } as i32;
+
+            if status != 0 {
+                eprintln!("Inference failed with error code {}", status);
+            }
         }
 
         unsafe {
