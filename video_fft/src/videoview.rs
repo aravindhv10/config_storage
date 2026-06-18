@@ -1,8 +1,8 @@
 use crate::videofn;
 
 pub struct video_slicer {
-    path_file_video_input: String,
-    path_file_rawvideo_output: String,
+    path_file_video_input: std::path::PathBuf,
+    path_file_rawvideo_output: std::path::PathBuf,
 
     fps: f32,
 
@@ -21,39 +21,41 @@ pub struct video_slicer {
 
 impl Drop for video_slicer {
     fn drop(&mut self) {
-        let _ = std::fs::remove_file(self.path_file_rawvideo_output.as_str());
+        let _ = std::fs::remove_file(&(self.path_file_rawvideo_output));
     }
 }
 
 impl video_slicer {
     pub fn new(
-        path_file_video_input: String,
-        mut path_file_rawvideo_output: Option<String>,
+        path_file_video_input: impl AsRef<std::path::Path>,
+        mut path_file_rawvideo_output: Option<std::path::PathBuf>,
         fps: f32,
         size_x: u16,
         size_y: u16,
         size_c: u8,
     ) -> anyhow::Result<Self> {
         if path_file_rawvideo_output.is_none() {
-            let name_hash: u64 = videofn::get_str_hash(path_file_video_input.as_str());
-            let hash: u64 = videofn::get_file_hash(path_file_video_input.as_str())?;
-            path_file_rawvideo_output = Some(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
+            let name_hash: u64 = videofn::get_path_hash(path_file_video_input.as_ref());
+            let hash: u64 = videofn::get_file_hash(path_file_video_input.as_ref())?;
+            let tmppath =
+                std::path::PathBuf::from(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
+            path_file_rawvideo_output = Some(tmppath);
         }
 
-        let path_file_rawvideo_output: String = path_file_rawvideo_output.unwrap();
+        let path_file_rawvideo_output: std::path::PathBuf = path_file_rawvideo_output.unwrap();
 
         videofn::convert_encoded_video_to_raw(
-            path_file_video_input.as_str(),
-            path_file_rawvideo_output.as_str(),
+            &path_file_video_input,
+            &path_file_rawvideo_output,
             fps,
             size_x,
             size_y,
             size_c,
         )?;
 
-        let file: std::fs::File = std::fs::File::open(path_file_rawvideo_output.as_str())?;
+        let file: std::fs::File = std::fs::File::open(&path_file_rawvideo_output)?;
         let mmap_result = unsafe { memmap2::Mmap::map(&file) };
-        let _ = std::fs::remove_file(path_file_rawvideo_output.as_str());
+        let _ = std::fs::remove_file(&path_file_rawvideo_output);
         let mmap: memmap2::Mmap = mmap_result?;
 
         let size_t: u16 =
@@ -67,7 +69,7 @@ impl video_slicer {
         let dist_t: usize = dist_y * (size_y as usize);
 
         let ret: Self = Self {
-            path_file_video_input: path_file_video_input,
+            path_file_video_input: path_file_video_input.as_ref().to_path_buf(),
             path_file_rawvideo_output: path_file_rawvideo_output,
             fps: fps,
 
@@ -206,7 +208,7 @@ impl video_slicer_piped {
     }
 
     pub fn new(
-        path_file_video_input: String,
+        path_file_video_input: impl AsRef<std::path::Path>,
         fps: f32,
         size_x: u16,
         size_y: u16,
@@ -214,7 +216,7 @@ impl video_slicer_piped {
         clean_video: bool,
     ) -> anyhow::Result<Self> {
         let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
-            /*path_file_video_input: &str =*/ path_file_video_input.as_str(),
+            /*path_file_video_input: &str =*/ path_file_video_input.as_ref(),
             /*fps: f32 =*/ fps as f32,
             /*size_x: u16 =*/ size_x as u16,
             /*size_y: u16 =*/ size_y as u16,

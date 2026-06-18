@@ -1,20 +1,20 @@
-use mimalloc::MiMalloc;
-
 #[global_allocator]
-static GLOBAL: MiMalloc = MiMalloc;
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 mod export;
 mod inferencerelated;
+mod inferencerelatedimage;
 mod videofft;
 mod videofftstats;
 mod videofn;
 mod videoview;
 
-use anyhow::Context;
+use anyhow::{Context, Result};
 use rayon::prelude::*;
 use tch::IndexOp;
 
 const USE_GPU: bool = true;
+const IMAGE_INFERENCE_BATCH_SIZE: i64 = 16;
 
 fn infer_video_end_2_end(
     path_file_video_input: String,
@@ -30,6 +30,23 @@ fn infer_video_end_2_end(
     )?;
 
     let video_tensor = slicer.get_video_tensor()?;
+
+    let size = video_tensor.size(); // B H W C
+
+    {
+        let image_indices: std::vec::Vec<i64> = (0..16)
+            .map(|x: i64| (size[0] * x) / (IMAGE_INFERENCE_BATCH_SIZE - 1))
+            .collect();
+
+        let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
+
+        let image_tensor =
+            video_tensor.index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor);
+
+        let mut slave = inferencerelatedimage::infer_slave::new(/*batch_size =*/ 16);
+        let res = slave.infer(&image_tensor)?;
+        tracing::trace!("{:?}", res);
+    }
 
     let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
         /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
@@ -55,7 +72,7 @@ fn infer_video_end_2_end(
     )?;
 
     for i in ret.iter() {
-        println!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
+        tracing::trace!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
     }
 
     return Ok(ret);

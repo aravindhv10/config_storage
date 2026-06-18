@@ -1,11 +1,14 @@
-use mimalloc::MiMalloc;
-
 #[global_allocator]
-static GLOBAL: MiMalloc = MiMalloc;
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 mod export;
+mod hasher;
 mod inferencerelated;
+mod inferencerelatedimage;
 mod lockssync;
+mod serverinferencechannel;
+mod serverinferencechannelboth;
+mod serverinferencechannelimage;
 mod videofft;
 mod videofftstats;
 mod videofn;
@@ -14,6 +17,7 @@ mod videoview;
 use anyhow::Context;
 use rayon::prelude::*;
 use tch::IndexOp;
+// use log::{info, trace, warn};
 
 pub mod infer {
     tonic::include_proto!("myrdvideoinferinfer");
@@ -23,521 +27,19 @@ pub mod infer {
 
 const USE_GPU: bool = true;
 
-struct message_input {
-    tensor: Vec<videofft::fft_video>,
-    oneshot_send_channel: Vec<oneshot::Sender<inferencerelated::infer_results>>,
-}
-
-struct inference_communicator {
-    sender: flume::Sender<message_input>,
-    normalizer: std::boxed::Box<videofftstats::fft_video_normalizer>,
-}
-
-impl inference_communicator {
-    fn new(sender_in: flume::Sender<message_input>) -> Self {
-        println!("Building inference communicator");
-        let normalizer = videofftstats::fft_video_normalizer::new(
-            /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
-            /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
-        )
-        .unwrap();
-
-        println!("Built inference communicator");
-
-        Self {
-            sender: sender_in,
-            normalizer: normalizer,
-        }
-    }
-
-    fn do_infer_on_fft_tensor(
-        &self,
-        mut tensors_input: Vec<videofft::fft_video>,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        self.normalizer.normalize_vec(
-            /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
-        );
-
-        let mut oneshot_receive_channel =
-            Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
-                tensors_input.len(),
-            );
-
-        let msg = {
-            let mut oneshot_send_channel =
-                Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
-                    tensors_input.len(),
-                );
-
-            for i in 0..tensors_input.len() {
-                let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-                oneshot_send_channel.push(sender);
-                oneshot_receive_channel.push(receiver);
-            }
-
-            message_input {
-                tensor: tensors_input,
-                oneshot_send_channel: oneshot_send_channel,
-            }
-        };
-
-        self.sender.send(msg);
-
-        let mut ret =
-            Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
-
-        for i in oneshot_receive_channel.into_iter() {
-            ret.push(i.recv()?);
-        }
-
-        return Ok(ret);
-    }
-
-    fn do_infer_on_video_file(
-        &self,
-        path_file_video_input: &str,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        let mut list_video_fft_tensor = {
-            let slicer = videoview::video_slicer_piped::new(
-                /*path_file_video_input: String =*/ path_file_video_input.to_string(),
-                /*fps: f32 =*/ 8 as f32,
-                /*size_x: u16 =*/ 1280 as u16,
-                /*size_y: u16 =*/ 720 as u16,
-                /*size_c: u8 =*/ 3 as u8,
-                /*clean_video: bool =*/ true,
-            )?;
-
-            let video_tensor = slicer.get_video_tensor()?;
-
-            videofft::fft_video::windowed_from_torch_video_tensor(
-                /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-                /*use_gpu: bool =*/ true,
-            )?
-        };
-
-        self.do_infer_on_fft_tensor(list_video_fft_tensor)
-    }
-
-    async fn do_infer_on_fft_tensor_async(
-        &self,
-        mut tensors_input: Vec<videofft::fft_video>,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        self.normalizer.normalize_vec(
-            /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
-        );
-
-        let mut oneshot_receive_channel =
-            Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
-                tensors_input.len(),
-            );
-
-        let msg = {
-            let mut oneshot_send_channel =
-                Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
-                    tensors_input.len(),
-                );
-
-            for i in 0..tensors_input.len() {
-                let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
-                oneshot_send_channel.push(sender);
-                oneshot_receive_channel.push(receiver);
-            }
-
-            message_input {
-                tensor: tensors_input,
-                oneshot_send_channel: oneshot_send_channel,
-            }
-        };
-
-        self.sender.send(msg);
-
-        let mut ret =
-            Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
-
-        for i in oneshot_receive_channel.into_iter() {
-            ret.push(i.await?);
-        }
-
-        return Ok(ret);
-    }
-}
-
-struct inference_slave {
-    receiver: flume::Receiver<message_input>,
-}
-
-impl inference_slave {
-    pub fn new() -> (Self, inference_communicator) {
-        println!("Building inference_slave");
-        let (sender, receiver) = flume::unbounded::<message_input>();
-        println!("Built inference_slave");
-        return (
-            Self { receiver: receiver },
-            inference_communicator::new(sender),
-        );
-    }
-
-    fn efficient_infer(
-        vals: &mut Vec<videofft::fft_video>,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        match vals.len() {
-            0 => {
-                return Err(anyhow::format_err!("Input vector is empty..."));
-            }
-            1 => {
-                eprintln!("Inferring for length 1");
-                let mut infer_slave = inferencerelated::infer_slave::new(1);
-                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
-                return Ok(ret);
-            }
-            2 => {
-                eprintln!("Inferring for length 2");
-                let mut infer_slave = inferencerelated::infer_slave::new(2);
-                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
-                return Ok(ret);
-            }
-            3 | 6 | 9 | 15 | 18 | 21 | 27 | 30 => {
-                eprintln!("Inferring for length 3");
-                let mut infer_slave = inferencerelated::infer_slave::new(3);
-                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
-                return Ok(ret);
-            }
-            4 | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 40 => {
-                eprintln!("Inferring for length 4");
-                let mut infer_slave = inferencerelated::infer_slave::new(4);
-                let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
-                return Ok(ret);
-            }
-            5 => {
-                eprintln!("Inferring for length 5");
-
-                let split_off_point = 4 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            7 => {
-                eprintln!("Inferring for length 7");
-
-                let split_off_point = 4 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            10 => {
-                eprintln!("Inferring for length 10");
-
-                let split_off_point = 8 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            11 => {
-                eprintln!("Inferring for length 11");
-
-                let split_off_point = 8 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            13 => {
-                eprintln!("Inferring for length 13");
-
-                let split_off_point = 12 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            14 => {
-                eprintln!("Inferring for length 14");
-
-                let split_off_point = 12 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            17 => {
-                eprintln!("Inferring for length 17");
-
-                let split_off_point = 16 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            19 => {
-                eprintln!("Inferring for length 19");
-
-                let split_off_point = 16 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            22 => {
-                eprintln!("Inferring for length 19");
-
-                let split_off_point = 20 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            23 => {
-                eprintln!("Inferring for length 23");
-
-                let split_off_point = 20 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            25 => {
-                eprintln!("Inferring for length 25");
-
-                let split_off_point = 24 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            26 => {
-                eprintln!("Inferring for length 26");
-
-                let split_off_point = 24 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            29 => {
-                eprintln!("Inferring for length 29");
-
-                let split_off_point = 28 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-            _ => {
-                eprintln!("Inferring for length 29");
-
-                let split_off_point = 30 as usize;
-
-                let mut vals_2 = vals.split_off(split_off_point);
-
-                let mut ret = Self::efficient_infer(vals)?;
-
-                let mut ret_2 = Self::efficient_infer(&mut vals_2)?;
-
-                ret.append(&mut ret_2);
-
-                return Ok(ret);
-            }
-        }
-    }
-
-    pub fn inference_loop(&self) -> anyhow::Result<()> {
-        println!("Started inference_loop");
-        loop {
-            let mut tensors = Vec::<videofft::fft_video>::new();
-            let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
-            let mut do_loop = true;
-            let mut do_infer = false;
-
-            if true {
-                let input_msg = self.receiver.recv();
-
-                match input_msg {
-                    Ok(o) => {
-                        tensors.extend_from_slice(o.tensor.as_slice());
-
-                        for i in o.oneshot_send_channel.into_iter() {
-                            senders.push(i);
-                        }
-
-                        do_loop = tensors.len() <= 20;
-                        do_infer = true;
-                    }
-                    Err(e) => {
-                        do_loop = false;
-                        do_infer = false;
-                    }
-                }
-            }
-
-            while do_loop {
-                let message_input = self
-                    .receiver
-                    .recv_timeout(std::time::Duration::from_millis(200));
-
-                match message_input {
-                    Ok(o) => {
-                        tensors.extend_from_slice(o.tensor.as_slice());
-
-                        for i in o.oneshot_send_channel.into_iter() {
-                            senders.push(i);
-                        }
-
-                        do_loop = tensors.len() <= 20;
-                        do_infer = true;
-                    }
-                    Err(e) => {
-                        do_loop = false;
-                    }
-                }
-            }
-
-            if do_infer {
-                let ret = Self::efficient_infer(
-                    /*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors,
-                )?;
-                for (i, j) in ret.into_iter().zip(senders.into_iter()) {
-                    j.send(i);
-                }
-            }
-        }
-
-        Ok(())
-    }
-}
-
-struct inference_pair {
-    slave_sender: inference_communicator,
-    handle: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
-}
-
-impl Drop for inference_pair {
-    fn drop(&mut self) {
-        if let Some(handle) = self.handle.take() {
-            let _ = handle.join();
-        }
-    }
-}
-
-impl inference_pair {
-    fn new() -> Self {
-        println!("Building inference_pair");
-        let (slave_inf, slave_sender) = inference_slave::new();
-        let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
-
-        println!("Built inference_pair");
-        Self {
-            slave_sender: slave_sender,
-            handle: Some(handle_inference),
-        }
-    }
-
-    fn do_infer_on_fft_tensor(
-        &self,
-        mut tensors_input: Vec<videofft::fft_video>,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        self.slave_sender.do_infer_on_fft_tensor(tensors_input)
-    }
-
-    fn do_infer_on_video_file(
-        &self,
-        path_file_video_input: &str,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        self.slave_sender
-            .do_infer_on_video_file(/*path_file_video_input: &str =*/ path_file_video_input)
-    }
-}
-
 struct grpc_inferer {
-    infpair: std::sync::Arc<inference_pair>,
+    infpair: std::sync::Arc<serverinferencechannelboth::combined_infer>,
+    semaphore: std::sync::Arc<tokio::sync::Semaphore>,
 }
 
 impl grpc_inferer {
     fn new() -> Self {
-        println!("Building grpc_inferer");
         let ret = Self {
-            infpair: std::sync::Arc::<inference_pair>::new(inference_pair::new()),
+            infpair: std::sync::Arc::<serverinferencechannelboth::combined_infer>::new(
+                serverinferencechannelboth::combined_infer::new(),
+            ),
+            semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(6)),
         };
-        println!("Returning grpc_inferer");
         return ret;
     }
 }
@@ -548,44 +50,81 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
         &self,
         request: tonic::Request<infer::Grpcvideodata>,
     ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
-        println!("Called doinfer");
+        tracing::info!("Received an inference request");
+        let path_dir_prefix = std::path::PathBuf::from("/dev/shm/RD/video");
+
+        let _ = tokio::fs::create_dir_all(&path_dir_prefix).await?;
+
         let video_data = &(request.into_inner().data);
-        let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
-        let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
-        if (tokio::fs::try_exists(path_file_video_output.as_str()).await?) {
+
+        let hash = hasher::blob_hash::new_from_slice(video_data.as_slice());
+
+        let hash_string = hash.get_hash_string();
+        tracing::info!("Hash of received video {}", hash_string);
+
+        let path_file_video_output = path_dir_prefix.join(hash_string);
+
+        if (tokio::fs::try_exists(&path_file_video_output).await?) {
+            tracing::error!("File already exists {:?}", path_file_video_output);
             return Err(tonic::Status::internal(
                 "Same file is already being processed...",
             ));
         } else {
-            tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
-        }
+            let _ = tokio::fs::write(&path_file_video_output, video_data).await?;
 
-        let infpair = self.infpair.clone();
-        let path = path_file_video_output.clone();
-        let res = tokio::task::spawn_blocking(move || infpair.do_infer_on_video_file(&path))
+            let infpair = self.infpair.clone();
+
+            let path_file_video_output_tmp = path_file_video_output.clone();
+
+            let _permit = self
+                .semaphore
+                .acquire()
+                .await
+                .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
+
+            let res = tokio::task::spawn_blocking(move || {
+                infpair.do_infer_on_video_file(&path_file_video_output_tmp)
+            })
             .await
             .expect("The blocking task panicked");
 
-        // let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+            match res {
+                Ok(o) => {
+                    let preds: Vec<infer::Grpcvideoprediction> =
+                        o.0.iter()
+                            .map(|i| infer::Grpcvideoprediction {
+                                pa: i.p_calm,
+                                pb: i.p_contraversial,
+                                pc: i.p_rd,
+                            })
+                            .collect();
 
-        match res {
-            Ok(o) => {
-                let preds: Vec<infer::Grpcvideoprediction> = o
-                    .iter()
-                    .map(|i| infer::Grpcvideoprediction {
-                        pa: i.p_calm,
-                        pb: i.p_contraversial,
-                        pc: i.p_rd,
-                    })
-                    .collect();
-                let avg = o.iter().map(|i| i.majority() as f32).sum::<f32>() / (o.len() as f32);
-                return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
-                    preds: preds,
-                    majority: avg,
-                }));
-            }
-            Err(e) => {
-                return Err(tonic::Status::internal("Internal error, inference failed"));
+                    let avg =
+                        o.0.iter().map(|i| i.majority() as f32).sum::<f32>() / (o.0.len() as f32);
+
+                    let bed_scaling_factor: f32 =
+                        o.1.iter().map(|x| x.bed_status()).sum::<f32>() / (o.1.len() as f32);
+
+                    let imgpreds: Vec<infer::Grpcimgprediction> =
+                        o.1.into_iter()
+                            .map(|i| infer::Grpcimgprediction {
+                                arm: i.ARM as u32,
+                                rail: i.RAIL as u32,
+                                leg: i.LEG as u32,
+                                pos: i.POS as u32,
+                                bed: i.BED as u32,
+                            })
+                            .collect();
+
+                    return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
+                        preds: preds,
+                        majority: avg * bed_scaling_factor,
+                        imgpreds: imgpreds,
+                    }));
+                }
+                Err(e) => {
+                    return Err(tonic::Status::internal("Internal error, inference failed"));
+                }
             }
         }
 
@@ -594,43 +133,65 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
 }
 
 fn main() -> anyhow::Result<()> {
-    println!("Setting to inference mode");
+    // tracing_subscriber::fmt()
+    //         .with_writer(std::io::stderr)
+    //         .with_max_level(tracing::Level::INFO)
+    //         .init();
+
+    tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
     unsafe { export::locker_to_inference_mode() };
 
-    println!("Setting address");
     let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
     let port: u16 = 8001;
     let addr = std::net::SocketAddr::new(ip_v4, port);
 
-    println!("Building the runtime");
     let rt = tokio::runtime::Builder::new_multi_thread()
         .thread_stack_size(1 << 28)
         .enable_all()
         .build()
         .unwrap();
 
-    println!("Tonic reflection parts");
     let service = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
         .build_v1()
         .unwrap();
 
-    println!("Starting the tonic service");
+    // rt.block_on(async {
+    //     println!("Server attempting to bind to {}", addr);
+    //     let result = tonic::transport::Server::builder()
+    //         .max_concurrent_streams(Some(4))
+    //         .add_service(service)
+    //         .add_service(
+    //             infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
+    //                 .max_encoding_message_size(1 << 25)
+    //                 .max_decoding_message_size(1 << 25),
+    //         )
+    //         .serve(addr)
+    //         .await;
+
+    //     if let Err(e) = result {
+    //         eprintln!("Server exited with error: {}", e);
+    //     }
+    // });
+
     rt.block_on(async {
-        println!("Server attempting to bind to {}", addr);
+        tracing::warn!("Server attempting to bind to {}", addr);
         let result = tonic::transport::Server::builder()
-            .max_concurrent_streams(Some(4))
             .add_service(service)
             .add_service(
                 infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
-                    .max_encoding_message_size(1 << 25)
-                    .max_decoding_message_size(1 << 25),
+                    .max_encoding_message_size(1 << 26)
+                    .max_decoding_message_size(1 << 26),
             )
             .serve(addr)
             .await;
 
         if let Err(e) = result {
-            eprintln!("Server exited with error: {}", e);
+            tracing::error!("Server exited with error: {}", e);
         }
     });
 

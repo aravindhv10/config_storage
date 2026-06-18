@@ -38,7 +38,7 @@ impl Drop for infer_slave {
 
 impl infer_slave {
     pub fn new(batch_size: u8) -> Self {
-        println!("batch size called with : {}", batch_size);
+        tracing::debug!("batch size called with : {}", batch_size);
         Self {
             slave: unsafe { export::new_infer_slave(batch_size) },
             batch_size: batch_size,
@@ -63,7 +63,7 @@ impl infer_slave {
         let blob_destination_base = ret.as_mut_ptr();
 
         for i in 0..num_batches {
-            unsafe {
+            let status = unsafe {
                 export::run_infer_slave(
                     /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
                     /*blob_source: *mut ::std::os::raw::c_void =*/
@@ -73,7 +73,11 @@ impl infer_slave {
                     blob_destination_base.add(i * (self.batch_size as usize))
                         as *mut ::std::os::raw::c_void,
                 )
-            };
+            } as i32;
+
+            if status != 0 {
+                tracing::error!("Inference failed with error code {}", status);
+            }
         }
 
         unsafe {

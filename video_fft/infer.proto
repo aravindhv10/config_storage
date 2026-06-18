@@ -16,7 +16,16 @@ message Grpcvideoprediction {
     float pc = 3;
 }
 
+message Grpcimgprediction {
+    uint32 arm = 1; 
+    uint32 rail = 2; 
+    uint32 leg = 3; 
+    uint32 pos = 4; 
+    uint32 bed = 5; 
+}
+
 message Grpcvideopredictionreply {
     repeated Grpcvideoprediction preds = 1;
     float majority = 2;
+    repeated Grpcimgprediction imgpreds = 3;
 }

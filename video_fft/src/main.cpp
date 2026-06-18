@@ -1,47 +1,10 @@
 #include "./main.hpp"
 
-inline torch::TensorOptions get_input_device_and_dtype() {
-  printf("Called get_host_input_device_and_dtype()\n");
-  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-}
+unsigned int constexpr IMAGE_RESOLUTION = 448;
+unsigned int constexpr NUM_CHANNELS = 3;
+unsigned int constexpr IMAGE_SIZE = IMAGE_RESOLUTION * IMAGE_RESOLUTION * NUM_CHANNELS ;
 
-inline torch::TensorOptions get_inference_device_and_dtype() {
-  printf("Called get_good_device_and_dtype()\n");
-  if (torch::cuda::is_available()) {
-    printf("Returning cuda\n");
-    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCUDA);
-  } else {
-    printf("Returning cpu\n");
-    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-  }
-}
-
-inline torch::TensorOptions get_output_device_and_dtype() {
-  printf("get_host_output_device_and_dtype started\n");
-  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-}
-
-inline std::string get_compiled_model_path(unsigned char i) {
-  switch (i) {
-  case 1:
-    return std::string("/root/.cache/model_1.pt2");
-  case 2:
-    return std::string("/root/.cache/model_2.pt2");
-  case 3:
-    return std::string("/root/.cache/model_3.pt2");
-  case 4:
-    return std::string("/root/.cache/model_4.pt2");
-  default:
-    return std::string("/root/.cache/model_1.pt2");
-  }
-}
-
-void clear_cuda_cache() {
-#ifdef USE_CUDA
-  c10::cuda::CUDACachingAllocator::emptyCache();
-  printf("Cleaned cuda cache...\n");
-#endif
-}
+unsigned int constexpr NUM_CLASSES = 5;
 
 #define _MACRO_SELF_ file_mlock
 class _MACRO_SELF_ {
@@ -49,26 +12,36 @@ private:
   int fd;
   void *addr;
   struct stat st;
-  bool initialized;
+  char initialized;
 
 public:
   _MACRO_SELF_(char const *path_file_input)
       : fd(open(path_file_input, O_RDONLY)), initialized(false) {
     if (fd == -1) {
       printf("Error opening file %s\n", path_file_input);
+      initialized = -1;
     } else {
       if (fstat(fd, &st)) {
         printf("fstat failed...\n");
+        initialized = -2;
+        close(fd);
       } else {
         addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
         if (addr == MAP_FAILED) {
           printf("mmap failed...\n");
+          close(fd);
+          initialized = -3;
         } else {
           if (mlock(addr, st.st_size) == 0) {
             printf("File locked in RAM successfully.\n");
-            initialized = true;
+            initialized = 0;
           } else {
             printf("mlock failed...\n");
+            munmap(addr, st.st_size);
+            close(fd);
+            addr = MAP_FAILED;
+            initialized = -4;
+            fd = -1;
           }
         }
       }
@@ -82,8 +55,7 @@ public:
     if (fd != -1) {
       close(fd);
     }
-
-    initialized = false;
+    initialized = -5;
   }
 };
 #undef _MACRO_SELF_
@@ -163,6 +135,50 @@ void named_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
 
 #undef _MACRO_SELF_
 
+inline std::string get_vsitter_compiled_model_path() {
+  return std::string("/root/.cache/model_vsitter.pt2");
+}
+
+inline std::string get_compiled_model_path(unsigned char i) {
+  switch (i) {
+  case 1:
+    return std::string("/root/.cache/model_1.pt2");
+  case 2:
+    return std::string("/root/.cache/model_2.pt2");
+  case 3:
+    return std::string("/root/.cache/model_3.pt2");
+  case 4:
+    return std::string("/root/.cache/model_4.pt2");
+  default:
+    return std::string("/root/.cache/model_1.pt2");
+  }
+}
+
+template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
+template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
+template <> inline torch::ScalarType get_tensor_dtype<float64_t>() {return torch::kFloat64;}
+template <> inline torch::ScalarType get_tensor_dtype<int16_t>() { return torch::kInt16; }
+template <> inline torch::ScalarType get_tensor_dtype<int32_t>() { return torch::kInt32; }
+template <> inline torch::ScalarType get_tensor_dtype<int64_t>() { return torch::kInt64; }
+template <> inline torch::ScalarType get_tensor_dtype<int8_t>() { return torch::kInt8; }
+template <> inline torch::ScalarType get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
+template <> inline torch::ScalarType get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
+template <> inline torch::ScalarType get_tensor_dtype<uint64_t>() { return torch::kInt64; }
+template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
+
+inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
+  auto size = tensor_input.sizes();
+  auto h = size[1];
+  auto w = size[2];
+  if (h<w) {
+    return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
+  } else if (w<h) {
+    return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, h-w, 0, 0}));
+  } else {
+    return tensor_input.detach();
+  }
+}
+
 #define _MACRO_SELF_ gpu_locker
 
 class _MACRO_SELF_ {
@@ -189,7 +205,7 @@ public:
 
     printf("Locking compiled models into memory\n");
     if (mem_locks.size() == 0) {
-      mem_locks.reserve(4);
+      mem_locks.reserve(5);
 
       mem_locks.push_back(
           get_compiled_model_path(/*unsigned char i =*/1).c_str());
@@ -199,25 +215,28 @@ public:
           get_compiled_model_path(/*unsigned char i =*/3).c_str());
       mem_locks.push_back(
           get_compiled_model_path(/*unsigned char i =*/4).c_str());
+
+      mem_locks.push_back(get_vsitter_compiled_model_path().c_str());
     }
   }
 
   inline void l() {
     if (torch::cuda::is_available()) {
       if (for_inference_server) {
-        // gpu_semaphore.l();
-        gpu_semaphore_named.l();
+        gpu_semaphore.l();
+        // gpu_semaphore_named.l();
       } else {
         gpu_semaphore.l();
       }
     }
   }
+
   inline void r() {
     if (torch::cuda::is_available()) {
       if (for_inference_server) {
         clear_cuda_cache();
-        gpu_semaphore_named.r();
-        // gpu_semaphore.r();
+        // gpu_semaphore_named.r();
+        gpu_semaphore.r();
       } else {
         gpu_semaphore.r();
       }
@@ -234,108 +253,15 @@ void locker_to_preprocessing_mode() { locker.configure_for_preprocessing(); }
 
 #undef _MACRO_SELF_
 
-#define _MACRO_SELF_ infer_slave
+#define _MACRO_SELF_ lock_guard
 
 class _MACRO_SELF_ {
-private:
-  torch::TensorOptions options_input;
-  torch::TensorOptions options_compute;
-  torch::TensorOptions options_output;
-
-  torch::inductor::AOTIModelPackageLoader loader;
-  std::size_t batch_size;
-  std::size_t bytes_to_copy;
-
-  c10::InferenceMode mode;
-
 public:
-  inline void infer(void *blob_source, void *blob_destination) {
-    try {
-      torch::Tensor cpu_tensor = torch::from_blob(
-          blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
-          options_input);
-
-      std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
-
-      std::vector<torch::Tensor> outputs = loader.run(inputs);
-
-      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
-
-      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
-
-    } catch (const std::exception &e) {
-
-      std::memset(blob_destination, 0, bytes_to_copy);
-
-      printf("Error: %s\n", e.what());
-    }
-  }
-
-  _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
-      : options_input(get_input_device_and_dtype()),
-        options_compute(get_inference_device_and_dtype()),
-        options_output(get_output_device_and_dtype()), loader(path_file_model),
-        batch_size(BATCH_SIZE),
-        bytes_to_copy(batch_size * 3 * sizeof(outtype)) {
-    locker.l();
-  }
-
+  _MACRO_SELF_() { locker.l(); }
   ~_MACRO_SELF_() { locker.r(); }
-
-  inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
-    BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
-    std::string path_file_model("/root/.cache/model_6.pt2");
-    path_file_model[19] = '0' + BATCH_SIZE;
-    std::cout << "Checkpoint path: " << path_file_model << std::endl;
-    return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
-  }
 };
 
-extern "C" {
-void *new_infer_slave(unsigned char batch_size) {
-  return static_cast<void *>(
-      _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
-}
-
-void delete_infer_slave(void *in) {
-  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
-  delete tmp;
-}
-
-void run_infer_slave(void *in, void *blob_source, void *blob_destination) {
-  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
-
-  tmp->infer(/*void *blob_source =*/blob_source,
-             /*void *blob_destination =*/blob_destination);
-}
-}
-
 #undef _MACRO_SELF_
-
-template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
-template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
-template <> inline torch::ScalarType get_tensor_dtype<float64_t>() {return torch::kFloat64;}
-template <> inline torch::ScalarType get_tensor_dtype<int16_t>() { return torch::kInt16; }
-template <> inline torch::ScalarType get_tensor_dtype<int32_t>() { return torch::kInt32; }
-template <> inline torch::ScalarType get_tensor_dtype<int64_t>() { return torch::kInt64; }
-template <> inline torch::ScalarType get_tensor_dtype<int8_t>() { return torch::kInt8; }
-template <> inline torch::ScalarType get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
-template <> inline torch::ScalarType get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
-template <> inline torch::ScalarType get_tensor_dtype<uint64_t>() { return torch::kInt64; }
-template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
-
-inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
-  auto size = tensor_input.sizes();
-  auto h = size[1];
-  auto w = size[2];
-  if (h<w) {
-    return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
-  } else if (w<h) {
-    return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, h-w, 0, 0}));
-  } else {
-    return tensor_input.detach();
-  }
-}
 
 extern "C" {
 int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
@@ -380,8 +306,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             .item()
             .to<uint16_t>();
 
-    printf("Acquiring lock\n");
-    locker.l();
+    lock_guard tmp;
 
     torch::Tensor tensor_video_padded =
         torch::from_blob(
@@ -448,9 +373,6 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             .to(torch::kCPU)
             .contiguous();
 
-    locker.r();
-    printf("Released lock\n");
-
     std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
                 compressed_tensor_video_fft.nbytes());
 
@@ -463,3 +385,211 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   }
 }
 }
+
+void clear_cuda_cache() {
+#ifdef USE_CUDA
+  c10::cuda::CUDACachingAllocator::emptyCache();
+  printf("Cleaned cuda cache...\n");
+#endif
+}
+
+inline torch::TensorOptions get_image_input_device_and_dtype() {
+  return torch::TensorOptions()
+      .dtype(get_tensor_dtype<unsigned char>())
+      .device(torch::kCPU);
+}
+
+inline torch::TensorOptions get_input_device_and_dtype() {
+  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+}
+
+inline torch::TensorOptions get_image_inference_device_and_dtype() {
+  if (torch::cuda::is_available()) {
+    return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCUDA);
+  } else {
+    return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCPU);
+  }
+}
+
+inline torch::TensorOptions get_inference_device_and_dtype() {
+  if (torch::cuda::is_available()) {
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCUDA);
+  } else {
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+  }
+}
+
+inline torch::TensorOptions get_image_output_device_and_dtype() {
+  return torch::TensorOptions()
+      .dtype(get_tensor_dtype<long>())
+      .device(torch::kCPU);
+}
+
+inline torch::TensorOptions get_output_device_and_dtype() {
+  return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+}
+
+#define _MACRO_SELF_ infer_slave_image
+
+class _MACRO_SELF_ {
+private:
+  torch::TensorOptions options_input;
+  torch::TensorOptions options_compute;
+  torch::TensorOptions options_output;
+
+  torch::inductor::AOTIModelPackageLoader loader;
+  std::size_t batch_size;
+  std::size_t bytes_to_copy;
+
+  c10::InferenceMode mode;
+
+  lock_guard tmp;
+
+public:
+  inline int infer(void *blob_source, void *blob_destination) {
+
+    try {
+
+      torch::Tensor cpu_tensor =
+          torch::from_blob(blob_source,
+                           {static_cast<long>(batch_size), IMAGE_RESOLUTION,
+                            IMAGE_RESOLUTION, NUM_CHANNELS},
+                           options_input);
+
+      std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+      std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+
+      return 0;
+
+    } catch (const std::exception &e) {
+
+      std::memset(blob_destination, 0, bytes_to_copy);
+
+      printf("Error: %s\n", e.what());
+
+      return -1;
+    }
+  }
+
+  _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
+      : options_input(get_image_input_device_and_dtype()),
+        options_compute(get_image_inference_device_and_dtype()),
+        options_output(get_image_output_device_and_dtype()),
+        loader(path_file_model), batch_size(BATCH_SIZE),
+        bytes_to_copy(batch_size * NUM_CLASSES * sizeof(long)) {}
+
+  ~_MACRO_SELF_() {}
+
+  inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+    std::string path_file_model(get_vsitter_compiled_model_path());
+    // std::cout << "Checkpoint path: " << path_file_model << std::endl;
+    return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+  }
+};
+
+extern "C" {
+void *new_infer_slave_image(unsigned char batch_size) {
+  return static_cast<void *>(
+      _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+}
+
+void delete_infer_slave_image(void *in) {
+  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+  delete tmp;
+}
+
+int run_infer_slave_image(void *in, void *blob_source, void *blob_destination) {
+  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+  return tmp->infer(/*void *blob_source =*/blob_source,
+                    /*void *blob_destination =*/blob_destination);
+}
+}
+
+#undef _MACRO_SELF_
+
+#define _MACRO_SELF_ infer_slave
+
+class _MACRO_SELF_ {
+private:
+  torch::TensorOptions options_input;
+  torch::TensorOptions options_compute;
+  torch::TensorOptions options_output;
+
+  torch::inductor::AOTIModelPackageLoader loader;
+  std::size_t batch_size;
+  std::size_t bytes_to_copy;
+
+  c10::InferenceMode mode;
+
+  lock_guard tmp;
+
+public:
+  inline int infer(void *blob_source, void *blob_destination) {
+    try {
+      torch::Tensor cpu_tensor = torch::from_blob(
+          blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
+          options_input);
+
+      std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+      std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+
+      return 0;
+
+    } catch (const std::exception &e) {
+
+      std::memset(blob_destination, 0, bytes_to_copy);
+
+      printf("Error: %s\n", e.what());
+
+      return 1;
+    }
+  }
+
+  _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
+      : options_input(get_input_device_and_dtype()),
+        options_compute(get_inference_device_and_dtype()),
+        options_output(get_output_device_and_dtype()), loader(path_file_model),
+        batch_size(BATCH_SIZE),
+        bytes_to_copy(batch_size * 3 * sizeof(outtype)) {}
+
+  ~_MACRO_SELF_() {}
+
+  inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+    BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
+    std::string path_file_model("/root/.cache/model_6.pt2");
+    path_file_model[19] = '0' + BATCH_SIZE;
+    return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+  }
+};
+
+extern "C" {
+void *new_infer_slave(unsigned char batch_size) {
+  return static_cast<void *>(
+      _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+}
+
+void delete_infer_slave(void *in) {
+  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+  delete tmp;
+}
+
+int run_infer_slave(void *in, void *blob_source, void *blob_destination) {
+  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+  return tmp->infer(/*void *blob_source =*/blob_source,
+                    /*void *blob_destination =*/blob_destination);
+}
+}
+
+#undef _MACRO_SELF_

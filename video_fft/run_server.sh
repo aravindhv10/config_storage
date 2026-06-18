@@ -1,4 +1,4 @@
 #!/bin/sh
 cd "$('dirname' '--' "${0}")"
-'/root/compile.py'
+export RUST_LOG='info'
 exec 'infer-server'

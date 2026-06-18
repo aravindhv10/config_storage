@@ -1,4 +1,5 @@
 * Logic for iterating over video:
+
 video.len() in:
 1. [0..120): break;
 2. [120..160]: compress(video).
@@ -8,8 +9,7 @@ video.len() in:
 
    end_current = 160 + ( (video_length - 160) * (i - 1) / (num_windows - 1) )
 
-
-* TODO
+* COMPLETE                                                             :DONE:
 
 ** Implement C++ side of model inference                               :DONE:
 ** Implement the grpc endpoint                                         :DONE:
@@ -22,6 +22,20 @@ video.len() in:
 *** Check when is the huge tensor dropped and try to optimize.         :DONE:
 - do_infer_on_video_file in server.rs does this.
 - It is optimal.
+
+* PLANNED
+
+** Start bringing in POD model parts
+*** C++ side
+**** Ignore opencv parts and do all processing in pytorch
+**** Implement the inference slave class                               :DONE:
+- infer_slave_image
+*** Rust side
+
+* CONTINUOUS
+** Maintain the rust torch crate
+*** Current pytorch version is 2.12
+- Updated tch-rt version to 0.24.
 
 * Cargo.toml
 
@@ -66,43 +80,107 @@ video.len() in:
   tonic-prost-build = "0.14.2"
 #+end_src
 
-**** Basic common stuff
+**** Full dependencies
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   [dependencies]
-  anyhow = "1.0.102"
-  copyless = "0.1.5"
-  flume = "0.12.0"
-  futures = "0.3.32"
-  gxhash = "3.5.0"
-  jwalk = "0.8.1"
-  log = { version = "0.4.29", features = ["std"] }
-  memmap2 = "0.9.10"
-  mimalloc = "0.1.50"
-  oneshot = { version = "0.2.1", features = ["async", "std"] }
-  prost = "0.14.3"
-  rayon = "1.11.0"
-  serde = { version = "1.0.228", features = ["derive"] }
-  tokio = { version = "1.50.0", features = ["full"] }
-  tonic = { version = "0.14.5", features = ["zstd"] }
-  tonic-prost = "0.14.5"
-  tonic-reflection = "0.14.5"
 #+end_src
 
-**** Torch-rs
+***** COMMENT Disabled
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  copyless = "0.1.5"
+  log = { version = "0.4.29", features = ["std"] }
+  bytemuck = { version = "1.25.0", features = ["derive"] }
+#+end_src
 
-***** Version-0.22
+***** Tonic stuff
+cargo info prost
+cargo info tonic-prost
+cargo info tonic-reflection
+cargo info tonic
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tonic = { version = "0.14", features = ["zstd"] }
+  tonic-prost = "0.14"
+  tonic-reflection = "0.14"
+  prost = "0.14"
+#+end_src
+
+***** Message channels
+cargo info flume
+cargo info oneshot
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  oneshot = { version = "0.2", features = ["async", "std"] }
+  flume = "0.12"
+#+end_src
+
+***** Hashing
+cargo info blake3
+cargo info gxhash
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
+  gxhash = "3"
+#+end_src
+
+***** Async
+cargo info futures
+cargo info tokio
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tokio = { version = "1", features = ["full"] }
+  futures = "0.3"
+#+end_src
+
+***** COMMENT Logging
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  log = "0.4"
+#+end_src
+
+***** Tracing
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+  tracing = { version = "0.1", features = ["async-await"] }
+#+end_src
+
+***** Parallel loops and file crawling
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  rayon = "1"
+  jwalk = "0.8"
+#+end_src
+
+***** Memory mapped io and key value db
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  memmap2 = "0.9"
+  redb = "4.1.0"
+#+end_src
+
+***** All
+cargo info anyhow
+cargo info jwalk
+cargo info memmap2
+cargo info mimalloc
+cargo info rayon
+cargo info serde
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  anyhow = "1"
+  c32 = { version = "0.6", features = ["alloc"] }
+  chrono = "0.4.45"
+  mimalloc = "0.1"
+  serde = { version = "1", features = ["derive"] }
+#+end_src
+
+***** Torch-rs
+
+****** COMMENT Version-0.22
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   tch = { version = "0.22.0", features = ["serde_json", "regex", "memmap2", "image"] }
 #+end_src
 
-***** COMMENT Version-0.23
+****** COMMENT Version-0.23
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   tch = { version = "0.23.0", features = ["serde_json", "regex", "memmap2", "image"] }
 #+end_src
 
-**** COMMENT Inactive
+****** Version-0.24
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  bytemuck = { version = "1.25.0", features = ["derive"] }
+  tch = { version = "0.24.0", features = ["serde_json", "regex", "memmap2", "image"] }
 #+end_src
 
 * build.rs
@@ -478,7 +556,6 @@ video.len() in:
   export LIBTORCH_BYPASS_VERSION_CHECK='1'
   export LIBTORCH_USE_PYTORCH=1
   export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+aes,+sse2"
-
 #+end_src
 
 *** init
@@ -508,7 +585,7 @@ video.len() in:
 *** run server
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_server.sh
   cd "$('dirname' '--' "${0}")"
-  '/root/compile.py'
+  export RUST_LOG='info'
   exec 'infer-server'
 #+end_src
 
@@ -767,7 +844,7 @@ video.len() in:
 
 **** torch
 #+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
-  #define USE_CUDA 1
+  // #define USE_CUDA 1 // This is specifically for clearing cuda cache after the lock is released, no need for now.
 
   #include <ATen/ops/sum.h>
   #include <c10/core/TensorOptions.h>
@@ -792,83 +869,29 @@ video.len() in:
   #include "./main.hpp"
 #+end_src
 
-*** Functions for deciding tensor options for cpu and gpu
+*** Config Parameters 
 
-**** Get device for input tensor
+**** C++
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  inline torch::TensorOptions get_input_device_and_dtype() {
-    printf("Called get_host_input_device_and_dtype()\n");
-    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-  }
+  unsigned int constexpr IMAGE_RESOLUTION = 448;
+  unsigned int constexpr NUM_CHANNELS = 3;
+  unsigned int constexpr IMAGE_SIZE = IMAGE_RESOLUTION * IMAGE_RESOLUTION * NUM_CHANNELS ;
+
+  unsigned int constexpr NUM_CLASSES = 5;
 #+end_src
 
-**** Get device for tensor during inference
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  inline torch::TensorOptions get_inference_device_and_dtype() {
-    printf("Called get_good_device_and_dtype()\n");
-    if (torch::cuda::is_available()) {
-      printf("Returning cuda\n");
-      return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCUDA);
-    } else {
-      printf("Returning cpu\n");
-      return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-    }
-  }
-#+end_src
-
-**** Get device for output tensor
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  inline torch::TensorOptions get_output_device_and_dtype() {
-    printf("get_host_output_device_and_dtype started\n");
-    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
-  }
-#+end_src
-
-**** Function to get path of compiled model names
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  inline std::string get_compiled_model_path(unsigned char i) {
-    switch (i) {
-    case 1:
-      return std::string("/root/.cache/model_1.pt2");
-    case 2:
-      return std::string("/root/.cache/model_2.pt2");
-    case 3:
-      return std::string("/root/.cache/model_3.pt2");
-    case 4:
-      return std::string("/root/.cache/model_4.pt2");
-    default:
-      return std::string("/root/.cache/model_1.pt2");
-    }
-  }
-#+end_src
-
-**** Function to clear cuda cache
-
-***** Actual function
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  void clear_cuda_cache() {
-  #ifdef USE_CUDA
-    c10::cuda::CUDACachingAllocator::emptyCache();
-    printf("Cleaned cuda cache...\n");
-  #endif
-  }
-#+end_src
-
-***** Export the class interface functions
-
-****** C++
-#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
-  void clear_cuda_cache();
-#+end_src
-
-****** RUST
+**** RUST
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
-  unsafe extern "C" {
-      pub fn clear_cuda_cache();
-  }
+  pub const IMAGE_RESOLUTION: u32 = 448;
+  pub const NUM_CHANNELS: u32 = 3;
+  pub const IMAGE_SIZE: u32 = IMAGE_RESOLUTION * IMAGE_RESOLUTION * NUM_CHANNELS ;
+
+  pub const NUM_CLASSES: u32 = 5;
 #+end_src
 
-*** Class to mlock files
+*** IPC Parts
+
+**** Class to mlock files
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #define _MACRO_SELF_ file_mlock
   class _MACRO_SELF_ {
@@ -876,26 +899,36 @@ video.len() in:
     int fd;
     void *addr;
     struct stat st;
-    bool initialized;
+    char initialized;
 
   public:
     _MACRO_SELF_(char const *path_file_input)
         : fd(open(path_file_input, O_RDONLY)), initialized(false) {
       if (fd == -1) {
         printf("Error opening file %s\n", path_file_input);
+        initialized = -1;
       } else {
         if (fstat(fd, &st)) {
           printf("fstat failed...\n");
+          initialized = -2;
+          close(fd);
         } else {
           addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
           if (addr == MAP_FAILED) {
             printf("mmap failed...\n");
+            close(fd);
+            initialized = -3;
           } else {
             if (mlock(addr, st.st_size) == 0) {
               printf("File locked in RAM successfully.\n");
-              initialized = true;
+              initialized = 0;
             } else {
               printf("mlock failed...\n");
+              munmap(addr, st.st_size);
+              close(fd);
+              addr = MAP_FAILED;
+              initialized = -4;
+              fd = -1;
             }
           }
         }
@@ -909,16 +942,15 @@ video.len() in:
       if (fd != -1) {
         close(fd);
       }
-
-      initialized = false;
+      initialized = -5;
     }
   };
   #undef _MACRO_SELF_
 #+end_src
 
-*** Unnamed semaphor interface
+**** Unnamed semaphor interface
 
-**** Actual class
+***** Actual class
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #define _MACRO_SELF_ unnamed_semaphore
 
@@ -957,9 +989,9 @@ video.len() in:
   #undef _MACRO_SELF_
 #+end_src
 
-**** Export the class interface functions
+***** Export the class interface functions
 
-***** C++
+****** C++
 #+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
   void *unnamed_semaphore_new(int const num);
   void unnamed_semaphore_delete(void *in);
@@ -967,7 +999,7 @@ video.len() in:
   void unnamed_semaphore_r(void *in);
 #+end_src
 
-***** RUST
+****** RUST
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   unsafe extern "C" {
       pub fn unnamed_semaphore_new(num: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_void;
@@ -977,9 +1009,9 @@ video.len() in:
   }
 #+end_src
 
-*** Named semaphor interface
+**** Named semaphor interface
 
-**** Actual class
+***** Actual class
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #define _MACRO_SELF_ named_semaphore
   class _MACRO_SELF_ {
@@ -1021,9 +1053,9 @@ video.len() in:
   #undef _MACRO_SELF_
 #+end_src
 
-**** Export the class interface functions
+***** Export the class interface functions
 
-***** C++
+****** C++
 #+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
   void *named_semaphore_new(char const *name, int const num);
   void named_semaphore_delete(void *in);
@@ -1031,7 +1063,7 @@ video.len() in:
   void named_semaphore_r(void *in);
 #+end_src
 
-***** RUST
+****** RUST
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   unsafe extern "C" {
       pub fn named_semaphore_new(
@@ -1047,14 +1079,78 @@ video.len() in:
   }
 #+end_src
 
-*** Declare the global semaphore for gpu management and function to initialize
+*** Function to get path of compiled model names
 
-**** Header
+**** For vsitter
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline std::string get_vsitter_compiled_model_path() {
+    return std::string("/root/.cache/model_vsitter.pt2");
+  }
+#+end_src
+
+**** For RD
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline std::string get_compiled_model_path(unsigned char i) {
+    switch (i) {
+    case 1:
+      return std::string("/root/.cache/model_1.pt2");
+    case 2:
+      return std::string("/root/.cache/model_2.pt2");
+    case 3:
+      return std::string("/root/.cache/model_3.pt2");
+    case 4:
+      return std::string("/root/.cache/model_4.pt2");
+    default:
+      return std::string("/root/.cache/model_1.pt2");
+    }
+  }
+#+end_src
+
+*** Torch parts
+
+**** Pure functions
+
+***** Standard conversions from c++ types to torch types
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
+  template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
+  template <> inline torch::ScalarType get_tensor_dtype<float64_t>() {return torch::kFloat64;}
+  template <> inline torch::ScalarType get_tensor_dtype<int16_t>() { return torch::kInt16; }
+  template <> inline torch::ScalarType get_tensor_dtype<int32_t>() { return torch::kInt32; }
+  template <> inline torch::ScalarType get_tensor_dtype<int64_t>() { return torch::kInt64; }
+  template <> inline torch::ScalarType get_tensor_dtype<int8_t>() { return torch::kInt8; }
+  template <> inline torch::ScalarType get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
+  template <> inline torch::ScalarType get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
+  template <> inline torch::ScalarType get_tensor_dtype<uint64_t>() { return torch::kInt64; }
+  template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
+#+end_src
+
+***** Main functions for padding
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
+    auto size = tensor_input.sizes();
+    auto h = size[1];
+    auto w = size[2];
+    if (h<w) {
+      return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
+    } else if (w<h) {
+      return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, h-w, 0, 0}));
+    } else {
+      return tensor_input.detach();
+    }
+  }
+#+end_src
+
+**** Classes
+
+***** Global semaphore for gpu management and function to initialize
+
+****** Header
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #define _MACRO_SELF_ gpu_locker
 #+end_src
 
-**** Named semaphore for cooperative serving
+****** Named semaphore for cooperative serving
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   class _MACRO_SELF_ {
 
@@ -1080,7 +1176,7 @@ video.len() in:
 
       printf("Locking compiled models into memory\n");
       if (mem_locks.size() == 0) {
-        mem_locks.reserve(4);
+        mem_locks.reserve(5);
 
         mem_locks.push_back(
             get_compiled_model_path(/*unsigned char i =*/1).c_str());
@@ -1090,25 +1186,28 @@ video.len() in:
             get_compiled_model_path(/*unsigned char i =*/3).c_str());
         mem_locks.push_back(
             get_compiled_model_path(/*unsigned char i =*/4).c_str());
+
+        mem_locks.push_back(get_vsitter_compiled_model_path().c_str());
       }
     }
 
     inline void l() {
       if (torch::cuda::is_available()) {
         if (for_inference_server) {
-          // gpu_semaphore.l();
-          gpu_semaphore_named.l();
+          gpu_semaphore.l();
+          // gpu_semaphore_named.l();
         } else {
           gpu_semaphore.l();
         }
       }
     }
+
     inline void r() {
       if (torch::cuda::is_available()) {
         if (for_inference_server) {
           clear_cuda_cache();
-          gpu_semaphore_named.r();
-          // gpu_semaphore.r();
+          // gpu_semaphore_named.r();
+          gpu_semaphore.r();
         } else {
           gpu_semaphore.r();
         }
@@ -1117,12 +1216,12 @@ video.len() in:
   };
 #+end_src
 
-**** Declare a local copy
+****** Declare a local copy
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   static _MACRO_SELF_ locker;
 #+end_src
 
-**** Functions to switch the modes
+****** Functions to switch the modes
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   extern "C" {
   void locker_to_inference_mode() { locker.configure_for_inference(); }
@@ -1130,20 +1229,20 @@ video.len() in:
   }
 #+end_src
 
-**** Footer
+****** Footer
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #undef _MACRO_SELF_
 #+end_src
 
-**** Export the functions
+****** Export the functions
 
-***** C++
+******* C++
 #+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
   void locker_to_inference_mode();
   void locker_to_preprocessing_mode();
 #+end_src
 
-***** RUST
+******* RUST
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   unsafe extern "C" {
       pub fn locker_to_inference_mode();
@@ -1151,149 +1250,32 @@ video.len() in:
   }
 #+end_src
 
+***** Good class for lock guard to protect even during exceptions
 
-*** Main inference class
-
-**** Actual code for the class
+****** Header
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  #define _MACRO_SELF_ infer_slave
+  #define _MACRO_SELF_ lock_guard
+#+end_src
 
+****** Named semaphore for cooperative serving
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   class _MACRO_SELF_ {
-  private:
-    torch::TensorOptions options_input;
-    torch::TensorOptions options_compute;
-    torch::TensorOptions options_output;
-
-    torch::inductor::AOTIModelPackageLoader loader;
-    std::size_t batch_size;
-    std::size_t bytes_to_copy;
-
-    c10::InferenceMode mode;
-
   public:
-    inline void infer(void *blob_source, void *blob_destination) {
-      try {
-        torch::Tensor cpu_tensor = torch::from_blob(
-            blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
-            options_input);
-
-        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
-
-        std::vector<torch::Tensor> outputs = loader.run(inputs);
-
-        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
-
-        std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
-
-      } catch (const std::exception &e) {
-
-        std::memset(blob_destination, 0, bytes_to_copy);
-
-        printf("Error: %s\n", e.what());
-      }
-    }
-
-    _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
-        : options_input(get_input_device_and_dtype()),
-          options_compute(get_inference_device_and_dtype()),
-          options_output(get_output_device_and_dtype()), loader(path_file_model),
-          batch_size(BATCH_SIZE),
-          bytes_to_copy(batch_size * 3 * sizeof(outtype)) {
-      locker.l();
-    }
-
+    _MACRO_SELF_() { locker.l(); }
     ~_MACRO_SELF_() { locker.r(); }
-
-    inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
-      BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
-      std::string path_file_model("/root/.cache/model_6.pt2");
-      path_file_model[19] = '0' + BATCH_SIZE;
-      std::cout << "Checkpoint path: " << path_file_model << std::endl;
-      return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
-    }
   };
+#+end_src
 
-  extern "C" {
-  void *new_infer_slave(unsigned char batch_size) {
-    return static_cast<void *>(
-        _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
-  }
-
-  void delete_infer_slave(void *in) {
-    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
-    delete tmp;
-  }
-
-  void run_infer_slave(void *in, void *blob_source, void *blob_destination) {
-    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
-
-    tmp->infer(/*void *blob_source =*/blob_source,
-               /*void *blob_destination =*/blob_destination);
-  }
-  }
-
+****** Footer
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #undef _MACRO_SELF_
 #+end_src
 
-**** Export the class interface functions
+**** Pure functions
 
-***** C++
-#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
-  void *new_infer_slave(unsigned char batch_size);
-  void delete_infer_slave(void *in);
-  void run_infer_slave(void *in, void *blob_source, void *blob_destination);
-#+end_src
+***** Main functions for FFT
 
-***** RUST
-#+begin_src rust :mkdirp yes :tangle ./src/export.rs
-  unsafe extern "C" {
-      pub fn new_infer_slave(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
-      pub fn delete_infer_slave(in_: *mut ::std::os::raw::c_void);
-      pub fn run_infer_slave(
-          in_: *mut ::std::os::raw::c_void,
-          blob_source: *mut ::std::os::raw::c_void,
-          blob_destination: *mut ::std::os::raw::c_void,
-      );
-  }
-#+end_src
-
-*** Standard conversions from c++ types to torch types
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  template <typename T> inline torch::ScalarType get_tensor_dtype() {return torch::kBFloat16;}
-  template <> inline torch::ScalarType get_tensor_dtype<float32_t>() {return torch::kFloat32;}
-  template <> inline torch::ScalarType get_tensor_dtype<float64_t>() {return torch::kFloat64;}
-  template <> inline torch::ScalarType get_tensor_dtype<int16_t>() { return torch::kInt16; }
-  template <> inline torch::ScalarType get_tensor_dtype<int32_t>() { return torch::kInt32; }
-  template <> inline torch::ScalarType get_tensor_dtype<int64_t>() { return torch::kInt64; }
-  template <> inline torch::ScalarType get_tensor_dtype<int8_t>() { return torch::kInt8; }
-  template <> inline torch::ScalarType get_tensor_dtype<uint16_t>() { return torch::kUInt16; }
-  template <> inline torch::ScalarType get_tensor_dtype<uint32_t>() { return torch::kUInt32; }
-  template <> inline torch::ScalarType get_tensor_dtype<uint64_t>() { return torch::kInt64; }
-  template <> inline torch::ScalarType get_tensor_dtype<uint8_t>() { return torch::kUInt8; }
-#+end_src
-
-*** Main functions for padding
-#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
-  inline torch::Tensor do_pad_video(torch::Tensor tensor_input) {
-    auto size = tensor_input.sizes();
-    auto h = size[1];
-    auto w = size[2];
-    if (h<w) {
-      return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, 0, 0, w - h}));
-    } else if (w<h) {
-      return  torch::nn::functional::pad(tensor_input, torch::nn::functional::PadFuncOptions({0, 0, 0, h-w, 0, 0}));
-    } else {
-      return tensor_input.detach();
-    }
-  }
-#+end_src
-
-
-*** Main functions for FFT
-
-**** Efficient version
-
-***** Actual function
+****** Actual function
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   extern "C" {
   int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
@@ -1338,8 +1320,7 @@ video.len() in:
               .item()
               .to<uint16_t>();
 
-      printf("Acquiring lock\n");
-      locker.l();
+      lock_guard tmp;
 
       torch::Tensor tensor_video_padded =
           torch::from_blob(
@@ -1406,9 +1387,6 @@ video.len() in:
               .to(torch::kCPU)
               .contiguous();
 
-      locker.r();
-      printf("Released lock\n");
-
       std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
                   compressed_tensor_video_fft.nbytes());
 
@@ -1423,9 +1401,9 @@ video.len() in:
   }
 #+end_src
 
-***** Expose the function
+****** Expose the function
 
-****** C++
+******* C++
 #+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
   int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
                                 uint16_t const len_y, uint16_t const len_x,
@@ -1434,7 +1412,7 @@ video.len() in:
                                 bool use_gpu);
 #+end_src
 
-****** RUST
+******* RUST
 #+begin_src rust :mkdirp yes :tangle ./src/export.rs
   unsafe extern "C" {
       pub fn do_fft_compress_efficient(
@@ -1447,6 +1425,337 @@ video.len() in:
           freq_limit: float32_t,
           dest: *mut ::std::os::raw::c_void,
           use_gpu: bool,
+      ) -> ::std::os::raw::c_int;
+  }
+#+end_src
+
+***** Function to clear cuda cache
+
+****** Actual function
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  void clear_cuda_cache() {
+  #ifdef USE_CUDA
+    c10::cuda::CUDACachingAllocator::emptyCache();
+    printf("Cleaned cuda cache...\n");
+  #endif
+  }
+#+end_src
+
+****** Export the class interface functions
+
+******* C++
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void clear_cuda_cache();
+#+end_src
+
+******* RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn clear_cuda_cache();
+  }
+#+end_src
+
+***** Functions for deciding tensor options for cpu and gpu
+
+****** Get device for input tensor
+
+******* For images
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_image_input_device_and_dtype() {
+    return torch::TensorOptions()
+        .dtype(get_tensor_dtype<unsigned char>())
+        .device(torch::kCPU);
+  }
+#+end_src
+
+******* For videos
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_input_device_and_dtype() {
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+  }
+#+end_src
+
+****** Get device for tensor during inference
+
+******* For images
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_image_inference_device_and_dtype() {
+    if (torch::cuda::is_available()) {
+      return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCUDA);
+    } else {
+      return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCPU);
+    }
+  }
+#+end_src
+
+******* For videos
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_inference_device_and_dtype() {
+    if (torch::cuda::is_available()) {
+      return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCUDA);
+    } else {
+      return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+    }
+  }
+#+end_src
+
+****** Get device for output tensor
+
+******* For image
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_image_output_device_and_dtype() {
+    return torch::TensorOptions()
+        .dtype(get_tensor_dtype<long>())
+        .device(torch::kCPU);
+  }
+#+end_src
+
+******* For video
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_output_device_and_dtype() {
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+  }
+#+end_src
+
+**** Classes
+
+***** Inference class for image
+
+****** Actual code for the class
+
+******* Name of the class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #define _MACRO_SELF_ infer_slave_image
+#+end_src
+
+******* Actual class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  class _MACRO_SELF_ {
+  private:
+    torch::TensorOptions options_input;
+    torch::TensorOptions options_compute;
+    torch::TensorOptions options_output;
+
+    torch::inductor::AOTIModelPackageLoader loader;
+    std::size_t batch_size;
+    std::size_t bytes_to_copy;
+
+    c10::InferenceMode mode;
+
+    lock_guard tmp;
+
+  public:
+    inline int infer(void *blob_source, void *blob_destination) {
+
+      try {
+
+        torch::Tensor cpu_tensor =
+            torch::from_blob(blob_source,
+                             {static_cast<long>(batch_size), IMAGE_RESOLUTION,
+                              IMAGE_RESOLUTION, NUM_CHANNELS},
+                             options_input);
+
+        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+        std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+        std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+
+        return 0;
+
+      } catch (const std::exception &e) {
+
+        std::memset(blob_destination, 0, bytes_to_copy);
+
+        printf("Error: %s\n", e.what());
+
+        return -1;
+      }
+    }
+
+    _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
+        : options_input(get_image_input_device_and_dtype()),
+          options_compute(get_image_inference_device_and_dtype()),
+          options_output(get_image_output_device_and_dtype()),
+          loader(path_file_model), batch_size(BATCH_SIZE),
+          bytes_to_copy(batch_size * NUM_CLASSES * sizeof(long)) {}
+
+    ~_MACRO_SELF_() {}
+
+    inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+      std::string path_file_model(get_vsitter_compiled_model_path());
+      // std::cout << "Checkpoint path: " << path_file_model << std::endl;
+      return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+    }
+  };
+#+end_src
+
+******* Interface functions
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  extern "C" {
+  void *new_infer_slave_image(unsigned char batch_size) {
+    return static_cast<void *>(
+        _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+  }
+
+  void delete_infer_slave_image(void *in) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+    delete tmp;
+  }
+
+  int run_infer_slave_image(void *in, void *blob_source, void *blob_destination) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+    return tmp->infer(/*void *blob_source =*/blob_source,
+                      /*void *blob_destination =*/blob_destination);
+  }
+  }
+#+end_src
+
+******* Clear the named preprocessor macro
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #undef _MACRO_SELF_
+#+end_src
+
+****** Export the class interface functions
+
+******* C++
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void *new_infer_slave_image(unsigned char batch_size);
+  void delete_infer_slave_image(void *in);
+  int run_infer_slave_image(void *in, void *blob_source, void *blob_destination);
+#+end_src
+
+******* RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn new_infer_slave_image(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
+      pub fn delete_infer_slave_image(in_: *mut ::std::os::raw::c_void);
+      pub fn run_infer_slave_image(
+          in_: *mut ::std::os::raw::c_void,
+          blob_source: *mut ::std::os::raw::c_void,
+          blob_destination: *mut ::std::os::raw::c_void,
+      ) -> ::std::os::raw::c_int;
+  }
+#+end_src
+
+***** Inference class for video
+
+****** Actual code for the class
+
+******* Name of the class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #define _MACRO_SELF_ infer_slave
+#+end_src
+
+******* Actual class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  class _MACRO_SELF_ {
+  private:
+    torch::TensorOptions options_input;
+    torch::TensorOptions options_compute;
+    torch::TensorOptions options_output;
+
+    torch::inductor::AOTIModelPackageLoader loader;
+    std::size_t batch_size;
+    std::size_t bytes_to_copy;
+
+    c10::InferenceMode mode;
+
+    lock_guard tmp;
+
+  public:
+    inline int infer(void *blob_source, void *blob_destination) {
+      try {
+        torch::Tensor cpu_tensor = torch::from_blob(
+            blob_source, {static_cast<long>(batch_size), 6, 160, 160, 60},
+            options_input);
+
+        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+        std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+        std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+
+        return 0;
+
+      } catch (const std::exception &e) {
+
+        std::memset(blob_destination, 0, bytes_to_copy);
+
+        printf("Error: %s\n", e.what());
+
+        return 1;
+      }
+    }
+
+    _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
+        : options_input(get_input_device_and_dtype()),
+          options_compute(get_inference_device_and_dtype()),
+          options_output(get_output_device_and_dtype()), loader(path_file_model),
+          batch_size(BATCH_SIZE),
+          bytes_to_copy(batch_size * 3 * sizeof(outtype)) {}
+
+    ~_MACRO_SELF_() {}
+
+    inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+      BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
+      std::string path_file_model("/root/.cache/model_6.pt2");
+      path_file_model[19] = '0' + BATCH_SIZE;
+      return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+    }
+  };
+#+end_src
+
+******* Interface functions
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  extern "C" {
+  void *new_infer_slave(unsigned char batch_size) {
+    return static_cast<void *>(
+        _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+  }
+
+  void delete_infer_slave(void *in) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+    delete tmp;
+  }
+
+  int run_infer_slave(void *in, void *blob_source, void *blob_destination) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+    return tmp->infer(/*void *blob_source =*/blob_source,
+                      /*void *blob_destination =*/blob_destination);
+  }
+  }
+#+end_src
+
+******* Clear the named preprocessor macro
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #undef _MACRO_SELF_
+#+end_src
+
+****** Export the class interface functions
+
+******* C++
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void *new_infer_slave(unsigned char batch_size);
+  void delete_infer_slave(void *in);
+  int run_infer_slave(void *in, void *blob_source, void *blob_destination);
+#+end_src
+
+******* RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn new_infer_slave(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
+      pub fn delete_infer_slave(in_: *mut ::std::os::raw::c_void);
+      pub fn run_infer_slave(
+          in_: *mut ::std::os::raw::c_void,
+          blob_source: *mut ::std::os::raw::c_void,
+          blob_destination: *mut ::std::os::raw::c_void,
       ) -> ::std::os::raw::c_int;
   }
 #+end_src
@@ -1527,9 +1836,10 @@ video.len() in:
 * Rust functions for ffmpeg and name hashing
 #+begin_src rust :mkdirp yes :tangle ./src/videofn.rs
   use std::io::{Read, Write};
+  use std::os::unix::ffi::OsStrExt;
 
-  pub fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
-      let file: std::fs::File = std::fs::File::open(path_file_input)?;
+  pub fn get_file_hash(path_file_input: impl AsRef<std::path::Path>) -> anyhow::Result<u64> {
+      let file: std::fs::File = std::fs::File::open(path_file_input.as_ref())?;
       let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
       Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
   }
@@ -1541,9 +1851,16 @@ video.len() in:
       )
   }
 
+  pub fn get_path_hash(path_file_input: impl AsRef<std::path::Path>) -> u64 {
+      gxhash::gxhash64(
+          /* input = */ path_file_input.as_ref().as_os_str().as_bytes(),
+          /* seed = */ 12345,
+      )
+  }
+
   pub fn convert_encoded_video_to_raw(
-      path_file_video_input: &str,
-      path_file_video_output: &str,
+      path_file_video_input: impl AsRef<std::path::Path>,
+      path_file_video_output: impl AsRef<std::path::Path>,
       fps: f32,
       size_x: u16,
       size_y: u16,
@@ -1554,24 +1871,22 @@ video.len() in:
           "Currently only implemented for 3 channel color videos..."
       );
 
-      if std::fs::exists(path_file_video_output)? {
-          eprintln!("Not running ffmpeg, output file already exists.");
+      if std::fs::exists(path_file_video_output.as_ref())? {
+          tracing::warn!("Not running ffmpeg, output file already exists.");
           return Ok(());
       }
 
       let res = std::process::Command::new("ffmpeg")
-          .args([
-              "-i",
-              path_file_video_input,
-              "-vf",
-              format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-              "-nostdin",
-              "-f",
-              "rawvideo",
-              "-pix_fmt",
-              "rgb24",
-              path_file_video_output,
-          ])
+          .arg("-i")
+          .arg(path_file_video_input.as_ref())
+          .arg("-vf")
+          .arg(format!("fps={},scale={}:{}", fps, size_x, size_y).as_str())
+          .arg("-nostdin")
+          .arg("-f")
+          .arg("rawvideo")
+          .arg("-pix_fmt")
+          .arg("rgb24")
+          .arg(path_file_video_output.as_ref())
           .status()?;
 
       match res.code() {
@@ -1596,14 +1911,10 @@ video.len() in:
       size_c: u8,
   ) -> anyhow::Result<Vec<u8>> {
 
-      eprintln!("convert_encoded_video_to_raw_piped entered");
-
       assert!(
           size_c == 3,
           "Currently only implemented for 3 channel color videos..."
       );
-
-      eprintln!(" Passed size_c check ");
 
       let mut child = std::process::Command::new("ffmpeg")
           .args([
@@ -1620,54 +1931,39 @@ video.len() in:
           .stderr(std::process::Stdio::piped())
           .spawn()?;
 
-      eprintln!(" Spawned ffmpeg ");
-
       let mut output_buffer = Vec::<u8>::new();
       if let Some(mut stdin) = child.stdin.take() {
-          eprintln!(" Writing the video into stdin ");
 
           let handle = std::thread::spawn(move || {
               stdin.write_all(&input_buffer);
           });
 
-          eprintln!(" Forked the thread, moving to reading the data ");
-
           if let Some(mut stdout) = child.stdout.take() {
-              eprintln!(" Reading data from stdout ");
               stdout.read_to_end(&mut output_buffer)?;
           }
 
-          eprintln!(" Joining the thread now ");
-
           match handle.join() {
-              Ok(_) => println!("Writer thread finished successfully"),
-              Err(e) => eprintln!("Writer thread panicked: {:?}", e), 
+              Ok(_) => tracing::info!("Writer thread finished successfully"),
+              Err(e) => tracing::error!("Writer thread panicked: {:?}", e), 
           } ;
-
-          eprintln!(" Joined the thread now ");
       }
 
-      eprintln!("Waiting for ffmpeg to return");
       let status = child.wait()?;
-      eprintln!("ffmpeg returned");
 
       if !status.success() {
-          eprintln!("Checking error status");
           let mut err_msg = String::new();
           if let Some(mut stderr) = child.stderr.take() {
-              eprintln!("Checking stderr");
               stderr.read_to_string(&mut err_msg)?;
           }
-          eprintln!("FFmpeg failed: {}", err_msg);
+          tracing::error!("FFmpeg failed: {}", err_msg);
           return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
       }
 
-      eprintln!("Everything done, returning");
       Ok(output_buffer)
   }
 
   pub fn convert_encoded_video_to_raw_outpipe(
-      path_file_video_input: &str,
+      path_file_video_input: impl AsRef<std::path::Path>,
       fps: f32,
       size_x: u16,
       size_y: u16,
@@ -1675,20 +1971,22 @@ video.len() in:
       clean_video: bool,
   ) -> anyhow::Result<Vec<u8>> {
 
-
       assert!(
           size_c == 3,
           "Currently only implemented for 3 channel color videos..."
       );
 
       let mut child = std::process::Command::new("ffmpeg")
-          .args([
-              "-i", path_file_video_input,
-              "-vf", format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-              "-nostdin", "-f", "rawvideo",
-              "-pix_fmt", "rgb24",
-              "pipe:1",
-          ])
+          .arg("-i")
+          .arg(path_file_video_input.as_ref())
+          .arg("-vf")
+          .arg(format!("fps={},scale={}:{}", fps, size_x, size_y).as_str())
+          .arg("-nostdin")
+          .arg("-f")
+          .arg("rawvideo")
+          .arg("-pix_fmt")
+          .arg("rgb24")
+          .arg("pipe:1")
           .stdout(std::process::Stdio::piped())
           .stderr(std::process::Stdio::piped())
           .spawn()?;
@@ -1696,116 +1994,35 @@ video.len() in:
       let mut output_buffer = Vec::<u8>::new();
 
       if let Some(mut stdout) = child.stdout.take() {
-          eprintln!(" Reading data from stdout ");
           stdout.read_to_end(&mut output_buffer)?;
       }
 
       let status = child.wait()?;
 
       if !status.success() {
-          eprintln!("Checking error status");
           let mut err_msg = String::new();
           if let Some(mut stderr) = child.stderr.take() {
-              eprintln!("Checking stderr");
               stderr.read_to_string(&mut err_msg)?;
           }
-          eprintln!("FFmpeg failed: {}", err_msg);
+          tracing::error!("FFmpeg failed: {}", err_msg);
           return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
       }
 
       if clean_video {
-          let _ = std::fs::remove_file(path_file_video_input);
+          let _ = std::fs::remove_file(path_file_video_input.as_ref());
       }
 
       Ok(output_buffer)
   }
 #+end_src
 
-  pub fn convert_encoded_video_to_raw_piped(
-      input_buffer: Vec<u8>,
-      fps: f32,
-      size_x: u16,
-      size_y: u16,
-      size_c: u8,
-  ) -> anyhow::Result<Vec<u8>> {
-
-      eprintln!("convert_encoded_video_to_raw_piped entered");
-
-      assert!(
-          size_c == 3,
-          "Currently only implemented for 3 channel color videos..."
-      );
-
-      eprintln!(" Passed size_c check ");
-
-      let mut child = std::process::Command::new("ffmpeg")
-          .args([
-              "-i", "pipe:0",
-              "-vf", format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-              "-r", fps.to_string().as_str(),
-              "-f", "rawvideo",
-              "-pix_fmt", "rgb24",
-              "pipe:1",
-          ])
-          .stdin(std::process::Stdio::piped())
-          .stdout(std::process::Stdio::piped())
-          .stderr(std::process::Stdio::piped())
-          .spawn()?;
-
-      eprintln!(" Spawned ffmpeg ");
-
-      let mut output_buffer = Vec::<u8>::new();
-
-      if let Some(mut stdin) = child.stdin.take() {
-          eprintln!(" Writing the video into stdin ");
-
-          let handle = std::thread::spawn(move || {
-              stdin.write_all(&input_buffer);
-          });
-
-          eprintln!(" Forked the thread, moving to reading the data ");
-
-          if let Some(mut stdout) = child.stdout.take() {
-              eprintln!(" Reading data from stdout ");
-              stdout.read_to_end(&mut output_buffer)?;
-          }
-
-          eprintln!(" Joining the thread now ");
-
-          match handle.join() {
-              Ok(_) => println!("Writer thread finished successfully"),
-              Err(e) => eprintln!("Writer thread panicked: {:?}", e), 
-          } ;
-
-          eprintln!(" Joined the thread now ");
-      }
-
-      eprintln!("Waiting for ffmpeg to return");
-      let status = child.wait()?;
-      eprintln!("ffmpeg returned");
-
-      if !status.success() {
-          eprintln!("Checking error status");
-          let mut err_msg = String::new();
-          if let Some(mut stderr) = child.stderr.take() {
-              eprintln!("Checking stderr");
-              stderr.read_to_string(&mut err_msg)?;
-          }
-          eprintln!("FFmpeg failed: {}", err_msg);
-          return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
-      }
-
-      eprintln!("Everything done, returning");
-      Ok(output_buffer)
-  }
-
 * Rust class for interpreting video as torch tensor
 #+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
   use crate::videofn;
 
   pub struct video_slicer {
-      path_file_video_input: String,
-      path_file_rawvideo_output: String,
+      path_file_video_input: std::path::PathBuf,
+      path_file_rawvideo_output: std::path::PathBuf,
 
       fps: f32,
 
@@ -1824,39 +2041,40 @@ video.len() in:
 
   impl Drop for video_slicer {
       fn drop(&mut self) {
-          let _ = std::fs::remove_file(self.path_file_rawvideo_output.as_str());
+          let _ = std::fs::remove_file(&(self.path_file_rawvideo_output));
       }
   }
 
   impl video_slicer {
       pub fn new(
-          path_file_video_input: String,
-          mut path_file_rawvideo_output: Option<String>,
+          path_file_video_input: impl AsRef<std::path::Path>,
+          mut path_file_rawvideo_output: Option<std::path::PathBuf>,
           fps: f32,
           size_x: u16,
           size_y: u16,
           size_c: u8,
       ) -> anyhow::Result<Self> {
           if path_file_rawvideo_output.is_none() {
-              let name_hash: u64 = videofn::get_str_hash(path_file_video_input.as_str());
-              let hash: u64 = videofn::get_file_hash(path_file_video_input.as_str())?;
-              path_file_rawvideo_output = Some(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
+              let name_hash: u64 = videofn::get_path_hash(path_file_video_input.as_ref());
+              let hash: u64 = videofn::get_file_hash(path_file_video_input.as_ref())?;
+              let tmppath = std::path::PathBuf::from(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
+              path_file_rawvideo_output = Some(tmppath);
           }
 
-          let path_file_rawvideo_output: String = path_file_rawvideo_output.unwrap();
+          let path_file_rawvideo_output: std::path::PathBuf = path_file_rawvideo_output.unwrap();
 
           videofn::convert_encoded_video_to_raw(
-              path_file_video_input.as_str(),
-              path_file_rawvideo_output.as_str(),
+              &path_file_video_input,
+              &path_file_rawvideo_output,
               fps,
               size_x,
               size_y,
               size_c,
           )?;
 
-          let file: std::fs::File = std::fs::File::open(path_file_rawvideo_output.as_str())?;
+          let file: std::fs::File = std::fs::File::open(&path_file_rawvideo_output)?;
           let mmap_result = unsafe { memmap2::Mmap::map(&file) };
-          let _ = std::fs::remove_file(path_file_rawvideo_output.as_str());
+          let _ = std::fs::remove_file(&path_file_rawvideo_output);
           let mmap: memmap2::Mmap = mmap_result?;
 
           let size_t: u16 =
@@ -1870,7 +2088,7 @@ video.len() in:
           let dist_t: usize = dist_y * (size_y as usize);
 
           let ret: Self = Self {
-              path_file_video_input: path_file_video_input,
+              path_file_video_input: path_file_video_input.as_ref().to_path_buf(),
               path_file_rawvideo_output: path_file_rawvideo_output,
               fps: fps,
 
@@ -2010,7 +2228,7 @@ video.len() in:
       }
 
       pub fn new(
-          path_file_video_input: String,
+          path_file_video_input: impl AsRef<std::path::Path>,
           fps: f32,
           size_x: u16,
           size_y: u16,
@@ -2019,7 +2237,7 @@ video.len() in:
       ) -> anyhow::Result<Self> {
 
           let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
-              /*path_file_video_input: &str =*/ path_file_video_input.as_str(),
+              /*path_file_video_input: &str =*/ path_file_video_input.as_ref(),
               /*fps: f32 =*/ fps as f32,
               /*size_x: u16 =*/ size_x as u16,
               /*size_y: u16 =*/ size_y as u16,
@@ -2216,33 +2434,27 @@ video.len() in:
 
 * video fft struct implementation
 #+begin_src rust :mkdirp yes :tangle ./src/videofft.rs
-  use anyhow::Context;
   use crate::export;
+  use anyhow::Context;
   use rayon::prelude::*;
   use std::io::Write;
   use tch::IndexOp;
 
   #[inline(always)]
   fn get_num_windows(total_video_length: u64) -> u8 {
-
       const ideal_length: u16 = 160 as u16;
 
-      const min_length: u16 = (ideal_length * 3) >> 2 ;
+      const min_length: u16 = (ideal_length * 3) >> 2;
 
       if total_video_length < (min_length as u64) {
-
           return 0 as u8;
-
       } else if total_video_length <= (ideal_length as u64) {
-
           return 1 as u8;
-
       } else {
-
           const stride: u16 = ideal_length;
 
-          let float_val = (((total_video_length - (ideal_length as u64)) as f64)
-                          / (stride as f64) ) as f64;
+          let float_val =
+              (((total_video_length - (ideal_length as u64)) as f64) / (stride as f64)) as f64;
 
           let floor_val = float_val.floor();
 
@@ -2257,9 +2469,7 @@ video.len() in:
           };
 
           return num_windows;
-
       }
-
   }
 
   #[repr(C)]
@@ -2411,7 +2621,7 @@ video.len() in:
 
               let data: *mut Self = store.as_mut_ptr();
 
-              unsafe {
+              let status: i32 = unsafe {
                   export::do_fft_compress_efficient(
                       /*blob: *mut ::std::os::raw::c_void =*/
                       tensor_video_input.data_ptr(),
@@ -2424,7 +2634,15 @@ video.len() in:
                       /*dest: *mut ::std::os::raw::c_void =*/
                       data as *mut ::std::os::raw::c_void,
                       /*bool use_gpu =*/ use_gpu,
-                  );
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("FFT step failed with exit status {}...", status);
+                  return Err(anyhow::format_err!(
+                      "FFT step failed with exit status {}...",
+                      status
+                  ));
               }
           }
 
@@ -2462,7 +2680,7 @@ video.len() in:
                           ret2.push(*o);
                       }
                       Err(e) => {
-                          eprintln!("Failed to FFT a vector due to {}", e);
+                          tracing::error!("Failed to FFT a vector due to {}", e);
                       }
                   }
               }
@@ -2473,42 +2691,51 @@ video.len() in:
           }
       }
 
-      
       pub fn windowed_from_torch_video_tensor(
           tensor_video_input: &tch::Tensor,
           use_gpu: bool,
       ) -> anyhow::Result<Vec<Self>> {
           let total_video_length = tensor_video_input.size()[0];
-          let num_windows: u8 = get_num_windows(/*total_video_length: u64 =*/ total_video_length as u64);
-          eprintln!("num_windows = {}",num_windows);
+          let num_windows: u8 =
+              get_num_windows(/*total_video_length: u64 =*/ total_video_length as u64);
+          tracing::info!("num_windows = {}", num_windows);
 
           match num_windows {
               0 => {
-                  eprintln!("Video too short...");
+                  tracing::error!("Video too short...");
                   return Err(anyhow::format_err!("Video too short..."));
-              },
+              }
               1 => {
-                  eprintln!("window_length = 1, total_video_length = {}",total_video_length);
+                  tracing::info!(
+                      "window_length = 1, total_video_length = {}",
+                      total_video_length
+                  );
                   return Self::from_list_torch_video_tensor(
                       /*list_torch_video_tensor: Vec<tch::Tensor> =*/
                       vec![tensor_video_input.shallow_clone()],
                       /*use_gpu: bool =*/ use_gpu,
                   );
-              },
+              }
               _ => {
-                  let mut list_torch_video_tensor = Vec::<tch::Tensor>::with_capacity(num_windows as usize);
+                  let mut list_torch_video_tensor =
+                      Vec::<tch::Tensor>::with_capacity(num_windows as usize);
 
                   for i in 1..=num_windows {
                       let end = ((((total_video_length - 160) * ((i as i64) - 1))
                           / ((num_windows as i64) - 1))
-                          + 160).min(total_video_length);
+                          + 160)
+                          .min(total_video_length);
 
                       let start = (end - 160).max(0);
 
-                      eprintln!("i = {} , num_windows = {} , total_video_length = {}",
-                                i,num_windows,total_video_length);
+                      tracing::info!(
+                          "i = {} , num_windows = {} , total_video_length = {}",
+                          i,
+                          num_windows,
+                          total_video_length
+                      );
 
-                      eprintln!("start = {} , end = {}",start,end);
+                      tracing::info!("start = {} , end = {}", start, end);
 
                       list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
                   }
@@ -2517,7 +2744,7 @@ video.len() in:
                       /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
                       /*use_gpu: bool =*/ use_gpu,
                   );
-              },
+              }
           }
       }
   }
@@ -3089,7 +3316,7 @@ video.len() in:
 
   impl infer_slave {
       pub fn new(batch_size: u8) -> Self {
-          println!("batch size called with : {}", batch_size);
+          tracing::debug!("batch size called with : {}", batch_size);
           Self {
               slave: unsafe { export::new_infer_slave(batch_size) },
               batch_size: batch_size,
@@ -3114,7 +3341,7 @@ video.len() in:
           let blob_destination_base = ret.as_mut_ptr();
 
           for i in 0..num_batches {
-              unsafe {
+              let status = unsafe {
                   export::run_infer_slave(
                       /*in_: *mut ::std::os::raw::c_void =*/ self.slave,
                       /*blob_source: *mut ::std::os::raw::c_void =*/
@@ -3124,7 +3351,11 @@ video.len() in:
                       blob_destination_base.add(i * (self.batch_size as usize))
                           as *mut ::std::os::raw::c_void,
                   )
-              };
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+              }
           }
 
           unsafe {
@@ -3136,25 +3367,146 @@ video.len() in:
   }
 #+end_src
 
-* Main rust code
-#+begin_src rust :mkdirp yes :tangle ./src/main.rs
-  use mimalloc::MiMalloc;
+* Rust code for safe inference wrapper of image model
+#+begin_src rust :mkdirp yes :tangle ./src/inferencerelatedimage.rs
+  use crate::export;
+  use tch::IndexOp;
 
+  #[repr(C)]
+  #[derive(Clone, Copy, Debug)]
+  pub struct infer_results {
+      pub ARM: i64,
+      pub RAIL: i64,
+      pub LEG: i64,
+      pub POS: i64,
+      pub BED: i64,
+  }
+
+  pub struct infer_slave {
+      slave: *mut ::std::os::raw::c_void,
+      batch_size: ::std::os::raw::c_uchar,
+  }
+
+  impl Default for infer_results {
+      fn default() -> Self {
+          infer_results {
+              ARM: 0 as i64,
+              RAIL: 0 as i64,
+              LEG: 0 as i64,
+              POS: 0 as i64,
+              BED: 0 as i64,
+          }
+      }
+  }
+
+  impl infer_results {
+      pub fn bed_status(&self) -> f32 {
+          if self.BED == 1 {
+              return 1 as f32;
+          } else {
+              return 0 as f32;
+          }
+      }
+  }
+
+  impl Drop for infer_slave {
+      fn drop(&mut self) {
+          unsafe { export::delete_infer_slave_image(self.slave) };
+      }
+  }
+
+  impl infer_slave {
+      pub fn new(batch_size: u8) -> Self {
+          Self {
+              slave: unsafe { export::new_infer_slave_image(batch_size) },
+              batch_size: batch_size,
+          }
+      }
+
+      pub fn infer(&mut self, vals: &tch::Tensor) -> anyhow::Result<Vec<infer_results>> {
+          let size: Vec<i64> = vals.size();
+
+          if ((size[0] as usize) % (self.batch_size as usize)) != 0 {
+              return Err(anyhow::format_err!(
+                  "The input vector length should be a multiple of batch size"
+              ));
+          }
+
+          let num_batches: usize = (size[0] as usize) / (self.batch_size as usize);
+
+          let mut ret = Vec::<infer_results>::with_capacity(size[0] as usize);
+          let blob_destination_base = ret.as_mut_ptr();
+
+          for i in 0..num_batches {
+              let begin_t = (i as i64) * (self.batch_size as i64);
+              let end_t = begin_t + (self.batch_size as i64);
+
+              tracing::debug!("getting the range {} {}", begin_t, end_t);
+              // let blob_destination_base = ret[(begin_t as usize)..(end_t as usize)].as_mut_ptr();
+
+              let current_batch_tensor = {
+                  const sy: i64 = 720;
+                  const sx: i64 = 1280;
+                  const sc: i64 = 3;
+                  const d: i64 = (sx - sy) >> 1;
+                  const begin_x: i64 = d;
+                  const end_x: i64 = begin_x + sy;
+                  let cropped_tensor = vals.i((begin_t..end_t, .., begin_x..end_x, ..));
+                  let nchw_tensor = cropped_tensor.permute(&[0, 3, 1, 2]);
+
+                  let interpolated_nchw =
+                      nchw_tensor.upsample_bicubic2d(&[448, 448], false, None, None);
+
+                  let final_tensor = interpolated_nchw.permute(&[0, 2, 3, 1]);
+
+                  final_tensor.contiguous()
+              };
+
+              let blob_source_base = current_batch_tensor.data_ptr();
+
+              let status = unsafe {
+                  export::run_infer_slave_image(
+                      self.slave,
+                      blob_source_base as *mut ::std::os::raw::c_void,
+                      blob_destination_base.add(i * (self.batch_size as usize))
+                          as *mut ::std::os::raw::c_void,
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+              }
+          }
+
+          unsafe { ret.set_len(size[0] as usize) };
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
+* Main rust code
+T H W C
+
+( T * x ) / 15 for choosing images for inference
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
   #[global_allocator]
-  static GLOBAL: MiMalloc = MiMalloc;
+  static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
   mod export;
   mod inferencerelated;
+  mod inferencerelatedimage;
   mod videofft;
   mod videofftstats;
   mod videofn;
   mod videoview;
 
-  use anyhow::Context;
+  use anyhow::{Context, Result};
   use rayon::prelude::*;
   use tch::IndexOp;
 
   const USE_GPU: bool = true;
+  const IMAGE_INFERENCE_BATCH_SIZE: i64 = 16;
 
   fn infer_video_end_2_end(
       path_file_video_input: String,
@@ -3170,6 +3522,23 @@ video.len() in:
       )?;
 
       let video_tensor = slicer.get_video_tensor()?;
+
+      let size = video_tensor.size(); // B H W C
+
+      {
+          let image_indices: std::vec::Vec<i64> = (0..16)
+              .map(|x: i64| (size[0] * x) / (IMAGE_INFERENCE_BATCH_SIZE - 1))
+              .collect();
+
+          let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
+
+          let image_tensor =
+              video_tensor.index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor);
+
+          let mut slave = inferencerelatedimage::infer_slave::new(/*batch_size =*/ 16);
+          let res = slave.infer(&image_tensor)?;
+          tracing::trace!("{:?}", res);
+      }
 
       let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
           /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
@@ -3195,7 +3564,7 @@ video.len() in:
       )?;
 
       for i in ret.iter() {
-          println!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
+          tracing::trace!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
       }
 
       return Ok(ret);
@@ -3280,8 +3649,7 @@ video.len() in:
           ));
       } else {
           if true {
-
-              let res =  videoview::video_slicer_piped::new(
+              let res = videoview::video_slicer_piped::new(
                   /*path_file_video_input: String =*/ path_file_video_input.clone(),
                   /*fps: f32 =*/ 8 as f32,
                   /*size_x: u16 =*/ 1280 as u16,
@@ -3296,10 +3664,15 @@ video.len() in:
                   /*tensor_video_input: tch::Tensor =*/ full_tensor,
                   /*path_dir_output: &str =*/ path_dir_output.as_str(),
               );
-
           } else {
-
-              let res = videoview::video_slicer::new(path_file_video_input.clone(), None, 8.0, 1280, 720, 3)?;
+              let res = videoview::video_slicer::new(
+                  path_file_video_input.clone(),
+                  None,
+                  8.0,
+                  1280,
+                  720,
+                  3,
+              )?;
 
               let full_tensor = res.get_video_tensor()?;
 
@@ -3307,7 +3680,6 @@ video.len() in:
                   /*tensor_video_input: tch::Tensor =*/ full_tensor,
                   /*path_dir_output: &str =*/ path_dir_output.as_str(),
               );
-
           }
       }
   }
@@ -3415,7 +3787,7 @@ video.len() in:
 #+end_src
 
 * Protobuf side
-#+begin_src rust :tangle ./infer.proto
+#+begin_src conf :mkdirp yes :tangle ./infer.proto
   syntax = "proto3";
 
   package myrdvideoinferinfer;
@@ -3434,9 +3806,18 @@ video.len() in:
       float pc = 3;
   }
 
+  message Grpcimgprediction {
+      uint32 arm = 1; 
+      uint32 rail = 2; 
+      uint32 leg = 3; 
+      uint32 pos = 4; 
+      uint32 bed = 5; 
+  }
+
   message Grpcvideopredictionreply {
       repeated Grpcvideoprediction preds = 1;
       float majority = 2;
+      repeated Grpcimgprediction imgpreds = 3;
   }
 #+end_src
 
@@ -3451,32 +3832,13 @@ struct inference_loop {
   flume_receive_channel <message_input>
 }
 
-* Implementation for the server endpoint
-#+begin_src rust :mkdirp yes :tangle ./src/server.rs
-  use mimalloc::MiMalloc;
-
-  #[global_allocator]
-  static GLOBAL: MiMalloc = MiMalloc;
-
-  mod export;
-  mod inferencerelated;
-  mod lockssync;
-  mod videofft;
-  mod videofftstats;
-  mod videofn;
-  mod videoview;
-
-  use anyhow::Context;
-  use rayon::prelude::*;
+* Implement the inference loop part
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannel.rs
+  use crate::inferencerelated;
+  use crate::videofft;
+  use crate::videofftstats;
+  use crate::videoview;
   use tch::IndexOp;
-
-  pub mod infer {
-      tonic::include_proto!("myrdvideoinferinfer");
-
-      pub(crate) const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("infer");
-  }
-
-  const USE_GPU: bool = true;
 
   struct message_input {
       tensor: Vec<videofft::fft_video>,
@@ -3488,16 +3850,22 @@ struct inference_loop {
       normalizer: std::boxed::Box<videofftstats::fft_video_normalizer>,
   }
 
+  struct inference_slave {
+      receiver: flume::Receiver<message_input>,
+  }
+
+  pub struct inference_pair {
+      slave_sender: inference_communicator,
+      handle: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
+  }
+
   impl inference_communicator {
       fn new(sender_in: flume::Sender<message_input>) -> Self {
-          println!("Building inference communicator");
           let normalizer = videofftstats::fft_video_normalizer::new(
               /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
               /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
           )
           .unwrap();
-
-          println!("Built inference communicator");
 
           Self {
               sender: sender_in,
@@ -3550,13 +3918,11 @@ struct inference_loop {
 
       fn do_infer_on_video_file(
           &self,
-          path_file_video_input: &str,
+          path_file_video_input: impl AsRef<std::path::Path>,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-
           let mut list_video_fft_tensor = {
-
               let slicer = videoview::video_slicer_piped::new(
-                  /*path_file_video_input: String =*/ path_file_video_input.to_string(),
+                  /*path_file_video_input: String =*/ path_file_video_input.as_ref(),
                   /*fps: f32 =*/ 8 as f32,
                   /*size_x: u16 =*/ 1280 as u16,
                   /*size_y: u16 =*/ 720 as u16,
@@ -3579,7 +3945,6 @@ struct inference_loop {
           &self,
           mut tensors_input: Vec<videofft::fft_video>,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-
           self.normalizer.normalize_vec(
               /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
           );
@@ -3590,7 +3955,6 @@ struct inference_loop {
               );
 
           let msg = {
-
               let mut oneshot_send_channel =
                   Vec::<oneshot::Sender<inferencerelated::infer_results>>::with_capacity(
                       tensors_input.len(),
@@ -3606,7 +3970,6 @@ struct inference_loop {
                   tensor: tensors_input,
                   oneshot_send_channel: oneshot_send_channel,
               }
-
           };
 
           self.sender.send(msg);
@@ -3622,15 +3985,9 @@ struct inference_loop {
       }
   }
 
-  struct inference_slave {
-      receiver: flume::Receiver<message_input>,
-  }
-
   impl inference_slave {
       pub fn new() -> (Self, inference_communicator) {
-          println!("Building inference_slave");
           let (sender, receiver) = flume::unbounded::<message_input>();
-          println!("Built inference_slave");
           return (
               Self { receiver: receiver },
               inference_communicator::new(sender),
@@ -3645,31 +4002,31 @@ struct inference_loop {
                   return Err(anyhow::format_err!("Input vector is empty..."));
               }
               1 => {
-                  eprintln!("Inferring for length 1");
+                  tracing::info!("Inferring for length 1");
                   let mut infer_slave = inferencerelated::infer_slave::new(1);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                   return Ok(ret);
               }
               2 => {
-                  eprintln!("Inferring for length 2");
+                  tracing::trace!("Inferring for length 2");
                   let mut infer_slave = inferencerelated::infer_slave::new(2);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                   return Ok(ret);
               }
               3 | 6 | 9 | 15 | 18 | 21 | 27 | 30 => {
-                  eprintln!("Inferring for length 3");
+                  tracing::trace!("Inferring for length 3");
                   let mut infer_slave = inferencerelated::infer_slave::new(3);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                   return Ok(ret);
               }
               4 | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 40 => {
-                  eprintln!("Inferring for length 4");
+                  tracing::trace!("Inferring for length 4");
                   let mut infer_slave = inferencerelated::infer_slave::new(4);
                   let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                   return Ok(ret);
               }
               5 => {
-                  eprintln!("Inferring for length 5");
+                  tracing::trace!("Inferring for length 5");
 
                   let split_off_point = 4 as usize;
 
@@ -3684,7 +4041,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               7 => {
-                  eprintln!("Inferring for length 7");
+                  tracing::trace!("Inferring for length 7");
 
                   let split_off_point = 4 as usize;
 
@@ -3699,7 +4056,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               10 => {
-                  eprintln!("Inferring for length 10");
+                  tracing::trace!("Inferring for length 10");
 
                   let split_off_point = 8 as usize;
 
@@ -3714,7 +4071,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               11 => {
-                  eprintln!("Inferring for length 11");
+                  tracing::trace!("Inferring for length 11");
 
                   let split_off_point = 8 as usize;
 
@@ -3729,7 +4086,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               13 => {
-                  eprintln!("Inferring for length 13");
+                  tracing::trace!("Inferring for length 13");
 
                   let split_off_point = 12 as usize;
 
@@ -3744,7 +4101,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               14 => {
-                  eprintln!("Inferring for length 14");
+                  tracing::trace!("Inferring for length 14");
 
                   let split_off_point = 12 as usize;
 
@@ -3759,7 +4116,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               17 => {
-                  eprintln!("Inferring for length 17");
+                  tracing::trace!("Inferring for length 17");
 
                   let split_off_point = 16 as usize;
 
@@ -3774,7 +4131,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               19 => {
-                  eprintln!("Inferring for length 19");
+                  tracing::trace!("Inferring for length 19");
 
                   let split_off_point = 16 as usize;
 
@@ -3789,7 +4146,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               22 => {
-                  eprintln!("Inferring for length 19");
+                  tracing::trace!("Inferring for length 19");
 
                   let split_off_point = 20 as usize;
 
@@ -3804,7 +4161,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               23 => {
-                  eprintln!("Inferring for length 23");
+                  tracing::trace!("Inferring for length 23");
 
                   let split_off_point = 20 as usize;
 
@@ -3819,7 +4176,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               25 => {
-                  eprintln!("Inferring for length 25");
+                  tracing::trace!("Inferring for length 25");
 
                   let split_off_point = 24 as usize;
 
@@ -3834,7 +4191,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               26 => {
-                  eprintln!("Inferring for length 26");
+                  tracing::trace!("Inferring for length 26");
 
                   let split_off_point = 24 as usize;
 
@@ -3849,7 +4206,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               29 => {
-                  eprintln!("Inferring for length 29");
+                  tracing::trace!("Inferring for length 29");
 
                   let split_off_point = 28 as usize;
 
@@ -3863,7 +4220,7 @@ struct inference_loop {
                   return Ok(ret);
               }
               _ => {
-                  eprintln!("Inferring for length 29");
+                  tracing::trace!("Inferring for length 29");
 
                   let split_off_point = 30 as usize;
 
@@ -3881,7 +4238,6 @@ struct inference_loop {
       }
 
       pub fn inference_loop(&self) -> anyhow::Result<()> {
-          println!("Started inference_loop");
           loop {
               let mut tensors = Vec::<videofft::fft_video>::new();
               let mut senders = Vec::<oneshot::Sender<inferencerelated::infer_results>>::new();
@@ -3945,9 +4301,198 @@ struct inference_loop {
       }
   }
 
-  struct inference_pair {
+  impl Drop for inference_pair {
+      fn drop(&mut self) {
+          if let Some(handle) = self.handle.take() {
+              let _ = handle.join();
+          }
+      }
+  }
+
+  impl inference_pair {
+      pub fn new() -> Self {
+          let (slave_inf, slave_sender) = inference_slave::new();
+          let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
+
+          Self {
+              slave_sender: slave_sender,
+              handle: Some(handle_inference),
+          }
+      }
+
+      pub fn do_infer_on_fft_tensor(
+          &self,
+          mut tensors_input: Vec<videofft::fft_video>,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          self.slave_sender.do_infer_on_fft_tensor(tensors_input)
+      }
+
+      pub fn do_infer_on_video_file(
+          &self,
+          path_file_video_input: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          self.slave_sender.do_infer_on_video_file(path_file_video_input)
+      }
+  }
+#+end_src
+
+* Implement the inference loop part
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelimage.rs
+  use crate::inferencerelatedimage;
+
+  pub const GOOD_BATCH_SIZE: u8 = 32;
+
+  struct message_input {
+      tensor: tch::Tensor,
+      oneshot_send_channel: oneshot::Sender<Vec<inferencerelatedimage::infer_results>>,
+  }
+
+  struct inference_communicator {
+      sender: flume::Sender<message_input>,
+  }
+
+  struct inference_slave {
+      receiver: flume::Receiver<message_input>,
+  }
+
+  pub struct inference_pair {
       slave_sender: inference_communicator,
       handle: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
+  }
+
+  impl inference_communicator {
+      fn new(sender_in: flume::Sender<message_input>) -> Self {
+          Self { sender: sender_in }
+      }
+
+      fn do_infer_on_image_batch_tensor(
+          &self,
+          mut tensors_input: tch::Tensor,
+      ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
+          let (sender, receiver) = oneshot::channel::<Vec<inferencerelatedimage::infer_results>>();
+
+          let msg = message_input {
+              tensor: tensors_input,
+              oneshot_send_channel: sender,
+          };
+
+          self.sender.send(msg);
+
+          let ret = receiver.recv()?;
+
+          return Ok(ret);
+      }
+
+      async fn do_infer_on_image_batch_tensor_async(
+          &self,
+          mut tensors_input: tch::Tensor,
+      ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
+          let (sender, receiver) = oneshot::channel::<Vec<inferencerelatedimage::infer_results>>();
+
+          let msg = message_input {
+              tensor: tensors_input,
+              oneshot_send_channel: sender,
+          };
+
+          self.sender.send(msg);
+
+          let ret = receiver.await?;
+
+          return Ok(ret);
+      }
+  }
+
+  impl inference_slave {
+      pub fn new() -> (Self, inference_communicator) {
+          let (sender, receiver) = flume::unbounded::<message_input>();
+          return (
+              Self { receiver: receiver },
+              inference_communicator::new(sender),
+          );
+      }
+
+      fn efficient_infer(
+          mut vals: Vec<tch::Tensor>,
+          batch_size: u8,
+      ) -> Vec<Result<Vec<inferencerelatedimage::infer_results>, String>> {
+          let mut ret: Vec<Result<Vec<inferencerelatedimage::infer_results>, String>> = Vec::new();
+          let mut infer_slave = inferencerelatedimage::infer_slave::new(batch_size);
+          for i in vals.into_iter() {
+              let tmp = infer_slave.infer(&i);
+              match tmp {
+                  Ok(o) => {
+                      ret.push(Ok(o));
+                  }
+                  Err(e) => {
+                      ret.push(Err(format!("Inference failed {}", e)));
+                  }
+              }
+          }
+          return ret;
+      }
+
+      pub fn inference_loop(&self) -> anyhow::Result<()> {
+          loop {
+              let mut tensors = Vec::<tch::Tensor>::new();
+              let mut senders =
+                  Vec::<oneshot::Sender<Vec<inferencerelatedimage::infer_results>>>::new();
+              let mut do_loop = true;
+              let mut do_infer = false;
+
+              if true {
+                  let input_msg = self.receiver.recv();
+
+                  match input_msg {
+                      Ok(o) => {
+                          tensors.push(o.tensor);
+                          senders.push(o.oneshot_send_channel);
+                          do_loop = tensors.len() <= 8;
+                          do_infer = true;
+                      }
+                      Err(e) => {
+                          do_loop = false;
+                          do_infer = false;
+                      }
+                  }
+              }
+
+              while do_loop {
+                  let message_input = self
+                      .receiver
+                      .recv_timeout(std::time::Duration::from_millis(200));
+
+                  match message_input {
+                      Ok(o) => {
+                          tensors.push(o.tensor);
+                          senders.push(o.oneshot_send_channel);
+                          do_loop = tensors.len() <= 8;
+                          do_infer = true;
+                      }
+                      Err(e) => {
+                          do_loop = false;
+                      }
+                  }
+              }
+
+              if do_infer {
+                  let res = Self::efficient_infer(tensors, GOOD_BATCH_SIZE);
+                  for (x, y) in res.into_iter().zip(senders.into_iter()) {
+                      match x {
+                          Ok(o) => {
+                              tracing::info!("Inference succeeded, sending results");
+                              y.send(o);
+                          }
+                          Err(e) => {
+                              tracing::error!("Image inference for batch failed due to {}", e);
+                              drop(y);
+                          }
+                      }
+                  }
+              }
+          }
+
+          Ok(())
+      }
   }
 
   impl Drop for inference_pair {
@@ -3959,45 +4504,181 @@ struct inference_loop {
   }
 
   impl inference_pair {
-      fn new() -> Self {
-          println!("Building inference_pair");
+      pub fn new() -> Self {
           let (slave_inf, slave_sender) = inference_slave::new();
           let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
-          println!("Built inference_pair");
           Self {
               slave_sender: slave_sender,
               handle: Some(handle_inference),
           }
       }
 
-      fn do_infer_on_fft_tensor(
+      pub fn do_infer_on_image_tensor(
           &self,
-          mut tensors_input: Vec<videofft::fft_video>,
-      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-          self.slave_sender.do_infer_on_fft_tensor(tensors_input)
-      }
-
-      fn do_infer_on_video_file(
-          &self,
-          path_file_video_input: &str,
-      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          mut tensors_input: tch::Tensor,
+      ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
           self.slave_sender
-              .do_infer_on_video_file(/*path_file_video_input: &str =*/ path_file_video_input)
+              .do_infer_on_image_batch_tensor(tensors_input)
       }
   }
+#+end_src
+
+* Implement the combined video and image inference class
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelboth.rs
+    use crate::inferencerelated;
+    use crate::inferencerelatedimage;
+    use crate::serverinferencechannel;
+    use crate::serverinferencechannelimage;
+    use crate::videofft;
+    use crate::videoview;
+
+    const NUM_BATCHES_IN_VIDEO: u8 = 2;
+
+    pub struct combined_infer {
+        infer_rd: serverinferencechannel::inference_pair,
+        infpairimage: serverinferencechannelimage::inference_pair,
+    }
+
+    pub struct combined_results {
+        results_video: Option<Vec<inferencerelated::infer_results>>,
+        results_image: Option<Vec<inferencerelatedimage::infer_results>>,
+    }
+
+    impl combined_infer {
+        pub fn new() -> Self {
+            Self {
+                infer_rd: serverinferencechannel::inference_pair::new(),
+                infpairimage: serverinferencechannelimage::inference_pair::new(),
+            }
+        }
+
+        pub fn do_infer_on_video_file(
+            &self,
+            path_file_video_input: impl AsRef<std::path::Path>,
+        ) -> anyhow::Result<(
+            Vec<inferencerelated::infer_results>,
+            Vec<inferencerelatedimage::infer_results>,
+        )> {
+            let slicer = videoview::video_slicer_piped::new(
+                /*path_file_video_input: String =*/ path_file_video_input.as_ref(),
+                /*fps: f32 =*/ 8 as f32,
+                /*size_x: u16 =*/ 1280 as u16,
+                /*size_y: u16 =*/ 720 as u16,
+                /*size_c: u8 =*/ 3 as u8,
+                /*clean_video: bool =*/ true,
+            )?;
+
+            let video_tensor = slicer.get_video_tensor()?;
+
+            let image_batch_tensor: tch::Tensor = {
+                const end_index: u8 = (serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO);
+                let image_indices: std::vec::Vec<i64> = (0..end_index)
+                    .map(|x: u8|
+                         ((video_tensor.size()[0] - 1) * (x as i64)) /
+                         ((end_index - 1) as i64)
+                    ).collect();
+
+                let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
+
+                video_tensor
+                    .index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor)
+            };
+
+            let image_infer_results = self
+                .infpairimage
+                .do_infer_on_image_tensor(image_batch_tensor)?;
+
+            let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+                /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+                /*use_gpu: bool =*/ true,
+            )?;
+
+            drop(video_tensor);
+            drop(slicer);
+
+            let rd_infer_results = self
+                .infer_rd
+                .do_infer_on_fft_tensor(list_video_fft_tensor)?;
+
+            return Ok((rd_infer_results, image_infer_results));
+        }
+    }
+#+end_src
+
+* Write the function to do the hashing
+#+begin_src rust :mkdirp yes :tangle ./src/hasher.rs
+  pub struct blob_hash {
+      hash: blake3::Hash,
+  }
+
+  impl blob_hash {
+      pub fn new_from_slice(inblob: &[u8]) -> Self {
+          Self {
+              hash: blake3::hash(inblob),
+          }
+      }
+
+      pub fn new_from_file(infilepath: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+          let file: std::fs::File = std::fs::File::open(infilepath.as_ref())?;
+          let mmap_result = unsafe { memmap2::Mmap::map(&file) }?;
+          Ok(Self::new_from_slice(&mmap_result))
+      }
+
+      pub fn get_hash(&self) -> &[u8] {
+          self.hash.as_slice()
+      }
+
+      pub fn get_hash_string(&self) -> String {
+          return c32::encode(self.get_hash());
+      }
+  }
+#+end_src
+
+* Implementation for the server endpoint
+#+begin_src rust :mkdirp yes :tangle ./src/server.rs
+  #[global_allocator]
+  static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+  mod export;
+  mod hasher;
+  mod inferencerelated;
+  mod inferencerelatedimage;
+  mod lockssync;
+  mod serverinferencechannel;
+  mod serverinferencechannelboth;
+  mod serverinferencechannelimage;
+  mod videofft;
+  mod videofftstats;
+  mod videofn;
+  mod videoview;
+
+  use anyhow::Context;
+  use rayon::prelude::*;
+  use tch::IndexOp;
+  // use log::{info, trace, warn};
+
+  pub mod infer {
+      tonic::include_proto!("myrdvideoinferinfer");
+
+      pub(crate) const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("infer");
+  }
+
+  const USE_GPU: bool = true;
 
   struct grpc_inferer {
-      infpair: std::sync::Arc<inference_pair>,
+      infpair: std::sync::Arc<serverinferencechannelboth::combined_infer>,
+      semaphore: std::sync::Arc<tokio::sync::Semaphore>,
   }
 
   impl grpc_inferer {
       fn new() -> Self {
-          println!("Building grpc_inferer");
           let ret = Self {
-              infpair: std::sync::Arc::<inference_pair>::new(inference_pair::new()),
-          } ;
-          println!("Returning grpc_inferer");
+              infpair: std::sync::Arc::<serverinferencechannelboth::combined_infer>::new(
+                  serverinferencechannelboth::combined_infer::new(),
+              ),
+              semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(6)),
+          };
           return ret;
       }
   }
@@ -4008,45 +4689,81 @@ struct inference_loop {
           &self,
           request: tonic::Request<infer::Grpcvideodata>,
       ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
-          println!("Called doinfer");
+          tracing::info!("Received an inference request");
+          let path_dir_prefix = std::path::PathBuf::from("/dev/shm/RD/video");
+
+          let _ = tokio::fs::create_dir_all(&path_dir_prefix).await?;
+
           let video_data = &(request.into_inner().data);
-          let hash = gxhash::gxhash64(&video_data, /* seed = */ 12345);
-          let path_file_video_output = format!("/dev/shm/{:x}.mp4", hash);
-          if (tokio::fs::try_exists(path_file_video_output.as_str()).await?) {
+
+          let hash = hasher::blob_hash::new_from_slice(video_data.as_slice());
+
+          let hash_string = hash.get_hash_string();
+          tracing::info!("Hash of received video {}", hash_string);
+
+          let path_file_video_output = path_dir_prefix.join(hash_string);
+
+          if (tokio::fs::try_exists(&path_file_video_output).await?) {
+              tracing::error!("File already exists {:?}", path_file_video_output);
               return Err(tonic::Status::internal(
                   "Same file is already being processed...",
               ));
           } else {
-              tokio::fs::write(path_file_video_output.as_str(), video_data).await?;
-          }
+              let _ = tokio::fs::write(&path_file_video_output, video_data).await?;
 
-          let infpair = self.infpair.clone(); 
-          let path = path_file_video_output.clone();
-          let res = tokio::task::spawn_blocking(move || {
-              infpair.do_infer_on_video_file(&path)
-          }).await.expect("The blocking task panicked");
+              let infpair = self.infpair.clone();
 
-          // let res = self.infpair.do_infer_on_video_file(&path_file_video_output);
+              let path_file_video_output_tmp = path_file_video_output.clone();
 
-          match res {
-              Ok(o) => {
-                  let preds: Vec<infer::Grpcvideoprediction> = o
-                      .iter()
-                      .map(|i| infer::Grpcvideoprediction {
-                          pa: i.p_calm,
-                          pb: i.p_contraversial,
-                          pc: i.p_rd,
-                      })
-                      .collect();
-                  let avg = o.iter().map(|i| i.majority() as f32).sum::<f32>() /
-                            (o.len() as f32) ;
-                  return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
-                      preds: preds,
-                      majority: avg,
-                  }));
-              }
-              Err(e) => {
-                  return Err(tonic::Status::internal("Internal error, inference failed"));
+              let _permit = self
+                  .semaphore
+                  .acquire()
+                  .await
+                  .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
+
+              let res = tokio::task::spawn_blocking(move || {
+                  infpair.do_infer_on_video_file(&path_file_video_output_tmp)
+              })
+              .await
+              .expect("The blocking task panicked");
+
+              match res {
+                  Ok(o) => {
+                      let preds: Vec<infer::Grpcvideoprediction> =
+                          o.0.iter()
+                              .map(|i| infer::Grpcvideoprediction {
+                                  pa: i.p_calm,
+                                  pb: i.p_contraversial,
+                                  pc: i.p_rd,
+                              })
+                              .collect();
+
+                      let avg =
+                          o.0.iter().map(|i| i.majority() as f32).sum::<f32>() / (o.0.len() as f32);
+
+                      let bed_scaling_factor: f32 =
+                          o.1.iter().map(|x| x.bed_status()).sum::<f32>() / (o.1.len() as f32);
+
+                      let imgpreds: Vec<infer::Grpcimgprediction> =
+                          o.1.into_iter()
+                              .map(|i| infer::Grpcimgprediction {
+                                  arm: i.ARM as u32,
+                                  rail: i.RAIL as u32,
+                                  leg: i.LEG as u32,
+                                  pos: i.POS as u32,
+                                  bed: i.BED as u32,
+                              })
+                              .collect();
+
+                      return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
+                          preds: preds,
+                          majority: avg * bed_scaling_factor,
+                          imgpreds: imgpreds,
+                      }));
+                  }
+                  Err(e) => {
+                      return Err(tonic::Status::internal("Internal error, inference failed"));
+                  }
               }
           }
 
@@ -4055,43 +4772,66 @@ struct inference_loop {
   }
 
   fn main() -> anyhow::Result<()> {
-      println!("Setting to inference mode");
+
+      // tracing_subscriber::fmt()
+      //         .with_writer(std::io::stderr)
+      //         .with_max_level(tracing::Level::INFO) 
+      //         .init();
+
+      tracing_subscriber::fmt()
+          .with_writer(std::io::stderr) 
+          .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+          .init();
+
       unsafe { export::locker_to_inference_mode() };
 
-      println!("Setting address");
       let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
       let port: u16 = 8001;
       let addr = std::net::SocketAddr::new(ip_v4, port);
 
-      println!("Building the runtime");
       let rt = tokio::runtime::Builder::new_multi_thread()
           .thread_stack_size(1 << 28)
           .enable_all()
           .build()
           .unwrap();
 
-      println!("Tonic reflection parts");
       let service = tonic_reflection::server::Builder::configure()
           .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
           .build_v1()
           .unwrap();
 
-      println!("Starting the tonic service");
+      // rt.block_on(async {
+      //     println!("Server attempting to bind to {}", addr);
+      //     let result = tonic::transport::Server::builder()
+      //         .max_concurrent_streams(Some(4))
+      //         .add_service(service)
+      //         .add_service(
+      //             infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
+      //                 .max_encoding_message_size(1 << 25)
+      //                 .max_decoding_message_size(1 << 25),
+      //         )
+      //         .serve(addr)
+      //         .await;
+
+      //     if let Err(e) = result {
+      //         eprintln!("Server exited with error: {}", e);
+      //     }
+      // });
+
       rt.block_on(async {
-          println!("Server attempting to bind to {}", addr);
+          tracing::warn!("Server attempting to bind to {}", addr);
           let result = tonic::transport::Server::builder()
-              .max_concurrent_streams(Some(4))
               .add_service(service)
               .add_service(
                   infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
-                      .max_encoding_message_size(1 << 25)
-                      .max_decoding_message_size(1 << 25),
+                      .max_encoding_message_size(1 << 26)
+                      .max_decoding_message_size(1 << 26),
               )
               .serve(addr)
               .await;
 
           if let Err(e) = result {
-              eprintln!("Server exited with error: {}", e);
+              tracing::error!("Server exited with error: {}", e);
           }
       });
 
@@ -4241,11 +4981,16 @@ struct inference_loop {
   GITADD 'src/export.cpp'
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'
+  GITADD 'src/hasher.rs'
+  GITADD 'src/inferencerelatedimage.rs'
   GITADD 'src/inferencerelated.rs'
   GITADD 'src/lockssync.rs'
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'
+  GITADD 'src/serverinferencechannelboth.rs'
+  GITADD 'src/serverinferencechannelimage.rs'
+  GITADD 'src/serverinferencechannel.rs'
   GITADD 'src/server.rs'
   GITADD 'src/torchimpl.rs'
   GITADD 'src/videofft.rs'
@@ -4257,7 +5002,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Fixed division by 0 issue'
+  git status ; git commit -m 'Regular updates with logging and code cleanups'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
