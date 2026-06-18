@@ -5002,7 +5002,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Regular updates with logging and code cleanups'
+  git status ; git commit -m 'Fully working elegant RD + image inference code'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
