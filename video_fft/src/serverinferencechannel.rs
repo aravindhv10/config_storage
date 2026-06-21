@@ -82,11 +82,11 @@ impl inference_communicator {
 
     fn do_infer_on_video_file(
         &self,
-        path_file_video_input: &str,
+        path_file_video_input: impl AsRef<std::path::Path>,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
         let mut list_video_fft_tensor = {
             let slicer = videoview::video_slicer_piped::new(
-                /*path_file_video_input: String =*/ path_file_video_input.to_string(),
+                /*path_file_video_input: String =*/ path_file_video_input.as_ref(),
                 /*fps: f32 =*/ 8 as f32,
                 /*size_x: u16 =*/ 1280 as u16,
                 /*size_y: u16 =*/ 720 as u16,
@@ -103,48 +103,6 @@ impl inference_communicator {
         };
 
         self.do_infer_on_fft_tensor(list_video_fft_tensor)
-    }
-
-    fn do_infer_on_video_file_and_get_video_tensor(
-        &self,
-        path_file_video_input: &str,
-    ) -> anyhow::Result<(Vec<inferencerelated::infer_results>, tch::Tensor)> {
-        let slicer = videoview::video_slicer_piped::new(
-            /*path_file_video_input: String =*/ path_file_video_input.to_string(),
-            /*fps: f32 =*/ 8 as f32,
-            /*size_x: u16 =*/ 1280 as u16,
-            /*size_y: u16 =*/ 720 as u16,
-            /*size_c: u8 =*/ 3 as u8,
-            /*clean_video: bool =*/ true,
-        )?;
-
-        let video_tensor = slicer.get_video_tensor()?;
-
-        let image_batch_tensor: tch::Tensor = {
-            let image_indices: std::vec::Vec<i64> = (0..16)
-                .map(|x: i64| ((video_tensor.size()[0] - 1) * x) / (16 - 1))
-                .collect();
-
-            // eprintln!("{:?}", image_indices);
-            // eprintln!("{:?}", video_tensor.size());
-
-            let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
-
-            video_tensor
-                .index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor)
-                .contiguous()
-
-            // tch::Tensor::new()
-        };
-
-        let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
-            /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-            /*use_gpu: bool =*/ true,
-        )?;
-
-        let rd_infer_results = self.do_infer_on_fft_tensor(list_video_fft_tensor)?;
-
-        return Ok((rd_infer_results, image_batch_tensor));
     }
 
     async fn do_infer_on_fft_tensor_async(
@@ -208,31 +166,31 @@ impl inference_slave {
                 return Err(anyhow::format_err!("Input vector is empty..."));
             }
             1 => {
-                eprintln!("Inferring for length 1");
+                tracing::info!("Inferring for length 1");
                 let mut infer_slave = inferencerelated::infer_slave::new(1);
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                 return Ok(ret);
             }
             2 => {
-                eprintln!("Inferring for length 2");
+                tracing::trace!("Inferring for length 2");
                 let mut infer_slave = inferencerelated::infer_slave::new(2);
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                 return Ok(ret);
             }
             3 | 6 | 9 | 15 | 18 | 21 | 27 | 30 => {
-                eprintln!("Inferring for length 3");
+                tracing::trace!("Inferring for length 3");
                 let mut infer_slave = inferencerelated::infer_slave::new(3);
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                 return Ok(ret);
             }
             4 | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 40 => {
-                eprintln!("Inferring for length 4");
+                tracing::trace!("Inferring for length 4");
                 let mut infer_slave = inferencerelated::infer_slave::new(4);
                 let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
                 return Ok(ret);
             }
             5 => {
-                eprintln!("Inferring for length 5");
+                tracing::trace!("Inferring for length 5");
 
                 let split_off_point = 4 as usize;
 
@@ -247,7 +205,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             7 => {
-                eprintln!("Inferring for length 7");
+                tracing::trace!("Inferring for length 7");
 
                 let split_off_point = 4 as usize;
 
@@ -262,7 +220,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             10 => {
-                eprintln!("Inferring for length 10");
+                tracing::trace!("Inferring for length 10");
 
                 let split_off_point = 8 as usize;
 
@@ -277,7 +235,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             11 => {
-                eprintln!("Inferring for length 11");
+                tracing::trace!("Inferring for length 11");
 
                 let split_off_point = 8 as usize;
 
@@ -292,7 +250,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             13 => {
-                eprintln!("Inferring for length 13");
+                tracing::trace!("Inferring for length 13");
 
                 let split_off_point = 12 as usize;
 
@@ -307,7 +265,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             14 => {
-                eprintln!("Inferring for length 14");
+                tracing::trace!("Inferring for length 14");
 
                 let split_off_point = 12 as usize;
 
@@ -322,7 +280,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             17 => {
-                eprintln!("Inferring for length 17");
+                tracing::trace!("Inferring for length 17");
 
                 let split_off_point = 16 as usize;
 
@@ -337,7 +295,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             19 => {
-                eprintln!("Inferring for length 19");
+                tracing::trace!("Inferring for length 19");
 
                 let split_off_point = 16 as usize;
 
@@ -352,7 +310,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             22 => {
-                eprintln!("Inferring for length 19");
+                tracing::trace!("Inferring for length 19");
 
                 let split_off_point = 20 as usize;
 
@@ -367,7 +325,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             23 => {
-                eprintln!("Inferring for length 23");
+                tracing::trace!("Inferring for length 23");
 
                 let split_off_point = 20 as usize;
 
@@ -382,7 +340,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             25 => {
-                eprintln!("Inferring for length 25");
+                tracing::trace!("Inferring for length 25");
 
                 let split_off_point = 24 as usize;
 
@@ -397,7 +355,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             26 => {
-                eprintln!("Inferring for length 26");
+                tracing::trace!("Inferring for length 26");
 
                 let split_off_point = 24 as usize;
 
@@ -412,7 +370,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             29 => {
-                eprintln!("Inferring for length 29");
+                tracing::trace!("Inferring for length 29");
 
                 let split_off_point = 28 as usize;
 
@@ -426,7 +384,7 @@ impl inference_slave {
                 return Ok(ret);
             }
             _ => {
-                eprintln!("Inferring for length 29");
+                tracing::trace!("Inferring for length 29");
 
                 let split_off_point = 30 as usize;
 
@@ -535,19 +493,9 @@ impl inference_pair {
 
     pub fn do_infer_on_video_file(
         &self,
-        path_file_video_input: &str,
+        path_file_video_input: impl AsRef<std::path::Path>,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
         self.slave_sender
-            .do_infer_on_video_file(/*path_file_video_input: &str =*/ path_file_video_input)
-    }
-
-    pub fn do_infer_on_video_file_and_get_video_tensor(
-        &self,
-        path_file_video_input: &str,
-    ) -> anyhow::Result<(Vec<inferencerelated::infer_results>, tch::Tensor)> {
-        self.slave_sender
-            .do_infer_on_video_file_and_get_video_tensor(
-                /*path_file_video_input: &str =*/ path_file_video_input,
-            )
+            .do_infer_on_video_file(path_file_video_input)
     }
 }

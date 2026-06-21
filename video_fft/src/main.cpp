@@ -306,7 +306,6 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             .item()
             .to<uint16_t>();
 
-    printf("Acquiring lock\n");
     lock_guard tmp;
 
     torch::Tensor tensor_video_padded =
@@ -374,8 +373,6 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
             .to(torch::kCPU)
             .contiguous();
 
-    printf("Released lock\n");
-
     std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
                 compressed_tensor_video_fft.nbytes());
 
@@ -384,7 +381,7 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
   } catch (const std::exception &e) {
     std::memset(dest, 0, 6 * 160 * 160 * 60 * 4);
     printf("Error: %s\n", e.what());
-    return -1; // Error
+    return -1;
   }
 }
 }
@@ -490,7 +487,7 @@ public:
 
   inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
     std::string path_file_model(get_vsitter_compiled_model_path());
-    std::cout << "Checkpoint path: " << path_file_model << std::endl;
+    // std::cout << "Checkpoint path: " << path_file_model << std::endl;
     return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
   }
 };
@@ -572,7 +569,6 @@ public:
     BATCH_SIZE = std::min(BATCH_SIZE, static_cast<std::size_t>(4));
     std::string path_file_model("/root/.cache/model_6.pt2");
     path_file_model[19] = '0' + BATCH_SIZE;
-    std::cout << "Checkpoint path: " << path_file_model << std::endl;
     return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
   }
 };

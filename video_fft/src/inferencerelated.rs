@@ -2,7 +2,16 @@ use crate::export;
 use crate::videofft;
 
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(
+    Clone,
+    Copy,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    rkyv::Archive,
+    rkyv::Serialize,
+    rkyv::Deserialize,
+)]
 pub struct infer_results {
     pub p_calm: f32,
     pub p_contraversial: f32,
@@ -38,7 +47,7 @@ impl Drop for infer_slave {
 
 impl infer_slave {
     pub fn new(batch_size: u8) -> Self {
-        println!("batch size called with : {}", batch_size);
+        tracing::debug!("batch size called with : {}", batch_size);
         Self {
             slave: unsafe { export::new_infer_slave(batch_size) },
             batch_size: batch_size,
@@ -76,7 +85,7 @@ impl infer_slave {
             } as i32;
 
             if status != 0 {
-                eprintln!("Inference failed with error code {}", status);
+                tracing::error!("Inference failed with error code {}", status);
             }
         }
 

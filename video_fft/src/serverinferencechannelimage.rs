@@ -1,6 +1,6 @@
 use crate::inferencerelatedimage;
 
-pub const GOOD_BATCH_SIZE: u8 = 32;
+pub const GOOD_BATCH_SIZE: u8 = 16;
 
 struct message_input {
     tensor: tch::Tensor,
@@ -139,10 +139,11 @@ impl inference_slave {
                 for (x, y) in res.into_iter().zip(senders.into_iter()) {
                     match x {
                         Ok(o) => {
+                            tracing::info!("Inference succeeded, sending results");
                             y.send(o);
                         }
                         Err(e) => {
-                            eprintln!("Image inference for batch failed due to {}", e);
+                            tracing::error!("Image inference for batch failed due to {}", e);
                             drop(y);
                         }
                     }

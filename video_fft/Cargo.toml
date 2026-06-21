@@ -19,23 +19,35 @@ path = "src/client.rs"
 tonic-prost-build = "0.14.2"
 
 [dependencies]
-anyhow = "1.0.102"
+
+tonic = { version = "0.14", features = ["zstd"] }
+tonic-prost = "0.14"
+tonic-reflection = "0.14"
+prost = "0.14"
+
+oneshot = { version = "0.2", features = ["async", "std"] }
+flume = "0.12"
+
 blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
-copyless = "0.1.5"
-flume = "0.12.0"
-futures = "0.3.32"
-gxhash = "3.5.0"
-jwalk = "0.8.1"
-log = { version = "0.4.29", features = ["std"] }
-memmap2 = "0.9.10"
-mimalloc = "0.1.50"
-oneshot = { version = "0.2.1", features = ["async", "std"] }
-prost = "0.14.3"
-rayon = "1.11.0"
-serde = { version = "1.0.228", features = ["derive"] }
-tokio = { version = "1.50.0", features = ["full"] }
-tonic-prost = "0.14.5"
-tonic-reflection = "0.14.5"
-tonic = { version = "0.14.5", features = ["zstd"] }
+gxhash = "3"
+
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing = { version = "0.1", features = ["async-await"] }
+
+rayon = "1"
+jwalk = "0.8"
+
+memmap2 = "0.9"
+redb = "4"
+
+serde = { version = "1", features = ["derive"] }
+rkyv = "0.8"
+
+anyhow = "1"
+c32 = { version = "0.6", features = ["alloc"] }
+mimalloc = "0.1"
 
 tch = { version = "0.24.0", features = ["serde_json", "regex", "memmap2", "image"] }

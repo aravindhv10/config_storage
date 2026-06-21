@@ -202,7 +202,7 @@ impl fft_video {
             } as i32;
 
             if status != 0 {
-                eprintln!("FFT step failed with exit status {}...", status);
+                tracing::error!("FFT step failed with exit status {}...", status);
                 return Err(anyhow::format_err!(
                     "FFT step failed with exit status {}...",
                     status
@@ -244,7 +244,7 @@ impl fft_video {
                         ret2.push(*o);
                     }
                     Err(e) => {
-                        eprintln!("Failed to FFT a vector due to {}", e);
+                        tracing::error!("Failed to FFT a vector due to {}", e);
                     }
                 }
             }
@@ -262,15 +262,15 @@ impl fft_video {
         let total_video_length = tensor_video_input.size()[0];
         let num_windows: u8 =
             get_num_windows(/*total_video_length: u64 =*/ total_video_length as u64);
-        eprintln!("num_windows = {}", num_windows);
+        tracing::info!("num_windows = {}", num_windows);
 
         match num_windows {
             0 => {
-                eprintln!("Video too short...");
+                tracing::error!("Video too short...");
                 return Err(anyhow::format_err!("Video too short..."));
             }
             1 => {
-                eprintln!(
+                tracing::info!(
                     "window_length = 1, total_video_length = {}",
                     total_video_length
                 );
@@ -292,12 +292,14 @@ impl fft_video {
 
                     let start = (end - 160).max(0);
 
-                    eprintln!(
+                    tracing::info!(
                         "i = {} , num_windows = {} , total_video_length = {}",
-                        i, num_windows, total_video_length
+                        i,
+                        num_windows,
+                        total_video_length
                     );
 
-                    eprintln!("start = {} , end = {}", start, end);
+                    tracing::info!("start = {} , end = {}", start, end);
 
                     list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
                 }

@@ -2,7 +2,16 @@ use crate::export;
 use tch::IndexOp;
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    serde::Serialize,
+    serde::Deserialize,
+    rkyv::Archive,
+    rkyv::Serialize,
+    rkyv::Deserialize,
+)]
 pub struct infer_results {
     pub ARM: i64,
     pub RAIL: i64,
@@ -46,6 +55,7 @@ impl Drop for infer_slave {
 
 impl infer_slave {
     pub fn new(batch_size: u8) -> Self {
+        tracing::warn!("Constructing the image infer_slave");
         Self {
             slave: unsafe { export::new_infer_slave_image(batch_size) },
             batch_size: batch_size,
@@ -56,6 +66,10 @@ impl infer_slave {
         let size: Vec<i64> = vals.size();
 
         if ((size[0] as usize) % (self.batch_size as usize)) != 0 {
+            tracing::error!(
+                "The input vector length should be a multiple of batch size {}",
+                self.batch_size
+            );
             return Err(anyhow::format_err!(
                 "The input vector length should be a multiple of batch size"
             ));
@@ -70,8 +84,7 @@ impl infer_slave {
             let begin_t = (i as i64) * (self.batch_size as i64);
             let end_t = begin_t + (self.batch_size as i64);
 
-            eprintln!("getting the range {} {}", begin_t, end_t);
-            // let blob_destination_base = ret[(begin_t as usize)..(end_t as usize)].as_mut_ptr();
+            tracing::debug!("getting the range {} {}", begin_t, end_t);
 
             let current_batch_tensor = {
                 const sy: i64 = 720;
@@ -103,7 +116,7 @@ impl infer_slave {
             } as i32;
 
             if status != 0 {
-                eprintln!("Inference failed with error code {}", status);
+                tracing::error!("Inference failed with error code {}", status);
             }
         }
 

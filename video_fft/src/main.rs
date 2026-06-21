@@ -2,6 +2,7 @@
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 mod export;
+mod hasher;
 mod inferencerelated;
 mod inferencerelatedimage;
 mod videofft;
@@ -45,9 +46,7 @@ fn infer_video_end_2_end(
 
         let mut slave = inferencerelatedimage::infer_slave::new(/*batch_size =*/ 16);
         let res = slave.infer(&image_tensor)?;
-        eprintln!("#### Image inference BEGIN ####");
-        eprintln!("{:?}", res);
-        eprintln!("#### Image inference DONE ####");
+        tracing::trace!("{:?}", res);
     }
 
     let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
@@ -74,7 +73,7 @@ fn infer_video_end_2_end(
     )?;
 
     for i in ret.iter() {
-        println!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
+        tracing::trace!("{} {} {}", i.p_calm, i.p_contraversial, i.p_rd);
     }
 
     return Ok(ret);

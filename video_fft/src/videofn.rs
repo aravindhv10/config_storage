@@ -1,21 +1,25 @@
-use std::io::{Read, Write};
+use crate::hasher;
+use std::io::Read;
+use std::io::Write;
+use std::os::unix::ffi::OsStrExt;
 
-pub fn get_file_hash(path_file_input: &str) -> anyhow::Result<u64> {
-    let file: std::fs::File = std::fs::File::open(path_file_input)?;
-    let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
-    Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
+pub fn get_file_hash(
+    path_file_input: impl AsRef<std::path::Path>,
+) -> anyhow::Result<hasher::blob_hash> {
+    hasher::blob_hash::new_from_file(/*infilepath =*/ path_file_input)
 }
 
-pub fn get_str_hash(path_file_input: &str) -> u64 {
-    gxhash::gxhash64(
-        /* input = */ path_file_input.as_bytes(),
-        /* seed = */ 12345,
-    )
+pub fn get_str_hash(path_file_input: &str) -> hasher::blob_hash {
+    hasher::blob_hash::new_from_slice(path_file_input.as_bytes())
+}
+
+pub fn get_path_hash(path_file_input: impl AsRef<std::path::Path>) -> hasher::blob_hash {
+    hasher::blob_hash::new_from_slice(path_file_input.as_ref().as_os_str().as_bytes())
 }
 
 pub fn convert_encoded_video_to_raw(
-    path_file_video_input: &str,
-    path_file_video_output: &str,
+    path_file_video_input: impl AsRef<std::path::Path>,
+    path_file_video_output: impl AsRef<std::path::Path>,
     fps: f32,
     size_x: u16,
     size_y: u16,
@@ -26,24 +30,22 @@ pub fn convert_encoded_video_to_raw(
         "Currently only implemented for 3 channel color videos..."
     );
 
-    if std::fs::exists(path_file_video_output)? {
-        eprintln!("Not running ffmpeg, output file already exists.");
+    if std::fs::exists(path_file_video_output.as_ref())? {
+        tracing::warn!("Not running ffmpeg, output file already exists.");
         return Ok(());
     }
 
     let res = std::process::Command::new("ffmpeg")
-        .args([
-            "-i",
-            path_file_video_input,
-            "-vf",
-            format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-            "-nostdin",
-            "-f",
-            "rawvideo",
-            "-pix_fmt",
-            "rgb24",
-            path_file_video_output,
-        ])
+        .arg("-i")
+        .arg(path_file_video_input.as_ref())
+        .arg("-vf")
+        .arg(format!("fps={},scale={}:{}", fps, size_x, size_y).as_str())
+        .arg("-nostdin")
+        .arg("-f")
+        .arg("rawvideo")
+        .arg("-pix_fmt")
+        .arg("rgb24")
+        .arg(path_file_video_output.as_ref())
         .status()?;
 
     match res.code() {
@@ -102,8 +104,8 @@ pub fn convert_encoded_video_to_raw_piped(
         }
 
         match handle.join() {
-            Ok(_) => println!("Writer thread finished successfully"),
-            Err(e) => eprintln!("Writer thread panicked: {:?}", e),
+            Ok(_) => tracing::info!("Writer thread finished successfully"),
+            Err(e) => tracing::error!("Writer thread panicked: {:?}", e),
         };
     }
 
@@ -114,7 +116,7 @@ pub fn convert_encoded_video_to_raw_piped(
         if let Some(mut stderr) = child.stderr.take() {
             stderr.read_to_string(&mut err_msg)?;
         }
-        eprintln!("FFmpeg failed: {}", err_msg);
+        tracing::error!("FFmpeg failed: {}", err_msg);
         return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
     }
 
@@ -122,7 +124,7 @@ pub fn convert_encoded_video_to_raw_piped(
 }
 
 pub fn convert_encoded_video_to_raw_outpipe(
-    path_file_video_input: &str,
+    path_file_video_input: impl AsRef<std::path::Path>,
     fps: f32,
     size_x: u16,
     size_y: u16,
@@ -135,18 +137,16 @@ pub fn convert_encoded_video_to_raw_outpipe(
     );
 
     let mut child = std::process::Command::new("ffmpeg")
-        .args([
-            "-i",
-            path_file_video_input,
-            "-vf",
-            format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-            "-nostdin",
-            "-f",
-            "rawvideo",
-            "-pix_fmt",
-            "rgb24",
-            "pipe:1",
-        ])
+        .arg("-i")
+        .arg(path_file_video_input.as_ref())
+        .arg("-vf")
+        .arg(format!("fps={},scale={}:{}", fps, size_x, size_y).as_str())
+        .arg("-nostdin")
+        .arg("-f")
+        .arg("rawvideo")
+        .arg("-pix_fmt")
+        .arg("rgb24")
+        .arg("pipe:1")
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .spawn()?;
@@ -164,12 +164,12 @@ pub fn convert_encoded_video_to_raw_outpipe(
         if let Some(mut stderr) = child.stderr.take() {
             stderr.read_to_string(&mut err_msg)?;
         }
-        eprintln!("FFmpeg failed: {}", err_msg);
+        tracing::error!("FFmpeg failed: {}", err_msg);
         return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
     }
 
     if clean_video {
-        let _ = std::fs::remove_file(path_file_video_input);
+        let _ = std::fs::remove_file(path_file_video_input.as_ref());
     }
 
     Ok(output_buffer)
