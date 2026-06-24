@@ -62,67 +62,6 @@ pub fn convert_encoded_video_to_raw(
     };
 }
 
-pub fn convert_encoded_video_to_raw_piped(
-    input_buffer: Vec<u8>,
-    fps: f32,
-    size_x: u16,
-    size_y: u16,
-    size_c: u8,
-) -> anyhow::Result<Vec<u8>> {
-    assert!(
-        size_c == 3,
-        "Currently only implemented for 3 channel color videos..."
-    );
-
-    let mut child = std::process::Command::new("ffmpeg")
-        .args([
-            "-i",
-            "pipe:0",
-            "-vf",
-            format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-            "-r",
-            fps.to_string().as_str(),
-            "-f",
-            "rawvideo",
-            "-pix_fmt",
-            "rgb24",
-            "pipe:1",
-        ])
-        .stdin(std::process::Stdio::piped())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped())
-        .spawn()?;
-
-    let mut output_buffer = Vec::<u8>::new();
-    if let Some(mut stdin) = child.stdin.take() {
-        let handle = std::thread::spawn(move || {
-            stdin.write_all(&input_buffer);
-        });
-
-        if let Some(mut stdout) = child.stdout.take() {
-            stdout.read_to_end(&mut output_buffer)?;
-        }
-
-        match handle.join() {
-            Ok(_) => tracing::info!("Writer thread finished successfully"),
-            Err(e) => tracing::error!("Writer thread panicked: {:?}", e),
-        };
-    }
-
-    let status = child.wait()?;
-
-    if !status.success() {
-        let mut err_msg = String::new();
-        if let Some(mut stderr) = child.stderr.take() {
-            stderr.read_to_string(&mut err_msg)?;
-        }
-        tracing::error!("FFmpeg failed: {}", err_msg);
-        return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
-    }
-
-    Ok(output_buffer)
-}
-
 pub fn convert_encoded_video_to_raw_outpipe(
     path_file_video_input: impl AsRef<std::path::Path>,
     fps: f32,

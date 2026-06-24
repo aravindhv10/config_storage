@@ -166,50 +166,6 @@ pub struct video_slicer_piped {
 }
 
 impl video_slicer_piped {
-    pub fn new_from_bin(
-        binary_video_input: Vec<u8>,
-        fps: f32,
-        size_x: u16,
-        size_y: u16,
-        size_c: u8,
-    ) -> anyhow::Result<Self> {
-        let raw_video = videofn::convert_encoded_video_to_raw_piped(
-            /*input_buffer: Vec<u8> =*/ binary_video_input,
-            /*fps: f32 =*/ fps,
-            /*size_x: u16 =*/ size_x,
-            /*size_y: u16 =*/ size_y,
-            /*size_c: u8 =*/ size_c,
-        )?;
-
-        let size_t: u16 =
-            (raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
-
-        let dist_c: i32 = 1;
-
-        let dist_c: usize = 1;
-        let dist_x: usize = dist_c * (size_c as usize);
-        let dist_y: usize = dist_x * (size_x as usize);
-        let dist_t: usize = dist_y * (size_y as usize);
-
-        let ret: Self = Self {
-            fps: fps,
-
-            size_t: size_t,
-            size_x: size_x,
-            size_y: size_y,
-            size_c: size_c,
-
-            dist_t: dist_t,
-            dist_x: dist_x,
-            dist_y: dist_y,
-            dist_c: dist_c,
-
-            raw_video: raw_video,
-        };
-
-        return Ok(ret);
-    }
-
     pub fn new(
         path_file_video_input: impl AsRef<std::path::Path>,
         fps: f32,

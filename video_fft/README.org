@@ -162,6 +162,7 @@ cargo info serde
   anyhow = "1"
   c32 = { version = "0.6", features = ["alloc"] }
   mimalloc = "0.1"
+  surrealkv = "0"
 #+end_src
 
 ***** COMMENT Disabled
@@ -1770,12 +1771,17 @@ cargo info serde
 #+begin_src rust :mkdirp yes :tangle ./src/hasher.rs
   pub struct blob_hash {
       hash: blake3::Hash,
+      string_rep: std::string::String,
   }
 
   impl blob_hash {
+      #[inline(always)]
       pub fn new_from_slice(inblob: &[u8]) -> Self {
+          let hash = blake3::hash(inblob);
+          let string_rep = c32::encode(hash.as_slice());
           Self {
-              hash: blake3::hash(inblob),
+              hash: hash,
+              string_rep: string_rep,
           }
       }
 
@@ -1785,12 +1791,81 @@ cargo info serde
           Ok(Self::new_from_slice(&mmap_result))
       }
 
+      #[inline(always)]
       pub fn get_hash(&self) -> &[u8] {
           self.hash.as_slice()
       }
 
-      pub fn get_hash_string(&self) -> String {
-          return c32::encode(self.get_hash());
+      #[inline(always)]
+      pub fn get_hash_string(&self) -> &str {
+          return &self.string_rep;
+      }
+  }
+#+end_src
+
+* Rust module for storing and retrieving files
+#+begin_src rust :mkdirp yes :tangle ./src/filestore.rs
+  use crate::hasher;
+
+  pub struct file_store {
+      prefix_video: std::path::PathBuf,
+      prefix_tmp: std::path::PathBuf,
+  }
+
+  impl file_store {
+      pub fn new() -> anyhow::Result<Self> {
+          let prefix = std::path::PathBuf::from("/dev/shm/RD");
+
+          let prefix_video = prefix.join("video");
+          let prefix_tmp = prefix.join("tmp");
+
+          std::fs::create_dir_all(/*path =*/ &prefix_tmp);
+          std::fs::create_dir_all(/*path =*/ &prefix_video);
+
+          return Ok(Self {
+              prefix_video: prefix_video,
+              prefix_tmp: prefix_tmp,
+          });
+      }
+
+      #[inline(always)]
+      pub fn get_all_files(&self) -> Vec<std::path::PathBuf> {
+          jwalk::WalkDir::new(&self.prefix_video)
+              .into_iter()
+              .filter_map(|e| e.ok())
+              .map(|e| e.path())
+              .collect()
+      }
+
+      #[inline(always)]
+      pub fn get_all_files_with_hash(&self) -> Vec<(hasher::blob_hash, std::path::PathBuf)> {
+          jwalk::WalkDir::new(&self.prefix_video)
+              .into_iter()
+              .filter_map(|e| e.ok())
+              .map(|e| e.path())
+              .map(|e| match hasher::blob_hash::new_from_file(&e) {
+                  Ok(o) => Some((o, e)),
+                  Err(e) => None,
+              })
+              .flatten()
+              .collect()
+      }
+
+      pub async fn put_content(
+          &self,
+          key: &hasher::blob_hash,
+          value: &Vec<u8>,
+      ) -> anyhow::Result<std::path::PathBuf> {
+          let path_tmp = self.prefix_tmp.join(key.get_hash_string());
+          let path_video = self.prefix_video.join(key.get_hash_string());
+          let _ = tokio::fs::write(&path_tmp, value.as_slice()).await?;
+          let _ = tokio::fs::rename(/*from =*/ &path_tmp, /*to =*/ &path_video).await?;
+          return Ok(path_video);
+      }
+
+      #[inline(always)]
+      pub fn get_path(&self, key: &hasher::blob_hash) -> std::path::PathBuf {
+          self.prefix_video.join(key.get_hash_string())
       }
   }
 #+end_src
@@ -1859,67 +1934,6 @@ cargo info serde
               }
           }
       };
-  }
-
-  pub fn convert_encoded_video_to_raw_piped(
-      input_buffer: Vec<u8>,
-      fps: f32,
-      size_x: u16,
-      size_y: u16,
-      size_c: u8,
-  ) -> anyhow::Result<Vec<u8>> {
-      assert!(
-          size_c == 3,
-          "Currently only implemented for 3 channel color videos..."
-      );
-
-      let mut child = std::process::Command::new("ffmpeg")
-          .args([
-              "-i",
-              "pipe:0",
-              "-vf",
-              format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-              "-r",
-              fps.to_string().as_str(),
-              "-f",
-              "rawvideo",
-              "-pix_fmt",
-              "rgb24",
-              "pipe:1",
-          ])
-          .stdin(std::process::Stdio::piped())
-          .stdout(std::process::Stdio::piped())
-          .stderr(std::process::Stdio::piped())
-          .spawn()?;
-
-      let mut output_buffer = Vec::<u8>::new();
-      if let Some(mut stdin) = child.stdin.take() {
-          let handle = std::thread::spawn(move || {
-              stdin.write_all(&input_buffer);
-          });
-
-          if let Some(mut stdout) = child.stdout.take() {
-              stdout.read_to_end(&mut output_buffer)?;
-          }
-
-          match handle.join() {
-              Ok(_) => tracing::info!("Writer thread finished successfully"),
-              Err(e) => tracing::error!("Writer thread panicked: {:?}", e),
-          };
-      }
-
-      let status = child.wait()?;
-
-      if !status.success() {
-          let mut err_msg = String::new();
-          if let Some(mut stderr) = child.stderr.take() {
-              stderr.read_to_string(&mut err_msg)?;
-          }
-          tracing::error!("FFmpeg failed: {}", err_msg);
-          return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
-      }
-
-      Ok(output_buffer)
   }
 
   pub fn convert_encoded_video_to_raw_outpipe(
@@ -2145,50 +2159,6 @@ cargo info serde
   }
 
   impl video_slicer_piped {
-      pub fn new_from_bin(
-          binary_video_input: Vec<u8>,
-          fps: f32,
-          size_x: u16,
-          size_y: u16,
-          size_c: u8,
-      ) -> anyhow::Result<Self> {
-          let raw_video = videofn::convert_encoded_video_to_raw_piped(
-              /*input_buffer: Vec<u8> =*/ binary_video_input,
-              /*fps: f32 =*/ fps,
-              /*size_x: u16 =*/ size_x,
-              /*size_y: u16 =*/ size_y,
-              /*size_c: u8 =*/ size_c,
-          )?;
-
-          let size_t: u16 =
-              (raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
-
-          let dist_c: i32 = 1;
-
-          let dist_c: usize = 1;
-          let dist_x: usize = dist_c * (size_c as usize);
-          let dist_y: usize = dist_x * (size_x as usize);
-          let dist_t: usize = dist_y * (size_y as usize);
-
-          let ret: Self = Self {
-              fps: fps,
-
-              size_t: size_t,
-              size_x: size_x,
-              size_y: size_y,
-              size_c: size_c,
-
-              dist_t: dist_t,
-              dist_x: dist_x,
-              dist_y: dist_y,
-              dist_c: dist_c,
-
-              raw_video: raw_video,
-          };
-
-          return Ok(ret);
-      }
-
       pub fn new(
           path_file_video_input: impl AsRef<std::path::Path>,
           fps: f32,
@@ -4596,6 +4566,7 @@ struct inference_loop {
   static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
   mod export;
+  mod filestore;
   mod hasher;
   mod inferencerelated;
   mod inferencerelatedimage;
@@ -4607,6 +4578,7 @@ struct inference_loop {
   mod videofn;
   mod videoview;
 
+  use futures::StreamExt;
   use prost::Message;
   use rayon::prelude::*;
 
@@ -4700,6 +4672,7 @@ struct inference_loop {
       infpair: std::sync::Arc<serverinferencechannelboth::combined_infer>,
       semaphore: std::sync::Arc<tokio::sync::Semaphore>,
       cachedb: std::sync::Arc<Option<redb::Database>>,
+      filestore: filestore::file_store,
   }
 
   impl grpc_inferer {
@@ -4710,8 +4683,145 @@ struct inference_loop {
               ),
               semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(6)),
               cachedb: std::sync::Arc::new(Database::create("/root/.cache/infdb.redb").ok()),
+              filestore: filestore::file_store::new().unwrap(),
           };
-          return ret;
+          ret
+      }
+
+      async fn doinfer_on_file(&self, hash: hasher::blob_hash) -> anyhow::Result<()> {
+          let hash = std::sync::Arc::new(hash);
+
+          tracing::info!("Got video with hash {}", hash.get_hash_string());
+
+          match read_from_db(hash.clone(), self.cachedb.clone()).await {
+              Ok(ret) => {
+                  tracing::warn!(
+                      "Results for {} found in cache, returning cached results.",
+                      hash.get_hash_string()
+                  );
+                  return Ok(());
+              }
+              Err(e) => {
+                  tracing::info!(
+                      "inference results for {} not found. proceeding to run inference.",
+                      hash.get_hash_string()
+                  )
+              }
+          };
+
+          tracing::info!(
+              "number of permits remaining so far {}",
+              self.semaphore.available_permits()
+          );
+
+          let res = {
+              tracing::info!("Acquiring GPU Semaphore for {}", hash.get_hash_string());
+
+              let infpair = self.infpair.clone();
+
+              let path_file_video_output = self.filestore.get_path(/*key =*/ &hash);
+
+              let permit = self
+                  .semaphore
+                  .acquire()
+                  .await
+                  .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
+
+              let res = tokio::task::spawn_blocking(move || {
+                  infpair.do_infer_on_video_file(&path_file_video_output)
+              })
+              .await
+              .expect("The blocking task panicked");
+
+              res
+          };
+
+          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
+
+          match res {
+              Ok(o) => {
+                  let preds: Vec<infer::Grpcvideoprediction> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Grpcvideoprediction {
+                          pa: i.p_calm,
+                          pb: i.p_contraversial,
+                          pc: i.p_rd,
+                      })
+                      .collect();
+
+                  let avg = o
+                      .results_video
+                      .iter()
+                      .map(|i| i.majority() as f32)
+                      .sum::<f32>()
+                      / (o.results_video.len() as f32);
+
+                  let bed_scaling_factor: f32 =
+                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                          / (o.results_image.len() as f32);
+
+                  let imgpreds: Vec<infer::Grpcimgprediction> = o
+                      .results_image
+                      .into_iter()
+                      .map(|i| infer::Grpcimgprediction {
+                          arm: i.ARM as u32,
+                          rail: i.RAIL as u32,
+                          leg: i.LEG as u32,
+                          pos: i.POS as u32,
+                          bed: i.BED as u32,
+                      })
+                      .collect();
+
+                  let ret = infer::Grpcvideopredictionreply {
+                      preds: preds,
+                      majority: avg * bed_scaling_factor,
+                      imgpreds: imgpreds,
+                  };
+
+                  match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
+                      Ok(_) => {
+                          tracing::info!(
+                              "Added inference results of {} to cache.",
+                              hash.get_hash_string()
+                          );
+                      }
+                      Err(e) => {
+                          tracing::error!("Failed to cache results for {}.", hash.get_hash_string());
+                      }
+                  };
+
+                  tracing::info!("Done inferring for hash {}", hash.get_hash_string());
+                  return Ok(());
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  );
+                  return Err(anyhow::format_err!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  ));
+              }
+          }
+      }
+
+      async fn infer_on_all_stale_files(&self) -> anyhow::Result<()> {
+          tracing::warn!("Checking stale files to infer");
+          let currentfiles = filestore::file_store::new()?
+              .get_all_files_with_hash()
+              .into_iter()
+              .map(|(h, p)| self.doinfer_on_file(h));
+
+          let _ = futures::stream::iter(currentfiles)
+              .buffer_unordered(8)
+              .collect::<Vec<_>>()
+              .await;
+
+          Ok(())
       }
   }
 
@@ -4722,121 +4832,132 @@ struct inference_loop {
           request: tonic::Request<infer::Grpcvideodata>,
       ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
           tracing::info!("Received an inference request");
-          let path_dir_prefix = std::path::PathBuf::from("/dev/shm/RD/video");
-
-          let _ = tokio::fs::create_dir_all(&path_dir_prefix).await?;
 
           let video_data = &(request.into_inner().data);
 
           let hash = std::sync::Arc::new(hasher::blob_hash::new_from_slice(video_data.as_slice()));
 
-          let hash_string = hash.get_hash_string();
-
-          tracing::info!("Got video with hash {}", &hash_string);
+          tracing::info!("Got video with hash {}", hash.get_hash_string());
 
           match read_from_db(hash.clone(), self.cachedb.clone()).await {
               Ok(ret) => {
                   tracing::warn!(
                       "Results for {} found in cache, returning cached results.",
-                      &hash_string
+                      hash.get_hash_string()
                   );
                   return Ok(tonic::Response::new(ret));
               }
               Err(e) => {
                   tracing::info!(
                       "inference results for {} not found. proceeding to run inference.",
-                      hash_string
+                      hash.get_hash_string()
                   )
               }
           };
 
-          let path_file_video_output = path_dir_prefix.join(hash_string.clone());
+          tracing::info!(
+              "number of permits remaining so far {}",
+              self.semaphore.available_permits()
+          );
 
-          if (tokio::fs::try_exists(&path_file_video_output).await?) {
-              tracing::error!("File already exists {:?}", path_file_video_output);
-              return Err(tonic::Status::internal(
-                  "Same file is already being processed...",
-              ));
-          } else {
-              let _ = tokio::fs::write(&path_file_video_output, video_data).await?;
+          let res = {
+              tracing::info!("Acquiring GPU Semaphore for {}", hash.get_hash_string());
 
               let infpair = self.infpair.clone();
 
-              let path_file_video_output_tmp = path_file_video_output.clone();
+              let path_file_video_output = match self
+                  .filestore
+                  .put_content(/*key =*/ &hash, /*value =*/ video_data)
+                  .await
+              {
+                  Ok(o) => o,
+                  Err(e) => {
+                      return Err(tonic::Status::internal(
+                          "Failed to write the video file, CPU RAM full",
+                      ));
+                  }
+              };
 
-              tracing::info!("Acquiring GPU Semaphore for {}", &hash_string);
               let permit = self
                   .semaphore
                   .acquire()
                   .await
                   .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
 
-              tracing::info!("number of permits remaining so far {}", self.semaphore.available_permits());
-
               let res = tokio::task::spawn_blocking(move || {
-                  infpair.do_infer_on_video_file(&path_file_video_output_tmp)
+                  infpair.do_infer_on_video_file(&path_file_video_output)
               })
               .await
               .expect("The blocking task panicked");
-              tracing::info!("Inference completed for hash {}", &hash_string);
 
-              match res {
-                  Ok(o) => {
-                      let preds: Vec<infer::Grpcvideoprediction> = o
-                          .results_video
-                          .iter()
-                          .map(|i| infer::Grpcvideoprediction {
-                              pa: i.p_calm,
-                              pb: i.p_contraversial,
-                              pc: i.p_rd,
-                          })
-                          .collect();
+              res
+          };
 
-                      let avg = o
-                          .results_video
-                          .iter()
-                          .map(|i| i.majority() as f32)
-                          .sum::<f32>()
-                          / (o.results_video.len() as f32);
+          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
 
-                      let bed_scaling_factor: f32 =
-                          o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
-                              / (o.results_image.len() as f32);
+          match res {
+              Ok(o) => {
+                  let preds: Vec<infer::Grpcvideoprediction> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Grpcvideoprediction {
+                          pa: i.p_calm,
+                          pb: i.p_contraversial,
+                          pc: i.p_rd,
+                      })
+                      .collect();
 
-                      let imgpreds: Vec<infer::Grpcimgprediction> = o
-                          .results_image
-                          .into_iter()
-                          .map(|i| infer::Grpcimgprediction {
-                              arm: i.ARM as u32,
-                              rail: i.RAIL as u32,
-                              leg: i.LEG as u32,
-                              pos: i.POS as u32,
-                              bed: i.BED as u32,
-                          })
-                          .collect();
+                  let avg = o
+                      .results_video
+                      .iter()
+                      .map(|i| i.majority() as f32)
+                      .sum::<f32>()
+                      / (o.results_video.len() as f32);
 
-                      let ret = infer::Grpcvideopredictionreply {
-                          preds: preds,
-                          majority: avg * bed_scaling_factor,
-                          imgpreds: imgpreds,
-                      };
+                  let bed_scaling_factor: f32 =
+                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                          / (o.results_image.len() as f32);
 
-                      match write_to_db(hash, &ret, self.cachedb.clone()).await {
-                          Ok(_) => {
-                              tracing::info!("Added inference results of {} to cache.", &hash_string);
-                          }
-                          Err(e) => {
-                              tracing::error!("Failed to cache results for {}.", &hash_string);
-                          }
-                      };
+                  let imgpreds: Vec<infer::Grpcimgprediction> = o
+                      .results_image
+                      .into_iter()
+                      .map(|i| infer::Grpcimgprediction {
+                          arm: i.ARM as u32,
+                          rail: i.RAIL as u32,
+                          leg: i.LEG as u32,
+                          pos: i.POS as u32,
+                          bed: i.BED as u32,
+                      })
+                      .collect();
 
-                      tracing::info!("Sending reply for hash {}", &hash_string);
-                      return Ok(tonic::Response::new(ret));
-                  }
-                  Err(e) => {
-                      tracing::error!("Inference failed for {} with error {}", &hash_string, e);
-                      return Err(tonic::Status::internal("Internal error, inference failed"));
-                  }
+                  let ret = infer::Grpcvideopredictionreply {
+                      preds: preds,
+                      majority: avg * bed_scaling_factor,
+                      imgpreds: imgpreds,
+                  };
+
+                  match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
+                      Ok(_) => {
+                          tracing::info!(
+                              "Added inference results of {} to cache.",
+                              hash.get_hash_string()
+                          );
+                      }
+                      Err(e) => {
+                          tracing::error!("Failed to cache results for {}.", hash.get_hash_string());
+                      }
+                  };
+
+                  tracing::info!("Sending reply for hash {}", hash.get_hash_string());
+                  return Ok(tonic::Response::new(ret));
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  );
+                  return Err(tonic::Status::internal("Internal error, inference failed"));
               }
           }
 
@@ -4869,10 +4990,14 @@ struct inference_loop {
 
       rt.block_on(async {
           tracing::warn!("Server attempting to bind to {}", addr);
+
+          let slave = grpc_inferer::new();
+          let _ = slave.infer_on_all_stale_files().await;
+
           let result = tonic::transport::Server::builder()
               .add_service(service)
               .add_service(
-                  infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
+                  infer::rdvideoinfer_server::RdvideoinferServer::new(slave)
                       .max_encoding_message_size(1 << 26)
                       .max_decoding_message_size(1 << 26),
               )
@@ -5030,6 +5155,7 @@ struct inference_loop {
   GITADD 'src/export.cpp'
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'
+  GITADD 'src/filestore.rs'
   GITADD 'src/hasher.rs'
   GITADD 'src/inferencerelatedimage.rs'
   GITADD 'src/inferencerelated.rs'

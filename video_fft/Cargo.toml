@@ -49,5 +49,6 @@ rkyv = "0.8"
 anyhow = "1"
 c32 = { version = "0.6", features = ["alloc"] }
 mimalloc = "0.1"
+surrealkv = "0"
 
 tch = { version = "0.24.0", features = ["serde_json", "regex", "memmap2", "image"] }
