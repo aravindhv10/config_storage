@@ -4,8 +4,10 @@ use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
 
+use tokio::io::AsyncWriteExt;
+
 #[inline(always)]
-fn get_num_windows(total_video_length: u64) -> u8 {
+pub fn get_num_windows(total_video_length: u64) -> u8 {
     const ideal_length: u16 = 160 as u16;
 
     const min_length: u16 = (ideal_length * 3) >> 2;
@@ -67,83 +69,71 @@ pub struct fft_video {
 }
 
 impl fft_video {
-    pub fn save(&self, filename: &str) -> anyhow::Result<()> {
-        let file = std::fs::File::create(filename)?;
-        let mut writer = std::io::BufWriter::new(file);
+    pub async fn save(&self, filename: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
+        let file = tokio::fs::File::create(filename.as_ref()).await?;
+        let mut writer = tokio::io::BufWriter::new(file);
         let size = std::mem::size_of::<fft_video>();
-
         let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
-
-        writer.write_all(bytes)?;
+        writer.write_all(bytes).await?;
         return Ok(());
     }
 
     fn from_torch_fft_tensor(
         tensor_fft_input: &tch::Tensor,
-    ) -> anyhow::Result<std::sync::Arc<Self>> {
-        if true {
-            "################################";
-            "# Do the check: ################";
-            "################################";
-
-            if tensor_fft_input.kind() != tch::Kind::Float {
-                anyhow::bail!(
-                    "Input tensor must be Kind::Float, found {:?}",
-                    tensor_fft_input.kind()
-                );
-            } else {
-                const expected_size: usize = 6 * 160 * 160 * 60;
-                let actual_size: usize = tensor_fft_input.numel();
-                if actual_size != expected_size {
-                    anyhow::bail!(
-                        "Tensor size mismatch: expected {} elements, found {}",
-                        expected_size,
-                        actual_size
-                    );
-                }
-            }
+    ) -> anyhow::Result<std::boxed::Box<Self>> {
+        if tensor_fft_input.kind() != tch::Kind::Float {
+            tracing::error!("datatype of tensor is not f32, returning");
+            anyhow::bail!(
+                "Input tensor must be Kind::Float, found {:?}",
+                tensor_fft_input.kind()
+            );
         }
 
-        let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+        const expected_size: usize = 6 * 160 * 160 * 60;
+        let actual_size: usize = tensor_fft_input.numel();
+
+        if actual_size != expected_size {
+            tracing::error!(
+                "expected size of the tensor {} not matching with reality {} returning...",
+                expected_size,
+                actual_size
+            );
+            anyhow::bail!(
+                "Tensor size mismatch: expected {} elements, found {}",
+                expected_size,
+                actual_size
+            );
+        }
+
+        tracing::debug!("initializing memory");
+
+        let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
 
         if true {
-            "################################";
-            "# Do the init: #################";
-            "################################";
-            let data: *mut Self =
-                std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-                    .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-                    .as_mut_ptr();
-
+            let data: *mut Self = store.as_mut_ptr();
             const size: [i64; 4] = [6, 160, 160, 60];
             const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
-            if true {
-                "################################";
-                "# Now initialize the tensors: ##";
-                "################################";
+            tracing::debug!("Initialized memory, now passing to the tensor");
 
-                let mut out_tensor: tch::Tensor = unsafe {
-                    tch::Tensor::from_blob(
-                        data as *mut u8,
-                        &size,
-                        &strides,
-                        tch::Kind::Float,
-                        tch::Device::Cpu,
-                    )
-                };
+            let mut out_tensor: tch::Tensor = unsafe {
+                tch::Tensor::from_blob(
+                    data as *mut u8,
+                    &size,
+                    &strides,
+                    tch::Kind::Float,
+                    tch::Device::Cpu,
+                )
+            };
+            tracing::debug!("Done with tensor interpretation. Performing the copy");
 
-                if true {
-                    "################################";
-                    "# Do the copy: #################";
-                    "################################";
+            out_tensor.copy_(&tensor_fft_input);
 
-                    out_tensor.copy_(&tensor_fft_input);
-                }
-            }
+            tracing::debug!("Done with the copy");
         }
 
-        let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+        // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+        let final_video = unsafe { store.assume_init() };
 
         return Ok(final_video);
     }
@@ -152,38 +142,41 @@ impl fft_video {
         tensor_video_input: &tch::Tensor,
         use_gpu: bool,
     ) -> anyhow::Result<std::boxed::Box<Self>> {
-        if true {
-            "################################";
-            "# Do the check: ################";
-            "################################";
-
-            if tensor_video_input.kind() != tch::Kind::Uint8 {
-                anyhow::bail!(
-                    "Input tensor must be Kind::Uint8, found {:?}",
-                    tensor_video_input.kind()
-                );
-            } else {
-                let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
-                let actual_size: usize = tensor_video_input.numel();
-
-                if actual_size != expected_size {
-                    anyhow::bail!(
-                        "Tensor size mismatch: expected {} elements, found {}",
-                        expected_size,
-                        actual_size
-                    );
-                }
-            }
+        tracing::debug!("Came to from_torch_video_tensor");
+        if tensor_video_input.kind() != tch::Kind::Uint8 {
+            tracing::error!(
+                "Input tensor must be Kind::Uint8, found {:?}",
+                tensor_video_input.kind()
+            );
+            anyhow::bail!(
+                "Input tensor must be Kind::Uint8, found {:?}",
+                tensor_video_input.kind()
+            );
         }
 
+        let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
+        let actual_size: usize = tensor_video_input.numel();
+
+        if actual_size != expected_size {
+            tracing::error!(
+                "Tensor size mismatch: expected {} elements, found {}",
+                expected_size,
+                actual_size
+            );
+            anyhow::bail!(
+                "Tensor size mismatch: expected {} elements, found {}",
+                expected_size,
+                actual_size
+            );
+        }
+
+        tracing::debug!("Allocating the box pointer on the heap");
         let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
 
+        tracing::debug!("Passing the box pointer to torch tensor");
         if true {
-            "################################";
-            "# Perform the FFT ##############";
-            "################################";
-
             let data: *mut Self = store.as_mut_ptr();
+            tracing::debug!("Got pointer from heap Box");
 
             let status: i32 = unsafe {
                 export::do_fft_compress_efficient(
@@ -200,6 +193,7 @@ impl fft_video {
                     /*bool use_gpu =*/ use_gpu,
                 )
             } as i32;
+            tracing::debug!("Called the fft function with status {}", status);
 
             if status != 0 {
                 tracing::error!("FFT step failed with exit status {}...", status);
@@ -210,8 +204,10 @@ impl fft_video {
             }
         }
 
+        tracing::debug!("Casting the final tensor");
         let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
+        tracing::debug!("Returning the fully valid tensor");
         return Ok(final_video);
     }
 
@@ -219,40 +215,50 @@ impl fft_video {
         list_torch_video_tensor: Vec<tch::Tensor>,
         use_gpu: bool,
     ) -> anyhow::Result<Vec<Self>> {
-        if list_torch_video_tensor.len() > 0 {
-            let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+        tracing::debug!("Started from_list_torch_video_tensor");
 
-            let length = list_torch_video_tensor.len();
-
-            let ret: Vec<anyhow::Result<std::boxed::Box<Self>>> = pool.install(|| {
-                list_torch_video_tensor
-                    .into_par_iter()
-                    .map(|i| {
-                        Self::from_torch_video_tensor(
-                            /*tensor_video_input: &tch::Tensor =*/ &i,
-                            /*use_gpu: bool =*/ use_gpu,
-                        )
-                    })
-                    .collect()
-            });
-
-            let mut ret2 = Vec::<Self>::with_capacity(length);
-
-            for i in ret.into_iter() {
-                match i {
-                    Ok(o) => {
-                        ret2.push(*o);
-                    }
-                    Err(e) => {
-                        tracing::error!("Failed to FFT a vector due to {}", e);
-                    }
-                }
-            }
-
-            return Ok(ret2);
-        } else {
+        if list_torch_video_tensor.len() == 0 {
+            tracing::error!("Got empty vector to from_list_torch_video_tensor");
             return Err(anyhow::format_err!("Input vector is empty"));
         }
+
+        let pool = rayon::ThreadPoolBuilder::new().num_threads(1).build()?;
+
+        let length = list_torch_video_tensor.len();
+
+        tracing::debug!("Length = {}", length);
+
+        let ret: Vec<anyhow::Result<std::boxed::Box<Self>>> = pool.install(|| {
+            list_torch_video_tensor
+                .into_par_iter()
+                .map(|i| {
+                    Self::from_torch_video_tensor(
+                        /*tensor_video_input: &tch::Tensor =*/ &i,
+                        /*use_gpu: bool =*/ use_gpu,
+                    )
+                })
+                .collect()
+        });
+
+        tracing::debug!("constructed the vec of boxed fft_video");
+
+        let mut ret2 = Vec::<Self>::with_capacity(length);
+        let mut ret2_ptr = ret2.as_mut_ptr();
+
+        tracing::debug!("Initialized the needed capacity on heap with Vec");
+
+        for i in ret.into_iter().filter_map(|i| i.ok()) {
+            let tmp = &*i;
+            unsafe { std::ptr::copy_nonoverlapping(tmp as *const Self, ret2_ptr, 1) };
+            ret2_ptr = unsafe { ret2_ptr.add(1) };
+            unsafe { ret2.set_len(ret2.len() + 1) };
+        }
+
+        tracing::debug!(
+            "Done with the tight unsafe loops to copy data to sequential memory, returning the vec"
+        );
+
+        return Ok(ret2);
     }
 
     pub fn windowed_from_torch_video_tensor(
@@ -274,11 +280,15 @@ impl fft_video {
                     "window_length = 1, total_video_length = {}",
                     total_video_length
                 );
-                return Self::from_list_torch_video_tensor(
+                let tmp = Self::from_list_torch_video_tensor(
                     /*list_torch_video_tensor: Vec<tch::Tensor> =*/
                     vec![tensor_video_input.shallow_clone()],
                     /*use_gpu: bool =*/ use_gpu,
                 );
+
+                tracing::debug!("Constructed the Vec<fft_video>, returning it");
+
+                tmp
             }
             _ => {
                 let mut list_torch_video_tensor =
@@ -304,10 +314,14 @@ impl fft_video {
                     list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
                 }
 
-                return Self::from_list_torch_video_tensor(
+                let tmp = Self::from_list_torch_video_tensor(
                     /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
                     /*use_gpu: bool =*/ use_gpu,
                 );
+
+                tracing::debug!("Constructed the batch of fft_video. Returning it");
+
+                tmp
             }
         }
     }

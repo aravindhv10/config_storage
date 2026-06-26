@@ -9,6 +9,7 @@ mod inferencerelatedimage;
 mod serverinferencechannel;
 mod serverinferencechannelboth;
 mod serverinferencechannelimage;
+mod version;
 mod videofft;
 mod videofftstats;
 mod videofn;
@@ -45,7 +46,26 @@ fn read_from_db_slave(
             match o.begin_read()?.open_table(TABLE)?.get(key)? {
                 Some(val) => {
                     let rep = Grpcvideopredictionreply::decode(val.value())?;
-                    return Ok(rep);
+                    match rep.vidver {
+                        Some(o) => {
+                            if (version::major_version() == o.major)
+                                && (version::minor_version() == o.minor)
+                            {
+                                return Ok(rep);
+                            } else {
+                                tracing::warn!(
+                                    "Cached version is different from current version, not using"
+                                );
+                                return Err(anyhow::format_err!(
+                                    "Cached version is different from current version, not using"
+                                ));
+                            }
+                        }
+                        None => {
+                            tracing::warn!("Cached results version too old");
+                            return Err(anyhow::format_err!("Cached results version too old"));
+                        }
+                    }
                 }
                 None => {
                     return Err(anyhow::format_err!("Value not found"));
@@ -112,16 +132,21 @@ struct grpc_inferer {
 }
 
 impl grpc_inferer {
-    fn new() -> Self {
+    async fn new() -> anyhow::Result<Self> {
+        let filestore = filestore::file_store::new()
+            .await
+            .expect("Failed to construct filestore within grpc inferer");
+
         let ret = Self {
             infpair: std::sync::Arc::<serverinferencechannelboth::combined_infer>::new(
-                serverinferencechannelboth::combined_infer::new(),
+                serverinferencechannelboth::combined_infer::new().await?,
             ),
-            semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(6)),
+            semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(10)),
             cachedb: std::sync::Arc::new(Database::create("/root/.cache/infdb.redb").ok()),
-            filestore: filestore::file_store::new().unwrap(),
+            filestore: filestore,
         };
-        ret
+
+        Ok(ret)
     }
 
     async fn doinfer_on_file(&self, hash: hasher::blob_hash) -> anyhow::Result<()> {
@@ -155,7 +180,7 @@ impl grpc_inferer {
 
             let infpair = self.infpair.clone();
 
-            let path_file_video_output = self.filestore.get_path(/*key =*/ &hash);
+            let path_file_video_output = self.filestore.get_path_video(/*key =*/ &hash);
 
             let permit = self
                 .semaphore
@@ -163,11 +188,7 @@ impl grpc_inferer {
                 .await
                 .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
 
-            let res = tokio::task::spawn_blocking(move || {
-                infpair.do_infer_on_video_file(&path_file_video_output)
-            })
-            .await
-            .expect("The blocking task panicked");
+            let res = infpair.do_infer_on_video_file(&hash).await;
 
             res
         };
@@ -209,10 +230,17 @@ impl grpc_inferer {
                     })
                     .collect();
 
+                let vidver = infer::Version {
+                    major: version::major_version(),
+                    minor: version::minor_version(),
+                };
+
                 let ret = infer::Grpcvideopredictionreply {
                     preds: preds,
                     majority: avg * bed_scaling_factor,
                     imgpreds: imgpreds,
+                    vidver: Some(vidver),
+                    videohash: hash.get_hash().to_vec(),
                 };
 
                 match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
@@ -247,8 +275,10 @@ impl grpc_inferer {
 
     async fn infer_on_all_stale_files(&self) -> anyhow::Result<()> {
         tracing::warn!("Checking stale files to infer");
-        let currentfiles = filestore::file_store::new()?
+        let currentfiles = filestore::file_store::new()
+            .await?
             .get_all_files_with_hash()
+            .await
             .into_iter()
             .map(|(h, p)| self.doinfer_on_file(h));
 
@@ -320,11 +350,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                 .await
                 .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
 
-            let res = tokio::task::spawn_blocking(move || {
-                infpair.do_infer_on_video_file(&path_file_video_output)
-            })
-            .await
-            .expect("The blocking task panicked");
+            let res = infpair.do_infer_on_video_file(&hash).await;
 
             res
         };
@@ -366,10 +392,17 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                     })
                     .collect();
 
+                let vidver = infer::Version {
+                    major: version::major_version(),
+                    minor: version::minor_version(),
+                };
+
                 let ret = infer::Grpcvideopredictionreply {
                     preds: preds,
                     majority: avg * bed_scaling_factor,
                     imgpreds: imgpreds,
+                    vidver: Some(vidver),
+                    videohash: hash.get_hash().to_vec(),
                 };
 
                 match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
@@ -401,7 +434,8 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
     }
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_writer(std::io::stderr)
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
@@ -413,37 +447,25 @@ fn main() -> anyhow::Result<()> {
     let port: u16 = 8001;
     let addr = std::net::SocketAddr::new(ip_v4, port);
 
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .thread_stack_size(1 << 28)
-        .enable_all()
-        .build()
-        .unwrap();
-
     let service = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
         .build_v1()
         .unwrap();
 
-    rt.block_on(async {
-        tracing::warn!("Server attempting to bind to {}", addr);
+    tracing::warn!("Server attempting to bind to {}", addr);
 
-        let slave = grpc_inferer::new();
-        let _ = slave.infer_on_all_stale_files().await;
+    let slave = grpc_inferer::new().await?;
+    let _ = slave.infer_on_all_stale_files().await;
 
-        let result = tonic::transport::Server::builder()
-            .add_service(service)
-            .add_service(
-                infer::rdvideoinfer_server::RdvideoinferServer::new(slave)
-                    .max_encoding_message_size(1 << 26)
-                    .max_decoding_message_size(1 << 26),
-            )
-            .serve(addr)
-            .await;
-
-        if let Err(e) = result {
-            tracing::error!("Server exited with error: {}", e);
-        }
-    });
+    let result = tonic::transport::Server::builder()
+        .add_service(service)
+        .add_service(
+            infer::rdvideoinfer_server::RdvideoinferServer::new(slave)
+                .max_encoding_message_size(1 << 26)
+                .max_decoding_message_size(1 << 26),
+        )
+        .serve(addr)
+        .await?;
 
     Ok(())
 }

@@ -1,3 +1,5 @@
+use crate::filestore;
+use crate::hasher;
 use crate::inferencerelated;
 use crate::videofft;
 use crate::videofftstats;
@@ -12,6 +14,7 @@ struct message_input {
 struct inference_communicator {
     sender: flume::Sender<message_input>,
     normalizer: std::boxed::Box<videofftstats::fft_video_normalizer>,
+    file_store: filestore::file_store,
 }
 
 struct inference_slave {
@@ -24,26 +27,25 @@ pub struct inference_pair {
 }
 
 impl inference_communicator {
-    fn new(sender_in: flume::Sender<message_input>) -> Self {
+    async fn new(sender_in: flume::Sender<message_input>) -> anyhow::Result<Self> {
         let normalizer = videofftstats::fft_video_normalizer::new(
             /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
             /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
         )
         .unwrap();
 
-        Self {
+        Ok(Self {
             sender: sender_in,
             normalizer: normalizer,
-        }
+            file_store: filestore::file_store::new().await?,
+        })
     }
 
     fn do_infer_on_fft_tensor(
         &self,
         mut tensors_input: Vec<videofft::fft_video>,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        self.normalizer.normalize_vec(
-            /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
-        );
+        self.normalizer.normalize_vec(&mut tensors_input);
 
         let mut oneshot_receive_channel =
             Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
@@ -78,31 +80,6 @@ impl inference_communicator {
         }
 
         return Ok(ret);
-    }
-
-    fn do_infer_on_video_file(
-        &self,
-        path_file_video_input: impl AsRef<std::path::Path>,
-    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        let mut list_video_fft_tensor = {
-            let slicer = videoview::video_slicer_piped::new(
-                /*path_file_video_input: String =*/ path_file_video_input.as_ref(),
-                /*fps: f32 =*/ 8 as f32,
-                /*size_x: u16 =*/ 1280 as u16,
-                /*size_y: u16 =*/ 720 as u16,
-                /*size_c: u8 =*/ 3 as u8,
-                /*clean_video: bool =*/ true,
-            )?;
-
-            let video_tensor = slicer.get_video_tensor()?;
-
-            videofft::fft_video::windowed_from_torch_video_tensor(
-                /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-                /*use_gpu: bool =*/ true,
-            )?
-        };
-
-        self.do_infer_on_fft_tensor(list_video_fft_tensor)
     }
 
     async fn do_infer_on_fft_tensor_async(
@@ -147,15 +124,54 @@ impl inference_communicator {
 
         return Ok(ret);
     }
+
+    async fn do_infer_on_video_file(
+        &self,
+        key: &hasher::blob_hash,
+    ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+        let mut list_video_fft_tensor = {
+            let slicer = {
+                let mmap = self
+                    .file_store
+                    .get_raw_tensor(
+                        &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280,
+                        /*size_y =*/ 720,
+                    )
+                    .await?;
+
+                videoview::video_slicer_mapped::new(
+                    mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+                    /*size_c =*/ 3,
+                )
+            }?;
+
+            let video_tensor = slicer.get_video_tensor()?;
+
+            let tmp = tokio::task::spawn_blocking(move || {
+                videofft::fft_video::windowed_from_torch_video_tensor(
+                    /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+                    /*use_gpu: bool =*/ true,
+                )
+            })
+            .await??;
+            tmp
+        };
+
+        let tmp = self
+            .do_infer_on_fft_tensor_async(list_video_fft_tensor)
+            .await;
+
+        tmp
+    }
 }
 
 impl inference_slave {
-    pub fn new() -> (Self, inference_communicator) {
+    pub async fn new() -> anyhow::Result<(Self, inference_communicator)> {
         let (sender, receiver) = flume::unbounded::<message_input>();
-        return (
+        Ok((
             Self { receiver: receiver },
-            inference_communicator::new(sender),
-        );
+            inference_communicator::new(sender).await?,
+        ))
     }
 
     fn efficient_infer(
@@ -474,14 +490,14 @@ impl Drop for inference_pair {
 }
 
 impl inference_pair {
-    pub fn new() -> Self {
-        let (slave_inf, slave_sender) = inference_slave::new();
+    pub async fn new() -> anyhow::Result<Self> {
+        let (slave_inf, slave_sender) = inference_slave::new().await?;
         let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
-        Self {
+        Ok(Self {
             slave_sender: slave_sender,
             handle: Some(handle_inference),
-        }
+        })
     }
 
     pub fn do_infer_on_fft_tensor(
@@ -491,11 +507,10 @@ impl inference_pair {
         self.slave_sender.do_infer_on_fft_tensor(tensors_input)
     }
 
-    pub fn do_infer_on_video_file(
+    pub async fn do_infer_on_video_file(
         &self,
-        path_file_video_input: impl AsRef<std::path::Path>,
+        key: &hasher::blob_hash,
     ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-        self.slave_sender
-            .do_infer_on_video_file(path_file_video_input)
+        self.slave_sender.do_infer_on_video_file(key).await
     }
 }
