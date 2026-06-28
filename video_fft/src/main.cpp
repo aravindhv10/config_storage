@@ -55,6 +55,7 @@ public:
     if (fd != -1) {
       close(fd);
     }
+    printf("Unlocked file\n");
     initialized = -5;
   }
 };
@@ -188,14 +189,18 @@ private:
   unnamed_semaphore gpu_semaphore;
   bool for_inference_server;
 
-  std::vector<file_mlock> mem_locks;
+  std::vector<file_mlock *> mem_locks;
 
 public:
   _MACRO_SELF_()
       : gpu_semaphore_named("/gpuLock", 2), gpu_semaphore(2),
         for_inference_server(false) {}
 
-  ~_MACRO_SELF_() {}
+  ~_MACRO_SELF_() {
+    for (size_t i = 0; i < mem_locks.size(); ++i) {
+      delete mem_locks[i];
+    }
+  }
 
   inline void configure_for_preprocessing() { for_inference_server = false; }
 
@@ -205,18 +210,25 @@ public:
 
     printf("Locking compiled models into memory\n");
     if (mem_locks.size() == 0) {
+
       mem_locks.reserve(5);
 
-      mem_locks.push_back(
-          get_compiled_model_path(/*unsigned char i =*/1).c_str());
-      mem_locks.push_back(
-          get_compiled_model_path(/*unsigned char i =*/2).c_str());
-      mem_locks.push_back(
-          get_compiled_model_path(/*unsigned char i =*/3).c_str());
-      mem_locks.push_back(
-          get_compiled_model_path(/*unsigned char i =*/4).c_str());
+      mem_locks.push_back(new file_mlock(
+          get_compiled_model_path(/*unsigned char i =*/1).c_str()));
 
-      mem_locks.push_back(get_vsitter_compiled_model_path().c_str());
+      mem_locks.push_back(new file_mlock(
+          get_compiled_model_path(/*unsigned char i =*/2).c_str()));
+
+      mem_locks.push_back(new file_mlock(
+          get_compiled_model_path(/*unsigned char i =*/3).c_str()));
+
+      mem_locks.push_back(new file_mlock(
+          get_compiled_model_path(/*unsigned char i =*/4).c_str()));
+
+      mem_locks.push_back(
+          new file_mlock(get_vsitter_compiled_model_path().c_str()));
+
+#include "./mlockffmpeg.hh"
     }
   }
 

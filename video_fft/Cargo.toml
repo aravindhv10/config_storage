@@ -48,7 +48,10 @@ rkyv = "0.8"
 
 anyhow = "1"
 c32 = { version = "0.6", features = ["alloc"] }
+clap = { version = "4.6.1", features = ["cargo", "derive", "env", "string"] }
 mimalloc = "0.1"
+rustix = { version = "1.1.4", features = ["all-apis", "linux_latest"] }
 surrealkv = "0"
+which = { version = "8.0.4", features = ["regex", "tracing"] }
 
 tch = { version = "0.24.0", features = ["serde_json", "regex", "memmap2", "image"] }

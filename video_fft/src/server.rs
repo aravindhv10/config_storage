@@ -6,6 +6,7 @@ mod filestore;
 mod hasher;
 mod inferencerelated;
 mod inferencerelatedimage;
+mod mlockffmpeg;
 mod serverinferencechannel;
 mod serverinferencechannelboth;
 mod serverinferencechannelimage;
@@ -122,6 +123,17 @@ async fn write_to_db(
     tokio::task::spawn_blocking(move || write_to_db_slave(key.get_hash(), buf, db))
         .await
         .expect("Failed to join in write_to_db")
+}
+
+fn get_current_time() -> u64 {
+    match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+        Ok(o) => {
+            return o.as_secs();
+        }
+        Err(e) => {
+            return 1782492853;
+        }
+    }
 }
 
 struct grpc_inferer {
@@ -241,6 +253,7 @@ impl grpc_inferer {
                     imgpreds: imgpreds,
                     vidver: Some(vidver),
                     videohash: hash.get_hash().to_vec(),
+                    timestamp: get_current_time(),
                 };
 
                 match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
@@ -331,6 +344,12 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
 
             let infpair = self.infpair.clone();
 
+            let permit = self
+                .semaphore
+                .acquire()
+                .await
+                .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
+
             let path_file_video_output = match self
                 .filestore
                 .put_content(/*key =*/ &hash, /*value =*/ video_data)
@@ -343,12 +362,6 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                     ));
                 }
             };
-
-            let permit = self
-                .semaphore
-                .acquire()
-                .await
-                .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
 
             let res = infpair.do_infer_on_video_file(&hash).await;
 
@@ -403,6 +416,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                     imgpreds: imgpreds,
                     vidver: Some(vidver),
                     videohash: hash.get_hash().to_vec(),
+                    timestamp: get_current_time(),
                 };
 
                 match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
@@ -442,6 +456,11 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     unsafe { export::locker_to_inference_mode() };
+
+    // let res = mlockffmpeg::do_default_mlocks().await;
+    // for i in res.iter() {
+    //     eprintln!("{:?}", i);
+    // }
 
     let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
     let port: u16 = 8001;

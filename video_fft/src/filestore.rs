@@ -112,6 +112,7 @@ impl file_store {
     ) -> anyhow::Result<memmap2::Mmap> {
         let path_file_video = self.get_path_video(key);
         let path_file_raw_tmp = self.get_path_raw_tmp(key);
+
         let res = tokio::process::Command::new("ffmpeg")
             .arg("-i")
             .arg(&path_file_video)
@@ -126,41 +127,80 @@ impl file_store {
             .arg("rgb24")
             .arg(&path_file_raw_tmp)
             .status()
-            .await?;
+            .await;
 
         match key.get_file_path() {
             None => {
                 tokio::fs::remove_file(&path_file_video).await?;
+                drop(path_file_video);
             }
             Some(p) => {
                 tracing::warn!("Not deleting non-temporary video {:?}", p);
+                drop(path_file_video);
             }
         }
 
-        match res.code() {
-            None => {
-                return Err(anyhow::format_err!("FFmpeg failed with unknown error"));
+        let res = match res {
+            Ok(o) => match o.code() {
+                None => -128,
+                Some(e) => e,
+            },
+            Err(e) => -128,
+        };
+
+        if res != 0 {
+            tokio::fs::remove_file(&path_file_raw_tmp).await?;
+            drop(path_file_raw_tmp);
+            tracing::error!("FFMPEG error code {}", res);
+            return Err(anyhow::format_err!("FFMPEG error code {}", res));
+        }
+
+        let path_file_raw = self.get_path_raw(key);
+
+        match tokio::fs::rename(&path_file_raw_tmp, &path_file_raw).await {
+            Ok(_) => {
+                drop(path_file_raw_tmp);
             }
-            Some(e) => {
-                if e == 0 {
-                    let path_file_raw = self.get_path_raw(key);
-                    tokio::fs::rename(&path_file_raw_tmp, &path_file_raw).await?;
-
-                    let mmap = tokio::task::spawn_blocking(move || {
-                        let file: std::fs::File = std::fs::File::open(&path_file_raw)?;
-                        let mmap_result = unsafe { memmap2::Mmap::map(&file) };
-                        let _ = std::fs::remove_file(&path_file_raw);
-                        mmap_result
-                    })
-                    .await
-                    .expect("blocking thread panicked in mmap")?;
-
-                    return Ok((mmap));
-                } else {
-                    return Err(anyhow::format_err!("FFmpeg failed with error code {}", e));
-                }
+            Err(e) => {
+                tokio::fs::remove_file(&path_file_raw_tmp).await?;
+                tracing::error!(
+                    "Unable to move temporary file {:?} to actual raw file {:?}",
+                    &path_file_raw_tmp,
+                    &path_file_raw
+                );
+                return Err(anyhow::format_err!(
+                    "Unable to move temporary file {:?} to actual raw file {:?}",
+                    &path_file_raw_tmp,
+                    &path_file_raw
+                ));
             }
         };
+
+        let mmap = tokio::task::spawn_blocking(move || {
+            let file = match std::fs::File::open(&path_file_raw) {
+                Ok(o) => {
+                    std::fs::remove_file(path_file_raw)?;
+                    o
+                }
+                Err(e) => {
+                    std::fs::remove_file(&path_file_raw)?;
+                    tracing::error!("open on raw file {:?} failed due to {}", &path_file_raw, e);
+                    return Err(anyhow::format_err!(
+                        "open on raw file {:?} failed due to {}",
+                        &path_file_raw,
+                        e
+                    ));
+                }
+            };
+
+            let mmap_result = unsafe { memmap2::Mmap::map(&file) };
+            let mmap_result = mmap_result?;
+
+            Ok(mmap_result)
+        })
+        .await??;
+
+        return Ok((mmap));
     }
 
     #[inline(always)]

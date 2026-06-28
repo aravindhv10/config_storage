@@ -35,4 +35,5 @@ message Grpcvideopredictionreply {
     repeated Grpcimgprediction imgpreds = 3;
     Version vidver = 4;
     bytes videohash = 5;
+    uint64 timestamp = 6;
 }
