@@ -8,6 +8,8 @@ PATH_DIR_SRC="$('realpath' '.')"
 PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
 
 sudo -A docker run \
+    '--cap-add=IPC_LOCK' \
+    '--ulimit' 'memlock=-1:-1' \
     '--tty' \
     '--interactive' \
     '--rm' \
