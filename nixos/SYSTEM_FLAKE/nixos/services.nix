@@ -10,15 +10,15 @@
     thermald.enable = true;
     libinput.enable = true;
 
-    onlyoffice = {
-      enable = true;
-      hostname = "localhost";
-      enableExampleServer = true;
-      examplePort = 8013;
-      securityNonceFile = "${pkgs.writeText "nixos-test-onlyoffice-nonce.conf" ''
-        set $secure_link_secret "nixostest";
-      ''}";
-    };
+    # onlyoffice = {
+    #     enable = true;
+    #     hostname = "localhost";
+    #     enableExampleServer = true;
+    #     examplePort = 8013;
+    #     securityNonceFile = "${pkgs.writeText "nixos-test-onlyoffice-nonce.conf" ''
+    #         set $secure_link_secret "nixostest";
+    #     ''}";
+    # };
 
     nfs = {
       server = {
