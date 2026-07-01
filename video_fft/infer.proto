@@ -10,6 +10,11 @@ message Grpcvideodata {
     bytes data = 1;
 }
 
+message Version {
+    uint32 major = 1;
+    uint32 minor = 2;
+}
+
 message Grpcvideoprediction {
     float pa = 1;
     float pb = 2;
@@ -28,4 +33,7 @@ message Grpcvideopredictionreply {
     repeated Grpcvideoprediction preds = 1;
     float majority = 2;
     repeated Grpcimgprediction imgpreds = 3;
+    Version vidver = 4;
+    bytes videohash = 5;
+    uint64 timestamp = 6;
 }

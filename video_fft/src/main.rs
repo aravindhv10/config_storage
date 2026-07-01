@@ -2,6 +2,8 @@
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 mod export;
+mod filestore;
+mod hasher;
 mod inferencerelated;
 mod inferencerelatedimage;
 mod videofft;
@@ -10,23 +12,28 @@ mod videofn;
 mod videoview;
 
 use anyhow::{Context, Result};
+use futures::StreamExt;
 use rayon::prelude::*;
 use tch::IndexOp;
 
 const USE_GPU: bool = true;
 const IMAGE_INFERENCE_BATCH_SIZE: i64 = 16;
 
-fn infer_video_end_2_end(
-    path_file_video_input: String,
+async fn infer_video_end_2_end(
+    key: hasher::blob_hash,
     use_gpu: bool,
 ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-    let slicer = videoview::video_slicer::new(
-        /*path_file_video_input: String =*/ path_file_video_input,
-        None,
-        /*fps: f32 =*/ 8.0,
-        /*size_x: u16 =*/ 1280,
-        /*size_y: u16 =*/ 720,
-        /*size_c: u8 =*/ 3,
+    let filestore = filestore::file_store::new().await?;
+
+    let raw_tensor = filestore
+        .get_raw_tensor(
+            &key, /*fps=*/ 8 as f32, /*size_x=*/ 1280, /*size_y=*/ 720,
+        )
+        .await?;
+
+    let slicer = videoview::video_slicer_mapped::new(
+        /*mmap =*/ raw_tensor, /*fps =*/ 8 as f32, /*size_x =*/ 1280,
+        /*size_y =*/ 720, /*size_c =*/ 3,
     )?;
 
     let video_tensor = slicer.get_video_tensor()?;
@@ -78,73 +85,61 @@ fn infer_video_end_2_end(
     return Ok(ret);
 }
 
-fn video_tensor_2_fft_file_160(
+async fn video_tensor_2_fft_file_160(
     tensor_video_input: tch::Tensor,
-    path_dir_output: &str,
-) -> anyhow::Result<String> {
-    let total_video_length = tensor_video_input.size()[0];
+    path_dir_output: impl AsRef<std::path::Path>,
+) -> anyhow::Result<()> {
+    let total_video_length: u64 = tensor_video_input.size()[0].try_into()?;
+    let num_windows = videofft::get_num_windows(total_video_length);
 
-    if total_video_length < 120 {
+    if num_windows == 0 {
         return Err(anyhow::format_err!("Video too short..."));
     } else {
-        std::fs::create_dir_all(path_dir_output)?;
-        let stride = 160 as i32;
-        let threshold = ((3 * (160 + stride)) / 4) as i32;
+        tokio::fs::create_dir_all(/*path =*/ path_dir_output.as_ref()).await?;
         let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
-        if (120 <= total_video_length) && (total_video_length < (threshold as i64)) {
-            let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
+        let path_dir_output = std::sync::Arc::new(path_dir_output.as_ref().to_path_buf());
 
-            if !std::fs::exists(path_file_video_bin_output.as_str())? {
-                videofft::fft_video::from_torch_video_tensor(
-                    /*tensor_video_input: &tch::Tensor =*/
-                    &tensor_video_input.i((0..total_video_length, .., .., ..)),
-                    use_gpu,
-                )?
-                .save(path_file_video_bin_output.as_str())?;
-            }
+        let tensors = tokio::task::spawn_blocking(move || {
+            videofft::fft_video::windowed_from_torch_video_tensor(&tensor_video_input, use_gpu)
+        })
+        .await??;
 
-            return Ok("Successfully encoded the the whole video into a single file".to_string());
-        } else {
-            let float_val = (((total_video_length - 160) as f32) / (stride as f32)) as f32;
+        let tmp = futures::stream::iter(tensors.iter())
+            .enumerate()
+            .map(|(i, v)| {
+                let path_output =
+                    path_dir_output.join("out-".to_string() + i.to_string().as_str() + ".bin");
 
-            let diff = float_val - float_val.floor();
+                async move { v.save(path_output).await }
+            })
+            .buffer_unordered(8)
+            .collect::<Vec<_>>()
+            .await
+            .into_iter()
+            .enumerate()
+            .for_each(|(i, e)| {
+                match e {
+                    Ok(o) => {}
+                    Err(e) => {
+                        tracing::error!("Failed to write out for index {} due to error {}", i, e);
+                    }
+                };
+            });
 
-            let num_windows: i64 = {
-                if diff < 0.25 {
-                    (float_val.floor() as i64) + 1
-                } else {
-                    (float_val.ceil() as i64) + 1
-                }
-            };
-
-            for i in 1..=num_windows {
-                let path_file_video_bin_output: String =
-                    path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".bin";
-
-                if !std::fs::exists(path_file_video_bin_output.as_str())? {
-                    let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
-                    let start = end - 160;
-
-                    videofft::fft_video::from_torch_video_tensor(
-                        /*tensor_video_input: &tch::Tensor =*/
-                        &tensor_video_input.i((start..end, .., .., ..)),
-                        use_gpu,
-                    )?
-                    .save(path_file_video_bin_output.as_str())?;
-                }
-            }
-
-            return Ok("Successfully encoded the video into many pieces".to_string());
-        }
+        Ok(())
     }
 }
 
-fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
-    let path_dir_output = path_file_video_input.clone() + ".dir";
-    let out_dir = std::path::Path::new(path_dir_output.as_str());
+async fn process_video_file(key: hasher::blob_hash) -> anyhow::Result<()> {
+    let file_store = filestore::file_store::new().await?;
+    let path_file_video_input = file_store.get_path(&key);
+    let mut path_dir_output = path_file_video_input.clone().into_os_string();
+    path_dir_output.push(".dir");
 
-    if out_dir.exists() {
+    let out_dir = std::path::PathBuf::from(path_dir_output);
+
+    if tokio::fs::try_exists(&out_dir).await? {
         eprintln!(
             "{:?} already exists, not working on the input file {:?}",
             out_dir, path_file_video_input
@@ -156,76 +151,77 @@ fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
             path_file_video_input
         ));
     } else {
-        if true {
-            let res = videoview::video_slicer_piped::new(
-                /*path_file_video_input: String =*/ path_file_video_input.clone(),
-                /*fps: f32 =*/ 8 as f32,
-                /*size_x: u16 =*/ 1280 as u16,
-                /*size_y: u16 =*/ 720 as u16,
-                /*size_c: u8 =*/ 3 as u8,
-                /*clean_video: bool =*/ true,
-            )?;
+        let mmap = file_store
+            .get_raw_tensor(
+                &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+            )
+            .await?;
 
-            let full_tensor = res.get_video_tensor()?;
+        let res = videoview::video_slicer_mapped::new(
+            mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+            /*size_c =*/ 3,
+        )?;
 
-            return video_tensor_2_fft_file_160(
-                /*tensor_video_input: tch::Tensor =*/ full_tensor,
-                /*path_dir_output: &str =*/ path_dir_output.as_str(),
-            );
-        } else {
-            let res = videoview::video_slicer::new(
-                path_file_video_input.clone(),
-                None,
-                8.0,
-                1280,
-                720,
-                3,
-            )?;
+        let full_tensor = res.get_video_tensor()?;
 
-            let full_tensor = res.get_video_tensor()?;
-
-            return video_tensor_2_fft_file_160(
-                /*tensor_video_input: tch::Tensor =*/ full_tensor,
-                /*path_dir_output: &str =*/ path_dir_output.as_str(),
-            );
-        }
+        return video_tensor_2_fft_file_160(full_tensor, out_dir).await;
     }
 }
 
-fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
-    let mut list_path_file_video: Vec<String> = vec![];
-
-    for entry in jwalk::WalkDir::new(target_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        let path = entry.path();
-
-        if !path.is_dir() {
-            if let Some(ext) = path.extension() {
-                if ext == "mp4" {
-                    list_path_file_video.push(path.display().to_string());
+async fn fft_all_video_files_under_dir(
+    target_dir: impl AsRef<std::path::Path>,
+) -> anyhow::Result<()> {
+    let tmp = target_dir.as_ref().to_path_buf();
+    tracing::info!("START getting the list of video files in a tokio blocking env");
+    let files = tokio::task::spawn_blocking(move || {
+        let tmp: Vec<hasher::blob_hash> = jwalk::WalkDir::new(tmp)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .filter(|p| !p.is_dir())
+            .filter(|p| {
+                if let Some(ext) = p.extension() {
+                    ext == "mp4"
+                } else {
+                    false
                 }
+            })
+            .map(|f| hasher::blob_hash::new_from_file(f))
+            .filter_map(|e| e.ok())
+            .collect();
+        tmp
+    })
+    .await?;
+
+    tracing::info!(
+        "DONE getting the list of video files in a tokio blocking env. START processing each of the files"
+    );
+
+    futures::stream::iter(files)
+        .map(|i| process_video_file(i))
+        .buffer_unordered(1)
+        .collect::<Vec<_>>()
+        .await
+        .into_iter()
+        .enumerate()
+        .for_each(|(i, e)| match e {
+            Ok(_) => {}
+            Err(e) => {
+                tracing::error!("work on file at index {} failed due to {}", i, e)
             }
-        }
-    }
+        });
 
-    let pool = rayon::ThreadPoolBuilder::new()
-        .num_threads(4)
-        .build()
-        .unwrap();
-
-    let processed: Vec<anyhow::Result<String>> = pool.install(|| {
-        list_path_file_video
-            .into_par_iter() // Convert to a parallel iterator
-            .map(process_video_file) // The function to map   |s| s.to_uppercase()
-            .collect() // Gather back into a Vec
-    });
+    tracing::info!("DONE processing each of the files");
 
     return Ok(());
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
     let args: Vec<String> = std::env::args().collect();
 
     match args.len() {
@@ -260,14 +256,16 @@ fn main() -> anyhow::Result<()> {
                     return Ok(());
                 }
                 "f" => {
-                    fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str())?;
+                    fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str()).await?;
                     return Ok(());
                 }
                 "i" => {
                     infer_video_end_2_end(
-                        /*path_file_video_input: String =*/ args[2].clone(),
+                        /*path_file_video_input: String =*/
+                        hasher::blob_hash::new_from_file(&args[2])?,
                         /*use_gpu: bool =*/ true,
-                    )?;
+                    )
+                    .await?;
                     return Ok(());
                 }
                 _ => {

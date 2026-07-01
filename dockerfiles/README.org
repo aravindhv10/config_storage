@@ -629,6 +629,8 @@ echo 'START Download and install zig' \
   PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
 
   podman run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
       '--tty' \
       '--interactive' \
       '--rm' \
@@ -660,6 +662,8 @@ echo 'START Download and install zig' \
   PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
 
   podman run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
       '--tty' \
       '--interactive' \
       '--rm' \
@@ -688,6 +692,8 @@ echo 'START Download and install zig' \
   PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
 
   sudo -A docker run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
       '--tty' \
       '--interactive' \
       '--rm' \

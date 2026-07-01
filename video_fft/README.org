@@ -72,6 +72,13 @@ video.len() in:
   path = "src/client.rs"
 #+end_src
 
+**** COMMENT Executable for mlock of ffmpeg
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [[bin]]
+  name = "mlockffmpeg"
+  path = "src/mlockffmpeg.rs"
+#+end_src
+
 *** Dependencies
 
 **** build dependencies
@@ -85,12 +92,6 @@ video.len() in:
   [dependencies]
 #+end_src
 
-***** COMMENT Disabled
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  copyless = "0.1.5"
-  log = { version = "0.4.29", features = ["std"] }
-  bytemuck = { version = "1.25.0", features = ["derive"] }
-#+end_src
 
 ***** Tonic stuff
 cargo info prost
@@ -148,7 +149,13 @@ cargo info tokio
 ***** Memory mapped io and key value db
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   memmap2 = "0.9"
-  redb = "4.1.0"
+  redb = "4"
+#+end_src
+
+***** Serialization
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  serde = { version = "1", features = ["derive"] }
+  rkyv = "0.8"
 #+end_src
 
 ***** All
@@ -161,9 +168,19 @@ cargo info serde
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1"
   c32 = { version = "0.6", features = ["alloc"] }
-  chrono = "0.4.45"
+  clap = { version = "4.6.1", features = ["cargo", "derive", "env", "string"] }
   mimalloc = "0.1"
-  serde = { version = "1", features = ["derive"] }
+  rustix = { version = "1.1.4", features = ["all-apis", "linux_latest"] }
+  surrealkv = "0"
+  which = { version = "8.0.4", features = ["regex", "tracing"] }
+#+end_src
+
+***** COMMENT Disabled
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  chrono = "0.4.45"
+  copyless = "0.1.5"
+  log = { version = "0.4.29", features = ["std"] }
+  bytemuck = { version = "1.25.0", features = ["derive"] }
 #+end_src
 
 ***** Torch-rs
@@ -942,6 +959,7 @@ cargo info serde
       if (fd != -1) {
         close(fd);
       }
+      printf("Unlocked file\n");
       initialized = -5;
     }
   };
@@ -1159,14 +1177,18 @@ cargo info serde
     unnamed_semaphore gpu_semaphore;
     bool for_inference_server;
 
-    std::vector<file_mlock> mem_locks;
+    std::vector<file_mlock *> mem_locks;
 
   public:
     _MACRO_SELF_()
         : gpu_semaphore_named("/gpuLock", 2), gpu_semaphore(2),
           for_inference_server(false) {}
 
-    ~_MACRO_SELF_() {}
+    ~_MACRO_SELF_() {
+      for (size_t i = 0; i < mem_locks.size(); ++i) {
+        delete mem_locks[i];
+      }
+    }
 
     inline void configure_for_preprocessing() { for_inference_server = false; }
 
@@ -1176,18 +1198,25 @@ cargo info serde
 
       printf("Locking compiled models into memory\n");
       if (mem_locks.size() == 0) {
+
         mem_locks.reserve(5);
 
-        mem_locks.push_back(
-            get_compiled_model_path(/*unsigned char i =*/1).c_str());
-        mem_locks.push_back(
-            get_compiled_model_path(/*unsigned char i =*/2).c_str());
-        mem_locks.push_back(
-            get_compiled_model_path(/*unsigned char i =*/3).c_str());
-        mem_locks.push_back(
-            get_compiled_model_path(/*unsigned char i =*/4).c_str());
+        mem_locks.push_back(new file_mlock(
+            get_compiled_model_path(/*unsigned char i =*/1).c_str()));
 
-        mem_locks.push_back(get_vsitter_compiled_model_path().c_str());
+        mem_locks.push_back(new file_mlock(
+            get_compiled_model_path(/*unsigned char i =*/2).c_str()));
+
+        mem_locks.push_back(new file_mlock(
+            get_compiled_model_path(/*unsigned char i =*/3).c_str()));
+
+        mem_locks.push_back(new file_mlock(
+            get_compiled_model_path(/*unsigned char i =*/4).c_str()));
+
+        mem_locks.push_back(
+            new file_mlock(get_vsitter_compiled_model_path().c_str()));
+
+  #include "./mlockffmpeg.hh"
       }
     }
 
@@ -1395,7 +1424,7 @@ cargo info serde
     } catch (const std::exception &e) {
       std::memset(dest, 0, 6 * 160 * 160 * 60 * 4);
       printf("Error: %s\n", e.what());
-      return -1; // Error
+      return -1;
     }
   }
   }
@@ -1760,102 +1789,303 @@ cargo info serde
   }
 #+end_src
 
-* Implementing locks related
-#+begin_src rust :mkdirp yes :tangle ./src/lockssync.rs
-  use crate::export;
-
-  pub struct named_semaphore {
-      slave: *mut ::std::os::raw::c_void,
+* Write the function to do the hashing
+#+begin_src rust :mkdirp yes :tangle ./src/hasher.rs
+  pub struct blob_hash {
+      hash: blake3::Hash,
+      string_rep: std::string::String,
+      filepath: Option<std::path::PathBuf>,
   }
 
-  impl Drop for named_semaphore {
-      fn drop(&mut self) {
-          unsafe { export::named_semaphore_delete(self.slave) };
+  impl blob_hash {
+      #[inline(always)]
+      pub fn new_from_slice(inblob: &[u8]) -> Self {
+          let hash = blake3::hash(inblob);
+          let string_rep = c32::encode(hash.as_slice());
+          Self {
+              hash: hash,
+              string_rep: string_rep,
+              filepath: None,
+          }
+      }
+
+      pub fn new_from_tmp_file(infilepath: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+          let file: std::fs::File = std::fs::File::open(infilepath.as_ref())?;
+          let mmap_result = unsafe { memmap2::Mmap::map(&file) }?;
+          let tmp = Self::new_from_slice(&mmap_result);
+          Ok(tmp)
+      }
+
+      #[inline(always)]
+      pub fn new_from_file(infilepath: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+          let mut tmp = Self::new_from_tmp_file(infilepath.as_ref())?;
+          tmp.filepath = Some(infilepath.as_ref().to_path_buf());
+          Ok(tmp)
+      }
+
+      #[inline(always)]
+      pub fn get_hash(&self) -> &[u8] {
+          self.hash.as_slice()
+      }
+
+      #[inline(always)]
+      pub fn get_hash_string(&self) -> &str {
+          &self.string_rep
+      }
+
+      #[inline(always)]
+      pub fn get_file_path(&self) -> &Option<std::path::PathBuf> {
+          &self.filepath
       }
   }
+#+end_src
 
-  impl named_semaphore {
-      pub fn new(name: &str, num: i32) -> anyhow::Result<Self> {
-          let name = std::ffi::CString::new(name)?;
+* Rust module for storing and retrieving files
+#+begin_src rust :mkdirp yes :tangle ./src/filestore.rs
+  use crate::hasher;
+
+  pub struct file_store {
+      prefix_raw: std::path::PathBuf,
+      prefix_raw_tmp: std::path::PathBuf,
+      prefix_video: std::path::PathBuf,
+      prefix_video_tmp: std::path::PathBuf,
+  }
+
+  impl file_store {
+      pub async fn new() -> anyhow::Result<Self> {
+          let prefix = std::path::PathBuf::from("/dev/shm/RD");
+
+          let prefix_raw = prefix.join("raw");
+          let prefix_raw_tmp = prefix.join("raw_tmp");
+          let prefix_video = prefix.join("video");
+          let prefix_video_tmp = prefix.join("video");
+
+          tokio::fs::create_dir_all(/*path =*/ &prefix_raw).await?;
+          tokio::fs::create_dir_all(/*path =*/ &prefix_raw_tmp).await?;
+          tokio::fs::create_dir_all(/*path =*/ &prefix_video).await?;
+          tokio::fs::create_dir_all(/*path =*/ &prefix_video_tmp).await?;
+
           return Ok(Self {
-              slave: unsafe {
-                  export::named_semaphore_new(
-                      /*name: *const ::std::os::raw::c_char =*/ name.as_ptr(),
-                      /*num: ::std::os::raw::c_int =*/ num,
-                  )
-              },
+              prefix_raw: prefix_raw,
+              prefix_raw_tmp: prefix_raw_tmp,
+              prefix_video: prefix_video,
+              prefix_video_tmp: prefix_video_tmp,
           });
       }
 
-      pub fn l(&mut self) {
-          unsafe {
-              export::named_semaphore_l(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
-          };
+      pub async fn get_all_files(&self) -> Vec<std::path::PathBuf> {
+          let prefix_video = self.prefix_video.clone();
+
+          let res: Vec<std::path::PathBuf> =
+              tokio::task::spawn_blocking(|| -> Vec<std::path::PathBuf> {
+                  jwalk::WalkDir::new(prefix_video)
+                      .into_iter()
+                      .filter_map(|e| e.ok())
+                      .map(|e| e.path())
+                      .collect()
+              })
+              .await
+              .expect("Failed to get list of files");
+
+          res
       }
 
-      pub fn r(&mut self) {
-          unsafe {
-              export::named_semaphore_r(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
-          };
+      pub async fn get_all_files_with_hash(&self) -> Vec<(hasher::blob_hash, std::path::PathBuf)> {
+          let prefix_video = self.prefix_video.clone();
+
+          let res =
+              tokio::task::spawn_blocking(|| -> Vec<(hasher::blob_hash, std::path::PathBuf)> {
+                  jwalk::WalkDir::new(prefix_video)
+                      .into_iter()
+                      .filter_map(|e| e.ok())
+                      .map(|e| e.path())
+                      .map(|e| match hasher::blob_hash::new_from_tmp_file(&e) {
+                          Ok(o) => Some((o, e)),
+                          Err(e) => None,
+                      })
+                      .flatten()
+                      .collect()
+              })
+              .await
+              .expect("Failed to scan /dev/shm/video");
+
+          res
       }
-  }
 
-  pub struct unnamed_semaphore {
-      slave: *mut ::std::os::raw::c_void,
-  }
-
-  impl Drop for unnamed_semaphore {
-      fn drop(&mut self) {
-          unsafe { export::unnamed_semaphore_delete(self.slave) };
+      #[inline(always)]
+      pub fn get_path_video(&self, key: &hasher::blob_hash) -> std::path::PathBuf {
+          match key.get_file_path() {
+              Some(p) => p.clone(),
+              None => self.prefix_video.join(key.get_hash_string()),
+          }
       }
-  }
 
-  impl unnamed_semaphore {
-      pub fn new(num: i32) -> anyhow::Result<Self> {
-          return Ok(Self {
-              slave: unsafe {
-                  export::unnamed_semaphore_new(/*num: ::std::os::raw::c_int =*/ num)
+      #[inline(always)]
+      pub fn get_path_raw(&self, key: &hasher::blob_hash) -> std::path::PathBuf {
+          self.prefix_raw.join(key.get_hash_string())
+      }
+
+      #[inline(always)]
+      fn get_path_video_tmp(&self, key: &hasher::blob_hash) -> std::path::PathBuf {
+          self.prefix_video_tmp.join(key.get_hash_string())
+      }
+
+      #[inline(always)]
+      fn get_path_raw_tmp(&self, key: &hasher::blob_hash) -> std::path::PathBuf {
+          self.prefix_raw_tmp.join(key.get_hash_string())
+      }
+
+      pub async fn put_content(
+          &self,
+          key: &hasher::blob_hash,
+          value: &Vec<u8>,
+      ) -> anyhow::Result<std::path::PathBuf> {
+          let path_tmp = self.get_path_video_tmp(key);
+          let path_video = self.get_path_video(key);
+          let _ = tokio::fs::write(&path_tmp, value.as_slice()).await?;
+          let _ = tokio::fs::rename(/*from =*/ &path_tmp, /*to =*/ &path_video).await?;
+          return Ok(path_video);
+      }
+
+      pub async fn get_raw_tensor(
+          &self,
+          key: &hasher::blob_hash,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+      ) -> anyhow::Result<memmap2::Mmap> {
+          let path_file_video = self.get_path_video(key);
+          let path_file_raw_tmp = self.get_path_raw_tmp(key);
+
+          let res = tokio::process::Command::new("ffmpeg")
+              .arg("-i")
+              .arg(&path_file_video)
+              .arg("-vf")
+              .arg(format!("fps={},scale={}:{}", fps, size_x, size_y).as_str())
+              .arg("-nostdin")
+              .arg("-loglevel")
+              .arg("quiet")
+              .arg("-f")
+              .arg("rawvideo")
+              .arg("-pix_fmt")
+              .arg("rgb24")
+              .arg(&path_file_raw_tmp)
+              .status()
+              .await;
+
+          match key.get_file_path() {
+              None => {
+                  tokio::fs::remove_file(&path_file_video).await?;
+                  drop(path_file_video);
+              }
+              Some(p) => {
+                  tracing::warn!("Not deleting non-temporary video {:?}", p);
+                  drop(path_file_video);
+              }
+          }
+
+          let res = match res {
+              Ok(o) => match o.code() {
+                  None => -128,
+                  Some(e) => e,
               },
-          });
+              Err(e) => -128,
+          };
+
+          if res != 0 {
+              tokio::fs::remove_file(&path_file_raw_tmp).await?;
+              drop(path_file_raw_tmp);
+              tracing::error!("FFMPEG error code {}", res);
+              return Err(anyhow::format_err!("FFMPEG error code {}", res));
+          }
+
+          let path_file_raw = self.get_path_raw(key);
+
+          match tokio::fs::rename(&path_file_raw_tmp, &path_file_raw).await {
+              Ok(_) => {
+                  drop(path_file_raw_tmp);
+              }
+              Err(e) => {
+                  tokio::fs::remove_file(&path_file_raw_tmp).await?;
+                  tracing::error!(
+                      "Unable to move temporary file {:?} to actual raw file {:?}",
+                      &path_file_raw_tmp,
+                      &path_file_raw
+                  );
+                  return Err(anyhow::format_err!(
+                      "Unable to move temporary file {:?} to actual raw file {:?}",
+                      &path_file_raw_tmp,
+                      &path_file_raw
+                  ));
+              }
+          };
+
+          let mmap = tokio::task::spawn_blocking(move || {
+              let file = match std::fs::File::open(&path_file_raw) {
+                  Ok(o) => {
+                      std::fs::remove_file(path_file_raw)?;
+                      o
+                  }
+                  Err(e) => {
+                      std::fs::remove_file(&path_file_raw)?;
+                      tracing::error!("open on raw file {:?} failed due to {}", &path_file_raw, e);
+                      return Err(anyhow::format_err!(
+                          "open on raw file {:?} failed due to {}",
+                          &path_file_raw,
+                          e
+                      ));
+                  }
+              };
+
+              let mmap_result = unsafe { memmap2::Mmap::map(&file) };
+              let mmap_result = mmap_result?;
+
+              Ok(mmap_result)
+          })
+          .await??;
+
+          return Ok((mmap));
       }
 
-      pub fn l(&mut self) {
-          unsafe {
-              export::unnamed_semaphore_l(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
-          };
+      #[inline(always)]
+      pub fn get_path(&self, key: &hasher::blob_hash) -> std::path::PathBuf {
+          self.get_path_video(key)
       }
 
-      pub fn r(&mut self) {
-          unsafe {
-              export::unnamed_semaphore_r(/*in_: *mut ::std::os::raw::c_void =*/ self.slave)
-          };
+      #[inline(always)]
+      pub async fn get_tensor_from_video(
+          &self,
+          key: &hasher::blob_hash,
+          value: &Vec<u8>,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+      ) -> anyhow::Result<memmap2::Mmap> {
+          let res = self.put_content(key, value).await?;
+          self.get_raw_tensor(key, fps, size_x, size_y).await
       }
   }
 #+end_src
 
 * Rust functions for ffmpeg and name hashing
 #+begin_src rust :mkdirp yes :tangle ./src/videofn.rs
-  use std::io::{Read, Write};
+  use crate::hasher;
+  use std::io::Read;
+  use std::io::Write;
   use std::os::unix::ffi::OsStrExt;
 
-  pub fn get_file_hash(path_file_input: impl AsRef<std::path::Path>) -> anyhow::Result<u64> {
-      let file: std::fs::File = std::fs::File::open(path_file_input.as_ref())?;
-      let input: memmap2::Mmap = unsafe { memmap2::Mmap::map(&file) }?;
-      Ok(gxhash::gxhash64(&input, /* seed = */ 12345))
+  pub fn get_file_hash(
+      path_file_input: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<hasher::blob_hash> {
+      hasher::blob_hash::new_from_file(/*infilepath =*/ path_file_input)
   }
 
-  pub fn get_str_hash(path_file_input: &str) -> u64 {
-      gxhash::gxhash64(
-          /* input = */ path_file_input.as_bytes(),
-          /* seed = */ 12345,
-      )
+  pub fn get_str_hash(path_file_input: &str) -> hasher::blob_hash {
+      hasher::blob_hash::new_from_slice(path_file_input.as_bytes())
   }
 
-  pub fn get_path_hash(path_file_input: impl AsRef<std::path::Path>) -> u64 {
-      gxhash::gxhash64(
-          /* input = */ path_file_input.as_ref().as_os_str().as_bytes(),
-          /* seed = */ 12345,
-      )
+  pub fn get_path_hash(path_file_input: impl AsRef<std::path::Path>) -> hasher::blob_hash {
+      hasher::blob_hash::new_from_slice(path_file_input.as_ref().as_os_str().as_bytes())
   }
 
   pub fn convert_encoded_video_to_raw(
@@ -1903,65 +2133,6 @@ cargo info serde
       };
   }
 
-  pub fn convert_encoded_video_to_raw_piped(
-      input_buffer: Vec<u8>,
-      fps: f32,
-      size_x: u16,
-      size_y: u16,
-      size_c: u8,
-  ) -> anyhow::Result<Vec<u8>> {
-
-      assert!(
-          size_c == 3,
-          "Currently only implemented for 3 channel color videos..."
-      );
-
-      let mut child = std::process::Command::new("ffmpeg")
-          .args([
-              "-i", "pipe:0",
-              "-vf",
-              format!("fps={},scale={}:{}", fps, size_x, size_y).as_str(),
-              "-r", fps.to_string().as_str(),
-              "-f", "rawvideo",
-              "-pix_fmt", "rgb24",
-              "pipe:1",
-          ])
-          .stdin(std::process::Stdio::piped())
-          .stdout(std::process::Stdio::piped())
-          .stderr(std::process::Stdio::piped())
-          .spawn()?;
-
-      let mut output_buffer = Vec::<u8>::new();
-      if let Some(mut stdin) = child.stdin.take() {
-
-          let handle = std::thread::spawn(move || {
-              stdin.write_all(&input_buffer);
-          });
-
-          if let Some(mut stdout) = child.stdout.take() {
-              stdout.read_to_end(&mut output_buffer)?;
-          }
-
-          match handle.join() {
-              Ok(_) => tracing::info!("Writer thread finished successfully"),
-              Err(e) => tracing::error!("Writer thread panicked: {:?}", e), 
-          } ;
-      }
-
-      let status = child.wait()?;
-
-      if !status.success() {
-          let mut err_msg = String::new();
-          if let Some(mut stderr) = child.stderr.take() {
-              stderr.read_to_string(&mut err_msg)?;
-          }
-          tracing::error!("FFmpeg failed: {}", err_msg);
-          return Err(anyhow::format_err!("FFmpeg failed: {}", err_msg));
-      }
-
-      Ok(output_buffer)
-  }
-
   pub fn convert_encoded_video_to_raw_outpipe(
       path_file_video_input: impl AsRef<std::path::Path>,
       fps: f32,
@@ -1970,7 +2141,6 @@ cargo info serde
       size_c: u8,
       clean_video: bool,
   ) -> anyhow::Result<Vec<u8>> {
-
       assert!(
           size_c == 3,
           "Currently only implemented for 3 channel color videos..."
@@ -2017,7 +2187,142 @@ cargo info serde
 #+end_src
 
 * Rust class for interpreting video as torch tensor
+
+** New
 #+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
+  use crate::filestore;
+  use crate::hasher;
+  use crate::videofn;
+
+  pub struct video_slicer_mapped {
+      fps: f32,
+
+      size_t: u16,
+      size_x: u16,
+      size_y: u16,
+      size_c: u8,
+
+      dist_t: usize,
+      dist_x: usize,
+      dist_y: usize,
+      dist_c: usize,
+
+      mmap: memmap2::Mmap,
+  }
+
+  impl video_slicer_mapped {
+      pub fn new(
+          mmap: memmap2::Mmap,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+          size_c: u8,
+      ) -> anyhow::Result<Self> {
+          let size_t: u16 =
+              (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
+
+          let dist_c: i32 = 1;
+
+          let dist_c: usize = 1;
+          let dist_x: usize = dist_c * (size_c as usize);
+          let dist_y: usize = dist_x * (size_x as usize);
+          let dist_t: usize = dist_y * (size_y as usize);
+
+          Ok(Self {
+              mmap: mmap,
+
+              fps: fps,
+
+              size_x: size_x,
+              size_y: size_y,
+              size_c: size_c,
+              size_t: size_t,
+
+              dist_x: dist_x,
+              dist_y: dist_y,
+              dist_c: dist_c,
+              dist_t: dist_t,
+          })
+      }
+
+      async fn new_from_key_value(
+          key: &hasher::blob_hash,
+          value: &Vec<u8>,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+          size_c: u8,
+      ) -> anyhow::Result<Self> {
+          let res = filestore::file_store::new()
+              .await?
+              .get_tensor_from_video(key, value, fps, size_x, size_y)
+              .await?;
+
+          Self::new(res, fps, size_x, size_y, size_c)
+      }
+
+      #[inline(always)]
+      fn get_size(&self, i: u8) -> usize {
+          match i {
+              0 => self.size_c as usize,
+              1 => self.size_x as usize,
+              2 => self.size_y as usize,
+              3 => self.size_t as usize,
+              _ => 1 as usize,
+          }
+      }
+
+      #[inline(always)]
+      fn get_dist(&self, i: u8) -> usize {
+          match i {
+              0 => self.dist_c,
+              1 => self.dist_x,
+              2 => self.dist_y,
+              3 => self.dist_t,
+              _ => self.mmap.len(),
+          }
+      }
+
+      pub fn get_video_tensor(&self) -> anyhow::Result<tch::Tensor> {
+          if self.size_t < 2 {
+              return Err(anyhow::format_err!("The video blob seems too small"));
+          }
+
+          let data: *const u8 = self.mmap.as_ptr();
+
+          let size: [i64; 4] = [
+              self.get_size(3) as i64,
+              self.get_size(2) as i64,
+              self.get_size(1) as i64,
+              self.get_size(0) as i64,
+          ];
+
+          let strides: [i64; 4] = [
+              self.get_dist(3) as i64,
+              self.get_dist(2) as i64,
+              self.get_dist(1) as i64,
+              self.get_dist(0) as i64,
+          ];
+
+          let tensor_data: tch::Tensor = unsafe {
+              tch::Tensor::from_blob(
+                  /* data = */ data,
+                  /* size = */ &size,
+                  /* strides = */ &strides,
+                  tch::Kind::Uint8,
+                  tch::Device::Cpu,
+              )
+          };
+
+          return Ok(tensor_data);
+      }
+  }
+#+end_src
+
+** COMMENT Old
+#+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
+  use crate::filestore;
+  use crate::hasher;
   use crate::videofn;
 
   pub struct video_slicer {
@@ -2055,9 +2360,13 @@ cargo info serde
           size_c: u8,
       ) -> anyhow::Result<Self> {
           if path_file_rawvideo_output.is_none() {
-              let name_hash: u64 = videofn::get_path_hash(path_file_video_input.as_ref());
-              let hash: u64 = videofn::get_file_hash(path_file_video_input.as_ref())?;
-              let tmppath = std::path::PathBuf::from(format!("/dev/shm/{:x}.{:x}.raw", name_hash, hash));
+              let name_hash = videofn::get_path_hash(path_file_video_input.as_ref());
+              let hash = videofn::get_file_hash(path_file_video_input.as_ref())?;
+              let tmppath = std::path::PathBuf::from(format!(
+                  "/dev/shm/{}.{}.raw",
+                  name_hash.get_hash_string(),
+                  hash.get_hash_string()
+              ));
               path_file_rawvideo_output = Some(tmppath);
           }
 
@@ -2182,51 +2491,6 @@ cargo info serde
   }
 
   impl video_slicer_piped {
-      pub fn new_from_bin(
-          binary_video_input: Vec<u8>,
-          fps: f32,
-          size_x: u16,
-          size_y: u16,
-          size_c: u8,
-      ) -> anyhow::Result<Self> {
-
-          let raw_video = videofn::convert_encoded_video_to_raw_piped(
-              /*input_buffer: Vec<u8> =*/ binary_video_input,
-              /*fps: f32 =*/ fps,
-              /*size_x: u16 =*/ size_x,
-              /*size_y: u16 =*/ size_y,
-              /*size_c: u8 =*/ size_c,
-          )? ;
-
-          let size_t: u16 =
-              ( raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
-
-          let dist_c: i32 = 1;
-
-          let dist_c: usize = 1;
-          let dist_x: usize = dist_c * (size_c as usize);
-          let dist_y: usize = dist_x * (size_x as usize);
-          let dist_t: usize = dist_y * (size_y as usize);
-
-          let ret: Self = Self {
-              fps: fps,
-
-              size_t: size_t,
-              size_x: size_x,
-              size_y: size_y,
-              size_c: size_c,
-
-              dist_t: dist_t,
-              dist_x: dist_x,
-              dist_y: dist_y,
-              dist_c: dist_c,
-
-              raw_video: raw_video,
-          };
-
-          return Ok(ret);
-      }
-
       pub fn new(
           path_file_video_input: impl AsRef<std::path::Path>,
           fps: f32,
@@ -2235,7 +2499,6 @@ cargo info serde
           size_c: u8,
           clean_video: bool,
       ) -> anyhow::Result<Self> {
-
           let raw_video = videofn::convert_encoded_video_to_raw_outpipe(
               /*path_file_video_input: &str =*/ path_file_video_input.as_ref(),
               /*fps: f32 =*/ fps as f32,
@@ -2246,7 +2509,7 @@ cargo info serde
           )?;
 
           let size_t: u16 =
-              ( raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
+              (raw_video.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
           let dist_c: i32 = 1;
 
@@ -2272,7 +2535,6 @@ cargo info serde
           };
 
           return Ok(ret);
-
       }
 
       #[inline(always)]
@@ -2321,6 +2583,130 @@ cargo info serde
           let tensor_data: tch::Tensor = unsafe {
               tch::Tensor::from_blob(
                   /* data = */ self.raw_video.as_ptr(),
+                  /* size = */ &size,
+                  /* strides = */ &strides,
+                  tch::Kind::Uint8,
+                  tch::Device::Cpu,
+              )
+          };
+
+          return Ok(tensor_data);
+      }
+  }
+
+  pub struct video_slicer_mapped {
+      fps: f32,
+
+      size_t: u16,
+      size_x: u16,
+      size_y: u16,
+      size_c: u8,
+
+      dist_t: usize,
+      dist_x: usize,
+      dist_y: usize,
+      dist_c: usize,
+
+      mmap: memmap2::Mmap,
+  }
+
+  impl video_slicer_mapped {
+      pub fn new(
+          mmap: memmap2::Mmap,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+          size_c: u8,
+      ) -> anyhow::Result<Self> {
+          let size_t: u16 =
+              (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
+
+          let dist_c: i32 = 1;
+
+          let dist_c: usize = 1;
+          let dist_x: usize = dist_c * (size_c as usize);
+          let dist_y: usize = dist_x * (size_x as usize);
+          let dist_t: usize = dist_y * (size_y as usize);
+
+          Ok(Self {
+              mmap: mmap,
+
+              fps: fps,
+
+              size_x: size_x,
+              size_y: size_y,
+              size_c: size_c,
+              size_t: size_t,
+
+              dist_x: dist_x,
+              dist_y: dist_y,
+              dist_c: dist_c,
+              dist_t: dist_t,
+          })
+      }
+
+      async fn new_from_key_value(
+          key: &hasher::blob_hash,
+          value: &Vec<u8>,
+          fps: f32,
+          size_x: u16,
+          size_y: u16,
+          size_c: u8,
+      ) -> anyhow::Result<Self> {
+          let res = filestore::file_store::new()
+              .await?
+              .get_tensor_from_video(key, value, fps, size_x, size_y)
+              .await?;
+
+          Self::new(res, fps, size_x, size_y, size_c)
+      }
+
+      #[inline(always)]
+      fn get_size(&self, i: u8) -> usize {
+          match i {
+              0 => self.size_c as usize,
+              1 => self.size_x as usize,
+              2 => self.size_y as usize,
+              3 => self.size_t as usize,
+              _ => 1 as usize,
+          }
+      }
+
+      #[inline(always)]
+      fn get_dist(&self, i: u8) -> usize {
+          match i {
+              0 => self.dist_c,
+              1 => self.dist_x,
+              2 => self.dist_y,
+              3 => self.dist_t,
+              _ => self.mmap.len(),
+          }
+      }
+
+      pub fn get_video_tensor(&self) -> anyhow::Result<tch::Tensor> {
+          if self.size_t < 2 {
+              return Err(anyhow::format_err!("The video blob seems too small"));
+          }
+
+          let data: *const u8 = self.mmap.as_ptr();
+
+          let size: [i64; 4] = [
+              self.get_size(3) as i64,
+              self.get_size(2) as i64,
+              self.get_size(1) as i64,
+              self.get_size(0) as i64,
+          ];
+
+          let strides: [i64; 4] = [
+              self.get_dist(3) as i64,
+              self.get_dist(2) as i64,
+              self.get_dist(1) as i64,
+              self.get_dist(0) as i64,
+          ];
+
+          let tensor_data: tch::Tensor = unsafe {
+              tch::Tensor::from_blob(
+                  /* data = */ data,
                   /* size = */ &size,
                   /* strides = */ &strides,
                   tch::Kind::Uint8,
@@ -2440,8 +2826,10 @@ cargo info serde
   use std::io::Write;
   use tch::IndexOp;
 
+  use tokio::io::AsyncWriteExt;
+
   #[inline(always)]
-  fn get_num_windows(total_video_length: u64) -> u8 {
+  pub fn get_num_windows(total_video_length: u64) -> u8 {
       const ideal_length: u16 = 160 as u16;
 
       const min_length: u16 = (ideal_length * 3) >> 2;
@@ -2503,83 +2891,71 @@ cargo info serde
   }
 
   impl fft_video {
-      pub fn save(&self, filename: &str) -> anyhow::Result<()> {
-          let file = std::fs::File::create(filename)?;
-          let mut writer = std::io::BufWriter::new(file);
+      pub async fn save(&self, filename: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
+          let file = tokio::fs::File::create(filename.as_ref()).await?;
+          let mut writer = tokio::io::BufWriter::new(file);
           let size = std::mem::size_of::<fft_video>();
-
           let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
-
-          writer.write_all(bytes)?;
+          writer.write_all(bytes).await?;
           return Ok(());
       }
 
       fn from_torch_fft_tensor(
           tensor_fft_input: &tch::Tensor,
-      ) -> anyhow::Result<std::sync::Arc<Self>> {
-          if true {
-              "################################";
-              "# Do the check: ################";
-              "################################";
-
-              if tensor_fft_input.kind() != tch::Kind::Float {
-                  anyhow::bail!(
-                      "Input tensor must be Kind::Float, found {:?}",
-                      tensor_fft_input.kind()
-                  );
-              } else {
-                  const expected_size: usize = 6 * 160 * 160 * 60;
-                  let actual_size: usize = tensor_fft_input.numel();
-                  if actual_size != expected_size {
-                      anyhow::bail!(
-                          "Tensor size mismatch: expected {} elements, found {}",
-                          expected_size,
-                          actual_size
-                      );
-                  }
-              }
+      ) -> anyhow::Result<std::boxed::Box<Self>> {
+          if tensor_fft_input.kind() != tch::Kind::Float {
+              tracing::error!("datatype of tensor is not f32, returning");
+              anyhow::bail!(
+                  "Input tensor must be Kind::Float, found {:?}",
+                  tensor_fft_input.kind()
+              );
           }
 
-          let mut store: std::sync::Arc<std::mem::MaybeUninit<Self>> = std::sync::Arc::new_uninit();
+          const expected_size: usize = 6 * 160 * 160 * 60;
+          let actual_size: usize = tensor_fft_input.numel();
+
+          if actual_size != expected_size {
+              tracing::error!(
+                  "expected size of the tensor {} not matching with reality {} returning...",
+                  expected_size,
+                  actual_size
+              );
+              anyhow::bail!(
+                  "Tensor size mismatch: expected {} elements, found {}",
+                  expected_size,
+                  actual_size
+              );
+          }
+
+          tracing::debug!("initializing memory");
+
+          let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
 
           if true {
-              "################################";
-              "# Do the init: #################";
-              "################################";
-              let data: *mut Self =
-                  std::sync::Arc::<std::mem::MaybeUninit<Self>>::get_mut(&mut store)
-                      .context("Failed to obtain unique mutable access to the newly allocated Arc")?
-                      .as_mut_ptr();
-
+              let data: *mut Self = store.as_mut_ptr();
               const size: [i64; 4] = [6, 160, 160, 60];
               const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
-              if true {
-                  "################################";
-                  "# Now initialize the tensors: ##";
-                  "################################";
+              tracing::debug!("Initialized memory, now passing to the tensor");
 
-                  let mut out_tensor: tch::Tensor = unsafe {
-                      tch::Tensor::from_blob(
-                          data as *mut u8,
-                          &size,
-                          &strides,
-                          tch::Kind::Float,
-                          tch::Device::Cpu,
-                      )
-                  };
+              let mut out_tensor: tch::Tensor = unsafe {
+                  tch::Tensor::from_blob(
+                      data as *mut u8,
+                      &size,
+                      &strides,
+                      tch::Kind::Float,
+                      tch::Device::Cpu,
+                  )
+              };
+              tracing::debug!("Done with tensor interpretation. Performing the copy");
 
-                  if true {
-                      "################################";
-                      "# Do the copy: #################";
-                      "################################";
+              out_tensor.copy_(&tensor_fft_input);
 
-                      out_tensor.copy_(&tensor_fft_input);
-                  }
-              }
+              tracing::debug!("Done with the copy");
           }
 
-          let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+          // let final_video: std::sync::Arc<Self> = unsafe { store.assume_init() };
+          let final_video = unsafe { store.assume_init() };
 
           return Ok(final_video);
       }
@@ -2588,38 +2964,41 @@ cargo info serde
           tensor_video_input: &tch::Tensor,
           use_gpu: bool,
       ) -> anyhow::Result<std::boxed::Box<Self>> {
-          if true {
-              "################################";
-              "# Do the check: ################";
-              "################################";
-
-              if tensor_video_input.kind() != tch::Kind::Uint8 {
-                  anyhow::bail!(
-                      "Input tensor must be Kind::Uint8, found {:?}",
-                      tensor_video_input.kind()
-                  );
-              } else {
-                  let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
-                  let actual_size: usize = tensor_video_input.numel();
-
-                  if actual_size != expected_size {
-                      anyhow::bail!(
-                          "Tensor size mismatch: expected {} elements, found {}",
-                          expected_size,
-                          actual_size
-                      );
-                  }
-              }
+          tracing::debug!("Came to from_torch_video_tensor");
+          if tensor_video_input.kind() != tch::Kind::Uint8 {
+              tracing::error!(
+                  "Input tensor must be Kind::Uint8, found {:?}",
+                  tensor_video_input.kind()
+              );
+              anyhow::bail!(
+                  "Input tensor must be Kind::Uint8, found {:?}",
+                  tensor_video_input.kind()
+              );
           }
 
+          let expected_size: usize = (tensor_video_input.size()[0] * 720 * 1280 * 3) as usize;
+          let actual_size: usize = tensor_video_input.numel();
+
+          if actual_size != expected_size {
+              tracing::error!(
+                  "Tensor size mismatch: expected {} elements, found {}",
+                  expected_size,
+                  actual_size
+              );
+              anyhow::bail!(
+                  "Tensor size mismatch: expected {} elements, found {}",
+                  expected_size,
+                  actual_size
+              );
+          }
+
+          tracing::debug!("Allocating the box pointer on the heap");
           let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
 
+          tracing::debug!("Passing the box pointer to torch tensor");
           if true {
-              "################################";
-              "# Perform the FFT ##############";
-              "################################";
-
               let data: *mut Self = store.as_mut_ptr();
+              tracing::debug!("Got pointer from heap Box");
 
               let status: i32 = unsafe {
                   export::do_fft_compress_efficient(
@@ -2636,6 +3015,7 @@ cargo info serde
                       /*bool use_gpu =*/ use_gpu,
                   )
               } as i32;
+              tracing::debug!("Called the fft function with status {}", status);
 
               if status != 0 {
                   tracing::error!("FFT step failed with exit status {}...", status);
@@ -2646,8 +3026,10 @@ cargo info serde
               }
           }
 
+          tracing::debug!("Casting the final tensor");
           let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
 
+          tracing::debug!("Returning the fully valid tensor");
           return Ok(final_video);
       }
 
@@ -2655,40 +3037,50 @@ cargo info serde
           list_torch_video_tensor: Vec<tch::Tensor>,
           use_gpu: bool,
       ) -> anyhow::Result<Vec<Self>> {
-          if list_torch_video_tensor.len() > 0 {
-              let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+          tracing::debug!("Started from_list_torch_video_tensor");
 
-              let length = list_torch_video_tensor.len();
-
-              let ret: Vec<anyhow::Result<std::boxed::Box<Self>>> = pool.install(|| {
-                  list_torch_video_tensor
-                      .into_par_iter()
-                      .map(|i| {
-                          Self::from_torch_video_tensor(
-                              /*tensor_video_input: &tch::Tensor =*/ &i,
-                              /*use_gpu: bool =*/ use_gpu,
-                          )
-                      })
-                      .collect()
-              });
-
-              let mut ret2 = Vec::<Self>::with_capacity(length);
-
-              for i in ret.into_iter() {
-                  match i {
-                      Ok(o) => {
-                          ret2.push(*o);
-                      }
-                      Err(e) => {
-                          tracing::error!("Failed to FFT a vector due to {}", e);
-                      }
-                  }
-              }
-
-              return Ok(ret2);
-          } else {
+          if list_torch_video_tensor.len() == 0 {
+              tracing::error!("Got empty vector to from_list_torch_video_tensor");
               return Err(anyhow::format_err!("Input vector is empty"));
           }
+
+          let pool = rayon::ThreadPoolBuilder::new().num_threads(1).build()?;
+
+          let length = list_torch_video_tensor.len();
+
+          tracing::debug!("Length = {}", length);
+
+          let ret: Vec<anyhow::Result<std::boxed::Box<Self>>> = pool.install(|| {
+              list_torch_video_tensor
+                  .into_par_iter()
+                  .map(|i| {
+                      Self::from_torch_video_tensor(
+                          /*tensor_video_input: &tch::Tensor =*/ &i,
+                          /*use_gpu: bool =*/ use_gpu,
+                      )
+                  })
+                  .collect()
+          });
+
+          tracing::debug!("constructed the vec of boxed fft_video");
+
+          let mut ret2 = Vec::<Self>::with_capacity(length);
+          let mut ret2_ptr = ret2.as_mut_ptr();
+
+          tracing::debug!("Initialized the needed capacity on heap with Vec");
+
+          for i in ret.into_iter().filter_map(|i| i.ok()) {
+              let tmp = &*i;
+              unsafe { std::ptr::copy_nonoverlapping(tmp as *const Self, ret2_ptr, 1) };
+              ret2_ptr = unsafe { ret2_ptr.add(1) };
+              unsafe { ret2.set_len(ret2.len() + 1) };
+          }
+
+          tracing::debug!(
+              "Done with the tight unsafe loops to copy data to sequential memory, returning the vec"
+          );
+
+          return Ok(ret2);
       }
 
       pub fn windowed_from_torch_video_tensor(
@@ -2710,11 +3102,15 @@ cargo info serde
                       "window_length = 1, total_video_length = {}",
                       total_video_length
                   );
-                  return Self::from_list_torch_video_tensor(
+                  let tmp = Self::from_list_torch_video_tensor(
                       /*list_torch_video_tensor: Vec<tch::Tensor> =*/
                       vec![tensor_video_input.shallow_clone()],
                       /*use_gpu: bool =*/ use_gpu,
                   );
+
+                  tracing::debug!("Constructed the Vec<fft_video>, returning it");
+
+                  tmp
               }
               _ => {
                   let mut list_torch_video_tensor =
@@ -2740,10 +3136,14 @@ cargo info serde
                       list_torch_video_tensor.push(tensor_video_input.i((start..end, .., .., ..)));
                   }
 
-                  return Self::from_list_torch_video_tensor(
+                  let tmp = Self::from_list_torch_video_tensor(
                       /*list_torch_video_tensor: Vec<tch::Tensor> =*/ list_torch_video_tensor,
                       /*use_gpu: bool =*/ use_gpu,
                   );
+
+                  tracing::debug!("Constructed the batch of fft_video. Returning it");
+
+                  tmp
               }
           }
       }
@@ -3280,7 +3680,16 @@ cargo info serde
   use crate::videofft;
 
   #[repr(C)]
-  #[derive(Clone, Copy)]
+  #[derive(
+      Clone,
+      Copy,
+      serde::Serialize,
+      serde::Deserialize,
+      Debug,
+      rkyv::Archive,
+      rkyv::Serialize,
+      rkyv::Deserialize,
+  )]
   pub struct infer_results {
       pub p_calm: f32,
       pub p_contraversial: f32,
@@ -3373,7 +3782,16 @@ cargo info serde
   use tch::IndexOp;
 
   #[repr(C)]
-  #[derive(Clone, Copy, Debug)]
+  #[derive(
+      Clone,
+      Copy,
+      Debug,
+      serde::Serialize,
+      serde::Deserialize,
+      rkyv::Archive,
+      rkyv::Serialize,
+      rkyv::Deserialize,
+  )]
   pub struct infer_results {
       pub ARM: i64,
       pub RAIL: i64,
@@ -3417,6 +3835,7 @@ cargo info serde
 
   impl infer_slave {
       pub fn new(batch_size: u8) -> Self {
+          tracing::warn!("Constructing the image infer_slave");
           Self {
               slave: unsafe { export::new_infer_slave_image(batch_size) },
               batch_size: batch_size,
@@ -3427,6 +3846,7 @@ cargo info serde
           let size: Vec<i64> = vals.size();
 
           if ((size[0] as usize) % (self.batch_size as usize)) != 0 {
+              tracing::error!("The input vector length should be a multiple of batch size {}", self.batch_size);
               return Err(anyhow::format_err!(
                   "The input vector length should be a multiple of batch size"
               ));
@@ -3442,7 +3862,6 @@ cargo info serde
               let end_t = begin_t + (self.batch_size as i64);
 
               tracing::debug!("getting the range {} {}", begin_t, end_t);
-              // let blob_destination_base = ret[(begin_t as usize)..(end_t as usize)].as_mut_ptr();
 
               let current_batch_tensor = {
                   const sy: i64 = 720;
@@ -3485,15 +3904,25 @@ cargo info serde
   }
 #+end_src
 
-* Main rust code
-T H W C
+* Time and versioning
+#+begin_src rust :mkdirp yes :tangle ./src/version.rs
+  pub fn major_version() -> u32 {
+      1
+  }
 
-( T * x ) / 15 for choosing images for inference
+  pub fn minor_version() -> u32 {
+      5
+  }
+#+end_src
+
+* Main rust code
 #+begin_src rust :mkdirp yes :tangle ./src/main.rs
   #[global_allocator]
   static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
   mod export;
+  mod filestore;
+  mod hasher;
   mod inferencerelated;
   mod inferencerelatedimage;
   mod videofft;
@@ -3502,23 +3931,28 @@ T H W C
   mod videoview;
 
   use anyhow::{Context, Result};
+  use futures::StreamExt;
   use rayon::prelude::*;
   use tch::IndexOp;
 
   const USE_GPU: bool = true;
   const IMAGE_INFERENCE_BATCH_SIZE: i64 = 16;
 
-  fn infer_video_end_2_end(
-      path_file_video_input: String,
+  async fn infer_video_end_2_end(
+      key: hasher::blob_hash,
       use_gpu: bool,
   ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-      let slicer = videoview::video_slicer::new(
-          /*path_file_video_input: String =*/ path_file_video_input,
-          None,
-          /*fps: f32 =*/ 8.0,
-          /*size_x: u16 =*/ 1280,
-          /*size_y: u16 =*/ 720,
-          /*size_c: u8 =*/ 3,
+      let filestore = filestore::file_store::new().await?;
+
+      let raw_tensor = filestore
+          .get_raw_tensor(
+              &key, /*fps=*/ 8 as f32, /*size_x=*/ 1280, /*size_y=*/ 720,
+          )
+          .await?;
+
+      let slicer = videoview::video_slicer_mapped::new(
+          /*mmap =*/ raw_tensor, /*fps =*/ 8 as f32, /*size_x =*/ 1280,
+          /*size_y =*/ 720, /*size_c =*/ 3,
       )?;
 
       let video_tensor = slicer.get_video_tensor()?;
@@ -3570,73 +4004,61 @@ T H W C
       return Ok(ret);
   }
 
-  fn video_tensor_2_fft_file_160(
+  async fn video_tensor_2_fft_file_160(
       tensor_video_input: tch::Tensor,
-      path_dir_output: &str,
-  ) -> anyhow::Result<String> {
-      let total_video_length = tensor_video_input.size()[0];
+      path_dir_output: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+      let total_video_length: u64 = tensor_video_input.size()[0].try_into()?;
+      let num_windows = videofft::get_num_windows(total_video_length);
 
-      if total_video_length < 120 {
+      if num_windows == 0 {
           return Err(anyhow::format_err!("Video too short..."));
       } else {
-          std::fs::create_dir_all(path_dir_output)?;
-          let stride = 160 as i32;
-          let threshold = ((3 * (160 + stride)) / 4) as i32;
+          tokio::fs::create_dir_all(/*path =*/ path_dir_output.as_ref()).await?;
           let use_gpu: bool = USE_GPU && tch::Cuda::is_available();
 
-          if (120 <= total_video_length) && (total_video_length < (threshold as i64)) {
-              let path_file_video_bin_output: String = path_dir_output.to_string() + "/out-1.bin";
+          let path_dir_output = std::sync::Arc::new(path_dir_output.as_ref().to_path_buf());
 
-              if !std::fs::exists(path_file_video_bin_output.as_str())? {
-                  videofft::fft_video::from_torch_video_tensor(
-                      /*tensor_video_input: &tch::Tensor =*/
-                      &tensor_video_input.i((0..total_video_length, .., .., ..)),
-                      use_gpu,
-                  )?
-                  .save(path_file_video_bin_output.as_str())?;
-              }
+          let tensors = tokio::task::spawn_blocking(move || {
+              videofft::fft_video::windowed_from_torch_video_tensor(&tensor_video_input, use_gpu)
+          })
+          .await??;
 
-              return Ok("Successfully encoded the the whole video into a single file".to_string());
-          } else {
-              let float_val = (((total_video_length - 160) as f32) / (stride as f32)) as f32;
+          let tmp = futures::stream::iter(tensors.iter())
+              .enumerate()
+              .map(|(i, v)| {
+                  let path_output =
+                      path_dir_output.join("out-".to_string() + i.to_string().as_str() + ".bin");
 
-              let diff = float_val - float_val.floor();
+                  async move { v.save(path_output).await }
+              })
+              .buffer_unordered(8)
+              .collect::<Vec<_>>()
+              .await
+              .into_iter()
+              .enumerate()
+              .for_each(|(i, e)| {
+                  match e {
+                      Ok(o) => {}
+                      Err(e) => {
+                          tracing::error!("Failed to write out for index {} due to error {}", i, e);
+                      }
+                  };
+              });
 
-              let num_windows: i64 = {
-                  if diff < 0.25 {
-                      (float_val.floor() as i64) + 1
-                  } else {
-                      (float_val.ceil() as i64) + 1
-                  }
-              };
-
-              for i in 1..=num_windows {
-                  let path_file_video_bin_output: String =
-                      path_dir_output.to_string() + "/out-" + i.to_string().as_str() + ".bin";
-
-                  if !std::fs::exists(path_file_video_bin_output.as_str())? {
-                      let end = (((total_video_length - 160) * (i - 1)) / (num_windows - 1)) + 160;
-                      let start = end - 160;
-
-                      videofft::fft_video::from_torch_video_tensor(
-                          /*tensor_video_input: &tch::Tensor =*/
-                          &tensor_video_input.i((start..end, .., .., ..)),
-                          use_gpu,
-                      )?
-                      .save(path_file_video_bin_output.as_str())?;
-                  }
-              }
-
-              return Ok("Successfully encoded the video into many pieces".to_string());
-          }
+          Ok(())
       }
   }
 
-  fn process_video_file(path_file_video_input: String) -> anyhow::Result<String> {
-      let path_dir_output = path_file_video_input.clone() + ".dir";
-      let out_dir = std::path::Path::new(path_dir_output.as_str());
+  async fn process_video_file(key: hasher::blob_hash) -> anyhow::Result<()> {
+      let file_store = filestore::file_store::new().await?;
+      let path_file_video_input = file_store.get_path(&key);
+      let mut path_dir_output = path_file_video_input.clone().into_os_string();
+      path_dir_output.push(".dir");
 
-      if out_dir.exists() {
+      let out_dir = std::path::PathBuf::from(path_dir_output);
+
+      if tokio::fs::try_exists(&out_dir).await? {
           eprintln!(
               "{:?} already exists, not working on the input file {:?}",
               out_dir, path_file_video_input
@@ -3648,76 +4070,77 @@ T H W C
               path_file_video_input
           ));
       } else {
-          if true {
-              let res = videoview::video_slicer_piped::new(
-                  /*path_file_video_input: String =*/ path_file_video_input.clone(),
-                  /*fps: f32 =*/ 8 as f32,
-                  /*size_x: u16 =*/ 1280 as u16,
-                  /*size_y: u16 =*/ 720 as u16,
-                  /*size_c: u8 =*/ 3 as u8,
-                  /*clean_video: bool =*/ true,
-              )?;
+          let mmap = file_store
+              .get_raw_tensor(
+                  &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+              )
+              .await?;
 
-              let full_tensor = res.get_video_tensor()?;
+          let res = videoview::video_slicer_mapped::new(
+              mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+              /*size_c =*/ 3,
+          )?;
 
-              return video_tensor_2_fft_file_160(
-                  /*tensor_video_input: tch::Tensor =*/ full_tensor,
-                  /*path_dir_output: &str =*/ path_dir_output.as_str(),
-              );
-          } else {
-              let res = videoview::video_slicer::new(
-                  path_file_video_input.clone(),
-                  None,
-                  8.0,
-                  1280,
-                  720,
-                  3,
-              )?;
+          let full_tensor = res.get_video_tensor()?;
 
-              let full_tensor = res.get_video_tensor()?;
-
-              return video_tensor_2_fft_file_160(
-                  /*tensor_video_input: tch::Tensor =*/ full_tensor,
-                  /*path_dir_output: &str =*/ path_dir_output.as_str(),
-              );
-          }
+          return video_tensor_2_fft_file_160(full_tensor, out_dir).await;
       }
   }
 
-  fn fft_all_video_files_under_dir(target_dir: &str) -> anyhow::Result<()> {
-      let mut list_path_file_video: Vec<String> = vec![];
-
-      for entry in jwalk::WalkDir::new(target_dir)
-          .into_iter()
-          .filter_map(|e| e.ok())
-      {
-          let path = entry.path();
-
-          if !path.is_dir() {
-              if let Some(ext) = path.extension() {
-                  if ext == "mp4" {
-                      list_path_file_video.push(path.display().to_string());
+  async fn fft_all_video_files_under_dir(
+      target_dir: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+      let tmp = target_dir.as_ref().to_path_buf();
+      tracing::info!("START getting the list of video files in a tokio blocking env");
+      let files = tokio::task::spawn_blocking(move || {
+          let tmp: Vec<hasher::blob_hash> = jwalk::WalkDir::new(tmp)
+              .into_iter()
+              .filter_map(|e| e.ok())
+              .map(|e| e.path())
+              .filter(|p| !p.is_dir())
+              .filter(|p| {
+                  if let Some(ext) = p.extension() {
+                      ext == "mp4"
+                  } else {
+                      false
                   }
+              })
+              .map(|f| hasher::blob_hash::new_from_file(f))
+              .filter_map(|e| e.ok())
+              .collect();
+          tmp
+      })
+      .await?;
+
+      tracing::info!(
+          "DONE getting the list of video files in a tokio blocking env. START processing each of the files"
+      );
+
+      futures::stream::iter(files)
+          .map(|i| process_video_file(i))
+          .buffer_unordered(1)
+          .collect::<Vec<_>>()
+          .await
+          .into_iter()
+          .enumerate()
+          .for_each(|(i, e)| match e {
+              Ok(_) => {}
+              Err(e) => {
+                  tracing::error!("work on file at index {} failed due to {}", i, e)
               }
-          }
-      }
+          });
 
-      let pool = rayon::ThreadPoolBuilder::new()
-          .num_threads(4)
-          .build()
-          .unwrap();
-
-      let processed: Vec<anyhow::Result<String>> = pool.install(|| {
-          list_path_file_video
-              .into_par_iter() // Convert to a parallel iterator
-              .map(process_video_file) // The function to map   |s| s.to_uppercase()
-              .collect() // Gather back into a Vec
-      });
+      tracing::info!("DONE processing each of the files");
 
       return Ok(());
   }
 
-  fn main() -> anyhow::Result<()> {
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
+      tracing_subscriber::fmt()
+          .with_writer(std::io::stderr)
+          .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+          .init();
       let args: Vec<String> = std::env::args().collect();
 
       match args.len() {
@@ -3752,14 +4175,16 @@ T H W C
                       return Ok(());
                   }
                   "f" => {
-                      fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str())?;
+                      fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str()).await?;
                       return Ok(());
                   }
                   "i" => {
                       infer_video_end_2_end(
-                          /*path_file_video_input: String =*/ args[2].clone(),
+                          /*path_file_video_input: String =*/
+                          hasher::blob_hash::new_from_file(&args[2])?,
                           /*use_gpu: bool =*/ true,
-                      )?;
+                      )
+                      .await?;
                       return Ok(());
                   }
                   _ => {
@@ -3800,6 +4225,11 @@ T H W C
       bytes data = 1;
   }
 
+  message Version {
+      uint32 major = 1;
+      uint32 minor = 2;
+  }
+
   message Grpcvideoprediction {
       float pa = 1;
       float pb = 2;
@@ -3818,6 +4248,9 @@ T H W C
       repeated Grpcvideoprediction preds = 1;
       float majority = 2;
       repeated Grpcimgprediction imgpreds = 3;
+      Version vidver = 4;
+      bytes videohash = 5;
+      uint64 timestamp = 6;
   }
 #+end_src
 
@@ -3834,6 +4267,8 @@ struct inference_loop {
 
 * Implement the inference loop part
 #+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannel.rs
+  use crate::filestore;
+  use crate::hasher;
   use crate::inferencerelated;
   use crate::videofft;
   use crate::videofftstats;
@@ -3848,6 +4283,7 @@ struct inference_loop {
   struct inference_communicator {
       sender: flume::Sender<message_input>,
       normalizer: std::boxed::Box<videofftstats::fft_video_normalizer>,
+      file_store: filestore::file_store,
   }
 
   struct inference_slave {
@@ -3860,26 +4296,25 @@ struct inference_loop {
   }
 
   impl inference_communicator {
-      fn new(sender_in: flume::Sender<message_input>) -> Self {
+      async fn new(sender_in: flume::Sender<message_input>) -> anyhow::Result<Self> {
           let normalizer = videofftstats::fft_video_normalizer::new(
               /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
               /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
           )
           .unwrap();
 
-          Self {
+          Ok(Self {
               sender: sender_in,
               normalizer: normalizer,
-          }
+              file_store: filestore::file_store::new().await?,
+          })
       }
 
       fn do_infer_on_fft_tensor(
           &self,
           mut tensors_input: Vec<videofft::fft_video>,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-          self.normalizer.normalize_vec(
-              /*x: &mut Vec<videofft::fft_video> =*/ &mut tensors_input,
-          );
+          self.normalizer.normalize_vec(&mut tensors_input);
 
           let mut oneshot_receive_channel =
               Vec::<oneshot::Receiver<inferencerelated::infer_results>>::with_capacity(
@@ -3914,31 +4349,6 @@ struct inference_loop {
           }
 
           return Ok(ret);
-      }
-
-      fn do_infer_on_video_file(
-          &self,
-          path_file_video_input: impl AsRef<std::path::Path>,
-      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-          let mut list_video_fft_tensor = {
-              let slicer = videoview::video_slicer_piped::new(
-                  /*path_file_video_input: String =*/ path_file_video_input.as_ref(),
-                  /*fps: f32 =*/ 8 as f32,
-                  /*size_x: u16 =*/ 1280 as u16,
-                  /*size_y: u16 =*/ 720 as u16,
-                  /*size_c: u8 =*/ 3 as u8,
-                  /*clean_video: bool =*/ true,
-              )?;
-
-              let video_tensor = slicer.get_video_tensor()?;
-
-              videofft::fft_video::windowed_from_torch_video_tensor(
-                  /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-                  /*use_gpu: bool =*/ true,
-              )?
-          };
-
-          self.do_infer_on_fft_tensor(list_video_fft_tensor)
       }
 
       async fn do_infer_on_fft_tensor_async(
@@ -3983,15 +4393,54 @@ struct inference_loop {
 
           return Ok(ret);
       }
+
+      async fn do_infer_on_video_file(
+          &self,
+          key: &hasher::blob_hash,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          let mut list_video_fft_tensor = {
+              let slicer = {
+                  let mmap = self
+                      .file_store
+                      .get_raw_tensor(
+                          &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280,
+                          /*size_y =*/ 720,
+                      )
+                      .await?;
+
+                  videoview::video_slicer_mapped::new(
+                      mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+                      /*size_c =*/ 3,
+                  )
+              }?;
+
+              let video_tensor = slicer.get_video_tensor()?;
+
+              let tmp = tokio::task::spawn_blocking(move || {
+                  videofft::fft_video::windowed_from_torch_video_tensor(
+                      /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+                      /*use_gpu: bool =*/ true,
+                  )
+              })
+              .await??;
+              tmp
+          };
+
+          let tmp = self
+              .do_infer_on_fft_tensor_async(list_video_fft_tensor)
+              .await;
+
+          tmp
+      }
   }
 
   impl inference_slave {
-      pub fn new() -> (Self, inference_communicator) {
+      pub async fn new() -> anyhow::Result<(Self, inference_communicator)> {
           let (sender, receiver) = flume::unbounded::<message_input>();
-          return (
+          Ok((
               Self { receiver: receiver },
-              inference_communicator::new(sender),
-          );
+              inference_communicator::new(sender).await?,
+          ))
       }
 
       fn efficient_infer(
@@ -4310,14 +4759,14 @@ struct inference_loop {
   }
 
   impl inference_pair {
-      pub fn new() -> Self {
-          let (slave_inf, slave_sender) = inference_slave::new();
+      pub async fn new() -> anyhow::Result<Self> {
+          let (slave_inf, slave_sender) = inference_slave::new().await?;
           let handle_inference = std::thread::spawn(move || slave_inf.inference_loop());
 
-          Self {
+          Ok(Self {
               slave_sender: slave_sender,
               handle: Some(handle_inference),
-          }
+          })
       }
 
       pub fn do_infer_on_fft_tensor(
@@ -4327,11 +4776,11 @@ struct inference_loop {
           self.slave_sender.do_infer_on_fft_tensor(tensors_input)
       }
 
-      pub fn do_infer_on_video_file(
+      pub async fn do_infer_on_video_file(
           &self,
-          path_file_video_input: impl AsRef<std::path::Path>,
+          key: &hasher::blob_hash,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-          self.slave_sender.do_infer_on_video_file(path_file_video_input)
+          self.slave_sender.do_infer_on_video_file(key).await
       }
   }
 #+end_src
@@ -4340,7 +4789,7 @@ struct inference_loop {
 #+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelimage.rs
   use crate::inferencerelatedimage;
 
-  pub const GOOD_BATCH_SIZE: u8 = 32;
+  pub const GOOD_BATCH_SIZE: u8 = 16;
 
   struct message_input {
       tensor: tch::Tensor,
@@ -4526,111 +4975,97 @@ struct inference_loop {
 
 * Implement the combined video and image inference class
 #+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelboth.rs
-    use crate::inferencerelated;
-    use crate::inferencerelatedimage;
-    use crate::serverinferencechannel;
-    use crate::serverinferencechannelimage;
-    use crate::videofft;
-    use crate::videoview;
+  use crate::filestore;
+  use crate::hasher;
+  use crate::inferencerelated;
+  use crate::inferencerelatedimage;
+  use crate::serverinferencechannel;
+  use crate::serverinferencechannelimage;
+  use crate::videofft;
+  use crate::videoview;
 
-    const NUM_BATCHES_IN_VIDEO: u8 = 2;
+  const NUM_BATCHES_IN_VIDEO: u8 = 4;
 
-    pub struct combined_infer {
-        infer_rd: serverinferencechannel::inference_pair,
-        infpairimage: serverinferencechannelimage::inference_pair,
-    }
-
-    pub struct combined_results {
-        results_video: Option<Vec<inferencerelated::infer_results>>,
-        results_image: Option<Vec<inferencerelatedimage::infer_results>>,
-    }
-
-    impl combined_infer {
-        pub fn new() -> Self {
-            Self {
-                infer_rd: serverinferencechannel::inference_pair::new(),
-                infpairimage: serverinferencechannelimage::inference_pair::new(),
-            }
-        }
-
-        pub fn do_infer_on_video_file(
-            &self,
-            path_file_video_input: impl AsRef<std::path::Path>,
-        ) -> anyhow::Result<(
-            Vec<inferencerelated::infer_results>,
-            Vec<inferencerelatedimage::infer_results>,
-        )> {
-            let slicer = videoview::video_slicer_piped::new(
-                /*path_file_video_input: String =*/ path_file_video_input.as_ref(),
-                /*fps: f32 =*/ 8 as f32,
-                /*size_x: u16 =*/ 1280 as u16,
-                /*size_y: u16 =*/ 720 as u16,
-                /*size_c: u8 =*/ 3 as u8,
-                /*clean_video: bool =*/ true,
-            )?;
-
-            let video_tensor = slicer.get_video_tensor()?;
-
-            let image_batch_tensor: tch::Tensor = {
-                const end_index: u8 = (serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO);
-                let image_indices: std::vec::Vec<i64> = (0..end_index)
-                    .map(|x: u8|
-                         ((video_tensor.size()[0] - 1) * (x as i64)) /
-                         ((end_index - 1) as i64)
-                    ).collect();
-
-                let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
-
-                video_tensor
-                    .index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor)
-            };
-
-            let image_infer_results = self
-                .infpairimage
-                .do_infer_on_image_tensor(image_batch_tensor)?;
-
-            let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
-                /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
-                /*use_gpu: bool =*/ true,
-            )?;
-
-            drop(video_tensor);
-            drop(slicer);
-
-            let rd_infer_results = self
-                .infer_rd
-                .do_infer_on_fft_tensor(list_video_fft_tensor)?;
-
-            return Ok((rd_infer_results, image_infer_results));
-        }
-    }
-#+end_src
-
-* Write the function to do the hashing
-#+begin_src rust :mkdirp yes :tangle ./src/hasher.rs
-  pub struct blob_hash {
-      hash: blake3::Hash,
+  pub struct combined_infer {
+      infer_rd: serverinferencechannel::inference_pair,
+      infpairimage: serverinferencechannelimage::inference_pair,
+      file_store: filestore::file_store,
   }
 
-  impl blob_hash {
-      pub fn new_from_slice(inblob: &[u8]) -> Self {
-          Self {
-              hash: blake3::hash(inblob),
-          }
+  #[derive(
+      Debug, serde::Serialize, serde::Deserialize, rkyv::Archive, rkyv::Deserialize, rkyv::Serialize,
+  )]
+  pub struct combined_results {
+      pub results_video: Vec<inferencerelated::infer_results>,
+      pub results_image: Vec<inferencerelatedimage::infer_results>,
+  }
+
+  impl combined_infer {
+      pub async fn new() -> anyhow::Result<Self> {
+          tracing::warn!("Constructing serverinferencechannelboth::combined_infer");
+          Ok(Self {
+              infer_rd: serverinferencechannel::inference_pair::new().await?,
+              infpairimage: serverinferencechannelimage::inference_pair::new(),
+              file_store: filestore::file_store::new().await?,
+          })
       }
 
-      pub fn new_from_file(infilepath: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-          let file: std::fs::File = std::fs::File::open(infilepath.as_ref())?;
-          let mmap_result = unsafe { memmap2::Mmap::map(&file) }?;
-          Ok(Self::new_from_slice(&mmap_result))
-      }
+      pub async fn do_infer_on_video_file(
+          &self,
+          key: &hasher::blob_hash,
+      ) -> anyhow::Result<combined_results> {
+          tracing::debug!("Reading the video file using ffmpeg");
 
-      pub fn get_hash(&self) -> &[u8] {
-          self.hash.as_slice()
-      }
+          let slicer = {
+              let mmap = self
+                  .file_store
+                  .get_raw_tensor(
+                      &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+                  )
+                  .await?;
+              videoview::video_slicer_mapped::new(
+                  mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+                  /*size_c =*/ 3,
+              )
+          }?;
 
-      pub fn get_hash_string(&self) -> String {
-          return c32::encode(self.get_hash());
+          let video_tensor = slicer.get_video_tensor()?;
+
+          let image_batch_tensor: tch::Tensor = {
+              const end_index: u8 =
+                  (serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO);
+              let image_indices: std::vec::Vec<i64> = (0..end_index)
+                  .map(|x: u8| ((video_tensor.size()[0] - 1) * (x as i64)) / ((end_index - 1) as i64))
+                  .collect();
+
+              let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
+
+              video_tensor.index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor)
+          };
+          tracing::debug!("Constructed the image tensor.");
+
+          let image_infer_results = self
+              .infpairimage
+              .do_infer_on_image_tensor(image_batch_tensor)?;
+          tracing::debug!("Ran image inference.");
+
+          let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+              /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+              /*use_gpu: bool =*/ true,
+          )?;
+
+          drop(video_tensor);
+          drop(slicer);
+
+          let rd_infer_results = self
+              .infer_rd
+              .do_infer_on_fft_tensor(list_video_fft_tensor)?;
+          tracing::debug!("Done video inference.");
+
+          return Ok(combined_results {
+              results_video: rd_infer_results,
+              results_image: image_infer_results,
+          });
       }
   }
 #+end_src
@@ -4641,22 +5076,32 @@ struct inference_loop {
   static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
   mod export;
+  mod filestore;
   mod hasher;
   mod inferencerelated;
   mod inferencerelatedimage;
-  mod lockssync;
+  mod mlockffmpeg;
   mod serverinferencechannel;
   mod serverinferencechannelboth;
   mod serverinferencechannelimage;
+  mod version;
   mod videofft;
   mod videofftstats;
   mod videofn;
   mod videoview;
 
-  use anyhow::Context;
+  use futures::StreamExt;
+  use prost::Message;
   use rayon::prelude::*;
+
+  use anyhow::Context;
+  use redb::Database;
+  use redb::Error;
+  use redb::ReadableDatabase;
+  use redb::TableDefinition;
   use tch::IndexOp;
-  // use log::{info, trace, warn};
+
+  use crate::infer::Grpcvideopredictionreply;
 
   pub mod infer {
       tonic::include_proto!("myrdvideoinferinfer");
@@ -4665,21 +5110,271 @@ struct inference_loop {
   }
 
   const USE_GPU: bool = true;
+  const TABLE: TableDefinition<&[u8], &[u8]> = TableDefinition::new("inference_data");
+
+  fn read_from_db_slave(
+      key: &[u8],
+      db: std::sync::Arc<Option<redb::Database>>,
+  ) -> anyhow::Result<Grpcvideopredictionreply> {
+      match db.as_ref() {
+          Some(o) => {
+              match o.begin_read()?.open_table(TABLE)?.get(key)? {
+                  Some(val) => {
+                      let rep = Grpcvideopredictionreply::decode(val.value())?;
+                      match rep.vidver {
+                          Some(o) => {
+                              if (version::major_version() == o.major)
+                                  && (version::minor_version() == o.minor)
+                              {
+                                  return Ok(rep);
+                              } else {
+                                  tracing::warn!(
+                                      "Cached version is different from current version, not using"
+                                  );
+                                  return Err(anyhow::format_err!(
+                                      "Cached version is different from current version, not using"
+                                  ));
+                              }
+                          }
+                          None => {
+                              tracing::warn!("Cached results version too old");
+                              return Err(anyhow::format_err!("Cached results version too old"));
+                          }
+                      }
+                  }
+                  None => {
+                      return Err(anyhow::format_err!("Value not found"));
+                  }
+              };
+          }
+          None => {
+              return Err(anyhow::format_err!("No DB connection found"));
+          }
+      };
+  }
+
+  async fn read_from_db(
+      key: std::sync::Arc<hasher::blob_hash>,
+      db: std::sync::Arc<Option<redb::Database>>,
+  ) -> anyhow::Result<Grpcvideopredictionreply> {
+      tokio::task::spawn_blocking(move || read_from_db_slave(key.get_hash(), db))
+          .await
+          .expect("The spawned process panicked")
+  }
+
+  fn write_to_db_slave(
+      key: &[u8],
+      value: Vec<u8>,
+      db: std::sync::Arc<Option<redb::Database>>,
+  ) -> anyhow::Result<()> {
+      match db.as_ref() {
+          Some(o) => match o.begin_write() {
+              Ok(write_txn) => {
+                  write_txn.open_table(TABLE)?.insert(key, value.as_slice())?;
+                  write_txn.commit()?;
+                  return Ok(());
+              }
+              Err(e) => {
+                  return Err(anyhow::format_err!(
+                      "Failed to write to database due to {}",
+                      e
+                  ));
+              }
+          },
+          None => {
+              return Err(anyhow::format_err!("No connection to db found."));
+          }
+      }
+  }
+
+  async fn write_to_db(
+      key: std::sync::Arc<hasher::blob_hash>,
+      inference_results: &Grpcvideopredictionreply,
+      db: std::sync::Arc<Option<redb::Database>>,
+  ) -> anyhow::Result<()> {
+      let mut buf: Vec<u8> = Vec::with_capacity(inference_results.encoded_len());
+      inference_results.encode(&mut buf)?;
+      tokio::task::spawn_blocking(move || write_to_db_slave(key.get_hash(), buf, db))
+          .await
+          .expect("Failed to join in write_to_db")
+  }
+
+  fn get_current_time() -> u64 {
+      match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+          Ok(o) => {
+              return o.as_secs();
+          }
+          Err(e) => {
+              return 1782492853;
+          }
+      }
+  }
 
   struct grpc_inferer {
       infpair: std::sync::Arc<serverinferencechannelboth::combined_infer>,
       semaphore: std::sync::Arc<tokio::sync::Semaphore>,
+      cachedb: std::sync::Arc<Option<redb::Database>>,
+      filestore: filestore::file_store,
   }
 
   impl grpc_inferer {
-      fn new() -> Self {
+      async fn new() -> anyhow::Result<Self> {
+          let filestore = filestore::file_store::new()
+              .await
+              .expect("Failed to construct filestore within grpc inferer");
+
           let ret = Self {
               infpair: std::sync::Arc::<serverinferencechannelboth::combined_infer>::new(
-                  serverinferencechannelboth::combined_infer::new(),
+                  serverinferencechannelboth::combined_infer::new().await?,
               ),
-              semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(6)),
+              semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(10)),
+              cachedb: std::sync::Arc::new(Database::create("/root/.cache/infdb.redb").ok()),
+              filestore: filestore,
           };
-          return ret;
+
+          Ok(ret)
+      }
+
+      async fn doinfer_on_file(&self, hash: hasher::blob_hash) -> anyhow::Result<()> {
+          let hash = std::sync::Arc::new(hash);
+
+          tracing::info!("Got video with hash {}", hash.get_hash_string());
+
+          match read_from_db(hash.clone(), self.cachedb.clone()).await {
+              Ok(ret) => {
+                  tracing::warn!(
+                      "Results for {} found in cache, returning cached results.",
+                      hash.get_hash_string()
+                  );
+                  return Ok(());
+              }
+              Err(e) => {
+                  tracing::info!(
+                      "inference results for {} not found. proceeding to run inference.",
+                      hash.get_hash_string()
+                  )
+              }
+          };
+
+          tracing::info!(
+              "number of permits remaining so far {}",
+              self.semaphore.available_permits()
+          );
+
+          let res = {
+              tracing::info!("Acquiring GPU Semaphore for {}", hash.get_hash_string());
+
+              let infpair = self.infpair.clone();
+
+              let path_file_video_output = self.filestore.get_path_video(/*key =*/ &hash);
+
+              let permit = self
+                  .semaphore
+                  .acquire()
+                  .await
+                  .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
+
+              let res = infpair.do_infer_on_video_file(&hash).await;
+
+              res
+          };
+
+          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
+
+          match res {
+              Ok(o) => {
+                  let preds: Vec<infer::Grpcvideoprediction> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Grpcvideoprediction {
+                          pa: i.p_calm,
+                          pb: i.p_contraversial,
+                          pc: i.p_rd,
+                      })
+                      .collect();
+
+                  let avg = o
+                      .results_video
+                      .iter()
+                      .map(|i| i.majority() as f32)
+                      .sum::<f32>()
+                      / (o.results_video.len() as f32);
+
+                  let bed_scaling_factor: f32 =
+                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                          / (o.results_image.len() as f32);
+
+                  let imgpreds: Vec<infer::Grpcimgprediction> = o
+                      .results_image
+                      .into_iter()
+                      .map(|i| infer::Grpcimgprediction {
+                          arm: i.ARM as u32,
+                          rail: i.RAIL as u32,
+                          leg: i.LEG as u32,
+                          pos: i.POS as u32,
+                          bed: i.BED as u32,
+                      })
+                      .collect();
+
+                  let vidver = infer::Version {
+                      major: version::major_version(),
+                      minor: version::minor_version(),
+                  };
+
+                  let ret = infer::Grpcvideopredictionreply {
+                      preds: preds,
+                      majority: avg * bed_scaling_factor,
+                      imgpreds: imgpreds,
+                      vidver: Some(vidver),
+                      videohash: hash.get_hash().to_vec(),
+                      timestamp: get_current_time(),
+                  };
+
+                  match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
+                      Ok(_) => {
+                          tracing::info!(
+                              "Added inference results of {} to cache.",
+                              hash.get_hash_string()
+                          );
+                      }
+                      Err(e) => {
+                          tracing::error!("Failed to cache results for {}.", hash.get_hash_string());
+                      }
+                  };
+
+                  tracing::info!("Done inferring for hash {}", hash.get_hash_string());
+                  return Ok(());
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  );
+                  return Err(anyhow::format_err!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  ));
+              }
+          }
+      }
+
+      async fn infer_on_all_stale_files(&self) -> anyhow::Result<()> {
+          tracing::warn!("Checking stale files to infer");
+          let currentfiles = filestore::file_store::new()
+              .await?
+              .get_all_files_with_hash()
+              .await
+              .into_iter()
+              .map(|(h, p)| self.doinfer_on_file(h));
+
+          let _ = futures::stream::iter(currentfiles)
+              .buffer_unordered(8)
+              .collect::<Vec<_>>()
+              .await;
+
+          Ok(())
       }
   }
 
@@ -4690,80 +5385,136 @@ struct inference_loop {
           request: tonic::Request<infer::Grpcvideodata>,
       ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
           tracing::info!("Received an inference request");
-          let path_dir_prefix = std::path::PathBuf::from("/dev/shm/RD/video");
-
-          let _ = tokio::fs::create_dir_all(&path_dir_prefix).await?;
 
           let video_data = &(request.into_inner().data);
 
-          let hash = hasher::blob_hash::new_from_slice(video_data.as_slice());
+          let hash = std::sync::Arc::new(hasher::blob_hash::new_from_slice(video_data.as_slice()));
 
-          let hash_string = hash.get_hash_string();
-          tracing::info!("Hash of received video {}", hash_string);
+          tracing::info!("Got video with hash {}", hash.get_hash_string());
 
-          let path_file_video_output = path_dir_prefix.join(hash_string);
+          match read_from_db(hash.clone(), self.cachedb.clone()).await {
+              Ok(ret) => {
+                  tracing::warn!(
+                      "Results for {} found in cache, returning cached results.",
+                      hash.get_hash_string()
+                  );
+                  return Ok(tonic::Response::new(ret));
+              }
+              Err(e) => {
+                  tracing::info!(
+                      "inference results for {} not found. proceeding to run inference.",
+                      hash.get_hash_string()
+                  )
+              }
+          };
 
-          if (tokio::fs::try_exists(&path_file_video_output).await?) {
-              tracing::error!("File already exists {:?}", path_file_video_output);
-              return Err(tonic::Status::internal(
-                  "Same file is already being processed...",
-              ));
-          } else {
-              let _ = tokio::fs::write(&path_file_video_output, video_data).await?;
+          tracing::info!(
+              "number of permits remaining so far {}",
+              self.semaphore.available_permits()
+          );
+
+          let res = {
+              tracing::info!("Acquiring GPU Semaphore for {}", hash.get_hash_string());
 
               let infpair = self.infpair.clone();
 
-              let path_file_video_output_tmp = path_file_video_output.clone();
-
-              let _permit = self
+              let permit = self
                   .semaphore
                   .acquire()
                   .await
                   .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
 
-              let res = tokio::task::spawn_blocking(move || {
-                  infpair.do_infer_on_video_file(&path_file_video_output_tmp)
-              })
-              .await
-              .expect("The blocking task panicked");
-
-              match res {
-                  Ok(o) => {
-                      let preds: Vec<infer::Grpcvideoprediction> =
-                          o.0.iter()
-                              .map(|i| infer::Grpcvideoprediction {
-                                  pa: i.p_calm,
-                                  pb: i.p_contraversial,
-                                  pc: i.p_rd,
-                              })
-                              .collect();
-
-                      let avg =
-                          o.0.iter().map(|i| i.majority() as f32).sum::<f32>() / (o.0.len() as f32);
-
-                      let bed_scaling_factor: f32 =
-                          o.1.iter().map(|x| x.bed_status()).sum::<f32>() / (o.1.len() as f32);
-
-                      let imgpreds: Vec<infer::Grpcimgprediction> =
-                          o.1.into_iter()
-                              .map(|i| infer::Grpcimgprediction {
-                                  arm: i.ARM as u32,
-                                  rail: i.RAIL as u32,
-                                  leg: i.LEG as u32,
-                                  pos: i.POS as u32,
-                                  bed: i.BED as u32,
-                              })
-                              .collect();
-
-                      return Ok(tonic::Response::new(infer::Grpcvideopredictionreply {
-                          preds: preds,
-                          majority: avg * bed_scaling_factor,
-                          imgpreds: imgpreds,
-                      }));
-                  }
+              let path_file_video_output = match self
+                  .filestore
+                  .put_content(/*key =*/ &hash, /*value =*/ video_data)
+                  .await
+              {
+                  Ok(o) => o,
                   Err(e) => {
-                      return Err(tonic::Status::internal("Internal error, inference failed"));
+                      return Err(tonic::Status::internal(
+                          "Failed to write the video file, CPU RAM full",
+                      ));
                   }
+              };
+
+              let res = infpair.do_infer_on_video_file(&hash).await;
+
+              res
+          };
+
+          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
+
+          match res {
+              Ok(o) => {
+                  let preds: Vec<infer::Grpcvideoprediction> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Grpcvideoprediction {
+                          pa: i.p_calm,
+                          pb: i.p_contraversial,
+                          pc: i.p_rd,
+                      })
+                      .collect();
+
+                  let avg = o
+                      .results_video
+                      .iter()
+                      .map(|i| i.majority() as f32)
+                      .sum::<f32>()
+                      / (o.results_video.len() as f32);
+
+                  let bed_scaling_factor: f32 =
+                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                          / (o.results_image.len() as f32);
+
+                  let imgpreds: Vec<infer::Grpcimgprediction> = o
+                      .results_image
+                      .into_iter()
+                      .map(|i| infer::Grpcimgprediction {
+                          arm: i.ARM as u32,
+                          rail: i.RAIL as u32,
+                          leg: i.LEG as u32,
+                          pos: i.POS as u32,
+                          bed: i.BED as u32,
+                      })
+                      .collect();
+
+                  let vidver = infer::Version {
+                      major: version::major_version(),
+                      minor: version::minor_version(),
+                  };
+
+                  let ret = infer::Grpcvideopredictionreply {
+                      preds: preds,
+                      majority: avg * bed_scaling_factor,
+                      imgpreds: imgpreds,
+                      vidver: Some(vidver),
+                      videohash: hash.get_hash().to_vec(),
+                      timestamp: get_current_time(),
+                  };
+
+                  match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
+                      Ok(_) => {
+                          tracing::info!(
+                              "Added inference results of {} to cache.",
+                              hash.get_hash_string()
+                          );
+                      }
+                      Err(e) => {
+                          tracing::error!("Failed to cache results for {}.", hash.get_hash_string());
+                      }
+                  };
+
+                  tracing::info!("Sending reply for hash {}", hash.get_hash_string());
+                  return Ok(tonic::Response::new(ret));
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  );
+                  return Err(tonic::Status::internal("Internal error, inference failed"));
               }
           }
 
@@ -4771,72 +5522,666 @@ struct inference_loop {
       }
   }
 
-  fn main() -> anyhow::Result<()> {
-
-      // tracing_subscriber::fmt()
-      //         .with_writer(std::io::stderr)
-      //         .with_max_level(tracing::Level::INFO) 
-      //         .init();
-
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
       tracing_subscriber::fmt()
-          .with_writer(std::io::stderr) 
+          .with_writer(std::io::stderr)
           .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
           .init();
 
+
       unsafe { export::locker_to_inference_mode() };
+
+      // let res = mlockffmpeg::do_default_mlocks().await;
+      // for i in res.iter() {
+      //     eprintln!("{:?}", i);
+      // }
 
       let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
       let port: u16 = 8001;
       let addr = std::net::SocketAddr::new(ip_v4, port);
-
-      let rt = tokio::runtime::Builder::new_multi_thread()
-          .thread_stack_size(1 << 28)
-          .enable_all()
-          .build()
-          .unwrap();
 
       let service = tonic_reflection::server::Builder::configure()
           .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
           .build_v1()
           .unwrap();
 
-      // rt.block_on(async {
-      //     println!("Server attempting to bind to {}", addr);
-      //     let result = tonic::transport::Server::builder()
-      //         .max_concurrent_streams(Some(4))
-      //         .add_service(service)
-      //         .add_service(
-      //             infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
-      //                 .max_encoding_message_size(1 << 25)
-      //                 .max_decoding_message_size(1 << 25),
-      //         )
-      //         .serve(addr)
-      //         .await;
+      tracing::warn!("Server attempting to bind to {}", addr);
 
-      //     if let Err(e) = result {
-      //         eprintln!("Server exited with error: {}", e);
-      //     }
-      // });
+      let slave = grpc_inferer::new().await?;
+      let _ = slave.infer_on_all_stale_files().await;
 
-      rt.block_on(async {
-          tracing::warn!("Server attempting to bind to {}", addr);
-          let result = tonic::transport::Server::builder()
-              .add_service(service)
-              .add_service(
-                  infer::rdvideoinfer_server::RdvideoinferServer::new(grpc_inferer::new())
-                      .max_encoding_message_size(1 << 26)
-                      .max_decoding_message_size(1 << 26),
-              )
-              .serve(addr)
-              .await;
-
-          if let Err(e) = result {
-              tracing::error!("Server exited with error: {}", e);
-          }
-      });
+      let result = tonic::transport::Server::builder()
+          .add_service(service)
+          .add_service(
+              infer::rdvideoinfer_server::RdvideoinferServer::new(slave)
+                  .max_encoding_message_size(1 << 26)
+                  .max_decoding_message_size(1 << 26),
+          )
+          .serve(addr)
+          .await?;
 
       Ok(())
   }
+#+end_src
+
+* Code for mlock of ffmpeg
+
+** List of files to map in c form
+#+begin_src conf :mkdirp yes :tangle ./src/mlockffmpeg.hh
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcublasLt.so.13"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcublas.so.13"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcudart.so.13"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcufft.so.12"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcufile.so.0"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcupti.so.13"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcurand.so.10"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcusparse.so.12"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libnvrtc.so.13"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cudnn/lib/libcudnn.so.9"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/cusparselt/lib/libcusparseLt.so.0"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/nccl/lib/libnccl.so.2"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/nvidia/nvshmem/lib/libnvshmem_host.so.3"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libc10_cuda.so"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libc10.so"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libgomp.so.1"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libtorch_nvshmem.so"));
+  mem_locks.push_back(new file_mlock("/root/venv/lib/python3.12/site-packages/torch/lib/libtorch.so"));
+  mem_locks.push_back(new file_mlock("/usr/bin/ffmpeg"));
+  mem_locks.push_back(new file_mlock("/usr/bin/infer-server"));
+  mem_locks.push_back(new file_mlock("/usr/lib/libmytorch.so.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libaom.so.3.8.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libapparmor.so.1.17.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libasound.so.2.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libass.so.9.2.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libasyncns.so.0.3.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libavc1394.so.0.3.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libavcodec.so.60.31.102"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libavdevice.so.60.3.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libavfilter.so.9.12.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libavformat.so.60.16.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libavutil.so.58.29.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libblkid.so.1.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbluray.so.2.4.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbrotlienc.so.1.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbs2b.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbsd.so.0.12.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcaca.so.0.99.20"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcairo-gobject.so.2.11800.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcairo.so.2.11800.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcap.so.2.66"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcdio_cdda.so.2.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcdio_paranoia.so.2.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcdio.so.19.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libchromaprint.so.1.5.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcjson.so.1.7.17"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcodec2.so.1.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcom_err.so.2.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcrypto.so.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libc.so.6"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libcuda.so.610.43.02"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdatrie.so.1.4.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdav1d.so.7.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdb-5.3.so"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdc1394.so.25.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdecor-0.so.0.200.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdl.so.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libdrm.so.2.125.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libffi.so.8.1.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libfftw3.so.3.6.10"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libFLAC.so.12.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_cmulex.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_cmu_us_awb.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_cmu_us_kal16.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_cmu_us_kal.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_cmu_us_rms.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_cmu_us_slt.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libflite_usenglish.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libfreetype.so.6.20.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libfribidi.so.0.4.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgbm.so.1.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgcc_s.so.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so.0.4200.10"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.8000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libGLdispatch.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0.8000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libGL.so.1.7.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgme.so.0.6.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0.8000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgmp.so.10.5.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgnutls.so.30.37.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.8000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgpg-error.so.0.34.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgraphite2.so.3.2.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgsm.so.1.0.19"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libharfbuzz.so.0.60830.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libhogweed.so.6.8"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libhwy.so.1.0.7"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libicudata.so.74.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libicuuc.so.74.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libidn2.so.0.4.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libiec61883.so.0.1.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libjack.so.0.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libjpeg.so.8.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libjxl.so.0.7.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libjxl_threads.so.0.7.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libk5crypto.so.3.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libkeyutils.so.1.10"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libkrb5.so.3.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libkrb5support.so.0.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/liblilv-0.so.0.24.22"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libmbedcrypto.so.2.28.8"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libmd.so.0.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libmount.so.1.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libmp3lame.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libmpg123.so.0.48.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libm.so.6"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libmysofa.so.1.3.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libncursesw.so.6.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libnettle.so.8.8"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libnorm.so.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libnvidia-ptxjitcompiler.so.610.43.02"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libogg.so.0.8.5"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopenal.so.1.23.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopencv_calib3d.so.4.6.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopencv_core.so.4.6.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopencv_features2d.so.4.6.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopencv_flann.so.4.6.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.6.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.6.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopenmpt.so.0.4.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libopus.so.0.9.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libp11-kit.so.0.3.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpango-1.0.so.0.5200.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so.0.5200.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so.0.5200.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpgm-5.3.so.0.0.128"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpixman-1.so.0.42.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libplacebo.so.338"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpng16.so.16.43.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpocketsphinx.so.3.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpostproc.so.57.3.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpthread.so.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libpulse.so.0.24.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librabbitmq.so.4.5.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librav1e.so.0.7.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libraw1394.so.11.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libresolv.so.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librist.so.4.3.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librom1394.so.0.3.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librsvg-2.so.2.50.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librt.so.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/librubberband.so.2.3.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsamplerate.so.0.2.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.3000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libselinux.so.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libserd-0.so.0.32.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsharpyuv.so.0.0.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libshine.so.3.0.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libslang.so.2.3.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.10"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsndfile.so.1.0.37"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsndio.so.7.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsodium.so.23.3.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsord-0.so.0.16.16"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsoxr.so.0.1.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libspeex.so.1.5.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsphinxbase.so.3.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsratom-0.so.0.6.16"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsrt-gnutls.so.1.5.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libssh-gcrypt.so.4.9.6"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libssl.so.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libSvtAv1Enc.so.1.7.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libswresample.so.4.12.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libswscale.so.7.5.100"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libsystemd.so.0.38.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libtasn1.so.6.6.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libtbb.so.12.11"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libthai.so.0.3.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libtheoradec.so.1.1.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libtheoraenc.so.1.1.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libtinfo.so.6.4"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libtwolame.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libudev.so.1.7.8"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libudfread.so.0.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libunibreak.so.5.0.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libunistring.so.5.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libusb-1.0.so.0.4.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libutil.so.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libva-drm.so.2.2000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libva.so.2.2000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libva-x11.so.2.2000.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvdpau.so.1.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvidstab.so.1.1"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvorbisenc.so.2.0.12"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvorbisfile.so.3.3.8"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvorbis.so.0.4.9"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvpl.so.2.9"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvpx.so.9.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libvulkan.so.1.3.275"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libwayland-client.so.0.22.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libwayland-cursor.so.0.22.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libwayland-egl.so.1.22.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libwebpmux.so.3.0.13"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libwebp.so.7.1.8"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libX11-xcb.so.1.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libx264.so.164"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libx265.so.199"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXau.so.6.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxcb-render.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxcb-shape.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxcb-shm.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxcb-xfixes.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXcursor.so.1.0.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXdmcp.so.6.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXext.so.6.4.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXfixes.so.3.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXi.so.6.1.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxkbcommon.so.0.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXrandr.so.2.2.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXrender.so.1.3.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXss.so.1.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libxvidcore.so.4.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libXv.so.1.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libzimg.so.2.0.0"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libzix-0.so.0.4.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libzmq.so.5.2.5"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libz.so.1.3"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.5"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/libzvbi.so.0.13.2"));
+  mem_locks.push_back(new file_mlock("/usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-16.1.so"));
+  mem_locks.push_back(new file_mlock("/usr/local/cuda-13.2/targets/x86_64-linux/lib/libnvJitLink.so.13.2.78"));
+  mem_locks.push_back(new file_mlock("/usr/local/cuda-13.2/targets/x86_64-linux/lib/libOpenCL.so.1.0.0"));
+#+end_src
+
+** List of files to map
+#+begin_src conf :mkdirp yes :tangle ./src/mlockffmpeg.txt
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcublasLt.so.13
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcublas.so.13
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcudart.so.13
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcufft.so.12
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcufile.so.0
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcupti.so.13
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcurand.so.10
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcusparse.so.12
+  /root/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libnvrtc.so.13
+  /root/venv/lib/python3.12/site-packages/nvidia/cudnn/lib/libcudnn.so.9
+  /root/venv/lib/python3.12/site-packages/nvidia/cusparselt/lib/libcusparseLt.so.0
+  /root/venv/lib/python3.12/site-packages/nvidia/nccl/lib/libnccl.so.2
+  /root/venv/lib/python3.12/site-packages/nvidia/nvshmem/lib/libnvshmem_host.so.3
+  /root/venv/lib/python3.12/site-packages/torch/lib/libc10_cuda.so
+  /root/venv/lib/python3.12/site-packages/torch/lib/libc10.so
+  /root/venv/lib/python3.12/site-packages/torch/lib/libgomp.so.1
+  /root/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so
+  /root/venv/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so
+  /root/venv/lib/python3.12/site-packages/torch/lib/libtorch_nvshmem.so
+  /root/venv/lib/python3.12/site-packages/torch/lib/libtorch.so
+  /usr/bin/ffmpeg
+  /usr/bin/infer-server
+  /usr/lib/libmytorch.so.1.0
+  /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0
+  /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0
+  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+  /usr/lib/x86_64-linux-gnu/libaom.so.3.8.2
+  /usr/lib/x86_64-linux-gnu/libapparmor.so.1.17.2
+  /usr/lib/x86_64-linux-gnu/libasound.so.2.0.0
+  /usr/lib/x86_64-linux-gnu/libass.so.9.2.1
+  /usr/lib/x86_64-linux-gnu/libasyncns.so.0.3.1
+  /usr/lib/x86_64-linux-gnu/libavc1394.so.0.3.0
+  /usr/lib/x86_64-linux-gnu/libavcodec.so.60.31.102
+  /usr/lib/x86_64-linux-gnu/libavdevice.so.60.3.100
+  /usr/lib/x86_64-linux-gnu/libavfilter.so.9.12.100
+  /usr/lib/x86_64-linux-gnu/libavformat.so.60.16.100
+  /usr/lib/x86_64-linux-gnu/libavutil.so.58.29.100
+  /usr/lib/x86_64-linux-gnu/libblkid.so.1.1.0
+  /usr/lib/x86_64-linux-gnu/libbluray.so.2.4.3
+  /usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.1.0
+  /usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.1.0
+  /usr/lib/x86_64-linux-gnu/libbrotlienc.so.1.1.0
+  /usr/lib/x86_64-linux-gnu/libbs2b.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libbsd.so.0.12.1
+  /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+  /usr/lib/x86_64-linux-gnu/libcaca.so.0.99.20
+  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so.2.11800.0
+  /usr/lib/x86_64-linux-gnu/libcairo.so.2.11800.0
+  /usr/lib/x86_64-linux-gnu/libcap.so.2.66
+  /usr/lib/x86_64-linux-gnu/libcdio_cdda.so.2.0.0
+  /usr/lib/x86_64-linux-gnu/libcdio_paranoia.so.2.0.0
+  /usr/lib/x86_64-linux-gnu/libcdio.so.19.0.0
+  /usr/lib/x86_64-linux-gnu/libchromaprint.so.1.5.1
+  /usr/lib/x86_64-linux-gnu/libcjson.so.1.7.17
+  /usr/lib/x86_64-linux-gnu/libcodec2.so.1.2
+  /usr/lib/x86_64-linux-gnu/libcom_err.so.2.1
+  /usr/lib/x86_64-linux-gnu/libcrypto.so.3
+  /usr/lib/x86_64-linux-gnu/libc.so.6
+  /usr/lib/x86_64-linux-gnu/libcuda.so.610.43.02
+  /usr/lib/x86_64-linux-gnu/libdatrie.so.1.4.0
+  /usr/lib/x86_64-linux-gnu/libdav1d.so.7.0.0
+  /usr/lib/x86_64-linux-gnu/libdb-5.3.so
+  /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4
+  /usr/lib/x86_64-linux-gnu/libdc1394.so.25.0.0
+  /usr/lib/x86_64-linux-gnu/libdecor-0.so.0.200.2
+  /usr/lib/x86_64-linux-gnu/libdl.so.2
+  /usr/lib/x86_64-linux-gnu/libdrm.so.2.125.0
+  /usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1
+  /usr/lib/x86_64-linux-gnu/libffi.so.8.1.4
+  /usr/lib/x86_64-linux-gnu/libfftw3.so.3.6.10
+  /usr/lib/x86_64-linux-gnu/libFLAC.so.12.1.0
+  /usr/lib/x86_64-linux-gnu/libflite_cmulex.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite_cmu_us_awb.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite_cmu_us_kal16.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite_cmu_us_kal.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite_cmu_us_rms.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite_cmu_us_slt.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite.so.2.2
+  /usr/lib/x86_64-linux-gnu/libflite_usenglish.so.2.2
+  /usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.1
+  /usr/lib/x86_64-linux-gnu/libfreetype.so.6.20.1
+  /usr/lib/x86_64-linux-gnu/libfribidi.so.0.4.0
+  /usr/lib/x86_64-linux-gnu/libgbm.so.1.0.0
+  /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+  /usr/lib/x86_64-linux-gnu/libgcrypt.so.20.4.3
+  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so.0.4200.10
+  /usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0
+  /usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.8000.0
+  /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0.8000.0
+  /usr/lib/x86_64-linux-gnu/libGL.so.1.7.0
+  /usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libgme.so.0.6.3
+  /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0.8000.0
+  /usr/lib/x86_64-linux-gnu/libgmp.so.10.5.0
+  /usr/lib/x86_64-linux-gnu/libgnutls.so.30.37.1
+  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.8000.0
+  /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.34.0
+  /usr/lib/x86_64-linux-gnu/libgraphite2.so.3.2.1
+  /usr/lib/x86_64-linux-gnu/libgsm.so.1.0.19
+  /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2.2
+  /usr/lib/x86_64-linux-gnu/libharfbuzz.so.0.60830.0
+  /usr/lib/x86_64-linux-gnu/libhogweed.so.6.8
+  /usr/lib/x86_64-linux-gnu/libhwy.so.1.0.7
+  /usr/lib/x86_64-linux-gnu/libicudata.so.74.2
+  /usr/lib/x86_64-linux-gnu/libicuuc.so.74.2
+  /usr/lib/x86_64-linux-gnu/libidn2.so.0.4.0
+  /usr/lib/x86_64-linux-gnu/libiec61883.so.0.1.1
+  /usr/lib/x86_64-linux-gnu/libjack.so.0.1.0
+  /usr/lib/x86_64-linux-gnu/libjpeg.so.8.2.2
+  /usr/lib/x86_64-linux-gnu/libjxl.so.0.7.0
+  /usr/lib/x86_64-linux-gnu/libjxl_threads.so.0.7.0
+  /usr/lib/x86_64-linux-gnu/libk5crypto.so.3.1
+  /usr/lib/x86_64-linux-gnu/libkeyutils.so.1.10
+  /usr/lib/x86_64-linux-gnu/libkrb5.so.3.3
+  /usr/lib/x86_64-linux-gnu/libkrb5support.so.0.1
+  /usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14
+  /usr/lib/x86_64-linux-gnu/liblilv-0.so.0.24.22
+  /usr/lib/x86_64-linux-gnu/liblz4.so.1.9.4
+  /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+  /usr/lib/x86_64-linux-gnu/libmbedcrypto.so.2.28.8
+  /usr/lib/x86_64-linux-gnu/libmd.so.0.1.0
+  /usr/lib/x86_64-linux-gnu/libmount.so.1.1.0
+  /usr/lib/x86_64-linux-gnu/libmp3lame.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libmpg123.so.0.48.2
+  /usr/lib/x86_64-linux-gnu/libm.so.6
+  /usr/lib/x86_64-linux-gnu/libmysofa.so.1.3.2
+  /usr/lib/x86_64-linux-gnu/libncursesw.so.6.4
+  /usr/lib/x86_64-linux-gnu/libnettle.so.8.8
+  /usr/lib/x86_64-linux-gnu/libnorm.so.1
+  /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0
+  /usr/lib/x86_64-linux-gnu/libnvidia-ptxjitcompiler.so.610.43.02
+  /usr/lib/x86_64-linux-gnu/libogg.so.0.8.5
+  /usr/lib/x86_64-linux-gnu/libopenal.so.1.23.1
+  /usr/lib/x86_64-linux-gnu/libopencv_calib3d.so.4.6.0
+  /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.6.0
+  /usr/lib/x86_64-linux-gnu/libopencv_features2d.so.4.6.0
+  /usr/lib/x86_64-linux-gnu/libopencv_flann.so.4.6.0
+  /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.6.0
+  /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.6.0
+  /usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0
+  /usr/lib/x86_64-linux-gnu/libopenmpt.so.0.4.4
+  /usr/lib/x86_64-linux-gnu/libopus.so.0.9.0
+  /usr/lib/x86_64-linux-gnu/libp11-kit.so.0.3.1
+  /usr/lib/x86_64-linux-gnu/libpango-1.0.so.0.5200.1
+  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so.0.5200.1
+  /usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so.0.5200.1
+  /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.11.2
+  /usr/lib/x86_64-linux-gnu/libpgm-5.3.so.0.0.128
+  /usr/lib/x86_64-linux-gnu/libpixman-1.so.0.42.2
+  /usr/lib/x86_64-linux-gnu/libplacebo.so.338
+  /usr/lib/x86_64-linux-gnu/libpng16.so.16.43.0
+  /usr/lib/x86_64-linux-gnu/libpocketsphinx.so.3.0.0
+  /usr/lib/x86_64-linux-gnu/libpostproc.so.57.3.100
+  /usr/lib/x86_64-linux-gnu/libpthread.so.0
+  /usr/lib/x86_64-linux-gnu/libpulse.so.0.24.2
+  /usr/lib/x86_64-linux-gnu/librabbitmq.so.4.5.0
+  /usr/lib/x86_64-linux-gnu/librav1e.so.0.7.1
+  /usr/lib/x86_64-linux-gnu/libraw1394.so.11.1.0
+  /usr/lib/x86_64-linux-gnu/libresolv.so.2
+  /usr/lib/x86_64-linux-gnu/librist.so.4.3.1
+  /usr/lib/x86_64-linux-gnu/librom1394.so.0.3.0
+  /usr/lib/x86_64-linux-gnu/librsvg-2.so.2.50.0
+  /usr/lib/x86_64-linux-gnu/librt.so.1
+  /usr/lib/x86_64-linux-gnu/librubberband.so.2.3.0
+  /usr/lib/x86_64-linux-gnu/libsamplerate.so.0.2.2
+  /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.3000.0
+  /usr/lib/x86_64-linux-gnu/libselinux.so.1
+  /usr/lib/x86_64-linux-gnu/libserd-0.so.0.32.2
+  /usr/lib/x86_64-linux-gnu/libsharpyuv.so.0.0.1
+  /usr/lib/x86_64-linux-gnu/libshine.so.3.0.1
+  /usr/lib/x86_64-linux-gnu/libslang.so.2.3.3
+  /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.10
+  /usr/lib/x86_64-linux-gnu/libsndfile.so.1.0.37
+  /usr/lib/x86_64-linux-gnu/libsndio.so.7.2
+  /usr/lib/x86_64-linux-gnu/libsodium.so.23.3.0
+  /usr/lib/x86_64-linux-gnu/libsord-0.so.0.16.16
+  /usr/lib/x86_64-linux-gnu/libsoxr.so.0.1.2
+  /usr/lib/x86_64-linux-gnu/libspeex.so.1.5.2
+  /usr/lib/x86_64-linux-gnu/libsphinxbase.so.3.0.0
+  /usr/lib/x86_64-linux-gnu/libsratom-0.so.0.6.16
+  /usr/lib/x86_64-linux-gnu/libsrt-gnutls.so.1.5.3
+  /usr/lib/x86_64-linux-gnu/libssh-gcrypt.so.4.9.6
+  /usr/lib/x86_64-linux-gnu/libssl.so.3
+  /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+  /usr/lib/x86_64-linux-gnu/libSvtAv1Enc.so.1.7.0
+  /usr/lib/x86_64-linux-gnu/libswresample.so.4.12.100
+  /usr/lib/x86_64-linux-gnu/libswscale.so.7.5.100
+  /usr/lib/x86_64-linux-gnu/libsystemd.so.0.38.0
+  /usr/lib/x86_64-linux-gnu/libtasn1.so.6.6.3
+  /usr/lib/x86_64-linux-gnu/libtbb.so.12.11
+  /usr/lib/x86_64-linux-gnu/libthai.so.0.3.1
+  /usr/lib/x86_64-linux-gnu/libtheoradec.so.1.1.4
+  /usr/lib/x86_64-linux-gnu/libtheoraenc.so.1.1.2
+  /usr/lib/x86_64-linux-gnu/libtinfo.so.6.4
+  /usr/lib/x86_64-linux-gnu/libtwolame.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libudev.so.1.7.8
+  /usr/lib/x86_64-linux-gnu/libudfread.so.0.1.0
+  /usr/lib/x86_64-linux-gnu/libunibreak.so.5.0.1
+  /usr/lib/x86_64-linux-gnu/libunistring.so.5.0.0
+  /usr/lib/x86_64-linux-gnu/libusb-1.0.so.0.4.0
+  /usr/lib/x86_64-linux-gnu/libutil.so.1
+  /usr/lib/x86_64-linux-gnu/libva-drm.so.2.2000.0
+  /usr/lib/x86_64-linux-gnu/libva.so.2.2000.0
+  /usr/lib/x86_64-linux-gnu/libva-x11.so.2.2000.0
+  /usr/lib/x86_64-linux-gnu/libvdpau.so.1.0.0
+  /usr/lib/x86_64-linux-gnu/libvidstab.so.1.1
+  /usr/lib/x86_64-linux-gnu/libvorbisenc.so.2.0.12
+  /usr/lib/x86_64-linux-gnu/libvorbisfile.so.3.3.8
+  /usr/lib/x86_64-linux-gnu/libvorbis.so.0.4.9
+  /usr/lib/x86_64-linux-gnu/libvpl.so.2.9
+  /usr/lib/x86_64-linux-gnu/libvpx.so.9.0.0
+  /usr/lib/x86_64-linux-gnu/libvulkan.so.1.3.275
+  /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.22.0
+  /usr/lib/x86_64-linux-gnu/libwayland-cursor.so.0.22.0
+  /usr/lib/x86_64-linux-gnu/libwayland-egl.so.1.22.0
+  /usr/lib/x86_64-linux-gnu/libwebpmux.so.3.0.13
+  /usr/lib/x86_64-linux-gnu/libwebp.so.7.1.8
+  /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+  /usr/lib/x86_64-linux-gnu/libX11-xcb.so.1.0.0
+  /usr/lib/x86_64-linux-gnu/libx264.so.164
+  /usr/lib/x86_64-linux-gnu/libx265.so.199
+  /usr/lib/x86_64-linux-gnu/libXau.so.6.0.0
+  /usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0.1.0
+  /usr/lib/x86_64-linux-gnu/libxcb-render.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libxcb-shape.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libxcb-shm.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
+  /usr/lib/x86_64-linux-gnu/libxcb-xfixes.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libXcursor.so.1.0.2
+  /usr/lib/x86_64-linux-gnu/libXdmcp.so.6.0.0
+  /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0
+  /usr/lib/x86_64-linux-gnu/libXfixes.so.3.1.0
+  /usr/lib/x86_64-linux-gnu/libXi.so.6.1.0
+  /usr/lib/x86_64-linux-gnu/libxkbcommon.so.0.0.0
+  /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14
+  /usr/lib/x86_64-linux-gnu/libXrandr.so.2.2.0
+  /usr/lib/x86_64-linux-gnu/libXrender.so.1.3.0
+  /usr/lib/x86_64-linux-gnu/libXss.so.1.0.0
+  /usr/lib/x86_64-linux-gnu/libxvidcore.so.4.3
+  /usr/lib/x86_64-linux-gnu/libXv.so.1.0.0
+  /usr/lib/x86_64-linux-gnu/libzimg.so.2.0.0
+  /usr/lib/x86_64-linux-gnu/libzix-0.so.0.4.2
+  /usr/lib/x86_64-linux-gnu/libzmq.so.5.2.5
+  /usr/lib/x86_64-linux-gnu/libz.so.1.3
+  /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.5
+  /usr/lib/x86_64-linux-gnu/libzvbi.so.0.13.2
+  /usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-16.1.so
+  /usr/local/cuda-13.2/targets/x86_64-linux/lib/libnvJitLink.so.13.2.78
+  /usr/local/cuda-13.2/targets/x86_64-linux/lib/libOpenCL.so.1.0.0
+#+end_src
+
+** Main code for the locking
+#+begin_src rust :mkdirp yes :tangle ./src/mlockffmpeg.rs
+  use clap::Parser;
+  use futures::StreamExt;
+  use std::io::Read;
+
+  fn get_dependency_by_pid_blocking(PID: i64) -> std::collections::HashSet<std::path::PathBuf> {
+      jwalk::WalkDir::new(std::path::PathBuf::from("/proc/").join(PID.to_string().as_str()))
+          .sort(true)
+          .into_iter()
+          .filter_map(|e| e.ok())
+          .map(|e| e.path())
+          .filter(|e| !e.is_dir())
+          .filter_map(|e| std::fs::read_link(e).ok())
+          .filter(|e| !e.starts_with("/dev"))
+          .filter(|e| e.starts_with("/"))
+          .collect()
+  }
+
+  async fn get_dependency_by_pid_async(
+      PID: i64,
+  ) -> anyhow::Result<std::collections::HashSet<std::path::PathBuf>> {
+      let res = tokio::task::spawn_blocking(move || get_dependency_by_pid_blocking(PID)).await?;
+      Ok(res)
+  }
+
+  fn do_mmap_blocking(inpath: impl AsRef<std::path::Path>) -> anyhow::Result<memmap2::MmapMut> {
+      tracing::info!("Got argument {:?} for mmap + mlock",inpath.as_ref());
+
+      let file = std::fs::File::open(inpath.as_ref())?;
+      tracing::info!("Opened file");
+      let mut res = unsafe { memmap2::MmapMut::map_mut(&file) }?;
+      tracing::info!("Performed mmap");
+      let lock =
+          unsafe { rustix::mm::mlock(res.as_mut_ptr() as *mut std::os::raw::c_void, res.len()) }?;
+
+
+      println!("pid={}", std::process::id());
+
+      let status = std::fs::read_to_string("/proc/self/status")?;
+      for line in status.lines() {
+          if line.starts_with("VmLck:")
+              || line.starts_with("VmRSS:")
+          {
+              println!("{line}");
+          }
+      }
+
+      Ok(res)
+  }
+
+  async fn do_mmap_async(inpath: impl AsRef<std::path::Path>) -> anyhow::Result<memmap2::MmapMut> {
+      tracing::info!("got argument {:?} for mapping", inpath.as_ref());
+      let inpath = std::path::PathBuf::from(inpath.as_ref());
+      let res = tokio::task::spawn_blocking(move || do_mmap_blocking(inpath)).await??;
+      Ok(res)
+  }
+
+  async fn do_mlock_of_file(
+      inpath: std::collections::HashSet<std::path::PathBuf>,
+  ) -> Vec<memmap2::MmapMut> {
+      tracing::info!("Inside do_mlock_of_file for mlock. Got the args {:?}",inpath);
+      futures::stream::iter(inpath.into_iter())
+          .map(|e| do_mmap_async(e))
+          .buffer_unordered(8)
+          .collect::<Vec<_>>()
+          .await
+          .into_iter()
+          .filter_map(|e| e.ok())
+          .collect::<Vec<_>>()
+  }
+
+  fn get_dependency_main() -> std::collections::HashSet<std::path::PathBuf> {
+      include_str!("./mlockffmpeg.txt")
+          .split('\n')
+          .map(|e| std::path::PathBuf::from(e))
+          .filter(|e| !e.starts_with("/dev"))
+          .filter(|e| e.starts_with("/"))
+          .collect()
+  }
+
+  pub async fn do_default_mlocks() -> Vec<memmap2::MmapMut> {
+      do_mlock_of_file(get_dependency_main()).await
+  }
+
+  // #[derive(Parser, Debug)]
+  // #[command(version, about, long_about = None)]
+  // struct Args {
+  //     #[arg(short, long, default_value_t = -1)]
+  //     pid: i64,
+  // }
+
+  // #[tokio::main]
+  // async fn main() -> anyhow::Result<()> {
+  //     let args = Args::parse();
+
+  //     if args.pid > 0 {
+  //         let res = get_dependency_by_pid_async(args.pid).await?;
+  //         let res = do_mlock_of_file(res).await;
+  //         println!("{}", res.len());
+  //     } else {
+  //         let res = do_mlock_of_file(get_dependency_main()).await;
+  //         println!("{}", res.len());
+  //     }
+
+  //     Ok(())
+  // }
 #+end_src
 
 * Code for client
@@ -4981,6 +6326,7 @@ struct inference_loop {
   GITADD 'src/export.cpp'
   GITADD 'src/export.hpp'
   GITADD 'src/export.rs'
+  GITADD 'src/filestore.rs'
   GITADD 'src/hasher.rs'
   GITADD 'src/inferencerelatedimage.rs'
   GITADD 'src/inferencerelated.rs'
@@ -4988,11 +6334,15 @@ struct inference_loop {
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
   GITADD 'src/main.rs'
+  GITADD 'src/mlockffmpeg.hh'
+  GITADD 'src/mlockffmpeg.rs'
+  GITADD 'src/mlockffmpeg.txt'
   GITADD 'src/serverinferencechannelboth.rs'
   GITADD 'src/serverinferencechannelimage.rs'
   GITADD 'src/serverinferencechannel.rs'
   GITADD 'src/server.rs'
   GITADD 'src/torchimpl.rs'
+  GITADD 'src/version.rs'
   GITADD 'src/videofft.rs'
   GITADD 'src/videofftstats.rs'
   GITADD 'src/videofn.rs'
@@ -5002,7 +6352,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Fully working elegant RD + image inference code'
+  git status ; git commit -m 'More exhaustive mlock stunts'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
