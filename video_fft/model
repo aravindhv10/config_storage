@@ -1,0 +1,3594 @@
+* Inference SQL details
+
+** Schema
+|----------+------+--------+-------------------+-------------|
+| hash_key | task | status | inference_results | insert_time |
+|----------+------+--------+-------------------+-------------|
+
+- *hash_key* : string
+- *task* : unsigned int 32 (enum)
+- *status* : unsigned int 32 (enum)
+- *inference_results* : json-B
+- *insert_time* : timestamp
+
+* prod inference folder
+https://drive.google.com/drive/u/1/folders/1foeKgHPVdE4V_II34b8ifeiqzwU5UmXD
+
+* Things to do
+
+** Write the container init script
+
+*** Compile RD model
+*** Compile vsitter model
+
+* Downloading checkpoints
+#+begin_src sh :shebang #!/usr/bin/env bash :results output :mkdirp yes :tangle ./download_checkpoints.sh
+  cd "$(dirname -- "${0}")"
+
+  'rm' '-rf' './input/'
+
+  MYSHELL='bash'
+  . "${HOME}/GCP/sandbox/google-cloud-sdk/path.${MYSHELL}.inc"
+
+  # gsutil cp \
+  #     'gs://video-image-store-dev/MODEL_CHECKPOINTS/respiratory_distress/ICU/Fri_Mar_27_12_31_33_PM_IST_2026/Fri_Mar_27_12_31_33_PM_IST_2026.squashfs-zstd' \
+  #     './Fri_Mar_27_12_31_33_PM_IST_2026.squashfs-zstd' ;
+
+  # unsquashfs './Fri_Mar_27_12_31_33_PM_IST_2026.squashfs-zstd'
+
+  # 'mv' '-vf' '--' 'squashfs-root/Fri_Mar_27_12_31_33_PM_IST_2026/' './input'
+
+  'gsutil' 'cp' \
+      'gs://video-image-store-dev/MODEL_CHECKPOINTS/respiratory_distress/ICU/RD-2026.May.14.20:10:17.squashfs-zstd' \
+      './RD-2026.May.14.20:10:17.squashfs-zstd' ;
+
+  'unsquashfs' './RD-2026.May.14.20:10:17.squashfs-zstd'
+
+  'mv' '-vf' '--' 'squashfs-root/RD-2026.May.14.20:10:17' './input'
+
+  'gsutil' 'cp' 'gs://video-image-store-dev/MODEL_CHECKPOINTS/VSitterNew/vsitter_ICU_4_Nov_2025/checkpoints/vsitter_multi_head-epoch=01-val_accuracy=0.979452.ckpt' 'vsitter_multi_head-epoch=01-val_accuracy=0.979452.ckpt'
+
+  exit '0'
+#+end_src
+
+* Build docker image for inference
+
+** Main script to run within the container
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./container_init.sh
+  compile_image(){
+      test -e "/root/.cache/model_vsitter.pt2" || 'python3' '/IMAGE_MODEL_COMPILER/compile.py'
+  }
+
+  compile_video(){
+      (test -e "/root/.cache/model_1.pt2" && test -e "/root/.cache/model_2.pt2" && test -e "/root/.cache/model_3.pt2" && test -e "/root/.cache/model_4.pt2") || 'python3' '/root/compile.py'
+  }
+
+  compile_image
+  compile_video
+
+  wait
+  exec '/RUST_VIDEO_FFT/run_server.sh'
+#+end_src
+
+** Actual dockerfile
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  FROM 6_pytorch
+
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'fastapi[standard]' \
+          'google-auth' \
+          'google-cloud-storage' \
+          'psycopg[binary,pool]' \
+          'python-multipart' \
+          'ray[serve]' \
+          'requests' \
+          'starlette' \
+      && echo 'DONE pip' ;
+
+  RUN mkdir -pv -- '/data/input/train'
+
+  COPY 'input/model.ckpt' '/data/input/model.ckpt'
+  COPY 'input/train/labels.json' '/data/input/train/labels.json'
+  COPY 'input/train_mean.64bin' '/data/input/train_mean.64bin'
+  COPY 'input/train_sigma.64bin' '/data/input/train_sigma.64bin'
+  COPY 'input/train/weights.json' '/data/input/train/weights.json'
+  COPY 'vsitter_multi_head-epoch=01-val_accuracy=0.979452.ckpt' '/data/input/vsitter_multi_head-epoch=01-val_accuracy=0.979452.ckpt'
+
+  COPY 'important_common_utils' '/root/important_common_utils'
+  COPY 'endpoint.py' '/root/endpoint.py'
+  COPY 'endpoint.sh' '/root/endpoint.sh'
+  COPY 'infer.py' '/root/infer.py'
+  COPY 'main.py' '/root/main.py'
+  COPY 'worker.py' '/root/worker.py'
+  COPY 'compile.py' '/root/compile.py'
+
+  COPY 'RUST_VIDEO_FFT' '/RUST_VIDEO_FFT'
+  COPY 'IMAGE_MODEL_COMPILER' '/IMAGE_MODEL_COMPILER'
+  RUN 'ln' '-vfs' '/root/important_common_utils' '/IMAGE_MODEL_COMPILER/'
+
+  RUN '/RUST_VIDEO_FFT/all_build.sh'
+  RUN '/RUST_VIDEO_FFT/all_install.sh'
+
+  COPY 'container_init.sh' '/root/container_init.sh'
+#+end_src
+
+** Script to build docker image
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./build_container.sh
+  cd "$(dirname -- "${0}")"
+  'cp' '-apf' '--' '../../important_common_utils' './'
+  # './download_checkpoints.sh'
+  IMAGE_NAME='7_rd_infer'
+  CMD='sudo -A docker'
+  which buildah && CMD='buildah'
+  ${CMD} build -t "${IMAGE_NAME}" -f './Dockerfile' .
+  exit '0'
+#+end_src
+
+** Code to run inference container
+
+*** Run the inference worker to infer from postgres
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_inference_postgres_worker.sh
+  mkdir -pv -- "${1}"
+
+  OUTPUT="$(realpath "${1}")"
+  IMAGE_NAME='7_rd_infer'
+  IMAGE_CMD='/root/worker.py'
+
+  . "${HOME}/important_functions.sh"
+
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "${OUTPUT}:/data/base_path" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+*** Run for mayo
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_mayo.sh
+  cd "$('dirname' '--' "${0}")"
+
+  IMAGE_NAME='7_rd_infer'
+  IMAGE_CMD='/root/container_init.sh' 
+
+  PORT_ON_HOST='8001'
+  PORT_ON_CONTAINER='8001'
+
+  . "${HOME}/important_functions.sh"
+
+  sudo -A docker run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--ipc' 'host' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      -p "${PORT_ON_HOST}:${PORT_ON_CONTAINER}"\
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+
+  exec './run_mayo.sh'
+#+end_src
+
+*** Run interactively
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_inference_interactive.sh
+  cd "$('dirname' '--' "${0}")"
+
+  IMAGE_NAME='7_rd_infer'
+  IMAGE_CMD='zsh'
+  PATH_DIR_SRC="$('realpath' '.')"
+  PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
+  OUTPUT="$('realpath' './output')"
+
+  . "${HOME}/important_functions.sh"
+
+  sudo -A docker run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+      -v "${OUTPUT}:/data/output" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+*** Run batched inference
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_inference.sh
+  mkdir -pv -- "${1}"
+
+  OUTPUT="$(realpath "${1}")"
+  IMAGE_NAME='7_rd_infer'
+  IMAGE_CMD='/root/infer.py'
+
+  . "${HOME}/important_functions.sh"
+
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "${OUTPUT}:/data/output" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+*** Run the ray endpoint
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_inference_endpoint.sh
+  mkdir -pv -- "${1}"
+
+  OUTPUT="$(realpath "${1}")"
+  IMAGE_NAME='7_rd_infer'
+  IMAGE_CMD='/root/endpoint.sh'
+
+  . "${HOME}/important_functions.sh"
+
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "${OUTPUT}:/data/output" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+* Code for running docker image for training
+
+** Include both gpus
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_all.sh
+  cd "$('dirname' '--' "${0}")"
+  . "${HOME}/important_functions.sh"
+  IMAGE_NAME='6_pytorch'
+  IMAGE_CMD='zsh'
+  mkdir -pv -- './input' './output' './model'
+  INPUT="$(realpath ./input)"
+  OUTPUT="$(realpath ./output)"
+  MODEL="$(realpath ./model)"
+  rsync -avh --progress "${HOME}/LOS/important_common_utils" ./input/
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'all,"capabilities=compute,utility,video"' \
+      -v "${INPUT}:/data/input" \
+      -v "${OUTPUT}:/data/output" \
+      -v "${MODEL}:/data/model" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+** Only include gpu1
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_1.sh
+  cd "$('dirname' '--' "${0}")"
+  . "${HOME}/important_functions.sh"
+  IMAGE_NAME='6_pytorch'
+  IMAGE_CMD='zsh'
+  mkdir -pv -- './input' './output' './model'
+  INPUT="$(realpath ./input)"
+  OUTPUT="$(realpath ./output)"
+  MODEL="$(realpath ./model)"
+  rsync -avh --progress "${HOME}/LOS/important_common_utils" ./input/
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "${INPUT}:/data/input" \
+      -v "${OUTPUT}:/data/output" \
+      -v "${MODEL}:/data/model" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+** Only include gpu2
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cuda_2.sh
+  cd "$('dirname' '--' "${0}")"
+  . "${HOME}/important_functions.sh"
+  IMAGE_NAME='6_pytorch'
+  IMAGE_CMD='zsh'
+  mkdir -pv -- './input' './output' './model'
+  INPUT="$(realpath ./input)"
+  OUTPUT="$(realpath ./output)"
+  MODEL="$(realpath ./model)"
+  rsync -avh --progress "${HOME}/LOS/important_common_utils" ./input/
+  sudo -A docker run \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=1,"capabilities=compute,utility,video"' \
+      -v "${INPUT}:/data/input" \
+      -v "${OUTPUT}:/data/output" \
+      -v "${MODEL}:/data/model" \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+* Shell script to split videos in folder into 8 equal parts
+#+begin_src sh :shebang #!/usr/bin/env zsh :results output :mkdirp yes :tangle ./split.sh
+  mv "${1}" TOSORT
+  mkdir "${1}"
+  mv TOSORT "${1}"
+  cd "${1}"
+  ALL_N="$(fd . TOSORT -d 1 -t d | wc -l)"
+  N=$(( ${ALL_N} / 8 ))
+  mkdir 1 2 3 4 5 6 7 8
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 1@g' | sh
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 2@g' | sh
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 3@g' | sh
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 4@g' | sh
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 5@g' | sh
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 6@g' | sh
+  fd '.' TOSORT -t d -d 1 | shuf | head -n "${N}" | sed 's@^@mv -- "@g;s@$@" 7@g' | sh
+  fd '.' TOSORT -t d -d 1 | sed 's@^@mv -- "@g;s@$@" 8@g' | sh
+  rmdir TOSORT
+  exit '0'
+#+end_src
+
+* Code from gemini
+#+begin_src conf :mkdirp yes :tangle ./prompt.txt
+  I have a tensor of the form [Channel = 3, Height = 720, Width = 1280, Time = 160]
+  which represents a video clip of 20 seconds at 8 FPS.
+  I want to do full 4D fft (including the channel dimension).
+  Truncate the height and width dimensions to 1/8 of the original size.
+  Truncate the time dimension to keep only the modes whose frequencies are less than 3 hz.
+  Keep all 3 channels (after fft).
+  Give code for this in pytorch
+  prefer using rfft as input will be real tensor.
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./gemini.py
+  import torch
+  import torch.fft
+
+
+  def compress_video_fft():
+      # --- CONFIGURATION ---
+      C, H, W, T = 3, 720, 1280, 160
+      fps = 8.0
+
+      # Generate dummy video tensor: [Channel, Height, Width, Time]
+      video_tensor = torch.randn(C, H, W, T)
+      print(f"Original Shape: {video_tensor.shape}")
+
+      # --- 1. Perform 4D Real FFT ---
+      # We transform over dimensions 0, 1, 2, 3 (Channel, Height, Width, Time).
+      # rfftn expects the last dim in 'dim' to be the one that becomes the complex half-dimension.
+      # Result is complex64 or complex128.
+      fft_video = torch.fft.rfftn(video_tensor, dim=(0, 1, 2, 3))
+
+      # --- 2. Shift Spatial/Channel Frequencies ---
+      # We shift dimensions 0, 1, 2 (C, H, W) to move low frequencies to the center.
+      # We DO NOT shift dim 3 (Time) because rfftn output starts at 0 Hz for that dimension.
+      fft_shifted = torch.fft.fftshift(fft_video, dim=(0, 1, 2))
+
+      # --- 3. Calculate Truncation Indices ---
+
+      # A. Spatial Truncation (Keep center 1/8)
+      # Height
+      target_h = H // 8  # 90
+      start_h = (H // 2) - (target_h // 2)
+      end_h = start_h + target_h
+
+      # Width
+      target_w = W // 8  # 160
+      start_w = (W // 2) - (target_w // 2)
+      end_w = start_w + target_w
+
+      # B. Time Truncation (Keep modes < 3 Hz)
+      # Freq Resolution = FPS / Total_Frames = 8 / 160 = 0.05 Hz
+      # Cutoff Index = 3.0 Hz / 0.05 Hz = 60
+      # We slice up to 60 (exclusive) to keep frequencies 0.0 to 2.95 Hz.
+      freq_res = fps / T
+      time_cutoff_idx = int(3.0 / freq_res)
+
+      # --- 4. Apply Truncation ---
+      # Dimensions: [Channel, Height, Width, Time]
+      # Channel: Keep all (:)
+      # Height: Keep center 90 indices
+      # Width: Keep center 160 indices
+      # Time: Keep first 60 indices (0 to ~3Hz)
+      compressed_fft = fft_shifted[:, start_h:end_h, start_w:end_w, :time_cutoff_idx]
+
+      print(f"Compressed FFT Shape: {compressed_fft.shape}")
+      # Expected: [3, 90, 160, 60]
+
+      return compressed_fft
+
+
+  # Run the function
+  output = compress_video_fft()
+#+end_src
+
+* tmp working
+
+** 1
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./convert1.py
+  import glob
+
+  for i in glob.glob("/data/input/*/*/1"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+
+  for i in glob.glob("/data/input/*/*/2"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+
+  for i in glob.glob("/data/input/*/*/3"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+
+  for i in glob.glob("/data/input/*/*/4"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+#+end_src
+
+** 3
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./convert2.py
+  import glob
+
+  for i in glob.glob("/data/input/*/*/5"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+
+  for i in glob.glob("/data/input/*/*/6"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+
+  for i in glob.glob("/data/input/*/*/7"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+
+  for i in glob.glob("/data/input/*/*/8"):
+      prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input=i)
+#+end_src
+
+** Work on preprocessing videos
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./tmp.py
+  convert_all_videos_under_dir(path_dir_prefix='/data/input/train')
+  convert_all_videos_under_dir(path_dir_prefix='/data/input/test')
+#+end_src
+
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./tmp.sh
+  cd "$HOME/RD_TRAINING"
+  exec zsh
+#+end_src
+
+* Links for data
+
+** Prod account
+
+*** RD
+
+**** L1
+#+begin_src conf
+  gs://ml_data_pipelines/dataset/respiratory_distress/processed_data_DA_team
+#+end_src
+
+**** L2
+#+begin_src conf
+  gs://ml_data_pipelines/dataset/respiratory_distress/labelled_data/dv1.2/videos/dataset-RD-1
+#+end_src
+
+**** L3
+#+begin_src conf
+  gs://ml_data_pipelines/dataset/video_data_collection/Respiratory_Distress_Cleaned
+#+end_src
+
+*** NRD
+#+begin_src conf
+  gs://ml_data_pipelines/dataset/negative_respiratory_distress/labelled_data/dv1.0/dataset-NRD-1
+#+end_src
+
+* Scripts for data
+
+** Script to download sedation data
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./download_sedation_data.sh
+  HUGE_DATASET='gs://ml_data_pipelines/dataset/video_data_collection'
+  MYSHELL="$(basename -- "${SHELL}")"
+  . "${HOME}/GCP/google-cloud-sdk/path.${MYSHELL}.inc"
+  test -e "${HOME}/Sedation_list.txt" || gsutil ls "${HUGE_DATASET}/Sedation/" > "${HOME}/Sedation_list.txt"
+  mkdir -pv -- "${HOME}/DATASET/RD_NRD/Sedation/"
+  shuf "${HOME}/Sedation_list.txt" | head -n 100 | sed 's@^@gsutil cp "@g;s@$@" "/home/asd/DATASET/RD_NRD/Sedation/"@g' > "${HOME}/Sedation_slave.txt"
+  mkdir -pv -- "${HOME}/slave"
+  cd "${HOME}/slave"
+  split -l 10 "${HOME}/Sedation_slave.txt"
+  fd 'x[a-z][a-z]' . -t f -x sh {}
+#+end_src
+
+** Script to download calm data
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./download_calm_data.sh
+  HUGE_DATASET='gs://ml_data_pipelines/dataset/video_data_collection'
+  MYSHELL="$(basename -- "${SHELL}")"
+  . "${HOME}/GCP/google-cloud-sdk/path.${MYSHELL}.inc"
+  test -e "${HOME}/Calm_list.txt" || gsutil ls "${HUGE_DATASET}/Calm/" > "${HOME}/Calm_list.txt"
+  mkdir -pv -- "${HOME}/DATASET/RD_NRD/Calm/"
+  shuf "${HOME}/Calm_list.txt" | head -n 100 | sed 's@^@gsutil cp "@g;s@$@" "/home/asd/DATASET/RD_NRD/Calm/"@g' > "${HOME}/Calm_slave.txt"
+  mkdir -pv -- "${HOME}/slave"
+  cd "${HOME}/slave"
+  split -l 10 "${HOME}/Calm_slave.txt"
+  fd 'x[a-z][a-z]' . -t f -x sh {}
+#+end_src
+
+** Calm and sedated
+Calm And Sedation/
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./download_calm_and_sedation_data.sh
+  HUGE_DATASET='gs://ml_data_pipelines/dataset/video_data_collection'
+  MYSHELL="$(basename -- "${SHELL}")"
+  . "${HOME}/GCP/google-cloud-sdk/path.${MYSHELL}.inc"
+  test -e "${HOME}/Calm_and_Sedated_list.txt" || gsutil ls "${HUGE_DATASET}/Calm And Sedation/" > "${HOME}/Calm_and_Sedated_list.txt"
+  mkdir -pv -- "${HOME}/DATASET/RD_NRD/Calm_and_Sedated/"
+  shuf "${HOME}/Calm_and_Sedated_list.txt" | head -n 100 | sed 's@^@gsutil cp "@g;s@$@" "/home/asd/DATASET/RD_NRD/Calm_and_Sedated/"@g' > "${HOME}/Calm_and_Sedated_slave.txt"
+  mkdir -pv -- "${HOME}/slave"
+  cd "${HOME}/slave"
+  split -l 10 "${HOME}/Calm_and_Sedated_slave.txt"
+  fd 'x[a-z][a-z]' . -t f -x sh {}
+#+end_src
+
+** Script to download
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./download_RD_data.sh
+  HUGE_DATASET='gs://ml_data_pipelines/dataset/video_data_collection/'
+  MYSHELL="$(basename -- "${SHELL}")"
+  . "${HOME}/GCP/google-cloud-sdk/path.zsh.inc"
+  mkdir -pv -- "${HOME}/DATASET/RD_NRD/RD/1" "${HOME}/DATASET/RD_NRD/RD/2" "${HOME}/DATASET/RD_NRD/RD/3" "${HOME}/DATASET/RD_NRD/NRD"
+  gsutil -m rsync -r 'gs://ml_data_pipelines/dataset/respiratory_distress/processed_data_DA_team'                     "${HOME}/DATASET/RD_NRD/RD/1"
+  gsutil -m rsync -r 'gs://ml_data_pipelines/dataset/respiratory_distress/labelled_data/dv1.2/videos/dataset-RD-1'    "${HOME}/DATASET/RD_NRD/RD/2"
+  gsutil -m rsync -r 'gs://ml_data_pipelines/dataset/video_data_collection/Respiratory_Distress_Cleaned'              "${HOME}/DATASET/RD_NRD/RD/3"
+  gsutil -m rsync -r 'gs://ml_data_pipelines/dataset/negative_respiratory_distress/labelled_data/dv1.0/dataset-NRD-1' "${HOME}/DATASET/RD_NRD/NRD"
+#+end_src
+
+* Main python code
+
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.config.py
+  import sys
+
+  sys.path.append(basepath)
+#+end_src
+
+*** Import torch and numpy once globally
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import numpy as np
+  import torch
+#+end_src
+
+*** Import common utils
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  from important_common_utils import *
+#+end_src
+
+** Function to convert path names from one type extension to another
+
+*** Function to convert video extension to json extension in name
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_path_file_video_2_path_file_json(path_file_video_input):
+      if is_path_file_video(path_input=path_file_video_input):
+          loc = path_file_video_input.rfind(".")
+          if loc > 0:
+              path_file_json_output = path_file_video_input[:loc]
+          else:
+              path_file_json_output = path_file_video_input
+
+          path_file_json_output = path_file_json_output + ".json"
+          return path_file_json_output
+      else:
+          return path_file_video_input + ".json"
+#+end_src
+
+*** Function to convert video extension to dir extension in name
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_path_file_video_2_path_dir(path_file_video_input):
+      if is_path_file_video(path_input=path_file_video_input):
+          loc = path_file_video_input.rfind(".")
+          if loc > 0:
+              path_dir_output = path_file_video_input[:loc]
+          else:
+              path_dir_output = path_file_video_input
+
+          path_dir_output = path_dir_output + ".dir"
+          return path_dir_output
+      else:
+          return path_dir_output
+#+end_src
+
+*** Function to convert video extension to bin extension in name
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_path_file_video_2_path_file_bin(path_file_video_input):
+      if is_path_file_video(path_input=path_file_video_input):
+          loc = path_file_video_input.rfind(".")
+          if loc > 0:
+              path_file_bin_output = path_file_video_input[:loc]
+          else:
+              path_file_bin_output = path_file_video_input
+
+          path_file_bin_output = path_file_bin_output + ".bin"
+          return path_file_bin_output
+      else:
+          return path_file_video_input + ".bin"
+#+end_src
+
+*** Function to convert video extension to safetensors extension in name
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_path_file_video_2_path_file_safetensors(path_file_video_input):
+      if is_path_file_video(path_input=path_file_video_input):
+          loc = path_file_video_input.rfind(".")
+          if loc > 0:
+              path_file_json_output = path_file_video_input[:loc]
+          else:
+              path_file_json_output = path_file_video_input
+
+          path_file_json_output = path_file_json_output + ".safetensors"
+          return path_file_json_output
+      else:
+          return path_file_video_input + ".safetensors"
+#+end_src
+
+*** Function to convert safetensors extension to json extension in name
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_path_file_safetensors_2_path_file_json(path_file_safetensors_input):
+
+      if is_path_file_safetensors(path_input=path_file_safetensors_input):
+          loc = path_file_safetensors_input.rfind(".")
+
+          if loc > 0:
+              path_file_json_output = path_file_safetensors_input[:loc]
+          else:
+              path_file_json_output = path_file_safetensors_input
+
+          path_file_json_output = path_file_json_output + ".json"
+          return path_file_json_output
+      else:
+          return path_file_video_input + ".json"
+#+end_src
+
+*** Function to convert bin extension to json extension in name
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_path_file_bin_2_path_file_json(path_file_input):
+      if is_path_file_bin(path_input=path_file_input):
+          loc = path_file_input.rfind(".")
+          if loc > 0:
+              path_file_output = path_file_input[:loc]
+          else:
+              path_file_output = path_file_input
+
+          path_file_output = path_file_output + ".json"
+          return path_file_output
+      else:
+          return path_file_input + ".json"
+#+end_src
+
+** Important configs
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+  APPROXIMATE_LENGTH = 20
+  FPS = 8.0
+  FREQ_LIMIT = 3.0
+  LR = 0.000001
+  N_CHANNELS = 3
+  N_CLASS_OUTPUT = 3
+  SIZE_X = 1280
+  SIZE_Y = 720
+
+  N_FFT_MODES_T = int(APPROXIMATE_LENGTH * FREQ_LIMIT)  # 60
+
+  N_CHANNELS_FFT = N_CHANNELS * 2  # 6 (real and imag for every color channel)
+
+  SIZE_MAX = max(SIZE_X, SIZE_Y)  # 1280
+  SIZE_MIN = min(SIZE_X, SIZE_Y)  # 720
+
+  SIZE_DIFF = SIZE_MAX - SIZE_MIN
+  SIZE_TRUNCATED = SIZE_MAX >> 3  # 160
+
+  SIZE_START = (SIZE_MAX - SIZE_TRUNCATED) >> 1
+  SIZE_END = SIZE_START + SIZE_TRUNCATED
+
+  MODEL_TMP_DIMENSION = 512
+#+end_src
+
+** Functions to do the actual FFT of videos
+
+*** Function to pad the video tensor
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def do_pad_video(tensor_video):  # N H W C
+      B, H, W, C = list(tensor_video.shape)
+      if H < W:
+          tensor_video_pad = torch.nn.functional.pad(
+              input=tensor_video,
+              pad=(0, 0, 0, 0, 0, W-H),
+          )
+      elif W < H:
+          tensor_video_pad = torch.nn.functional.pad(
+              input=tensor_video,
+              pad=(0, 0, 0, H - W, 0, 0),
+          )
+
+      return tensor_video_pad
+#+end_src
+
+*** Function to encode the whole video tensor to fft representation
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def compress_video_tensor(tensor_video):
+
+      if tensor_video is None:
+          return None
+
+      tensor_video_pad = do_pad_video(tensor_video=tensor_video)
+      del tensor_video
+
+      tensor_video_pad = torch.permute(
+          tensor_video_pad,
+          (
+              3,
+              1,
+              2,
+              0,
+          ),
+      )
+
+      freq = torch.fft.rfftfreq(n=tensor_video_pad.shape[3], d=1.0 / FPS)
+      valid = (0 <= freq) & (freq < FREQ_LIMIT)
+      del freq
+      n = valid.sum().item()
+      del valid
+
+      tensor_video_fft = torch.fft.rfftn(tensor_video_pad)
+      del tensor_video_pad
+      tensor_video_fft = tensor_video_fft[:, :, :, 0:n]
+
+      tensor_video_fft = torch.fft.fftshift(
+          tensor_video_fft,
+          dim=(
+              0,
+              1,
+              2,
+          ),
+      )
+      compressed_tensor_video_fft = tensor_video_fft[
+          :, SIZE_START:SIZE_END, SIZE_START:SIZE_END, :
+      ]
+      compressed_tensor_video_fft = torch.cat(
+          (compressed_tensor_video_fft.abs(), compressed_tensor_video_fft.angle())
+      )
+      compressed_tensor_video_fft = torch.nn.functional.interpolate(
+          input=compressed_tensor_video_fft.unsqueeze(0),
+          size=(SIZE_TRUNCATED, SIZE_TRUNCATED, int(N_FFT_MODES_T)),
+          mode="trilinear",
+      ).squeeze()
+      return compressed_tensor_video_fft
+#+end_src
+
+*** Function to encode the whole video to fft representation
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def compress_video(path_file_video_input):
+      tensor_video = video_2_torch(
+          path_file_video_input,
+          max_duration=22,
+          min_duration=12,
+          fps=8,
+          max_dimension_size=SIZE_MAX,
+      )
+
+      if tensor_video is None:
+          return None
+
+      tensor_video = tensor_video.to('cuda')
+
+      tensor_video_pad = do_pad_video(tensor_video=tensor_video)
+      del tensor_video
+
+      tensor_video_pad = torch.permute(
+          tensor_video_pad,
+          (
+              3,
+              1,
+              2,
+              0,
+          ),
+      )
+
+      freq = torch.fft.rfftfreq(n=tensor_video_pad.shape[3], d=1.0 / FPS)
+      valid = (0 <= freq) & (freq < FREQ_LIMIT)
+      del freq
+      n = valid.sum().item()
+      del valid
+
+      tensor_video_fft = torch.fft.rfftn(tensor_video_pad)
+      del tensor_video_pad
+      tensor_video_fft = tensor_video_fft[:, :, :, 0:n]
+
+      tensor_video_fft = torch.fft.fftshift(
+          tensor_video_fft,
+          dim=(
+              0,
+              1,
+              2,
+          ),
+      )
+      compressed_tensor_video_fft = tensor_video_fft[
+          :, SIZE_START:SIZE_END, SIZE_START:SIZE_END, :
+      ]
+      compressed_tensor_video_fft = torch.cat(
+          (compressed_tensor_video_fft.abs(), compressed_tensor_video_fft.angle())
+      )
+      compressed_tensor_video_fft = torch.nn.functional.interpolate(
+          input=compressed_tensor_video_fft.unsqueeze(0),
+          size=(SIZE_TRUNCATED, SIZE_TRUNCATED, int(N_FFT_MODES_T)),
+          mode="trilinear",
+      ).squeeze()
+      return compressed_tensor_video_fft
+#+end_src
+
+*** Function to compress list of videos and write into safetensors
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_list_file_video_2_file_safetensor(list_path_file_video_input):
+
+      def add_output_name(path_file_video_input):
+          return (
+              path_file_video_input,
+              convert_path_file_video_2_path_file_safetensors(path_file_video_input),
+          )
+
+      def filter_on_inferred_files(x):
+          return not is_path_file_safetensors(path_input=x[1])
+
+      def main_compress_worker(x):
+          t = compress_video(x[0])
+          if t is not None:
+              save_tensor(t, x[1])
+              return x[1]
+          else:
+              return None
+
+      a1 = map(add_output_name, list_path_file_video_input)
+      a2 = filter(filter_on_inferred_files, a1)
+      a3 = map(main_compress_worker, a2)
+      a4 = filter(lambda x: x is not None, a3)
+      a5 = list(a4)
+
+      return a5
+#+end_src
+
+*** Function to write compressed tensor for all videos
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def convert_all_videos_under_dir(path_dir_prefix):
+
+      def add_output_name(path_file_video_input):
+          return (
+              path_file_video_input,
+              convert_path_file_video_2_path_file_safetensors(path_file_video_input),
+          )
+
+      def write_compressed_tensor(
+          path_file_video_input,
+          path_file_safetensors_output,
+      ):
+
+          tensor = compress_video(path_file_video_input)
+
+          if tensor is not None:
+              save_tensor(
+                  tensor_input=tensor,
+                  path_file_tensor_input=path_file_safetensors_output,
+              )
+              return path_file_safetensors_output
+          else:
+              return None
+
+      a1 = map(
+          add_output_name,
+          get_list_path_file_video_under_dir(path_dir_input=path_dir_prefix),
+      )
+
+      a2 = filter(
+          lambda x: not os.path.exists(x[1]),
+          a1,
+      )
+
+      a3 = map(
+          lambda x: write_compressed_tensor(
+              path_file_video_input=x[0],
+              path_file_safetensors_output=x[1],
+          ),
+          a2,
+      )
+
+      list_pairs = list(a3)
+
+      return list_pairs
+#+end_src
+
+*** Function to prepare a video for training by windowing
+
+**** for single file
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def prepare_windowed_fft_tensors_for_training_video(path_file_video_input):
+      windowing_dataset = video_windowing_dataset(
+          path_file_video_input=path_file_video_input,
+          max_segment_length=10,
+          num_segments_in_window=2,
+          min_num_segments_in_window=1,
+          max_dimension_size=1280,
+          fps=8,
+      )
+
+      path_dir = convert_path_file_video_2_path_dir(
+          path_file_video_input=path_file_video_input
+      )
+
+      print(path_dir)
+
+      os.makedirs(name=path_dir, exist_ok=True)
+
+      for i in range(len(windowing_dataset)):
+          path_file_safetensors_output = path_dir + f"/out-{i}.safetensors"
+
+          if not is_path_file_safetensors(path_input=path_file_safetensors_output):
+              save_tensor(
+                  tensor_input=compress_video_tensor(windowing_dataset[i].to('cuda')),
+                  path_file_tensor_input=path_file_safetensors_output,
+              )
+#+end_src
+
+**** for all files under the directory
+prepare_windowed_fft_tensors_for_training_video(path_file_video_input='/data/input/train/C/1/fe78eabe9f3796f5c77d00f8f9cd9039887062a1cf0e96df40725d4410a84fb62c1abe37318427a642d66c97d1e3ca95325d34e7d4e8197b836774ba8778076f.mp4')
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def prepare_windowed_fft_tensors_for_training_video_under_dir(path_dir_input):
+      list_path_file_video = get_list_path_file_video_under_dir(
+          path_dir_input=path_dir_input
+      )
+      for i in list_path_file_video:
+          try:
+              prepare_windowed_fft_tensors_for_training_video(path_file_video_input=i)
+          except:
+              print("Failed for file ", i)
+#+end_src
+
+** Main code to use safetensors as a dataset
+
+*** Main class for tensor augmentations
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class augmenter:
+      def __init__(self, for_training):
+          self.for_training = for_training
+          self.shape = [
+              N_CHANNELS_FFT,
+              SIZE_TRUNCATED,
+              SIZE_TRUNCATED,
+              N_FFT_MODES_T,
+          ]
+
+      def do_blur(self, x, f=None):
+          if f is None:
+              f = (
+                  1
+                  - torch.abs(
+                      torch.normal(mean=torch.zeros(1), std=torch.ones(1) * 0.2)
+                  ).item()
+              )
+              f = max(f, 0.4)
+
+          x = torch.nn.functional.interpolate(
+              input=x.unsqueeze(0),
+              size=(
+                  int(SIZE_TRUNCATED * f),
+                  int(SIZE_TRUNCATED * f),
+                  int(N_FFT_MODES_T * f),
+              ),
+              mode="trilinear",
+          )
+
+          x = torch.nn.functional.interpolate(
+              input=x,
+              size=(
+                  SIZE_TRUNCATED,
+                  SIZE_TRUNCATED,
+                  N_FFT_MODES_T,
+              ),
+              mode="trilinear",
+          ).squeeze(0)
+
+          return x
+
+      def __call__(self, x, i):
+          if i > 1:
+              print("Warning: it is not necessary to use i > 1")
+
+          i = i & 1
+
+          if i == 1:
+              x = torch.permute(input=x, dims=(0, 2, 1, 3))
+
+          if self.for_training:
+              x = self.do_blur(x, f=None)
+
+          return x
+#+end_src
+
+*** Function for reading the bin
+
+**** F64
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def load_path_file_64bin(path_file_bin_input):
+      return torch.from_numpy(
+          np.fromfile(
+              file=path_file_bin_input,
+              dtype=np.float64,
+              count=6 * 160 * 160 * 60,
+              sep="",
+              offset=0,
+          ).reshape((6, 160, 160, 60))
+      )
+#+end_src
+
+**** F32
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def load_path_file_bin(path_file_bin_input):
+      return torch.from_numpy(
+          np.fromfile(
+              file=path_file_bin_input,
+              dtype=np.float32,
+              count=6 * 160 * 160 * 60,
+              sep="",
+              offset=0,
+          ).reshape((6, 160, 160, 60))
+      )
+#+end_src
+
+*** Main dataset class
+ds = dataset_bin(path_dir_prefix='./train', for_training=True)
+
+**** for bin
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
+  class dataset_bin(torch.utils.data.Dataset):
+      def __init__(
+          self,
+          path_dir_prefix,
+          for_training,
+      ):
+
+          write_classes_json_if_not_exist(path_dir_prefix_input=path_dir_prefix)
+
+          self.list_path_file_bin_input = list(
+              get_list_path_file_bin_under_dir(path_dir_input=path_dir_prefix)
+          )
+
+          self.list_path_file_bin_input.sort()
+
+          self.labeler = get_file_class_from_json(
+              path_file_json_class_list=path_dir_prefix + "/labels.json"
+          )
+
+          self.for_training = for_training
+          self.augmenter = augmenter(self.for_training)
+
+      def __len__(self):
+          return len(self.list_path_file_bin_input) << 1
+
+      def __getitem__(self, i):
+          idx_aug = i & 1
+          idx_i = i >> 1
+
+          x = load_path_file_bin(self.list_path_file_bin_input[idx_i])
+
+          (p, y) = self.labeler(self.list_path_file_bin_input[idx_i])
+
+          x = (x - tensor_mu) / tensor_sigma
+
+          x = self.augmenter(x, idx_aug)
+
+          x = x.to(dtype=torch.float32)
+
+          return (x, y, p)
+#+end_src
+
+**** for safetensors
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
+  class dataset_safetensor(torch.utils.data.Dataset):
+      def __init__(
+          self,
+          path_dir_prefix,
+          for_training,
+      ):
+
+          write_classes_json_if_not_exist(path_dir_prefix_input=path_dir_prefix)
+
+          self.list_path_file_safetensors_input = list(
+              get_list_path_file_safetensors_under_dir(path_dir_input=path_dir_prefix)
+          )
+
+          self.list_path_file_safetensors_input.sort()
+
+          self.labeler = get_file_class_from_json(
+              path_file_json_class_list=path_dir_prefix + "/labels.json"
+          )
+
+          self.for_training = for_training
+          self.augmenter = augmenter(self.for_training)
+
+      def __len__(self):
+          return len(self.list_path_file_safetensors_input) << 1
+
+      def __getitem__(self, i):
+          idx_aug = i & 1
+          idx_i = i >> 1
+
+          x = load_tensor(
+              path_file_tensor_input=self.list_path_file_safetensors_input[idx_i]
+          )
+
+          (p, y) = self.labeler(self.list_path_file_safetensors_input[idx_i])
+
+          x = (x - tensor_mu) / tensor_sigma
+
+          x = self.augmenter(x, idx_aug)
+
+          x = x.to(dtype=torch.float32)
+
+          return (x, y, p)
+#+end_src
+
+*** Function to get dataloader from the dataset
+
+**** bin
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def get_dataloader_bin(
+      path_dir_prefix,
+      for_training,
+      batch_size=4,
+      shuffle=True,
+      num_workers=4,
+      prefetch_factor=4,
+  ):
+
+      dataloader = torch.utils.data.DataLoader(
+          dataset=dataset_bin(
+              path_dir_prefix=path_dir_prefix,
+              for_training=for_training,
+          ),
+          batch_size=batch_size,
+          shuffle=shuffle,
+          num_workers=num_workers,
+          prefetch_factor=prefetch_factor,
+      )
+
+      return dataloader
+#+end_src
+
+**** safetensors
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def get_dataloader_safetensor(
+      path_dir_prefix,
+      for_training,
+      batch_size=4,
+      shuffle=True,
+      num_workers=4,
+      prefetch_factor=4,
+  ):
+
+      dataloader = torch.utils.data.DataLoader(
+          dataset=dataset_safetensor(
+              path_dir_prefix=path_dir_prefix,
+              for_training=for_training,
+          ),
+          batch_size=batch_size,
+          shuffle=shuffle,
+          num_workers=num_workers,
+          prefetch_factor=prefetch_factor,
+      )
+
+      return dataloader
+#+end_src
+
+** Function for evaluating mu and sigma
+
+*** Mu
+
+**** Reading bin FFT videos
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_mu_bin(
+      path_dir_input,
+      do_cache=True,
+  ):
+      path_file_safetensors = path_dir_input + "_mean.safetensors"
+
+      if is_path_file_safetensors(path_input=path_file_safetensors) and do_cache:
+          mu_tmp = load_tensor(path_file_tensor_input=path_file_safetensors)
+
+      else:
+          # dataset = dataset_bin(
+          #     path_dir_prefix=path_dir_input,
+          #     for_training=False,
+          # )
+
+          # mu_tmp = torch.zeros_like(dataset[0][0], dtype=torch.float64).to("cuda")
+
+          # length = len(dataset)
+
+          # dataloader = torch.utils.data.DataLoader(
+          #     dataset=dataset,
+          #     batch_size=1,
+          #     shuffle=False,
+          #     num_workers=4,
+          #     prefetch_factor=4,
+          # )
+
+          dataloader = get_dataloader_bin(
+              path_dir_prefix=path_dir_input,
+              for_training=False,
+              batch_size=4,
+              shuffle=False,
+              num_workers=4,
+              prefetch_factor=4,
+          )
+
+          length = 0
+          mu_tmp = None
+          for i in dataloader:
+              size_batch = i.size()[0]
+              length += size_batch
+              j = torch.sum(i.to(device="cuda", dtype=torch.float64), dim=0)
+              if mu_tmp is None:
+                  mu_tmp = torch.zeros(
+                      list(j.size()),
+                      dtype=torch.float64,
+                      device="cuda",
+                  )
+              mu_tmp += j
+
+          mu_tmp /= length
+
+          if do_cache:
+              save_tensor(
+                  tensor_input=mu_tmp,
+                  path_file_tensor_input=path_file_safetensors,
+              )
+
+      return mu_tmp.cpu()
+#+end_src
+
+**** Reading safetensor FFT videos
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_mu_safetensors(
+      path_dir_input,
+      do_cache=True,
+  ):
+      path_file_safetensors = path_dir_input + "_mean.safetensors"
+
+      if is_path_file_safetensors(path_input=path_file_safetensors) and do_cache:
+          mu_tmp = load_tensor(path_file_tensor_input=path_file_safetensors)
+
+      else:
+          dataset = dataset_safetensor(
+              path_dir_prefix=path_dir_input,
+              for_training=False,
+          )
+
+          mu_tmp = torch.zeros_like(dataset[0][0], dtype=torch.float64).to("cuda")
+
+          length = len(dataset)
+
+          dataloader = torch.utils.data.DataLoader(
+              dataset=dataset,
+              batch_size=1,
+              shuffle=False,
+              num_workers=4,
+              prefetch_factor=4,
+          )
+
+          for i in dataloader:
+              tmp = i[0].squeeze(0).to(device="cuda", dtype=torch.float64)
+              # print("tmp.shape = ", tmp.shape)
+              mu_tmp += tmp
+
+          mu_tmp /= length
+
+          if do_cache:
+              save_tensor(
+                  tensor_input=mu_tmp,
+                  path_file_tensor_input=path_file_safetensors,
+              )
+
+      return mu_tmp.cpu()
+#+end_src
+
+**** Assign the default function
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_mu(
+      path_dir_input,
+      do_cache=True,
+  ):
+      path_file_64bin = path_dir_input + "_mean.64bin"
+      if os.path.exists(path_file_64bin):
+          return load_path_file_64bin(path_file_bin_input=path_file_64bin)
+      else:
+          return get_mu_bin(
+              path_dir_input,
+              do_cache,
+          )
+#+end_src
+
+*** Sigma
+
+**** bin
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_sigma_bin(
+      path_dir_input,
+      do_cache=True,
+  ):
+      path_file_safetensors = path_dir_input + "_sigma.safetensors"
+
+      if is_path_file_safetensors(path_input=path_file_safetensors) and do_cache:
+          sigma_tmp = load_tensor(path_file_tensor_input=path_file_safetensors)
+
+      else:
+          dataset = dataset_bin(
+              path_dir_prefix=path_dir_input,
+              for_training=False,
+          )
+
+          sigma_tmp = torch.zeros_like(dataset[0][0], dtype=torch.float64).to("cuda")
+
+          length = len(dataset)
+
+          dataloader = torch.utils.data.DataLoader(
+              dataset=dataset,
+              batch_size=1,
+              shuffle=False,
+              num_workers=4,
+              prefetch_factor=4,
+          )
+
+          for i in dataloader:
+              tmp = i[0].squeeze(0).to(device="cuda", dtype=torch.float64)
+              sigma_tmp += torch.square(tmp)
+
+          sigma_tmp /= length
+          sigma_tmp = torch.sqrt(sigma_tmp)
+
+          if do_cache:
+              save_tensor(
+                  tensor_input=sigma_tmp,
+                  path_file_tensor_input=path_file_safetensors,
+              )
+
+      return sigma_tmp.cpu()
+#+end_src
+
+**** safetensors
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_sigma_safetensors(
+      path_dir_input,
+      do_cache=True,
+  ):
+      path_file_safetensors = path_dir_input + "_sigma.safetensors"
+
+      if is_path_file_safetensors(path_input=path_file_safetensors) and do_cache:
+          sigma_tmp = load_tensor(path_file_tensor_input=path_file_safetensors)
+
+      else:
+          dataset = dataset_safetensor(
+              path_dir_prefix=path_dir_input,
+              for_training=False,
+          )
+
+          sigma_tmp = torch.zeros_like(dataset[0][0], dtype=torch.float64).to("cuda")
+
+          length = len(dataset)
+
+          dataloader = torch.utils.data.DataLoader(
+              dataset=dataset,
+              batch_size=1,
+              shuffle=False,
+              num_workers=4,
+              prefetch_factor=4,
+          )
+
+          for i in dataloader:
+              tmp = i[0].squeeze(0).to(device="cuda", dtype=torch.float64)
+              sigma_tmp += torch.square(tmp)
+
+          sigma_tmp /= length
+          sigma_tmp = torch.sqrt(sigma_tmp)
+
+          if do_cache:
+              save_tensor(
+                  tensor_input=sigma_tmp,
+                  path_file_tensor_input=path_file_safetensors,
+              )
+
+      return sigma_tmp.cpu()
+#+end_src
+
+**** Assign the default function
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_sigma(
+      path_dir_input,
+      do_cache=True,
+  ):
+      path_file_64bin = path_dir_input + "_sigma.64bin"
+      if os.path.exists(path_file_64bin):
+          return load_path_file_64bin(path_file_bin_input=path_file_64bin)
+      else:
+          return get_sigma_bin(
+              path_dir_input,
+              do_cache,
+          )
+#+end_src
+
+** Tensor to hold mu and sigma
+
+*** Initialize the stats
+
+**** mu
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  tensor_mu = torch.zeros(
+      [
+          N_CHANNELS_FFT,
+          SIZE_TRUNCATED,
+          SIZE_TRUNCATED,
+          N_FFT_MODES_T,
+      ],
+      dtype=torch.float64,
+  )
+#+end_src
+
+**** sigma
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.execute.py
+  tensor_sigma = torch.zeros(
+      [
+          N_CHANNELS_FFT,
+          SIZE_TRUNCATED,
+          SIZE_TRUNCATED,
+          N_FFT_MODES_T,
+      ],
+      dtype=torch.float64,
+  )
+  tensor_sigma += 1
+#+end_src
+
+*** Incorporate the real mean and standard deviation
+
+**** mu
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.execute.py
+  tensor_mu += get_mu(
+      path_dir_input="/data/input/train",
+      do_cache=True,
+  )
+#+end_src
+
+**** sigma
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.execute.py
+  tensor_sigma *= get_sigma(
+      path_dir_input="/data/input/train",
+      do_cache=True,
+  )
+#+end_src
+
+**** Testing
+res_mu = get_mu(
+    path_dir_input="/data/input/train",
+    do_cache=False,
+)
+res_sigma = get_sigma(
+    path_dir_input="/data/input/train",
+    do_cache=False,
+)
+
+** Model related
+
+*** function to evaluate closest power of 2
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_closest_2_pow(x):
+      x = int(x)
+      ret = x.bit_length() - 1
+      out = 1 << ret
+      if out == x:
+          return ret
+      else:
+          return ret + 1
+      # return int(math.log2(x)) + 1
+#+end_src
+
+*** swiglu stuff
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class SwiGLU(torch.nn.Module):
+      def __init__(self, dimension):
+          super().__init__()
+          self.linear_1 = torch.nn.Linear(dimension, dimension)
+          self.linear_2 = torch.nn.Linear(dimension, dimension)
+
+      def forward(self, x):
+          output = self.linear_1(x)
+          swish = output * torch.sigmoid(output)
+          swiglu = swish * self.linear_2(x)
+
+          return swiglu
+#+end_src
+
+*** Attention head
+
+**** import einops
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import einops
+#+end_src
+
+**** class
+Input: =torch.tensor= of shape =inshape = (LEN_Y, LEN_X, LEN_F)=
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class ST_attentin_head(torch.nn.Module):
+      def get_device(self):
+          return next(iter(self.parameters())).device
+
+      def get_dtype(self):
+          return next(iter(self.parameters())).dtype
+
+      def prepare_ROPE_matrix(self, dim):
+          d_theta = torch.pi / (2 * dim)
+          mat_theta = torch.zeros(
+              [dim, 2, 2],
+              dtype=self.dtype,
+          )
+          for i in range(dim):
+              theta = i * d_theta
+              st = np.sin(theta)
+              ct = np.cos(theta)
+              mat = torch.tensor(
+                  [[ct, -st], [st, ct]],
+                  dtype=torch.float32,
+              )
+              mat_theta[i, :, :] = mat[:, :]
+          return mat_theta
+
+      def prepare_ROPE_W(self):
+          self.register_buffer("ROPE_W", self.prepare_ROPE_matrix(self.len_W))
+
+      def prepare_ROPE_H(self):
+          self.register_buffer("ROPE_H", self.prepare_ROPE_matrix(self.len_H))
+
+      def __init__(self, inshape):
+          super().__init__()
+
+          self.inshape = inshape
+          self.out_dim_pow = get_closest_2_pow(x=self.inshape[-1])
+          self.len_W = self.inshape[-2]
+          self.len_H = self.inshape[-3]
+          self.out_dim = 1 << self.out_dim_pow
+          self.scale = self.out_dim**-0.5
+
+          self.qkv = torch.nn.Linear(
+              in_features=self.inshape[-1],
+              out_features=self.out_dim * 3,
+              bias=True,
+          )
+
+          self.swiglu = SwiGLU(self.out_dim)
+
+          self.proj_out = torch.nn.Linear(
+              in_features=self.out_dim,
+              out_features=self.inshape[-1],
+              bias=True,
+          )
+
+          self.norm = torch.nn.LayerNorm(self.out_dim)
+
+          self.dtype = self.get_dtype()
+          self.device = self.get_device()
+
+          self.prepare_ROPE_W()
+          self.prepare_ROPE_H()
+
+      def forward(self, x):
+          y = self.qkv(x)
+          y = einops.rearrange(y, "B Y X (T D) -> D B Y X T", D=3)
+          q = y[0]
+          k = y[1]
+          v = y[2]
+
+          q = einops.rearrange(
+              q,
+              "B Y X (YR XR D) -> B Y X YR XR D",
+              YR=2,
+              XR=2,
+          )
+          q = einops.einsum(
+              self.ROPE_W,
+              q,
+              "X XF XR , B Y X YR XR D -> B Y X YR XF D",
+          )
+          q = einops.einsum(
+              self.ROPE_H,
+              q,
+              "Y YF YR , B Y X YR XF D -> B Y X YF XF D",
+          )
+          q = einops.rearrange(
+              q,
+              "B Y X YF XF D -> B (Y X) (YF XF D)",
+          )
+          q = q * self.scale
+
+          k = einops.rearrange(
+              k,
+              "B Y X (YR XR D) -> B Y X YR XR D",
+              YR=2,
+              XR=2,
+          )
+          k = einops.einsum(
+              self.ROPE_W,
+              k,
+              "X XF XR , B Y X YR XR D -> B Y X YR XF D",
+          )
+          k = einops.einsum(
+              self.ROPE_H,
+              k,
+              "Y YF YR , B Y X YR XF D -> B Y X YF XF D",
+          )
+          k = einops.rearrange(
+              k,
+              "B Y X YF XF D -> B (Y X) (YF XF D)",
+          )
+          v = einops.rearrange(
+              v,
+              "B Y X D -> B (Y X) D",
+          )
+
+          attn = einops.einsum(q, k, "B S1 D, B S2 D -> B S1 S2")
+          del q
+          del k
+          del y
+          attn = attn.softmax(dim=-1)
+
+          y = einops.einsum(attn, v, "B S1 S2, B S2 D -> B S1 D")
+          y = self.norm(y)
+          y = self.swiglu(y)
+          y = self.proj_out(y)
+          y = y.reshape(list(x.shape))
+
+          return y + x
+#+end_src
+
+*** Main classification model
+
+**** import
+
+***** einops
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import einops
+#+end_src
+
+***** import Lightning
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import lightning
+#+end_src
+
+***** import torchmetrics
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import torchmetrics
+#+end_src
+
+***** import deep speed for optimizer
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.import.py
+  import deepspeed
+#+end_src
+
+**** Main torch class
+
+***** Attention based classifier
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class classifier_transformer(torch.nn.Module):
+      def __init__(self):
+          super().__init__()
+          self.inshape = [
+              N_CHANNELS_FFT,
+              SIZE_TRUNCATED,
+              SIZE_TRUNCATED,
+              N_FFT_MODES_T,
+          ]
+
+          self.attention_shape = [
+              SIZE_TRUNCATED >> 1,
+              SIZE_TRUNCATED >> 1,
+              (N_FFT_MODES_T * N_CHANNELS_FFT) << 2,
+          ]
+
+          self.attention_head = torch.nn.ModuleList(
+              [ST_attentin_head(self.attention_shape) for _ in range(8)],
+          )
+
+          self.norm_final = torch.nn.LayerNorm(self.attention_shape[-1])
+
+          self.head = torch.nn.Linear(
+              self.attention_shape[-1],
+              N_CLASS_OUTPUT,
+          )
+
+      def forward(self, batch_x):
+          """
+          batch_x => torch.tensor [6, 160, 160, 60]
+          """
+          batch_x = einops.rearrange(
+              batch_x,
+              "B C (H BH) (W BW) T -> B H W (C T BH BW)",
+              BH=2,
+              BW=2,
+          )
+
+          for i in self.attention_head:
+              batch_x = i(batch_x)
+
+          batch_x = batch_x.mean(dim=(1, 2))
+          batch_x = self.norm_final(batch_x)
+          batch_x = self.head(batch_x)
+
+          return batch_x
+#+end_src
+
+***** Which model to use
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  classifier = classifier_transformer
+#+end_src
+
+
+list_path_file_bin_2_path_file_infer_json(
+    path_dir_prefix='/data/input/train',
+    path_file_input_lightning_ckpt='/data/input/model.ckpt',
+)
+
+path_file_input_lightning_ckpt='/data/input/checkpoints/RD-epoch=55-val_accuracy=0.798732.ckpt'
+
+checkpoint = get_exported_program(
+    path_file_input_lightning_ckpt = path_file_input_lightning_ckpt,
+    DEVICE = 'cuda',
+    batch_size=1,
+)
+model = checkpoint.module().to('cuda')
+
+path_compiled_checkpoint = export_checkpoint(
+      path_file_input_lightning_ckpt=path_file_input_lightning_ckpt,
+      path_file_output_compiled_pt2=None,
+      batch_size=1,
+)
+
+model = torch._inductor.aoti_load_package(path_compiled_checkpoint)
+
+# checkpoint = load_lightning_ckpt_for_inference(path_file_input_lightning_ckpt=path_file_input_lightning_ckpt)
+# checkpoint = lightning_wrapper(for_training=False)
+# res = torch.load(path_file_input_lightning_ckpt)
+# checkpoint.do_compile()
+# checkpoint.load_state_dict(res["state_dict"], strict=False)
+# checkpoint.to('cuda')
+
+tensor = load_path_file_bin(path_file_bin_input='/data/input/train/A/3/fa022b771bb46a6ff93fe9308b33c747494baafc07fb6257fecf60d4410e48d6beaf83913df1d2ca8a94f8ab5f254688f97a61b1be08c5468f13a723957b5062.mp4.dir/out-24.bin')
+tensor_p = (tensor - tensor_mu) / tensor_sigma
+tensor_p = tensor_p.to(device='cuda', dtype=torch.float32)
+res = model(tensor_p.unsqueeze(0))
+
+list_path_file_bin_2_path_file_infer_json('')
+
+
+tensor([0, 1, 0, 2], device='cuda:0')
+('/data/input/train/A/3/fa022b771bb46a6ff93fe9308b33c747494baafc07fb6257fecf60d4410e48d6beaf83913df1d2ca8a94f8ab5f254688f97a61b1be08c5468f13a723957b5062.mp4.dir/out-24.bin',
+'/data/input/train/B/5/36000c206629bd58d363c3cd778a77d9f945a637acecb2283ad8c6ff661fcae4192601cbd36919b2e401f3f22979e3a
+0d790b95ad3c024eb182b6f96474af89a.mp4.dir/out-10.bin',
+'/data/input/train/A/3/7f595aa29a7bdb015f234e5ce2a9609eb0c83c440577089be667a9c4171bf4158ea7c433f08fc36561a32f280d809dd
+cd0882b5c54fa9289313b2f964674d3d8.mp4.dir/out-85.bin',
+'/data/input/train/C/5/8e12aee42975e16d6633b98c6f11b1df68be48588362bc1df6c202a5c380e8f30c68892e5c5f19b0bbffe0cf6136b39
+d413d28adfb532961b2d55852b8664ab9.mp4.dir/out-1.bin') tensor([[11.7871, -6.4212, -4.6799],
+        [-4.2382,  1.2960,  3.0878],
+        [11.3372, -6.4651, -3.9038],
+        [-3.2745, -4.7958,  8.2926]], device='cuda:0',
+       grad_fn=<CompiledFunctionBackward>) tensor(0.5028, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor([1, 2, 0, 0], device='cuda:0')
+('/data/input/train/B/6/d64d81625d6040e922aae58df12bde9290d97995cb9b6fdb2e70cd32905acd731d7b775bb0ab2c56e4714950faff28
+679490eae17e1ae05b95bf12bee2cdc589.mp4.dir/out-2.bin',
+'/data/input/train/C/1/1f5bbd8b681fcf9082eb333f8c21519371e93944006521fafdbc6de9111ac823066a6157f8c2c8b3e465fa286e5a408
+17b66b86b8ba9fc27478f0b5e3645679d.mp4.dir/out-3.bin',
+'/data/input/train/A/6/e374729e9a881cfde7370c8e589549cff77d4e11254f5ef4407c0871e41e5113513c3e02a3a0d58e892fede917289ae
+e26edb25dd281d86337dfb230bfdfc0ce.mp4.dir/out-17.bin',
+'/data/input/train/A/3/2b222451040d35c083ef24820f583ecfa343df3c928fc6fb5a67c1b0889eb540d26592e1295aff5771cd55222a03397
+247931346aa7c2c3485d6779387bb32d3.mp4.dir/out-179.bin') tensor([[-1.9154, -0.6954,  2.6453],
+        [-3.2698, -5.9211,  7.0629],
+        [10.3588, -4.7353, -4.9599],
+        [13.3308, -6.6156, -4.8086]], device='cuda:0',
+       grad_fn=<CompiledFunctionBackward>) tensor(0.8746, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor([1, 0, 2, 0], device='cuda:0')
+('/data/input/train/B/6/e0dddfb53e0b532d09b9177cb1a334fa99a0a7399742fdedf9b3166fbf61dca473d1e02d5fcc1fe34665c028432751
+2f8f0c93afd2f87d3f6b9098db17d5de31.mp4.dir/out-15.bin',
+'/data/input/train/A/6/d27f8e7205bdcefcc85ddafcffa3c51e2e8fa527658cbb66e25dad9f0427d5fddb4888cb411ac7a6615908b07f3ce66
+437ea96cd27c0c141fcd8631ac0d4e9de.mp4.dir/out-49.bin',
+'/data/input/train/C/5/3cac404a0edaab294792d24502fe0e5c94ce82778b49e241c251a692ecd4c04ee7b2c5ae3c63f78fbf23183b6081a45
+d3914883ca74657f24ac03145aa94851c.mp4.dir/out-1.bin',
+'/data/input/train/A/3/fa022b771bb46a6ff93fe9308b33c747494baafc07fb6257fecf60d4410e48d6beaf83913df1d2ca8a94f8ab5f25468
+8f97a61b1be08c5468f13a723957b5062.mp4.dir/out-18.bin') tensor([[-4.7987,  6.3539, -2.8195],
+        [ 4.0600, -1.9842, -1.6504],
+        [-6.0887, -5.9067, 11.3617],
+        [11.7642, -6.8690, -4.4252]], device='cuda:0',
+       grad_fn=<CompiledFunctionBackward>) tensor(0.0013, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor([0, 0, 0, 0], device='cuda:0')
+('/data/input/train/A/6/f3fe90332730b29fb6815a47281a1c3aa33f383769a7135ffad8b3e2533b15e0cce781686066ababdd0229af0deb60
+8e4b2cb2125dfefb2ef02c03147b5028cc.mp4.dir/out-59.bin',
+'/data/input/train/A/5/9c195219ed853cdd977c898c28b140f4c2d19f59346885446c6f34c023691656d0688b7f38a7594c172b682eae7c7be
+c14dbdb7871a35943ffac6ce349231ddc.mp4.dir/out-7.bin',
+'/data/input/train/A/6/0230982598684d855f782033ee570648da9bb8d70fa5aba0b1377f7281b78d067e545c1374b621c8b05372be1fd7b89
+3ba322b7f70a8dacb13203af738d8e46e.mp4.dir/out-38.bin',
+'/data/input/train/A/6/fd66eb3eb44ae1d52d155907b834455d84b06b9424882fadf599498a005aa4225879dae78604edd97560b013842c192
+4d093b79231fcdc0b5cd45397bac0722d.mp4.dir/out-27.bin') tensor([[12.1067, -7.2675, -4.4649],
+        [ 9.4758, -5.6289, -2.9119],
+        [ 9.3108, -4.9955, -3.6225],
+        [ 8.1724, -2.8555, -5.3175]], device='cuda:0',
+       grad_fn=<CompiledFunctionBackward>) tensor(6.2882e-06, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor([2, 1, 0, 0], device='cuda:0')
+('/data/input/train/C/6/d3a25aff5ec4351b026eea293a362866713aaa7ec4234ad6f6836fbbd8d4d4696e5283f5ca6c3c4da0a6a8095f4f36
+7d96f5a8a6c7e12cd980761b1954fe55b2.mp4.dir/out-2.bin',
+'/data/input/train/B/3/a2c9db4c8bd72f5597b08e85cc11af5c5afcfb6b7763ce5df281a48e7ecc7e289c77a394801023e1619b39bbd2210bf
+8cad9413fa0f28eb4b7e6aaf307613b82.mp4.dir/out-2.bin',
+'/data/input/train/A/4/cd917fd5455d9a7ec417e72945aa64f81604ba0f4c865e46a022e007412a29f2b531e4aac5cfe0a9bf4030fcdb9a5ae
+6db045059d708f5d5608d48d9e97a6439.mp4.dir/out-27.bin',
+'/data/input/train/A/3/4e92eb8689f6aa48408bb6c0c30143bb34d6a20222deadd8724b840c2a81aee5a0fcc02a2c2efc068dc8a3c04bb05af
+ae1f1b83d8031d03c98f6ce2b0f3c2254.mp4.dir/out-8.bin') tensor([[-5.2884, -7.3158, 10.2691],
+        [-5.8212,  6.3491, -2.2840],
+        [ 9.2722, -4.8588, -3.7944],
+        [11.0704, -8.8016, -3.0466]], device='cuda:0',
+       grad_fn=<CompiledFunctionBackward>) tensor(4.8192e-05, device='cuda:0', grad_fn=<NllLossBackward0>)
+
+***** lightning wrapper
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class lightning_wrapper(lightning.LightningModule):
+      def configure_optimizers(self):
+          optimizer = torch.optim.AdamW(
+              self.model.parameters(),
+              lr=LR,
+          )
+
+          return optimizer
+
+      def training_step(self, batch, batch_idx):
+          (x, y, p) = batch
+          r = self.forward(x)
+          d = self.loss(r, y)
+          print(y, p, r, d)
+          self.log("train_loss", d)
+          return d
+
+      def val_test_step(self, batch, batch_idx, step_label):
+          (x, y, p) = batch
+          batch_size = x.shape[0]
+          r = self.model(x)
+          (l, t) = get_weighted_accuracy_refweight(X=r, Y=y, W=self.weights_tensor)
+          self.log(
+              step_label,
+              l,
+              batch_size=batch_size * t,
+              sync_dist=True,
+          )
+
+      def do_compile(self):
+          self.model = torch.compile(
+              self.model,
+              mode="max-autotune",
+          )
+
+      def test_step(self, batch, batch_idx):
+          self.val_test_step(batch=batch, batch_idx=batch_idx, step_label="test_accuracy")
+
+      def validation_step(self, batch, batch_idx):
+          self.val_test_step(batch=batch, batch_idx=batch_idx, step_label="val_accuracy")
+
+      def predict_step(self, batch, batch_idx):
+          return self.model(batch)
+
+      def forward_net(self, x):
+          if self.for_training:
+              return self.model(x)
+          else:
+              y = self.model(x)
+              y = torch.nn.functional.softmax(y, dim=1)
+              return y
+
+      def set_forward_net(self):
+          self.forward = self.forward_net
+
+      def forward_with_fft(self, x):
+          x = torch.nn.functional.pad(
+              input=x,
+              pad=(
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  560,
+              ),
+          )
+
+          x = torch.permute(
+              x,
+              (
+                  3,
+                  1,
+                  2,
+                  0,
+              ),
+          )
+
+          x = torch.fft.rfftn(x)
+
+          x = x[
+              :,
+              :,
+              :,
+              0:60,
+          ]
+
+          x = torch.fft.fftshift(
+              x,
+              dim=(
+                  0,
+                  1,
+                  2,
+              ),
+          )
+
+          x = x[
+              :,
+              560:720,
+              560:720,
+              :,
+          ]
+
+          x = torch.cat(
+              (
+                  x.abs(),
+                  x.angle(),
+              )
+          )
+
+          x = torch.nn.functional.interpolate(
+              input=x.unsqueeze(0),
+              size=(
+                  160,
+                  160,
+                  60,
+              ),
+              mode="trilinear",
+          ).squeeze()
+
+          x = (x - self.tensor_mu) / self.tensor_sigma
+          x = x.unsqueeze(0).to(dtype=torch.float32)
+          x = self.model(x)
+          x = torch.nn.functional.softmax(
+              x,
+              dim=1,
+          )
+          return x
+
+      def set_forward_with_fft(self):
+          self.forward = self.forward_with_fft
+          self.register_buffer("tensor_mu", tensor_mu)
+          self.register_buffer("tensor_sigma", tensor_sigma)
+
+      def __init__(self, for_training=True):
+          super().__init__()
+          self.model = classifier()
+          self.for_training = for_training
+          if self.for_training:
+              write_classes_json_if_not_exist(path_dir_prefix_input="/data/input/train/")
+              slave = reweight_calculator_bin(
+                  path_file_label_json_input="/data/input/train/labels.json"
+              )
+              self.weights_tensor = slave.get_tensor()
+              self.weights_tensor[0] *= 2.0
+              self.weights_tensor[1] /= 16.0
+              print(self.weights_tensor)
+          else:
+              self.weights_tensor = (
+                  torch.ones((N_CLASS_OUTPUT), dtype=torch.float32) + 0.1
+              )
+          self.loss = torch.nn.CrossEntropyLoss(weight=self.weights_tensor)
+          print("Weights: ", self.weights_tensor)
+          self.set_forward_net()
+#+end_src
+
+** function for training
+
+*** Start training
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def do_train_lightning():
+      torch.set_float32_matmul_precision("high")
+      model = lightning_wrapper()
+      model.do_compile()
+      train_data = get_dataloader_bin(path_dir_prefix="/data/input/train", for_training=True, batch_size=4, shuffle=True, num_workers=4, prefetch_factor=2)
+      test_data = get_dataloader_bin(path_dir_prefix="/data/input/test", for_training=False, batch_size=4, shuffle=True, num_workers=4, prefetch_factor=2)
+      callback_checkpoint = lightning.pytorch.callbacks.ModelCheckpoint(
+          dirpath="/data/input/checkpoints",
+          filename="RD-{epoch:02d}-{val_accuracy:.6f}",
+          verbose=True,
+          save_top_k=4,
+          mode="max",
+          monitor="val_accuracy",
+          # every_n_train_steps=1000,
+      )
+
+      trainer = lightning.Trainer(
+          max_epochs=1024,
+          # logger=csv_logger,
+          # strategy=lightning.pytorch.strategies.DeepSpeedStrategy(
+          #     offload_params_device="cpu",
+          #     offload_optimizer_device="cpu",
+          #     offload_optimizer=True,
+          #     offload_parameters=True,
+          #     stage=3,
+          # ),
+          # val_check_interval=1.0,
+          check_val_every_n_epoch=1,
+          default_root_dir="/data/input/",
+          accelerator="gpu",
+          devices=-1,
+          precision="32",
+          # precision="32-true",
+          callbacks=[callback_checkpoint],
+      )
+
+      trainer.fit(model, train_data, test_data)
+#+end_src
+
+*** Resume training
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def resume_train_lightning():
+      torch.set_float32_matmul_precision("high")
+      model = lightning_wrapper()
+      model.do_compile()
+      train_data = get_dataloader_bin(path_dir_prefix="/data/input/train", for_training=True, batch_size=4, shuffle=True, num_workers=4, prefetch_factor=2)
+      test_data = get_dataloader_bin(path_dir_prefix="/data/input/test", for_training=False, batch_size=4, shuffle=True, num_workers=4, prefetch_factor=2)
+      callback_checkpoint = lightning.pytorch.callbacks.ModelCheckpoint(
+          dirpath="/data/input/checkpoints",
+          filename="RD-{epoch:02d}-{val_accuracy:.6f}",
+          verbose=True,
+          save_top_k=4,
+          mode="max",
+          monitor="val_accuracy",
+          # every_n_train_steps=1000,
+      )
+
+      trainer = lightning.Trainer(
+          max_epochs=1024,
+          # logger=csv_logger,
+          # strategy=lightning.pytorch.strategies.DeepSpeedStrategy(
+          #     offload_params_device="cpu",
+          #     offload_optimizer_device="cpu",
+          #     offload_optimizer=True,
+          #     offload_parameters=True,
+          #     stage=3,
+          # ),
+          # val_check_interval=1.0,
+          check_val_every_n_epoch=1,
+          default_root_dir="/data/input/",
+          accelerator="gpu",
+          devices=-1,
+          precision="32",
+          # precision="32-true",
+          callbacks=[callback_checkpoint],
+      )
+
+      trainer.fit(model, train_data, test_data, ckpt_path='/data/input/checkpoints/RD-epoch=16-val_accuracy=0.791545.ckpt')
+#+end_src
+
+** All inference related
+
+*** function to prepare videos after fft
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def normalize_and_prepare_tensor(x):
+      x = (x - tensor_mu.to(x.device)) / tensor_sigma.to(x.device)
+      x = x.unsqueeze(0).to(dtype=torch.float32)
+      return x
+#+end_src
+
+*** Function to read video into fft tensor with correct normalization
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def compress_video_for_infer(path_file_video_input):
+      x = compress_video(path_file_video_input)
+      x = normalize_and_prepare_tensor(x)
+      return x
+#+end_src
+
+*** Preprocess videos for inference
+
+**** Function to load video from safetensors for inference
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def load_safetensor_for_inference(path_file_video_input):
+      x = compress_video(path_file_video_input)
+      x = normalize_and_prepare_tensor(x)
+      return x
+#+end_src
+
+**** Function to load video from bin for inference
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def load_bin_for_inference(path_file_fft_bin_input):
+      x = load_path_file_bin(path_file_bin_input = path_file_fft_bin_input).to('cuda')
+      x = normalize_and_prepare_tensor(x)
+      return x
+#+end_src
+
+*** Process and load model for inference
+
+**** Function to load the model from a checkpoint for inference
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def load_lightning_ckpt_for_inference(path_file_input_lightning_ckpt):
+      checkpoint = lightning_wrapper(for_training=False)
+      checkpoint.do_compile()
+      res = torch.load(path_file_input_lightning_ckpt)
+      checkpoint.load_state_dict(res["state_dict"], strict=False)
+      checkpoint.eval()
+      return checkpoint
+#+end_src
+
+**** Function to get model hash with caching
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def get_lightning_ckpt_model_hash(path_file_input_lightning_ckpt):
+      path_file_input_lightning_ckpt_hash = path_file_input_lightning_ckpt + ".hash"
+
+      if os.path.exists(path_file_input_lightning_ckpt_hash):
+          model_hash = open(
+              path_file_input_lightning_ckpt_hash,
+              "r",
+              encoding="utf-8",
+          ).read()
+
+      else:
+          model_hash = hash_list_file(
+              list_path_file_input=(
+                  path_file_input_lightning_ckpt,
+                  "/root/main.py",
+                  "/root/important_common_utils/__init__.py",
+              )
+          )
+
+          with open(
+              path_file_input_lightning_ckpt_hash,
+              "w",
+              encoding="utf-8",
+          ) as f:
+              f.write(model_hash)
+
+      return model_hash
+#+end_src
+
+**** Function to get export program
+
+***** Full fft + classifier
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def get_exported_program_full_fft(
+      path_file_input_lightning_ckpt,
+      DEVICE,
+  ):
+      checkpoint = load_lightning_ckpt_for_inference(
+          path_file_input_lightning_ckpt=path_file_input_lightning_ckpt
+      )
+
+      checkpoint.set_forward_with_fft()
+
+      checkpoint.to(DEVICE)
+
+      x = torch.ones(
+          (
+              160,
+              1280,
+              1280,
+              3,
+          ),
+          dtype=torch.uint8,
+          device=DEVICE,
+      )
+
+      exported_program = torch.export.export(
+          checkpoint,
+          (x,),
+          strict=False,
+      )
+
+      return exported_program
+#+end_src
+
+***** Only classifier
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def get_exported_program(
+      path_file_input_lightning_ckpt,
+      DEVICE,
+      batch_size=1,
+  ):
+      checkpoint = load_lightning_ckpt_for_inference(
+          path_file_input_lightning_ckpt=path_file_input_lightning_ckpt
+      )
+
+      checkpoint.to(DEVICE)
+
+      x = tensor_mu.unsqueeze(0).to(device=DEVICE, dtype=torch.float32)
+
+      if batch_size > 1:
+          x = torch.cat([x] * batch_size)
+
+      # Your export logic here
+      # exported_program = torch.export.export(model, args)
+      exported_program = torch.export.export(
+          checkpoint,
+          (x,),
+          strict=True,
+      )
+
+      return exported_program
+#+end_src
+
+**** Function to export trained model to compiled AOTInductor
+
+***** Full fft + classifier
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def export_checkpoint_full(
+      path_file_input_lightning_ckpt="/data/input/model.ckpt",
+      path_file_output_compiled_pt2=None,
+  ):
+
+      if path_file_output_compiled_pt2 is None:
+          path_file_output_compiled_pt2 = (
+              f"/root/.cache/"
+              + get_lightning_ckpt_model_hash(
+                  path_file_input_lightning_ckpt=path_file_input_lightning_ckpt
+              )
+              + ".pt2"
+          )
+
+      if not is_path_file(path_input=path_file_output_compiled_pt2):
+          DEVICE = "cpu"
+          inductor_configs = {}
+
+          if torch.cuda.is_available():
+              DEVICE = "cuda"
+              inductor_configs["max_autotune"] = True
+
+          exported_program = get_exported_program_full_fft(
+              path_file_input_lightning_ckpt,
+              DEVICE,
+          )
+
+          path = torch._inductor.aoti_compile_and_package(
+              exported_program,
+              package_path=path_file_output_compiled_pt2,
+              inductor_configs=inductor_configs,
+          )
+
+      return path_file_output_compiled_pt2
+#+end_src
+
+***** Debug the function
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./debug.py
+  export_checkpoint(
+      path_file_input_lightning_ckpt="/data/input/model.ckpt",
+      path_file_output_compiled_pt2=None,
+      batch_size=2,
+  )
+#+end_src
+
+***** Define the function to export to standard batch sized pt2s
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def export_to_standard_batch_sized_pt2():
+      export_checkpoint(
+          path_file_input_lightning_ckpt="/data/input/model.ckpt",
+          path_file_output_compiled_pt2="/root/.cache/model_1.pt2",
+          batch_size=1,
+      )
+      export_checkpoint(
+          path_file_input_lightning_ckpt="/data/input/model.ckpt",
+          path_file_output_compiled_pt2="/root/.cache/model_2.pt2",
+          batch_size=2,
+      )
+      export_checkpoint(
+          path_file_input_lightning_ckpt="/data/input/model.ckpt",
+          path_file_output_compiled_pt2="/root/.cache/model_3.pt2",
+          batch_size=3,
+      )
+      export_checkpoint(
+          path_file_input_lightning_ckpt="/data/input/model.ckpt",
+          path_file_output_compiled_pt2="/root/.cache/model_4.pt2",
+          batch_size=4,
+      )
+      export_checkpoint(
+          path_file_input_lightning_ckpt="/data/input/model.ckpt",
+          path_file_output_compiled_pt2="/root/.cache/model_5.pt2",
+          batch_size=5,
+      )
+      export_checkpoint(
+          path_file_input_lightning_ckpt="/data/input/model.ckpt",
+          path_file_output_compiled_pt2="/root/.cache/model_6.pt2",
+          batch_size=6,
+      )
+#+end_src
+
+***** Only classifier
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def export_checkpoint(
+      path_file_input_lightning_ckpt,
+      path_file_output_compiled_pt2=None,
+      batch_size=1,
+  ):
+
+      if path_file_output_compiled_pt2 is None:
+          path_file_output_compiled_pt2 = (
+              f"/root/.cache/{batch_size}_"
+              + get_lightning_ckpt_model_hash(
+                  path_file_input_lightning_ckpt=path_file_input_lightning_ckpt
+              )
+              + ".pt2"
+          )
+
+      if not is_path_file(path_input=path_file_output_compiled_pt2):
+          DEVICE = "cpu"
+          inductor_configs = {}
+          if torch.cuda.is_available():
+              DEVICE = "cuda"
+              inductor_configs["max_autotune"] = True
+
+          exported_program = get_exported_program(
+              path_file_input_lightning_ckpt,
+              DEVICE,
+              batch_size=batch_size,
+          )
+
+          path = torch._inductor.aoti_compile_and_package(
+              exported_program,
+              package_path=path_file_output_compiled_pt2,
+              inductor_configs=inductor_configs,
+          )
+
+      return path_file_output_compiled_pt2
+#+end_src
+
+*** Functions for inference
+
+**** For ready bin
+
+***** Function to infer on single video
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def run_rd_infer_bin(path_file_bin_input, path_file_input_model_pt2):
+      x = load_bin_for_inference(path_file_fft_bin_input=path_file_bin_input)
+      model = torch._inductor.aoti_load_package(path_file_input_model_pt2)
+      x = model(x)
+      del model
+      return x
+#+end_src
+
+***** Function to compile and infer
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def run_rd_compile_and_infer_bin(path_file_bin_input, path_file_input_model_ckpt):
+      path_file_input_model_pt2 = export_checkpoint(
+          path_file_input_lightning_ckpt=path_file_input_model_ckpt,
+          path_file_output_compiled_pt2=None,
+      )
+
+      x = run_rd_infer_bin(
+          path_file_bin_input=path_file_bin_input,
+          path_file_input_model_pt2=path_file_input_model_pt2,
+      )[0]
+
+      outdict = {
+          "P_no_RD": x[0].item(),
+          "P_moderate_RD": x[1].item(),
+          "P_full_RD": x[2].item(),
+      }
+
+      return outdict
+#+end_src
+
+***** Function to write inference results to json file
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def bin_2_infer_json(path_file_input_model_ckpt, path_file_bin_input):
+      path_file_output_json = convert_path_file_bin_2_path_file_json(path_file_bin_input)
+
+      if not is_path_file_json(path_input=path_file_output_json):
+          path_file_output_tmp = path_file_output_json + ".tmp"
+
+          res = run_rd_compile_and_infer_bin(
+              path_file_bin_input=path_file_bin_input,
+              path_file_input_model_ckpt=path_file_input_model_ckpt,
+          )
+
+          safe_write_dict_to_json(
+              indict=res,
+              path_file_tmp=path_file_output_tmp,
+              path_file_json_output=path_file_output_json,
+          )
+
+      return path_file_output_json
+#+end_src
+
+list_path_file_bin = get_list_path_file_bin_under_dir('/data/output/videos/')
+for i in list_path_file_bin:
+    bin_2_infer_json(path_file_input_model_ckpt = '/data/input/model.ckpt', path_file_bin_input = i)
+
+list_path_file_bin_input = list(get_list_path_file_bin_under_dir('/data/input/test'))
+list_path_file_bin_2_path_file_infer_json(
+      list_path_file_bin_input = list_path_file_bin_input,
+      size_batch=4,
+      path_file_model_ckpt_input="/data/input/model.ckpt",
+  )
+
+list_path_file_bin_2_path_file_infer_json(
+    path_dir_prefix =  ,
+    path_file_input_lightning_ckpt = '/data/input/model.ckpt',
+)
+
+***** End to end on bin files using torch datasets
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def list_path_file_bin_2_path_file_infer_json(
+      list_path_file_bin_input,
+      size_batch=4,
+      path_file_model_ckpt_input="/data/input/model.ckpt",
+  ):
+      def add_path_file_json_2_path_file_bin(x):
+          return (
+              x,
+              convert_path_file_bin_2_path_file_json(x),
+          )
+
+      def only_get_uninferred_files(x):
+          return not os.path.exists(x[1])
+
+      def do_final_write(path_file_tuple, pred):
+          path_file_json = path_file_tuple[1]
+
+          outdict = {
+              "P_no_RD": pred[0].item(),
+              "P_moderate_RD": pred[1].item(),
+              "P_full_RD": pred[2].item(),
+          }
+
+          safe_write_dict_to_json(
+              indict=outdict,
+              path_file_tmp=path_file_json + ".tmp",
+              path_file_json_output=path_file_json,
+          )
+
+          return path_file_json
+
+      list_path_file_tuple_output = map(
+          add_path_file_json_2_path_file_bin,
+          list_path_file_bin_input,
+      )
+
+      list_path_file_tuple_output = filter(
+          only_get_uninferred_files,
+          list_path_file_tuple_output,
+      )
+
+      list_path_file_tuple_output = list(list_path_file_tuple_output)
+
+      length = len(list_path_file_tuple_output)
+
+      current_ckpt = None
+      current_size_batch = None
+
+      for begin in range(0, length, size_batch):
+          end = min(begin + size_batch, length)
+
+          batch_path_file_tuple_output = list_path_file_tuple_output[begin:end]
+          required_batch_size = len(batch_path_file_tuple_output)
+
+          if current_ckpt is None:
+              path_file_input_model_pt2 = export_checkpoint(
+                  path_file_input_lightning_ckpt=path_file_model_ckpt_input,
+                  path_file_output_compiled_pt2=None,
+                  batch_size=required_batch_size,
+              )
+
+              current_ckpt = torch._inductor.aoti_load_package(path_file_input_model_pt2)
+              current_size_batch = required_batch_size
+
+          if current_size_batch != required_batch_size:
+              del current_ckpt
+
+              path_file_input_model_pt2 = export_checkpoint(
+                  path_file_input_lightning_ckpt=path_file_model_ckpt_input,
+                  path_file_output_compiled_pt2=None,
+                  batch_size=required_batch_size,
+              )
+
+              current_ckpt = torch._inductor.aoti_load_package(path_file_input_model_pt2)
+              current_size_batch = required_batch_size
+
+          x = map(
+              lambda y: load_bin_for_inference(path_file_fft_bin_input=y[0]),
+              batch_path_file_tuple_output,
+          )
+
+          x = torch.cat(list(x))
+
+          x = current_ckpt(x.to("cuda")).detach().cpu()
+
+          y = [
+              (
+                  path_file_tuple_output,
+                  x[i, ...].squeeze(0),
+              )
+              for (i, path_file_tuple_output) in enumerate(batch_path_file_tuple_output)
+          ]
+
+          z = map(lambda r: do_final_write(r[0], r[1]), y)
+          z = list(z)
+#+end_src
+
+**** For single videos
+
+***** Function to infer on single video
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def run_RD_infer(
+      path_file_input_model_pt2,
+      path_file_video_input,
+  ):
+      x = compress_video_for_infer(path_file_video_input=path_file_video_input)
+      model = torch._inductor.aoti_load_package(path_file_input_model_pt2)
+      x = model(x)
+      del model
+      return x
+#+end_src
+
+***** Function to compile and infer
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def run_RD_compile_and_infer(path_file_input_model_ckpt, path_file_video_input):
+      path_file_input_model_pt2 = export_checkpoint(
+          path_file_input_lightning_ckpt=path_file_input_model_ckpt,
+          path_file_output_compiled_pt2=None,
+      )
+
+      x = run_RD_infer(
+          path_file_input_model_pt2=path_file_input_model_pt2,
+          path_file_video_input=path_file_video_input,
+      )[0]
+
+      outdict = {
+          "P_no_RD": x[0].item(),
+          "P_moderate_RD": x[1].item(),
+          "P_full_RD": x[2].item(),
+      }
+
+      return outdict
+#+end_src
+
+***** Function to write inference results to json file
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def video_2_infer_json(path_file_input_model_ckpt, path_file_video_input):
+      path_file_output_json = convert_path_file_video_2_path_file_json(
+          path_file_video_input=path_file_input_model_ckpt
+      )
+      if not is_path_file_json(path_input=path_file_output_json):
+          path_file_output_tmp = path_file_output_json + ".tmp"
+          res = run_RD_compile_and_infer(
+              path_file_input_model_ckpt,
+              path_file_video_input,
+          )
+          safe_write_dict_to_json(
+              indict=res,
+              path_file_tmp=path_file_output_tmp,
+              path_file_json_output=path_file_output_json,
+          )
+
+      return path_file_output_json
+#+end_src
+
+**** Batch infer list of safetensors
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def infer_on_list_path_file_safetensors(
+      list_path_file_safetensors_input,
+      size_batch=4,
+      path_file_model_ckpt_input="/data/input/model.ckpt",
+  ):
+      def add_path_file_json_2_path_file_safetensors(x):
+          return (
+              x,
+              convert_path_file_safetensors_2_path_file_json(x),
+          )
+
+      def only_get_uninferred_files(x):
+          return not os.path.exists(x[1])
+
+      def do_final_write(path_file_tuple, pred):
+          path_file_json = path_file_tuple[1]
+
+          outdict = {
+              "P_no_RD": pred[0].item(),
+              "P_moderate_RD": pred[1].item(),
+              "P_full_RD": pred[2].item(),
+          }
+
+          safe_write_dict_to_json(
+              indict=outdict,
+              path_file_tmp=path_file_json + ".tmp",
+              path_file_json_output=path_file_json,
+          )
+
+          return path_file_json
+
+      list_path_file_tuple_output = map(
+          add_path_file_json_2_path_file_safetensors,
+          list_path_file_safetensors_input,
+      )
+
+      list_path_file_tuple_output = filter(
+          only_get_uninferred_files,
+          list_path_file_tuple_output,
+      )
+
+      list_path_file_tuple_output = list(list_path_file_tuple_output)
+
+      length = len(list_path_file_tuple_output)
+
+      current_ckpt = None
+      current_size_batch = None
+
+      for begin in range(0, length, size_batch):
+          end = min(begin + size_batch, length)
+
+          batch_path_file_tuple_output = list_path_file_tuple_output[begin:end]
+          required_batch_size = len(batch_path_file_tuple_output)
+
+          if current_ckpt is None:
+              path_file_input_model_pt2 = export_checkpoint(
+                  path_file_input_lightning_ckpt=path_file_model_ckpt_input,
+                  path_file_output_compiled_pt2=None,
+                  batch_size=required_batch_size,
+              )
+
+              current_ckpt = torch._inductor.aoti_load_package(path_file_input_model_pt2)
+              current_size_batch = required_batch_size
+
+          if current_size_batch != required_batch_size:
+              del current_ckpt
+
+              path_file_input_model_pt2 = export_checkpoint(
+                  path_file_input_lightning_ckpt=path_file_model_ckpt_input,
+                  path_file_output_compiled_pt2=None,
+                  batch_size=required_batch_size,
+              )
+
+              current_ckpt = torch._inductor.aoti_load_package(path_file_input_model_pt2)
+              current_size_batch = required_batch_size
+
+          x = map(
+              lambda y: normalize_and_prepare_tensor(load_tensor(y[0])),
+              batch_path_file_tuple_output,
+          )
+
+          x = torch.cat(list(x))
+
+          x = current_ckpt(x.to("cuda")).detach().cpu()
+
+          y = [
+              (
+                  path_file_tuple_output,
+                  x[i, ...].squeeze(0),
+              )
+              for (i, path_file_tuple_output) in enumerate(batch_path_file_tuple_output)
+          ]
+
+          z = map(lambda r: do_final_write(r[0], r[1]), y)
+          z = list(z)
+#+end_src
+
+**** Batch infer list of videos
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def infer_on_list_path_file_video(
+      list_path_file_video_input,
+      size_batch=4,
+      path_file_model_ckpt_input="/data/input/model.ckpt",
+  ):
+      list_path_file_video_input = list(list_path_file_video_input)
+
+      convert_list_file_video_2_file_safetensor(
+          list_path_file_video_input=list_path_file_video_input
+      )
+
+      list_path_file_safetensors = map(
+          convert_path_file_video_2_path_file_safetensors,
+          list_path_file_video_input,
+      )
+
+      infer_on_list_path_file_safetensors(
+          list_path_file_safetensors_input=list_path_file_safetensors,
+          size_batch=size_batch,
+          path_file_model_ckpt_input=path_file_model_ckpt_input,
+      )
+#+end_src
+
+**** Batch infer all videos under dir
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def infer_on_all_videos_under_dir(
+      path_file_input_model_ckpt="/data/input/model.ckpt",
+      path_dir_input="/data/output/",
+      batch_size=4,
+  ):
+      infer_on_list_path_file_video(
+          list_path_file_video_input=get_list_path_file_video_under_dir(
+              path_dir_input=path_dir_input
+          ),
+          size_batch=batch_size,
+          path_file_model_ckpt_input=path_file_input_model_ckpt,
+      )
+#+end_src
+
+* Training scripts
+
+** Run the training
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./train.py
+  from main import do_train_lightning
+  do_train_lightning()
+#+end_src
+
+** Resume the training
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./train_resume.py
+  from main import resume_train_lightning
+  resume_train_lightning()
+#+end_src
+
+* Code to export the lightning checkpoint to aoti compiled pt2
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./export_model.py
+  from main import export_checkpoint
+
+  export_checkpoint(
+      path_file_input_lightning_ckpt="/data/model/checkpoints/RD-epoch=33-val_accuracy=0.794489.ckpt",
+      path_file_output_compiled_pt2="/data/model/checkpoints/RD-epoch=33-val_accuracy=0.794489.pt2",
+  )
+#+end_src
+
+* Full inference code for batch inference
+
+** Import batch inferring function
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.import.py
+  from main import infer_on_all_videos_under_dir
+#+end_src
+
+** Run the inference
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.execute.py
+  infer_on_all_videos_under_dir(
+      path_file_input_model_ckpt="/data/input/model.ckpt",
+      path_dir_input="/data/output/",
+      batch_size=4,
+  )
+#+end_src
+
+* Main python code for inference endpoint
+
+** Important import related configs
+
+*** Evaluate path of the base directory of the package
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.config.py
+  import os
+
+  try:
+      __file__
+  except NameError:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** Append the path to python search path
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.config.py
+  import sys
+
+  sys.path.append(basepath)
+#+end_src
+
+** Import all important libraries
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.import.py
+  from google.cloud import storage
+  from google.oauth2 import service_account
+  from main import run_RD_compile_and_infer
+  from ray import serve
+  from starlette.requests import Request
+  import glob
+  import json
+  import logging
+  import os
+  import ray
+  import sys
+  import uuid
+#+end_src
+
+** Set important paths for credential files
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.config.py
+  DOWNLOAD_DIR = "/data/output/video"
+  SERVICE_ACCOUNT_KEY_PATH = "/data/output/sandbox-tech-project.json"
+#+end_src
+
+** Load logger
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.execute.py
+  logger = logging.getLogger("ray.serve")
+#+end_src
+
+** Main inference class
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.class.py
+  @serve.deployment(
+      num_replicas=1,
+      max_ongoing_requests=1,
+      # max_concurrent_queries=1,
+      ray_actor_options={"num_cpus": 1, "num_gpus": 1},
+      max_queued_requests=2,  # Adjust GPU ratio as needed
+  )
+  class AutoModeProcessor:
+      def __init__(self):
+          os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+          # 1. Warm up the model (Loaded once at deployment start)
+          logger.info("Initializing inference engine...")
+          # self.slave = infer_slave(path_file_ckpt_input="/data/output/model.ckpt")
+
+          # 2. Initialize GCP Client
+          self.storage_client = None
+          if os.path.exists(SERVICE_ACCOUNT_KEY_PATH):
+              try:
+                  creds = service_account.Credentials.from_service_account_file(
+                      SERVICE_ACCOUNT_KEY_PATH
+                  )
+                  self.storage_client = storage.Client(credentials=creds)
+                  logger.info("GCP Storage client initialized successfully.")
+              except Exception as e:
+                  logger.error(f"Failed to initialize GCP client: {e}")
+          else:
+              logger.warning(
+                  f"Service account key not found at {SERVICE_ACCOUNT_KEY_PATH}"
+              )
+
+      def _download_from_gcs(self, gcs_uri: str, filename: str) -> str:
+          if not self.storage_client:
+              raise RuntimeError("GCP Client not active. Check service-account-key.json.")
+
+          # Parse gs://bucket/blob
+          uri_path = gcs_uri.replace("gs://", "")
+          bucket_name, blob_name = uri_path.split("/", 1)
+
+          bucket = self.storage_client.bucket(bucket_name)
+          blob = bucket.blob(blob_name)
+
+          local_path = os.path.join(DOWNLOAD_DIR, filename)
+          blob.download_to_filename(local_path)
+          return local_path
+
+      async def _save_upload(self, upload_file, filename: str) -> str:
+          local_path = os.path.join(DOWNLOAD_DIR, filename)
+          content = await upload_file.read()
+          with open(local_path, "wb") as f:
+              f.write(content)
+          return local_path
+
+      async def __call__(self, request: Request):
+          unique_name = f"{uuid.uuid4()}.mp4"
+          local_path = None
+          content_type = request.headers.get("content-type", "")
+
+          try:
+              # --- 1. Data Ingestion ---
+              if "application/json" in content_type:
+                  data = await request.json()
+                  if "gcs_uri" not in data:
+                      return {"error": "Missing 'gcs_uri' in JSON body"}
+                  local_path = self._download_from_gcs(data["gcs_uri"], unique_name)
+
+              elif "multipart/form-data" in content_type:
+                  form = await request.form()
+                  if "file" not in form:
+                      return {"error": "Missing 'file' in multipart form"}
+                  local_path = await self._save_upload(form["file"], unique_name)
+
+              else:
+                  return {"error": "Unsupported Content-Type. Use JSON or Multipart."}
+
+              # --- 2. Inference ---
+              # We pass the specific file path to avoid race conditions
+              # if multiple files exist in the input directory.
+              logger.info(f"Processing file: {local_path}")
+
+              # Assuming your slave function takes a file path or dir
+
+              # self.slave('/data/input')
+
+              # local_json_path = local_path[:-3] + "json"
+              result = run_RD_compile_and_infer(
+                  path_file_input_model_ckpt="/data/input/model.ckpt",
+                  path_file_video_input=local_path,
+              )
+              # json.load(fp=open(local_json_path, "r", encoding="utf-8"))
+              os.unlink(local_path)
+              return {"status": "success", "filename": unique_name, "result": result}
+
+          except Exception as e:
+              logger.error(f"Inference error: {str(e)}")
+              return {"status": "error", "message": str(e)}
+
+          # finally:
+          # --- 3. Cleanup ---
+          # if local_path and os.path.exists(local_path):
+          # os.remove(local_path)
+          # logger.info(f"Cleaned up {local_path}")
+#+end_src
+
+** Start the inference
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.execute.py
+  # Bind the deployment to the app
+  app = AutoModeProcessor.bind()
+#+end_src
+
+** Shell script to run the ray endpoint
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./endpoint.sh
+  cd "$('dirname' '--' "${0}")"
+  serve run 'endpoint:app'
+#+end_src
+
+* Testing
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./tmp.py
+  train_data = get_dataloader_safetensor(
+      path_dir_prefix="/data/input/train",
+      for_training=True,
+      batch_size=4,
+      shuffle=True,
+      num_workers=4,
+      prefetch_factor=2,
+  )
+
+  model = classifier_transformer()
+  model.to("cuda")
+
+  res = next(iter(train_data))
+
+  x = res[0].to("cuda")
+  y = model(x)
+
+  r = einops.rearrange(
+      x,
+      "B (N C) (H BH) (W BW) T -> B N H W (C T BH BW)",
+      N=1,
+      BH=2,
+      BW=2,
+  )
+
+  layer = torch.nn.Conv3d(
+      in_channels=1,
+      out_channels=1,
+      kernel_size=(8, 8, (N_FFT_MODES_T * N_CHANNELS_FFT) << 2),
+      bias=True,
+  ).to("cuda")
+
+  path_file_input_model_pt2='/data/model/checkpoints/RD-epoch=33-val_accuracy=0.794489.pt2'
+  path_file_video_input='/data/input/train/A/1/ff46a72c4041c89f751c0022f4433877417351f4c1cbc77b86218d7de3a30be1cf6dd9ba5f5df1e2de6a19f5bc9dc037895a53f65e04f8e0cc856a0e7786abc3/out-000001.mp4'
+  run_RD_infer(path_file_input_model_pt2='/data/model/checkpoints/RD-epoch=33-val_accuracy=0.794489.pt2', path_file_video_input='/data/input/train/A/1/ff46a72c4041c89f751c0022f4433877417351f4c1cbc77b86218d7de3a30be1cf6dd9ba5f5df1e2de6a19f5bc9dc037895a53f65e04f8e0cc856a0e7786abc3/out-000001.mp4')
+#+end_src
+
+* Provide a single script to compile the models
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./compile.py
+  from main import export_to_standard_batch_sized_pt2
+  export_to_standard_batch_sized_pt2()
+#+end_src
+
+* worker
+The worker node to do the inference after retrieving the list of files from postgres
+
+** Standard imports
+
+*** Import os and get the base path of this file
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.config.py
+  import os
+
+  try:
+      __file__
+  except:
+      basepath = "."
+  else:
+      basepath = os.path.abspath(os.path.dirname(__file__) + "/")
+#+end_src
+
+*** append this basepath to the list of search paths
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.config.py
+  import sys
+
+  sys.path.append(basepath)
+#+end_src
+
+** ID used for locking on GPUs, this should be same across different processes
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.config.py
+  GPU_LOCK_ID_1 = 123451
+  GPU_LOCK_ID_2 = 123452
+#+end_src
+
+** Import important common utils
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  from important_common_utils import *
+#+end_src
+
+** Main function to get the list of hashes
+
+*** Imports
+
+**** Import list from typing for type annotations
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  from typing import List
+#+end_src
+
+**** Import SQL libraries
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  from psycopg_pool import ConnectionPool
+  from psycopg.rows import dict_row
+#+end_src
+
+**** Import select for waiting on postgres notification socket
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  import select
+#+end_src
+
+*** Define database config and declare a global connection pool class
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.execute.py
+  conn_info = "host=localhost port=7001 user=postgres password=asd123 dbname=postgres"
+  pool = ConnectionPool(
+      conninfo=conn_info,
+      min_size=2,
+      max_size=10,
+      kwargs={"row_factory": dict_row},
+  )
+#+end_src
+
+*** Actual functions
+
+**** Debugging
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./debug.py
+timeout=180
+conn = pool.connection()
+conn_c = conn.__enter__()
+conn_c.execute("LISTEN new_rd_video_inserted;")
+conn_c.commit()
+tmp = list(conn_c.notifies())
+socket = conn_c.pgconn.socket
+res = select.select([socket], [], [], timeout)
+r, _, _ = res
+conn_c.pgconn.consume_input()
+#+end_src
+
+**** Function to wait for notifications
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def wait_for_data(timeout=60):
+      with pool.connection() as conn:
+          conn.execute("LISTEN new_video_inserted;")
+          conn.commit()
+          
+          # Access the raw file descriptor for the OS select call
+          socket = conn.pgconn.socket
+          print(f"Waiting for notification (timeout={timeout}s)...")
+          
+          r, _, _ = select.select([socket], [], [], timeout)
+          
+          if r:
+              conn.pgconn.consume_input()
+              print(list(conn.pgconn.notifies()))            
+              return True
+          else:
+              print("Timeout reached.")
+              return False
+#+end_src
+
+**** Function to get list of hashes from the database
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def get_hash_list() -> List[str]:
+      try:
+          with pool.connection() as conn:
+              with conn.cursor() as cur:
+                  cur.execute(
+                      """
+                      SELECT hash_key
+                      FROM rd_registry
+                      WHERE status = 0
+                        AND inference_results IS NULL
+                      ORDER BY insert_time ASC;
+                      """,
+                  )
+
+                  rows = cur.fetchall()
+                  hash_list = [row["hash_key"] for row in rows]
+
+                  return hash_list
+
+      except Exception as e:
+          print(f"Error fetching pending hashes: {e}")
+          return []
+#+end_src
+
+** Push results to postgres
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def push_result(list_hash_key, list_pred_dict):
+
+      if not list_hash_key:
+          return
+
+      data_to_update = list(zip(list_pred_dict, list_hash_key))
+
+      try:
+          with pool.connection() as conn:
+              with conn.cursor() as cur:
+                  cur.executemany(
+                      """
+                      UPDATE rd_registry
+                      SET inference_results = %s, status = 1
+                      WHERE hash_key = %s;
+                      """,
+                      data_to_update,
+                  )
+
+                  conn.commit()
+                  print(f"Successfully updated {len(list_hash_key)} records.")
+
+      except Exception as e:
+          print(f"Error pushing results to database: {e}")
+#+end_src
+
+** Main function to run the inference on list of hash keys
+
+*** Import important libraries
+
+**** Import json
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  import json
+#+end_src
+
+**** Import the inference function
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  from main import convert_path_file_video_2_path_file_json
+  from main import convert_path_file_video_2_path_file_safetensors
+  from main import infer_on_list_path_file_video
+#+end_src
+
+*** Function to get the path of video file given hash_key
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def get_path_file_video_from_hash_key(hash_key):
+      path_file_video_input = "/data/base_path/" + hash_key + "/video.mp4"
+      return path_file_video_input
+#+end_src
+
+*** Function to read the json file
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def read_json_file(path_file_json_input):
+      with open(path_file_json_input, "r", encoding="utf-8") as f:
+          return f.read()
+#+end_src
+
+*** Run the actual inference given the list of hash keys
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def run_inference(list_hash_key):
+      if not list_hash_key:
+          return []
+
+      list_path_file_video_input = map(
+          get_path_file_video_from_hash_key,
+          list_hash_key,
+      )
+      list_path_file_video_input = filter(
+          is_path_file_video,
+          list_path_file_video_input,
+      )
+      list_path_file_video_input = list(list_path_file_video_input)
+
+      list_path_file_json_output = map(
+          convert_path_file_video_2_path_file_json,
+          list_path_file_video_input,
+      )
+      list_path_file_json_output = list(list_path_file_json_output)
+
+      list_path_file_safetensors = map(
+          convert_path_file_video_2_path_file_safetensors,
+          list_path_file_video_input,
+      )
+      list_path_file_safetensors = list(list_path_file_safetensors)
+
+      try:
+          with pool.connection() as conn:
+              with conn.transaction():
+                  with conn.cursor() as cur:
+                      print("Requesting GPU lock...")
+                      cur.execute("SELECT pg_advisory_xact_lock(%s)", (GPU_LOCK_ID_1,))
+                      print("GPU lock acquired. Starting inference...")
+
+                      infer_on_list_path_file_video(
+                          list_path_file_video_input=list_path_file_video_input,
+                          size_batch=4,
+                          path_file_model_ckpt_input="/data/input/model.ckpt",
+                      )
+
+                      print("Inference complete. Releasing GPU lock.")
+
+          list_pred_dict = map(read_json_file, list_path_file_json_output)
+          list_pred_dict = list(list_pred_dict)
+
+          push_result(list_hash_key, list_pred_dict)
+
+          def safe_unlink_list(list_path_file_input):
+              s1 = filter(is_path_file, list_path_file_input)
+              s2 = map(os.unlink, list_path_file_input)
+              list(s2)
+
+          safe_unlink_list(list_path_file_input=list_path_file_safetensors)
+          safe_unlink_list(list_path_file_input=list_path_file_video_input)
+          safe_unlink_list(list_path_file_input=list_path_file_json_output)
+
+          return list_path_file_video_input
+
+      except Exception as e:
+          print(f"Inference failed: {e}")
+          raise
+#+end_src
+
+** Wrapper function to run both
+
+*** Import important stuff
+
+**** time
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
+  import time
+#+end_src
+
+*** Main functions
+
+**** Run a single inference cycle
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def query_and_infer():
+      list_hash_key = get_hash_list()
+      if not list_hash_key:
+          return
+      list_path_file_video = run_inference(list_hash_key=list_hash_key)
+#+end_src
+
+**** Run an worker loop
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
+  def worker_loop():
+      os.makedirs(
+          "/data/base_path/",
+          exist_ok=True,
+      )
+
+      print("Starting inference loop")
+      notifying_dataset = notify_dataset(path_dir_prefix_input="/data/base_path/")
+
+      waittime_long = 10000
+      batch_size_small = 4
+
+      waittime_short = 200
+      batch_size_large = 16
+
+      waittime = waittime_long
+      batch_size = batch_size_small
+
+      start_time = time.monotonic()
+
+      while True:
+          list_file_hashes = set(
+              i[:-5]
+              for i in notifying_dataset(
+                  batch_size=batch_size,
+                  waittime=waittime,
+              )
+              if i.endswith(".work")
+          )
+
+          list_postgres_hashes = set(get_hash_list())
+
+          if list_postgres_hashes:
+              current_time = time.monotonic()
+              elapsed_time = current_time - start_time
+              run_full = elapsed_time > 60
+
+              if not run_full:
+                  list_intersection_hashes = list_file_hashes.intersection(
+                      list_postgres_hashes
+                  )
+
+                  if list_intersection_hashes:
+                      waittime = waittime_short
+                      batch_size = batch_size_large
+                      print(f"Processing {len(list_intersection_hashes)} videos...")
+                      run_inference(list_intersection_hashes)
+
+                      for i in list_file_hashes:
+                          path_file_work = "/data/base_path/" + i + ".work"
+                          if is_path_file(path_file_work):
+                              os.unlink(path_file_work)
+                  else:
+                      run_full = True
+
+              if run_full:
+                  start_time = current_time
+                  waittime = waittime_short
+                  batch_size = batch_size_large
+                  print(f"Processing {len(list_postgres_hashes)} videos...")
+                  run_inference(list_postgres_hashes)
+
+                  for i in list_postgres_hashes:
+                      path_file_work = "/data/base_path/" + i + ".work"
+                      if is_path_file(path_file_work):
+                          os.unlink(path_file_work)
+
+          else:
+              waittime = waittime_long
+              batch_size = batch_size_small
+#+end_src
+
+** Try running it
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.execute.py
+  if __name__ == '__main__':
+      worker_loop()
+#+end_src
+
+* K3S migration
+
+** pod.yaml
+
+*** For the service
+#+begin_src conf :mkdirp yes :tangle ./service.yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: rd-infer-service
+    namespace: default
+  spec:
+    selector:
+      # This MUST match the labels on your Pod
+      app: rd-infer 
+    ports:
+      - name: grpc-tcp
+        protocol: TCP
+        port: 8001      # The port external clients hit
+        targetPort: 8001 # The port your container listens on
+      - name: grpc-udp
+        protocol: UDP
+        port: 8001
+        targetPort: 8001
+    type: LoadBalancer
+#+end_src
+
+*** For actual container
+#+begin_src conf :mkdirp yes :tangle ./pod.yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: rd-infer-interactive
+    namespace: default
+    labels:
+      app: rd-infer
+  spec:
+    restartPolicy: OnFailure
+    runtimeClassName: nvidia
+    hostIPC: true
+    containers:
+    - name: infer-container
+      image: docker.io/library/7_rd_infer:latest 
+      imagePullPolicy: IfNotPresent 
+      command: ["/bin/bash"]
+      args: ["/RUST_VIDEO_FFT/run_server.sh"]
+      stdin: true
+      tty: true
+      ports:
+      - containerPort: 8001
+        protocol: TCP
+      - containerPort: 8001
+        protocol: UDP
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+      env:
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: all
+      - name: NVIDIA_DRIVER_CAPABILITIES
+        value: all
+      volumeMounts:
+      - name: cache-vol
+        mountPath: /root/.cache
+      - name: triton-vol
+        mountPath: /root/.triton
+    volumes:
+    - name: cache-vol
+      hostPath:
+        path: /var/tmp/K3S_CACHE/cache
+    - name: triton-vol
+      hostPath:
+        path: /var/tmp/K3S_CACHE/triton
+#+end_src
+
+** Import the image from docker to k3s
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./image_docker_2_k3s.sh
+  cd "$('dirname' -- "${0}")"
+  'docker' 'save' '7_rd_infer' | 'k3s' 'ctr' 'images' 'import' '-'
+#+end_src
+
+** list_available_images
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./list_available_images.sh
+  cd "$('dirname' -- "${0}")"
+  k3s crictl images
+#+end_src
+
+** Delete existing pod
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./delete_existing_pod.sh
+  cd "$('dirname' -- "${0}")"
+  k3s kubectl delete pod rd-infer-interactive --force
+#+end_src
+
+k3s kubectl describe pod rd-infer-interactive
+** List running pods
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./list_running_pods.sh
+  cd "$('dirname' -- "${0}")"
+  k3s kubectl get pods
+#+end_src
+
+** Apply the pod
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./apply_pod.sh
+  cd "$('dirname' -- "${0}")"
+  'kubectl' 'apply' '-f' 'service.yaml'
+  'kubectl' 'apply' '-f' 'pod.yaml'
+  exit '0'
+#+end_src
+
+** Connect to the pod
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect_2_image.sh
+  cd "$('dirname' -- "${0}")"
+
+  k3s kubectl exec -it \
+      'rd-infer-interactive' -- zsh ;
+#+end_src
+
+* Code to management
+
+** Source the functions
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** Clean all temporary junk files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  CLEAN '.git.sh'
+  CLEAN '#infer.py#'
+  CLEAN '.#infer.py'
+  CLEAN '#main.function.py#'
+  CLEAN 'main.function.py~'
+  CLEAN '.#README.org'
+  CLEAN 'tmp1.py'
+  CLEAN 'tmp2.py'
+  CLEAN 'tmp3.py'
+  CLEAN 'tmp4.py'
+#+end_src
+
+** Prepare all python files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  PREPARE_PYTHON_FILE 'endpoint'
+  PREPARE_PYTHON_FILE 'main'
+  PREPARE_PYTHON_FILE 'infer'
+  PREPARE_PYTHON_FILE 'worker'
+#+end_src
+
+** Map the __init__ class
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  cp './main.py' './__init__.py'
+#+end_src
+
+** Add all remaining files to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'apply_pod.sh'
+  GITADD 'build_container.sh'
+  GITADD 'compile.py'
+  GITADD 'connect_2_image.sh'
+  GITADD 'container_init.sh'
+  GITADD 'convert1.py'
+  GITADD 'convert2.py'
+  GITADD 'debug.py'
+  GITADD 'delete_existing_pod.sh'
+  GITADD 'Dockerfile'
+  GITADD 'download_calm_and_sedation_data.sh'
+  GITADD 'download_calm_data.sh'
+  GITADD 'download_checkpoints.sh'
+  GITADD 'download_RD_data.sh'
+  GITADD 'download_sedation_data.sh'
+  GITADD 'endpoint.sh'
+  GITADD 'export_model.py'
+  GITADD 'image_docker_2_k3s.sh'
+  GITADD 'IMAGE_MODEL_COMPILER/compile.py'
+  GITADD 'IMAGE_MODEL_COMPILER/main.py'
+  GITADD '__init__.py'
+  GITADD 'list_available_images.sh'
+  GITADD 'list_running_pods.sh'
+  GITADD 'pod.yaml'
+  GITADD 'pure_inference/README.org'
+  GITADD 'pure_inference/run_curl_rest_infer.sh'
+  GITADD 'README.org'
+  GITADD 'run_cuda_1.sh'
+  GITADD 'run_cuda_2.sh'
+  GITADD 'run_cuda_all.sh'
+  GITADD 'run_cuda_inference_endpoint.sh'
+  GITADD 'run_cuda_inference_interactive.sh'
+  GITADD 'run_cuda_inference_postgres_worker.sh'
+  GITADD 'run_cuda_inference.sh'
+  GITADD 'run_mayo.sh'
+  GITADD 'service.yaml'
+  GITADD 'split.sh'
+  GITADD 'TODO.org'
+  GITADD 'train.py'
+  GITADD 'train_resume.py'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  git status ; git commit -m 'Image inference fully working inside container'
+  "${HOME}/SSH/K/W/setup.sh" ; git push
+#+end_src
+
+* COMMENT Work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+         './.git.sh'
+      " "log" "err")
+#+end_src
