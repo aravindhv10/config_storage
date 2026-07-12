@@ -10,7 +10,7 @@
     users.asd = {
       description = "asd";
       isNormalUser = true;
-      shell = pkgs.fish;
+      shell = unstable.fish;
       packages = [];
 
       extraGroups = [

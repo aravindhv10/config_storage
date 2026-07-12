@@ -32,7 +32,7 @@
 
     fish = {
       enable = true;
-      package = pkgs.fish;
+      package = unstable.fish;
     };
 
     zsh = {
