@@ -1,6 +1,5 @@
 use crate::hasher;
 use std::io::Read;
-use std::io::Write;
 use std::os::unix::ffi::OsStrExt;
 
 pub fn get_file_hash(

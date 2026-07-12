@@ -9,6 +9,94 @@ unsigned int constexpr NUM_CLASSES = 5;
 #define _MACRO_SELF_ file_mlock
 class _MACRO_SELF_ {
 private:
+  void *addr;
+  long length;
+
+public:
+  _MACRO_SELF_(char const *path_file_input) : addr(MAP_FAILED), length(-1) {
+    int fd = open(path_file_input, O_RDONLY);
+    if (fd == -1) {
+      printf("Failed to open the file %s\n", path_file_input);
+    } else {
+      struct stat st;
+      if (fstat(fd, &st) == 0) {
+        length = st.st_size;
+        printf("Size of file %s is %ld\n", path_file_input, length);
+        if (length > 0) {
+          addr = mmap(NULL, length, PROT_READ, MAP_SHARED, fd, 0);
+          if (addr == MAP_FAILED) {
+            printf("mmap of file %s failed\n", path_file_input);
+            length = -1;
+          } else {
+            if (mlock(addr, length) == 0) {
+              printf("mlock for %s and length %ld succeeded\n", path_file_input,
+                     length);
+            } else {
+              printf("mlock for %s failed\n", path_file_input);
+              munmap(addr, length);
+              addr = MAP_FAILED;
+              length = -1;
+            }
+          }
+        } else {
+          printf("Got invalid file size %ld for file %s\n", length,
+                 path_file_input);
+          length = -1;
+        }
+      } else {
+        printf("fstat for %s failed\n", path_file_input);
+      }
+      close(fd);
+    }
+  }
+
+  ~_MACRO_SELF_() {
+    if ((addr != MAP_FAILED) && (length > 0)) {
+      munmap(addr, length);
+    }
+  }
+};
+#undef _MACRO_SELF_
+
+#define _MACRO_SELF_ unnamed_semaphore
+
+class _MACRO_SELF_ {
+private:
+  sem_t main_sem;
+
+public:
+  _MACRO_SELF_(int const num) { sem_init(&main_sem, 0, num); }
+  ~_MACRO_SELF_() { sem_destroy(&main_sem); }
+  inline void l() { sem_wait(&main_sem); }
+  inline void r() { sem_post(&main_sem); }
+
+  static inline _MACRO_SELF_ *NEW(int const num) {
+    return new _MACRO_SELF_(/*int const num =*/num);
+  }
+
+  static inline void DELETE(_MACRO_SELF_ *in) { delete in; }
+};
+
+extern "C" {
+
+void *unnamed_semaphore_new(int const num) {
+  return static_cast<void *>(_MACRO_SELF_::NEW(/*int const num =*/num));
+}
+
+void unnamed_semaphore_delete(void *in) {
+  delete static_cast<_MACRO_SELF_ *>(in);
+}
+
+void unnamed_semaphore_l(void *in) { static_cast<_MACRO_SELF_ *>(in)->l(); }
+
+void unnamed_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
+}
+
+#undef _MACRO_SELF_
+
+#define _MACRO_SELF_ file_mlock_old
+class _MACRO_SELF_ {
+private:
   int fd;
   void *addr;
   struct stat st;
@@ -59,42 +147,6 @@ public:
     initialized = -5;
   }
 };
-#undef _MACRO_SELF_
-
-#define _MACRO_SELF_ unnamed_semaphore
-
-class _MACRO_SELF_ {
-private:
-  sem_t main_sem;
-
-public:
-  _MACRO_SELF_(int const num) { sem_init(&main_sem, 0, num); }
-  ~_MACRO_SELF_() { sem_destroy(&main_sem); }
-  inline void l() { sem_wait(&main_sem); }
-  inline void r() { sem_post(&main_sem); }
-
-  static inline _MACRO_SELF_ *NEW(int const num) {
-    return new _MACRO_SELF_(/*int const num =*/num);
-  }
-
-  static inline void DELETE(_MACRO_SELF_ *in) { delete in; }
-};
-
-extern "C" {
-
-void *unnamed_semaphore_new(int const num) {
-  return static_cast<void *>(_MACRO_SELF_::NEW(/*int const num =*/num));
-}
-
-void unnamed_semaphore_delete(void *in) {
-  delete static_cast<_MACRO_SELF_ *>(in);
-}
-
-void unnamed_semaphore_l(void *in) { static_cast<_MACRO_SELF_ *>(in)->l(); }
-
-void unnamed_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
-}
-
 #undef _MACRO_SELF_
 
 #define _MACRO_SELF_ named_semaphore

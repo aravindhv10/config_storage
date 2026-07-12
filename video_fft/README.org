@@ -92,12 +92,9 @@ video.len() in:
   [dependencies]
 #+end_src
 
+***** Enabled
 
-***** Tonic stuff
-cargo info prost
-cargo info tonic-prost
-cargo info tonic-reflection
-cargo info tonic
+****** Tonic stuff
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   tonic = { version = "0.14", features = ["zstd"] }
   tonic-prost = "0.14"
@@ -105,82 +102,58 @@ cargo info tonic
   prost = "0.14"
 #+end_src
 
-***** Message channels
-cargo info flume
-cargo info oneshot
+****** Message channels
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   oneshot = { version = "0.2", features = ["async", "std"] }
   flume = "0.12"
+  crossfire = { version = "3", features = ["tokio"] }
 #+end_src
 
-***** Hashing
-cargo info blake3
-cargo info gxhash
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
-  gxhash = "3"
-#+end_src
-
-***** Async
-cargo info futures
-cargo info tokio
+****** Async
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   tokio = { version = "1", features = ["full"] }
   futures = "0.3"
 #+end_src
 
-***** COMMENT Logging
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  log = "0.4"
-#+end_src
-
-***** Tracing
+****** Tracing
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   tracing-subscriber = { version = "0.3", features = ["env-filter"] }
   tracing = { version = "0.1", features = ["async-await"] }
 #+end_src
 
-***** Parallel loops and file crawling
+****** Parallel loops and file crawling
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   rayon = "1"
   jwalk = "0.8"
 #+end_src
 
-***** Memory mapped io and key value db
+****** Memory mapped io and key value db
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  fjall = { version = "3.1.5", features = ["lz4", "default"] }
+  leapfrog = { version = "0.3", features = ["serde", "stable_alloc"] }
   memmap2 = "0.9"
   redb = "4"
 #+end_src
 
-***** Serialization
+****** Hashing
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  blake3 = { version = "1", features = ["mmap", "rayon", "serde"] }
+#+end_src
+
+****** Serialization
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   serde = { version = "1", features = ["derive"] }
   rkyv = "0.8"
 #+end_src
 
-***** All
-cargo info anyhow
-cargo info jwalk
-cargo info memmap2
-cargo info mimalloc
-cargo info rayon
-cargo info serde
+****** Misc
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   anyhow = "1"
   c32 = { version = "0.6", features = ["alloc"] }
   clap = { version = "4.6.1", features = ["cargo", "derive", "env", "string"] }
   mimalloc = "0.1"
   rustix = { version = "1.1.4", features = ["all-apis", "linux_latest"] }
-  surrealkv = "0"
   which = { version = "8.0.4", features = ["regex", "tracing"] }
-#+end_src
-
-***** COMMENT Disabled
-#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
-  chrono = "0.4.45"
-  copyless = "0.1.5"
-  log = { version = "0.4.29", features = ["std"] }
-  bytemuck = { version = "1.25.0", features = ["derive"] }
 #+end_src
 
 ***** Torch-rs
@@ -198,6 +171,34 @@ cargo info serde
 ****** Version-0.24
 #+begin_src conf :mkdirp yes :tangle ./Cargo.toml
   tch = { version = "0.24.0", features = ["serde_json", "regex", "memmap2", "image"] }
+#+end_src
+
+***** COMMENT Disabled
+
+****** COMMENT Hashing
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  gxhash = "3"
+#+end_src
+
+****** COMMENT Logging
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  log = { version = "0.4", features = ["std"] }
+#+end_src
+
+****** COMMENT DB
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  surrealkv = "0"
+#+end_src
+
+****** COMMENT Time related
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  chrono = "0.4.45"
+#+end_src
+
+****** COMMENT Zero copy and type casting
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  bytemuck = { version = "1.25.0", features = ["derive"] }
+  copyless = "0.1.5"
 #+end_src
 
 * build.rs
@@ -908,59 +909,56 @@ cargo info serde
 
 *** IPC Parts
 
-**** Class to mlock files
+**** Class to mlock files_new
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   #define _MACRO_SELF_ file_mlock
   class _MACRO_SELF_ {
   private:
-    int fd;
     void *addr;
-    struct stat st;
-    char initialized;
+    long length;
 
   public:
-    _MACRO_SELF_(char const *path_file_input)
-        : fd(open(path_file_input, O_RDONLY)), initialized(false) {
+    _MACRO_SELF_(char const *path_file_input) : addr(MAP_FAILED), length(-1) {
+      int fd = open(path_file_input, O_RDONLY);
       if (fd == -1) {
-        printf("Error opening file %s\n", path_file_input);
-        initialized = -1;
+        printf("Failed to open the file %s\n", path_file_input);
       } else {
-        if (fstat(fd, &st)) {
-          printf("fstat failed...\n");
-          initialized = -2;
-          close(fd);
-        } else {
-          addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-          if (addr == MAP_FAILED) {
-            printf("mmap failed...\n");
-            close(fd);
-            initialized = -3;
-          } else {
-            if (mlock(addr, st.st_size) == 0) {
-              printf("File locked in RAM successfully.\n");
-              initialized = 0;
+        struct stat st;
+        if (fstat(fd, &st) == 0) {
+          length = st.st_size;
+          printf("Size of file %s is %ld\n", path_file_input, length);
+          if (length > 0) {
+            addr = mmap(NULL, length, PROT_READ, MAP_SHARED, fd, 0);
+            if (addr == MAP_FAILED) {
+              printf("mmap of file %s failed\n", path_file_input);
+              length = -1;
             } else {
-              printf("mlock failed...\n");
-              munmap(addr, st.st_size);
-              close(fd);
-              addr = MAP_FAILED;
-              initialized = -4;
-              fd = -1;
+              if (mlock(addr, length) == 0) {
+                printf("mlock for %s and length %ld succeeded\n", path_file_input,
+                       length);
+              } else {
+                printf("mlock for %s failed\n", path_file_input);
+                munmap(addr, length);
+                addr = MAP_FAILED;
+                length = -1;
+              }
             }
+          } else {
+            printf("Got invalid file size %ld for file %s\n", length,
+                   path_file_input);
+            length = -1;
           }
+        } else {
+          printf("fstat for %s failed\n", path_file_input);
         }
+        close(fd);
       }
     }
 
     ~_MACRO_SELF_() {
-      if (addr != MAP_FAILED) {
-        munmap(addr, st.st_size);
+      if ((addr != MAP_FAILED) && (length > 0)) {
+        munmap(addr, length);
       }
-      if (fd != -1) {
-        close(fd);
-      }
-      printf("Unlocked file\n");
-      initialized = -5;
     }
   };
   #undef _MACRO_SELF_
@@ -1025,6 +1023,64 @@ cargo info serde
       pub fn unnamed_semaphore_l(in_: *mut ::std::os::raw::c_void);
       pub fn unnamed_semaphore_r(in_: *mut ::std::os::raw::c_void);
   }
+#+end_src
+
+**** Class to mlock files
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #define _MACRO_SELF_ file_mlock_old
+  class _MACRO_SELF_ {
+  private:
+    int fd;
+    void *addr;
+    struct stat st;
+    char initialized;
+
+  public:
+    _MACRO_SELF_(char const *path_file_input)
+        : fd(open(path_file_input, O_RDONLY)), initialized(false) {
+      if (fd == -1) {
+        printf("Error opening file %s\n", path_file_input);
+        initialized = -1;
+      } else {
+        if (fstat(fd, &st)) {
+          printf("fstat failed...\n");
+          initialized = -2;
+          close(fd);
+        } else {
+          addr = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+          if (addr == MAP_FAILED) {
+            printf("mmap failed...\n");
+            close(fd);
+            initialized = -3;
+          } else {
+            if (mlock(addr, st.st_size) == 0) {
+              printf("File locked in RAM successfully.\n");
+              initialized = 0;
+            } else {
+              printf("mlock failed...\n");
+              munmap(addr, st.st_size);
+              close(fd);
+              addr = MAP_FAILED;
+              initialized = -4;
+              fd = -1;
+            }
+          }
+        }
+      }
+    }
+
+    ~_MACRO_SELF_() {
+      if (addr != MAP_FAILED) {
+        munmap(addr, st.st_size);
+      }
+      if (fd != -1) {
+        close(fd);
+      }
+      printf("Unlocked file\n");
+      initialized = -5;
+    }
+  };
+  #undef _MACRO_SELF_
 #+end_src
 
 **** Named semaphor interface
@@ -1901,7 +1957,7 @@ cargo info serde
                       .map(|e| e.path())
                       .map(|e| match hasher::blob_hash::new_from_tmp_file(&e) {
                           Ok(o) => Some((o, e)),
-                          Err(e) => None,
+                          Err(_e) => None,
                       })
                       .flatten()
                       .collect()
@@ -1989,7 +2045,7 @@ cargo info serde
                   None => -128,
                   Some(e) => e,
               },
-              Err(e) => -128,
+              Err(_e) => -128,
           };
 
           if res != 0 {
@@ -2005,7 +2061,7 @@ cargo info serde
               Ok(_) => {
                   drop(path_file_raw_tmp);
               }
-              Err(e) => {
+              Err(_e) => {
                   tokio::fs::remove_file(&path_file_raw_tmp).await?;
                   tracing::error!(
                       "Unable to move temporary file {:?} to actual raw file {:?}",
@@ -2044,7 +2100,7 @@ cargo info serde
           })
           .await??;
 
-          return Ok((mmap));
+          return Ok(mmap );
       }
 
       #[inline(always)]
@@ -2061,7 +2117,7 @@ cargo info serde
           size_x: u16,
           size_y: u16,
       ) -> anyhow::Result<memmap2::Mmap> {
-          let res = self.put_content(key, value).await?;
+          let _res = self.put_content(key, value).await?;
           self.get_raw_tensor(key, fps, size_x, size_y).await
       }
   }
@@ -2071,7 +2127,6 @@ cargo info serde
 #+begin_src rust :mkdirp yes :tangle ./src/videofn.rs
   use crate::hasher;
   use std::io::Read;
-  use std::io::Write;
   use std::os::unix::ffi::OsStrExt;
 
   pub fn get_file_hash(
@@ -2192,7 +2247,6 @@ cargo info serde
 #+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
   use crate::filestore;
   use crate::hasher;
-  use crate::videofn;
 
   pub struct video_slicer_mapped {
       fps: f32,
@@ -2221,7 +2275,7 @@ cargo info serde
           let size_t: u16 =
               (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
-          let dist_c: i32 = 1;
+          let _dist_c: i32 = 1;
 
           let dist_c: usize = 1;
           let dist_x: usize = dist_c * (size_c as usize);
@@ -2821,7 +2875,6 @@ cargo info serde
 * video fft struct implementation
 #+begin_src rust :mkdirp yes :tangle ./src/videofft.rs
   use crate::export;
-  use anyhow::Context;
   use rayon::prelude::*;
   use std::io::Write;
   use tch::IndexOp;
@@ -2830,19 +2883,19 @@ cargo info serde
 
   #[inline(always)]
   pub fn get_num_windows(total_video_length: u64) -> u8 {
-      const ideal_length: u16 = 160 as u16;
+      const IDEAL_LENGTH: u16 = 160 as u16;
 
-      const min_length: u16 = (ideal_length * 3) >> 2;
+      const MIN_LENGTH: u16 = (IDEAL_LENGTH * 3) >> 2;
 
-      if total_video_length < (min_length as u64) {
+      if total_video_length < (MIN_LENGTH as u64) {
           return 0 as u8;
-      } else if total_video_length <= (ideal_length as u64) {
+      } else if total_video_length <= (IDEAL_LENGTH as u64) {
           return 1 as u8;
       } else {
-          const stride: u16 = ideal_length;
+          const STRIDE: u16 = IDEAL_LENGTH;
 
           let float_val =
-              (((total_video_length - (ideal_length as u64)) as f64) / (stride as f64)) as f64;
+              (((total_video_length - (IDEAL_LENGTH as u64)) as f64) / (STRIDE as f64)) as f64;
 
           let floor_val = float_val.floor();
 
@@ -2894,7 +2947,7 @@ cargo info serde
       pub async fn save(&self, filename: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
           let file = tokio::fs::File::create(filename.as_ref()).await?;
           let mut writer = tokio::io::BufWriter::new(file);
-          let size = std::mem::size_of::<fft_video>();
+          const size: usize = std::mem::size_of::<fft_video>();
           let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
           writer.write_all(bytes).await?;
           return Ok(());
@@ -2911,18 +2964,18 @@ cargo info serde
               );
           }
 
-          const expected_size: usize = 6 * 160 * 160 * 60;
+          const EXPECTED_SIZE: usize = 6 * 160 * 160 * 60;
           let actual_size: usize = tensor_fft_input.numel();
 
-          if actual_size != expected_size {
+          if actual_size != EXPECTED_SIZE {
               tracing::error!(
                   "expected size of the tensor {} not matching with reality {} returning...",
-                  expected_size,
+                  EXPECTED_SIZE,
                   actual_size
               );
               anyhow::bail!(
                   "Tensor size mismatch: expected {} elements, found {}",
-                  expected_size,
+                  EXPECTED_SIZE,
                   actual_size
               );
           }
@@ -2933,16 +2986,16 @@ cargo info serde
 
           if true {
               let data: *mut Self = store.as_mut_ptr();
-              const size: [i64; 4] = [6, 160, 160, 60];
-              const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
+              const SIZE: [i64; 4] = [6, 160, 160, 60];
+              const STRIDES: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
               tracing::debug!("Initialized memory, now passing to the tensor");
 
               let mut out_tensor: tch::Tensor = unsafe {
                   tch::Tensor::from_blob(
                       data as *mut u8,
-                      &size,
-                      &strides,
+                      &SIZE,
+                      &STRIDES,
                       tch::Kind::Float,
                       tch::Device::Cpu,
                   )
@@ -3044,7 +3097,7 @@ cargo info serde
               return Err(anyhow::format_err!("Input vector is empty"));
           }
 
-          let pool = rayon::ThreadPoolBuilder::new().num_threads(1).build()?;
+          let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
 
           let length = list_torch_video_tensor.len();
 
@@ -3511,15 +3564,15 @@ cargo info serde
           }
       }
 
-      const nthreads: usize = 16;
-      const nchunks: usize = 1 << 12;
+      const NTHREADS: usize = 16;
+      const NCHUNKS: usize = 1 << 12;
 
       let mut streams = vec![];
-      for i in list_path_file_video.chunks(nchunks) {
+      for i in list_path_file_video.chunks(NCHUNKS) {
           streams.push(eval_actual_mean(i));
       }
 
-      let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
+      let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
 
       let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
 
@@ -3562,18 +3615,18 @@ cargo info serde
           }
       }
 
-      const nthreads: usize = 16;
-      const nchunks: usize = 1 << 12;
+      const NTHREADS: usize = 16;
+      const NCHUNKS: usize = 1 << 12;
 
       let mean_data = tokio::fs::read(path_file_bin64_mean).await?;
       let mean = unsafe { &*(mean_data.as_ptr() as *const fft_video_64) };
 
       let mut streams = vec![];
-      for i in list_path_file_video.chunks(nchunks) {
+      for i in list_path_file_video.chunks(NCHUNKS) {
           streams.push(eval_actual_sigma(i, mean));
       }
 
-      let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
+      let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
 
       let path_file_sigma_output = target_dir.to_string() + "_sigma.64bin";
 
@@ -3600,7 +3653,7 @@ cargo info serde
   pub async fn eval_mean_sigma_slave(path_dir_base: &str) -> anyhow::Result<()> {
       let path_file_64bin_mean = eval_mean(path_dir_base).await?;
 
-      let path_file_64bin_sigma = eval_sigma(
+      let _path_file_64bin_sigma = eval_sigma(
           /* target_dir: &str = */ path_dir_base,
           /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
       )
@@ -3615,9 +3668,9 @@ cargo info serde
           .enable_all()
           .build()?;
 
-      rt.block_on(async {
-          tokio::join!(eval_mean_sigma_slave(path_dir_base));
-      });
+      let res = rt.block_on(async { tokio::join!(eval_mean_sigma_slave(path_dir_base)) });
+
+      res.0?;
 
       Ok(())
   }
@@ -3632,7 +3685,7 @@ cargo info serde
           path_file_bin64_mu: &str,
           path_file_bin64_sigma: &str,
       ) -> anyhow::Result<std::boxed::Box<Self>> {
-          const size: usize = std::mem::size_of::<fft_video_64>();
+          const SIZE: usize = std::mem::size_of::<fft_video_64>();
 
           let mut ret = std::boxed::Box::<Self>::new_uninit();
 
@@ -3642,14 +3695,14 @@ cargo info serde
               {
                   let mut file = std::fs::File::open(path_file_bin64_mu)?;
                   let ptr = ((&mut base_ref.mu) as *mut fft_video_64) as *mut u8;
-                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, SIZE) };
                   file.read_exact(buffer)?;
               }
 
               {
                   let mut file = std::fs::File::open(path_file_bin64_sigma)?;
                   let ptr = ((&mut base_ref.sigma) as *mut fft_video_64) as *mut u8;
-                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, SIZE) };
                   file.read_exact(buffer)?;
               }
           }
@@ -3835,7 +3888,7 @@ cargo info serde
 
   impl infer_slave {
       pub fn new(batch_size: u8) -> Self {
-          tracing::warn!("Constructing the image infer_slave");
+          tracing::info!("Constructing the image infer_slave");
           Self {
               slave: unsafe { export::new_infer_slave_image(batch_size) },
               batch_size: batch_size,
@@ -3846,7 +3899,10 @@ cargo info serde
           let size: Vec<i64> = vals.size();
 
           if ((size[0] as usize) % (self.batch_size as usize)) != 0 {
-              tracing::error!("The input vector length should be a multiple of batch size {}", self.batch_size);
+              tracing::error!(
+                  "The input vector length should be a multiple of batch size {}",
+                  self.batch_size
+              );
               return Err(anyhow::format_err!(
                   "The input vector length should be a multiple of batch size"
               ));
@@ -3864,13 +3920,13 @@ cargo info serde
               tracing::debug!("getting the range {} {}", begin_t, end_t);
 
               let current_batch_tensor = {
-                  const sy: i64 = 720;
-                  const sx: i64 = 1280;
-                  const sc: i64 = 3;
-                  const d: i64 = (sx - sy) >> 1;
-                  const begin_x: i64 = d;
-                  const end_x: i64 = begin_x + sy;
-                  let cropped_tensor = vals.i((begin_t..end_t, .., begin_x..end_x, ..));
+                  const SY: i64 = 720;
+                  const SX: i64 = 1280;
+                  const SC: i64 = 3;
+                  const D: i64 = (SX - SY) >> 1;
+                  const BEGIN_X: i64 = D;
+                  const END_X: i64 = BEGIN_X + SY;
+                  let cropped_tensor = vals.i((begin_t..end_t, .., BEGIN_X..END_X, ..));
                   let nchw_tensor = cropped_tensor.permute(&[0, 3, 1, 2]);
 
                   let interpolated_nchw =
@@ -3913,6 +3969,10 @@ cargo info serde
   pub fn minor_version() -> u32 {
       5
   }
+
+  pub fn patch_version() -> u32 {
+      2
+  }
 #+end_src
 
 * Main rust code
@@ -3930,10 +3990,8 @@ cargo info serde
   mod videofn;
   mod videoview;
 
-  use anyhow::{Context, Result};
   use futures::StreamExt;
   use rayon::prelude::*;
-  use tch::IndexOp;
 
   const USE_GPU: bool = true;
   const IMAGE_INFERENCE_BATCH_SIZE: i64 = 16;
@@ -4024,7 +4082,7 @@ cargo info serde
           })
           .await??;
 
-          let tmp = futures::stream::iter(tensors.iter())
+          let _tmp = futures::stream::iter(tensors.iter())
               .enumerate()
               .map(|(i, v)| {
                   let path_output =
@@ -4039,7 +4097,7 @@ cargo info serde
               .enumerate()
               .for_each(|(i, e)| {
                   match e {
-                      Ok(o) => {}
+                      Ok(_o) => {}
                       Err(e) => {
                           tracing::error!("Failed to write out for index {} due to error {}", i, e);
                       }
@@ -4228,6 +4286,7 @@ cargo info serde
   message Version {
       uint32 major = 1;
       uint32 minor = 2;
+      uint32 patch = 3;
   }
 
   message Grpcvideoprediction {
@@ -4265,7 +4324,85 @@ struct inference_loop {
   flume_receive_channel <message_input>
 }
 
+* Key - Value database
+#+begin_src rust :mkdirp yes :tangle ./src/keyvaluedb.rs
+  use prost::Message;
+
+  pub struct key_value_db {
+      diskdb: fjall::Database,
+      items_Grpcvideopredictionreply: fjall::Keyspace,
+  }
+
+  impl key_value_db {
+      pub fn new(path: impl AsRef<std::path::Path>) -> anyhow::Result<std::sync::Arc<Self>> {
+          let diskdb: fjall::Database = fjall::Database::builder(path.as_ref()).open()?;
+
+          let items_Grpcvideopredictionreply = diskdb.keyspace(
+              "Grpcvideopredictionreply",
+              fjall::KeyspaceCreateOptions::default,
+          )?;
+
+          let ret = std::sync::Arc::new(Self {
+              diskdb: diskdb,
+              items_Grpcvideopredictionreply: items_Grpcvideopredictionreply,
+          });
+
+          Ok(ret)
+      }
+
+      pub fn put_Grpcvideopredictionreply(
+          &self,
+          key: &crate::hasher::blob_hash,
+          value: &crate::Grpcvideopredictionreply,
+      ) -> anyhow::Result<()> {
+          let mut buf: Vec<u8> = Vec::with_capacity(value.encoded_len());
+
+          value.encode(&mut buf)?;
+
+          self.items_Grpcvideopredictionreply
+              .insert(key.get_hash(), buf)?;
+
+          Ok(())
+      }
+
+      pub fn get_Grpcvideopredictionreply(
+          &self,
+          key: &crate::hasher::blob_hash,
+      ) -> anyhow::Result<crate::Grpcvideopredictionreply> {
+          let bytes = match self.items_Grpcvideopredictionreply.get(key.get_hash())? {
+              Some(o) => o,
+              None => {
+                  return Err(anyhow::format_err!("Key not found in db"));
+              }
+          };
+
+          let res = crate::Grpcvideopredictionreply::decode(bytes.as_slice())?;
+
+          match res.vidver {
+              Some(o) => {
+                  if (crate::version::major_version() == o.major)
+                      && (crate::version::minor_version() == o.minor) 
+                  {
+                      return Ok(res);
+                  } else {
+                      return Err(anyhow::format_err!(
+                          "Cached version mismatch with running model"
+                      ));
+                  }
+              }
+              None => {
+                  return Err(anyhow::format_err!(
+                      "Cached version mismatch with running model"
+                  ));
+              }
+          }
+      }
+  }
+#+end_src
+
 * Implement the inference loop part
+
+** NEW
 #+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannel.rs
   use crate::filestore;
   use crate::hasher;
@@ -4273,7 +4410,504 @@ struct inference_loop {
   use crate::videofft;
   use crate::videofftstats;
   use crate::videoview;
-  use tch::IndexOp;
+
+  type message_output = inferencerelated::infer_results;
+  type message_output_sender = crossfire::oneshot::TxOneshot<message_output>;
+  type message_output_receiver = crossfire::oneshot::RxOneshot<message_output>;
+
+  fn get_message_output_pair() -> (message_output_sender, message_output_receiver) {
+      crossfire::oneshot::oneshot::<message_output>()
+  }
+
+  struct message_input {
+      tensor: Vec<videofft::fft_video>,
+      oneshot_send_channel: Vec<message_output_sender>,
+  }
+  type message_input_receiver = crossfire::AsyncRx<crossfire::mpsc::Array<message_input>>;
+  type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+
+  fn get_message_input_pair() -> (message_input_sender, message_input_receiver) {
+      crossfire::mpsc::bounded_async::<message_input>(32)
+  }
+
+  fn efficient_infer(
+      vals: &mut Vec<videofft::fft_video>,
+  ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+      match vals.len() {
+          0 => {
+              return Err(anyhow::format_err!("Input vector is empty..."));
+          }
+          1 => {
+              tracing::info!("Inferring for length 1");
+              let mut infer_slave = inferencerelated::infer_slave::new(1);
+              let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+              return Ok(ret);
+          }
+          2 => {
+              tracing::trace!("Inferring for length 2");
+              let mut infer_slave = inferencerelated::infer_slave::new(2);
+              let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+              return Ok(ret);
+          }
+          3 | 6 | 9 | 15 | 18 | 21 | 27 | 30 => {
+              tracing::trace!("Inferring for length 3");
+              let mut infer_slave = inferencerelated::infer_slave::new(3);
+              let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+              return Ok(ret);
+          }
+          4 | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 40 => {
+              tracing::trace!("Inferring for length 4");
+              let mut infer_slave = inferencerelated::infer_slave::new(4);
+              let ret = infer_slave.infer(/*vals: &mut Vec<videofft::fft_video> =*/ vals)?;
+              return Ok(ret);
+          }
+          5 => {
+              tracing::trace!("Inferring for length 5");
+
+              let split_off_point = 4 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          7 => {
+              tracing::trace!("Inferring for length 7");
+
+              let split_off_point = 4 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          10 => {
+              tracing::trace!("Inferring for length 10");
+
+              let split_off_point = 8 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          11 => {
+              tracing::trace!("Inferring for length 11");
+
+              let split_off_point = 8 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          13 => {
+              tracing::trace!("Inferring for length 13");
+
+              let split_off_point = 12 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          14 => {
+              tracing::trace!("Inferring for length 14");
+
+              let split_off_point = 12 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          17 => {
+              tracing::trace!("Inferring for length 17");
+
+              let split_off_point = 16 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          19 => {
+              tracing::trace!("Inferring for length 19");
+
+              let split_off_point = 16 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          22 => {
+              tracing::trace!("Inferring for length 19");
+
+              let split_off_point = 20 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          23 => {
+              tracing::trace!("Inferring for length 23");
+
+              let split_off_point = 20 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          25 => {
+              tracing::trace!("Inferring for length 25");
+
+              let split_off_point = 24 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          26 => {
+              tracing::trace!("Inferring for length 26");
+
+              let split_off_point = 24 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          29 => {
+              tracing::trace!("Inferring for length 29");
+
+              let split_off_point = 28 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+          _ => {
+              tracing::trace!("Inferring for length 29");
+
+              let split_off_point = 30 as usize;
+
+              let mut vals_2 = vals.split_off(split_off_point);
+
+              let mut ret = efficient_infer(vals)?;
+
+              let mut ret_2 = efficient_infer(&mut vals_2)?;
+
+              ret.append(&mut ret_2);
+
+              return Ok(ret);
+          }
+      }
+  }
+
+  pub async fn inference_loop(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let normalizer = videofftstats::fft_video_normalizer::new(
+          /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+          /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+      )?;
+
+      let normalizer: std::sync::Arc<videofftstats::fft_video_normalizer> =
+          std::sync::Arc::from(normalizer);
+
+      loop {
+          let mut tensors = Vec::<videofft::fft_video>::new();
+          let mut senders = Vec::<message_output_sender>::new();
+          let mut do_loop = true;
+          let mut do_infer = false;
+
+          if true {
+              let input_msg = receiver.recv().await;
+
+              match input_msg {
+                  Ok(o) => {
+                      tensors.extend_from_slice(o.tensor.as_slice());
+
+                      for i in o.oneshot_send_channel.into_iter() {
+                          senders.push(i);
+                      }
+
+                      do_loop = tensors.len() <= 20;
+                      do_infer = true;
+                  }
+                  Err(e) => {
+                      tracing::error!(
+                          "Failed to send inference request to the serving thread due to {}",
+                          e
+                      );
+                      do_loop = false;
+                      do_infer = false;
+                  }
+              }
+          }
+
+          while do_loop {
+              let message_input = receiver
+                  .recv_timeout(std::time::Duration::from_millis(200))
+                  .await;
+
+              match message_input {
+                  Ok(o) => {
+                      tensors.extend_from_slice(o.tensor.as_slice());
+
+                      for i in o.oneshot_send_channel.into_iter() {
+                          senders.push(i);
+                      }
+
+                      do_loop = tensors.len() <= 20;
+                      do_infer = true;
+                  }
+                  Err(e) => {
+                      tracing::info!(
+                          "Did not receive another batch before the timeout {}, proceeding to infer",
+                          e
+                      );
+                      do_loop = false;
+                  }
+              }
+          }
+
+          if do_infer {
+              let tmp_norm = normalizer.clone();
+
+              let ret = tokio::task::spawn_blocking(move || {
+                  tmp_norm.normalize_vec(&mut tensors);
+                  efficient_infer(/*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors)
+              })
+              .await;
+
+              match ret {
+                  Ok(o) => {
+                      match o {
+                          Ok(m) => {
+                              for (i, j) in m.into_iter().zip(senders.into_iter()) {
+                                  j.send(i);
+                              }
+                          }
+                          Err(e) => {
+                              drop(senders);
+                              tracing::error!("Inference failed due to {}", e);
+                          }
+                      };
+                  }
+                  Err(e) => {
+                      drop(senders);
+                      tracing::error!(
+                          "The blocking thread to run RD inference failed due to {}",
+                          e
+                      );
+                  }
+              };
+          }
+      }
+  }
+
+  pub struct client {
+      sender: message_input_sender,
+      handle: Option<tokio::task::JoinHandle<anyhow::Result<()>>>,
+      file_store: filestore::file_store,
+  }
+
+  impl Drop for client {
+      fn drop(&mut self) {
+          match self.handle.take() {
+              Some(o) => {
+                  o.abort();
+              }
+              None => {}
+          }
+      }
+  }
+
+  impl client {
+      pub async fn new() -> anyhow::Result<std::sync::Arc<Self>> {
+          let (sender, receiver) = get_message_input_pair();
+          let tmp = inference_loop(receiver);
+          let handle = tokio::task::spawn(tmp);
+
+          return Ok(std::sync::Arc::new(Self {
+              sender: sender,
+              handle: Some(handle),
+              file_store: filestore::file_store::new().await?,
+          }));
+      }
+
+      pub async fn do_infer_on_fft_tensor(
+          &self,
+          tensors_input: Vec<videofft::fft_video>,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          let mut oneshot_receive_channel =
+              Vec::<message_output_receiver>::with_capacity(tensors_input.len());
+
+          let msg = {
+              let mut oneshot_send_channel =
+                  Vec::<message_output_sender>::with_capacity(tensors_input.len());
+
+              for _i in 0..tensors_input.len() {
+                  let (sender, receiver) = get_message_output_pair();
+                  oneshot_send_channel.push(sender);
+                  oneshot_receive_channel.push(receiver);
+              }
+
+              message_input {
+                  tensor: tensors_input,
+                  oneshot_send_channel: oneshot_send_channel,
+              }
+          };
+
+          match self.sender.send(msg).await {
+              Ok(_) => {
+                  tracing::info!("Sent inference request to the serving thread");
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Failed to send inference request to the serving thread due to {}",
+                      e
+                  );
+                  return Err(anyhow::format_err!(
+                      "Failed to send inference request to the serving thread"
+                  ));
+              }
+          };
+
+          let mut ret =
+              Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
+
+          for i in oneshot_receive_channel.into_iter() {
+              let tmp = i.recv_async().await;
+              match tmp {
+                  Ok(o) => {
+                      ret.push(o);
+                  }
+                  Err(e) => {
+                      tracing::error!("inference failed on one of the video clips due to {}", e);
+                      ret.push(inferencerelated::infer_results::default());
+                  }
+              };
+          }
+
+          return Ok(ret);
+      }
+
+      pub async fn do_infer_on_video_file(
+          &self,
+          key: &hasher::blob_hash,
+      ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
+          let list_video_fft_tensor = {
+              let slicer = {
+                  let mmap = self
+                      .file_store
+                      .get_raw_tensor(
+                          &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280,
+                          /*size_y =*/ 720,
+                      )
+                      .await?;
+
+                  videoview::video_slicer_mapped::new(
+                      mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+                      /*size_c =*/ 3,
+                  )
+              }?;
+
+              let video_tensor = slicer.get_video_tensor()?;
+
+              let tmp = tokio::task::spawn_blocking(move || {
+                  videofft::fft_video::windowed_from_torch_video_tensor(
+                      /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+                      /*use_gpu: bool =*/ true,
+                  )
+              })
+              .await??;
+              tmp
+          };
+
+          let tmp = self.do_infer_on_fft_tensor(list_video_fft_tensor).await;
+
+          tmp
+      }
+  }
+#+end_src
+
+** COMMENT OLD
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannel.rs
+  use crate::filestore;
+  use crate::hasher;
+  use crate::inferencerelated;
+  use crate::videofft;
+  use crate::videofftstats;
+  use crate::videoview;
 
   struct message_input {
       tensor: Vec<videofft::fft_video>,
@@ -4327,7 +4961,7 @@ struct inference_loop {
                       tensors_input.len(),
                   );
 
-              for i in 0..tensors_input.len() {
+              for _i in 0..tensors_input.len() {
                   let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
                   oneshot_send_channel.push(sender);
                   oneshot_receive_channel.push(receiver);
@@ -4339,7 +4973,17 @@ struct inference_loop {
               }
           };
 
-          self.sender.send(msg);
+          match self.sender.send(msg) {
+              Ok(_) => {
+                  tracing::info!("Sent inference request to the serving thread");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send inference request to the serving thread");
+                  return Err(anyhow::format_err!(
+                      "Failed to send inference request to the serving thread"
+                  ));
+              }
+          };
 
           let mut ret =
               Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
@@ -4370,7 +5014,7 @@ struct inference_loop {
                       tensors_input.len(),
                   );
 
-              for i in 0..tensors_input.len() {
+              for _i in 0..tensors_input.len() {
                   let (sender, receiver) = oneshot::channel::<inferencerelated::infer_results>();
                   oneshot_send_channel.push(sender);
                   oneshot_receive_channel.push(receiver);
@@ -4382,7 +5026,17 @@ struct inference_loop {
               }
           };
 
-          self.sender.send(msg);
+          match self.sender.send(msg) {
+              Ok(_) => {
+                  tracing::info!("Successfully sent inference request to the serving thread");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send inference request to the serving thread");
+                  return Err(anyhow::format_err!(
+                      "Failed to send inference request to the serving thread"
+                  ));
+              }
+          };
 
           let mut ret =
               Vec::<inferencerelated::infer_results>::with_capacity(oneshot_receive_channel.len());
@@ -4398,7 +5052,7 @@ struct inference_loop {
           &self,
           key: &hasher::blob_hash,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
-          let mut list_video_fft_tensor = {
+          let list_video_fft_tensor = {
               let slicer = {
                   let mmap = self
                       .file_store
@@ -4707,7 +5361,7 @@ struct inference_loop {
                           do_loop = tensors.len() <= 20;
                           do_infer = true;
                       }
-                      Err(e) => {
+                      Err(_e) => {
                           do_loop = false;
                           do_infer = false;
                       }
@@ -4730,7 +5384,7 @@ struct inference_loop {
                           do_loop = tensors.len() <= 20;
                           do_infer = true;
                       }
-                      Err(e) => {
+                      Err(_e) => {
                           do_loop = false;
                       }
                   }
@@ -4741,12 +5395,17 @@ struct inference_loop {
                       /*vals: &mut Vec<videofft::fft_video> =*/ &mut tensors,
                   )?;
                   for (i, j) in ret.into_iter().zip(senders.into_iter()) {
-                      j.send(i);
+                      match j.send(i) {
+                          Ok(_) => {
+                              tracing::info!("sending inference results back");
+                          }
+                          Err(_) => {
+                              tracing::info!("Failed to send back inference results");
+                          }
+                      };
                   }
               }
           }
-
-          Ok(())
       }
   }
 
@@ -4771,7 +5430,7 @@ struct inference_loop {
 
       pub fn do_infer_on_fft_tensor(
           &self,
-          mut tensors_input: Vec<videofft::fft_video>,
+          tensors_input: Vec<videofft::fft_video>,
       ) -> anyhow::Result<Vec<inferencerelated::infer_results>> {
           self.slave_sender.do_infer_on_fft_tensor(tensors_input)
       }
@@ -4786,6 +5445,190 @@ struct inference_loop {
 #+end_src
 
 * Implement the inference loop part
+
+** NEW
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelimage.rs
+  use crate::inferencerelatedimage;
+
+  pub const GOOD_BATCH_SIZE: u8 = 8;
+
+  type message_output = Vec<inferencerelatedimage::infer_results>;
+  type message_output_sender = crossfire::oneshot::TxOneshot<message_output>;
+  type message_output_receiver = crossfire::oneshot::RxOneshot<message_output>;
+
+  fn get_message_output_pair() -> (message_output_sender, message_output_receiver) {
+      crossfire::oneshot::oneshot::<message_output>()
+      // tokio::sync::oneshot::channel::<message_output>()
+  }
+
+  struct message_input {
+      tensor: tch::Tensor,
+      oneshot_send_channel: message_output_sender,
+  }
+
+  type message_input_receiver = crossfire::AsyncRx<crossfire::mpsc::Array<message_input>>;
+  // tokio::sync::mpsc::Receiver<message_input>
+  type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+  // tokio::sync::mpsc::Sender<message_input>
+
+  fn get_message_input_pair() -> (message_input_sender, message_input_receiver) {
+      // let (sender, receiver) =
+      crossfire::mpsc::bounded_async::<message_input>(32)
+      // tokio::sync::mpsc::channel::<message_input>(32)
+  }
+
+  fn efficient_infer(vals: Vec<tch::Tensor>, batch_size: u8) -> Vec<Result<message_output, String>> {
+      let mut ret: Vec<Result<message_output, String>> = Vec::new();
+      let mut infer_slave = inferencerelatedimage::infer_slave::new(batch_size);
+      for i in vals.into_iter() {
+          let tmp = infer_slave.infer(&i);
+          match tmp {
+              Ok(o) => {
+                  ret.push(Ok(o));
+              }
+              Err(e) => {
+                  ret.push(Err(format!("Inference failed {}", e)));
+              }
+          }
+      }
+      return ret;
+  }
+
+  async fn inference_loop(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let max_delay = std::time::Duration::from_millis(200);
+      loop {
+          let mut tensors = Vec::<tch::Tensor>::new();
+          let mut senders = Vec::<message_output_sender>::new();
+          let mut do_loop = true;
+          let mut do_infer = false;
+
+          if true {
+              let input_msg = receiver.recv().await;
+
+              match input_msg {
+                  Ok(o) => {
+                      tensors.push(o.tensor);
+                      senders.push(o.oneshot_send_channel);
+                      do_loop = tensors.len() <= 8;
+                      do_infer = true;
+                  }
+
+                  Err(e) => {
+                      tracing::error!(
+                          "Failed to send inference request to the serving thread due to {}",
+                          e
+                      );
+                      do_loop = false;
+                      do_infer = false;
+                  }
+              }
+          }
+
+          let start = tokio::time::Instant::now();
+          while do_loop {
+              let message_input = receiver
+                  .recv_timeout(std::time::Duration::from_millis(200))
+                  .await;
+
+              match message_input {
+                  Ok(o) => {
+                      tensors.push(o.tensor);
+                      senders.push(o.oneshot_send_channel);
+                      do_loop = tensors.len() <= 8;
+                      do_infer = true;
+                  }
+                  Err(_e) => {
+                      do_loop = start.elapsed() < max_delay;
+                  }
+              }
+          }
+
+          if do_infer {
+              let res =
+                  tokio::task::spawn_blocking(move || efficient_infer(tensors, GOOD_BATCH_SIZE))
+                      .await?;
+
+              for (x, y) in res.into_iter().zip(senders.into_iter()) {
+                  match x {
+                      Ok(o) => {
+                          tracing::info!("Inference succeeded, sending results");
+                          y.send(o);
+                          // match y.send(o) {
+                          //     Ok(_) => {
+                          //         tracing::info!("Sent inference results.");
+                          //     }
+                          //     Err(_) => {
+                          //         tracing::error!("Failed to send inference results.");
+                          //     }
+                          // };
+                      }
+                      Err(e) => {
+                          tracing::error!("Image inference for batch failed due to {}", e);
+                          drop(y);
+                      }
+                  }
+              }
+          }
+      }
+  }
+
+  pub struct client {
+      sender: message_input_sender,
+      handle: Option<tokio::task::JoinHandle<anyhow::Result<()>>>,
+  }
+
+  impl Drop for client {
+      fn drop(&mut self) {
+          match self.handle.take() {
+              Some(o) => {
+                  o.abort();
+              }
+              None => {}
+          }
+      }
+  }
+
+  impl client {
+      pub async fn new() -> std::sync::Arc<Self> {
+          let (sender, receiver) = get_message_input_pair();
+          let tmp = inference_loop(receiver);
+          let handle = tokio::task::spawn(tmp);
+
+          return std::sync::Arc::new(Self {
+              sender: sender,
+              handle: Some(handle),
+          });
+      }
+
+      pub async fn do_infer_on_image_batch_tensor_async(
+          &self,
+          tensors_input: tch::Tensor,
+      ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
+          let (sender, receiver) = get_message_output_pair();
+
+          let msg = message_input {
+              tensor: tensors_input,
+              oneshot_send_channel: sender,
+          };
+
+          match self.sender.send(msg).await {
+              Ok(_) => {
+                  tracing::info!("Successfullt sent request for inference");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send request for inference");
+                  return Err(anyhow::format_err!("Failed to send request for inference"));
+              }
+          };
+
+          let ret = receiver.recv_async().await?;
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
+** COMMENT OLD
 #+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelimage.rs
   use crate::inferencerelatedimage;
 
@@ -4816,7 +5659,7 @@ struct inference_loop {
 
       fn do_infer_on_image_batch_tensor(
           &self,
-          mut tensors_input: tch::Tensor,
+          tensors_input: tch::Tensor,
       ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
           let (sender, receiver) = oneshot::channel::<Vec<inferencerelatedimage::infer_results>>();
 
@@ -4825,7 +5668,15 @@ struct inference_loop {
               oneshot_send_channel: sender,
           };
 
-          self.sender.send(msg);
+          match self.sender.send(msg) {
+              Ok(_) => {
+                  tracing::info!("Successfullt sent request for inference");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send request for inference");
+                  return Err(anyhow::format_err!("Failed to send request for inference"));
+              }
+          };
 
           let ret = receiver.recv()?;
 
@@ -4834,7 +5685,7 @@ struct inference_loop {
 
       async fn do_infer_on_image_batch_tensor_async(
           &self,
-          mut tensors_input: tch::Tensor,
+          tensors_input: tch::Tensor,
       ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
           let (sender, receiver) = oneshot::channel::<Vec<inferencerelatedimage::infer_results>>();
 
@@ -4843,7 +5694,15 @@ struct inference_loop {
               oneshot_send_channel: sender,
           };
 
-          self.sender.send(msg);
+          match self.sender.send(msg) {
+              Ok(_) => {
+                  tracing::info!("Successfullt sent request for inference");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send request for inference");
+                  return Err(anyhow::format_err!("Failed to send request for inference"));
+              }
+          };
 
           let ret = receiver.await?;
 
@@ -4861,7 +5720,7 @@ struct inference_loop {
       }
 
       fn efficient_infer(
-          mut vals: Vec<tch::Tensor>,
+          vals: Vec<tch::Tensor>,
           batch_size: u8,
       ) -> Vec<Result<Vec<inferencerelatedimage::infer_results>, String>> {
           let mut ret: Vec<Result<Vec<inferencerelatedimage::infer_results>, String>> = Vec::new();
@@ -4898,7 +5757,7 @@ struct inference_loop {
                           do_loop = tensors.len() <= 8;
                           do_infer = true;
                       }
-                      Err(e) => {
+                      Err(_e) => {
                           do_loop = false;
                           do_infer = false;
                       }
@@ -4917,7 +5776,7 @@ struct inference_loop {
                           do_loop = tensors.len() <= 8;
                           do_infer = true;
                       }
-                      Err(e) => {
+                      Err(_e) => {
                           do_loop = false;
                       }
                   }
@@ -4929,7 +5788,14 @@ struct inference_loop {
                       match x {
                           Ok(o) => {
                               tracing::info!("Inference succeeded, sending results");
-                              y.send(o);
+                              match y.send(o) {
+                                  Ok(_) => {
+                                      tracing::info!("Sent inference results.");
+                                  }
+                                  Err(_) => {
+                                      tracing::error!("Failed to send inference results.");
+                                  }
+                              };
                           }
                           Err(e) => {
                               tracing::error!("Image inference for batch failed due to {}", e);
@@ -4939,8 +5805,6 @@ struct inference_loop {
                   }
               }
           }
-
-          Ok(())
       }
   }
 
@@ -4965,7 +5829,7 @@ struct inference_loop {
 
       pub fn do_infer_on_image_tensor(
           &self,
-          mut tensors_input: tch::Tensor,
+          tensors_input: tch::Tensor,
       ) -> anyhow::Result<Vec<inferencerelatedimage::infer_results>> {
           self.slave_sender
               .do_infer_on_image_batch_tensor(tensors_input)
@@ -4987,8 +5851,8 @@ struct inference_loop {
   const NUM_BATCHES_IN_VIDEO: u8 = 4;
 
   pub struct combined_infer {
-      infer_rd: serverinferencechannel::inference_pair,
-      infpairimage: serverinferencechannelimage::inference_pair,
+      infer_rd: std::sync::Arc<serverinferencechannel::client>,
+      infpairimage: std::sync::Arc<serverinferencechannelimage::client>,
       file_store: filestore::file_store,
   }
 
@@ -5004,8 +5868,8 @@ struct inference_loop {
       pub async fn new() -> anyhow::Result<Self> {
           tracing::warn!("Constructing serverinferencechannelboth::combined_infer");
           Ok(Self {
-              infer_rd: serverinferencechannel::inference_pair::new().await?,
-              infpairimage: serverinferencechannelimage::inference_pair::new(),
+              infer_rd: serverinferencechannel::client::new().await?,
+              infpairimage: serverinferencechannelimage::client::new().await,
               file_store: filestore::file_store::new().await?,
           })
       }
@@ -5023,19 +5887,17 @@ struct inference_loop {
                       &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
                   )
                   .await?;
-              videoview::video_slicer_mapped::new(
-                  mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
-                  /*size_c =*/ 3,
-              )
+
+              videoview::video_slicer_mapped::new(mmap, 8 as f32, 1280, 720, 3)
           }?;
 
           let video_tensor = slicer.get_video_tensor()?;
 
           let image_batch_tensor: tch::Tensor = {
-              const end_index: u8 =
-                  (serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO);
-              let image_indices: std::vec::Vec<i64> = (0..end_index)
-                  .map(|x: u8| ((video_tensor.size()[0] - 1) * (x as i64)) / ((end_index - 1) as i64))
+              const END_INDEX: u8 =
+                  serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO;
+              let image_indices: std::vec::Vec<i64> = (0..END_INDEX)
+                  .map(|x: u8| ((video_tensor.size()[0] - 1) * (x as i64)) / ((END_INDEX - 1) as i64))
                   .collect();
 
               let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
@@ -5046,10 +5908,11 @@ struct inference_loop {
 
           let image_infer_results = self
               .infpairimage
-              .do_infer_on_image_tensor(image_batch_tensor)?;
+              .do_infer_on_image_batch_tensor_async(image_batch_tensor)
+              .await?;
           tracing::debug!("Ran image inference.");
 
-          let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+          let list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
               /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
               /*use_gpu: bool =*/ true,
           )?;
@@ -5059,7 +5922,9 @@ struct inference_loop {
 
           let rd_infer_results = self
               .infer_rd
-              .do_infer_on_fft_tensor(list_video_fft_tensor)?;
+              .do_infer_on_fft_tensor(list_video_fft_tensor)
+              .await?;
+
           tracing::debug!("Done video inference.");
 
           return Ok(combined_results {
@@ -5080,6 +5945,7 @@ struct inference_loop {
   mod hasher;
   mod inferencerelated;
   mod inferencerelatedimage;
+  mod keyvaluedb;
   mod mlockffmpeg;
   mod serverinferencechannel;
   mod serverinferencechannelboth;
@@ -5094,12 +5960,8 @@ struct inference_loop {
   use prost::Message;
   use rayon::prelude::*;
 
-  use anyhow::Context;
-  use redb::Database;
-  use redb::Error;
   use redb::ReadableDatabase;
   use redb::TableDefinition;
-  use tch::IndexOp;
 
   use crate::infer::Grpcvideopredictionreply;
 
@@ -5204,7 +6066,7 @@ struct inference_loop {
           Ok(o) => {
               return o.as_secs();
           }
-          Err(e) => {
+          Err(_e) => {
               return 1782492853;
           }
       }
@@ -5213,7 +6075,7 @@ struct inference_loop {
   struct grpc_inferer {
       infpair: std::sync::Arc<serverinferencechannelboth::combined_infer>,
       semaphore: std::sync::Arc<tokio::sync::Semaphore>,
-      cachedb: std::sync::Arc<Option<redb::Database>>,
+      cachedb: Option<std::sync::Arc<keyvaluedb::key_value_db>>,
       filestore: filestore::file_store,
   }
 
@@ -5223,12 +6085,14 @@ struct inference_loop {
               .await
               .expect("Failed to construct filestore within grpc inferer");
 
+          let cachedb = keyvaluedb::key_value_db::new("/root/.cache/infdb.fjall");
+
           let ret = Self {
               infpair: std::sync::Arc::<serverinferencechannelboth::combined_infer>::new(
                   serverinferencechannelboth::combined_infer::new().await?,
               ),
-              semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(10)),
-              cachedb: std::sync::Arc::new(Database::create("/root/.cache/infdb.redb").ok()),
+              semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(16)),
+              cachedb: cachedb.ok(),
               filestore: filestore,
           };
 
@@ -5240,124 +6104,155 @@ struct inference_loop {
 
           tracing::info!("Got video with hash {}", hash.get_hash_string());
 
-          match read_from_db(hash.clone(), self.cachedb.clone()).await {
-              Ok(ret) => {
-                  tracing::warn!(
-                      "Results for {} found in cache, returning cached results.",
-                      hash.get_hash_string()
-                  );
-                  return Ok(());
-              }
-              Err(e) => {
-                  tracing::info!(
-                      "inference results for {} not found. proceeding to run inference.",
-                      hash.get_hash_string()
-                  )
-              }
-          };
-
-          tracing::info!(
-              "number of permits remaining so far {}",
-              self.semaphore.available_permits()
-          );
-
-          let res = {
-              tracing::info!("Acquiring GPU Semaphore for {}", hash.get_hash_string());
-
-              let infpair = self.infpair.clone();
-
-              let path_file_video_output = self.filestore.get_path_video(/*key =*/ &hash);
-
-              let permit = self
-                  .semaphore
-                  .acquire()
-                  .await
-                  .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
-
-              let res = infpair.do_infer_on_video_file(&hash).await;
-
-              res
-          };
-
-          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
-
-          match res {
-              Ok(o) => {
-                  let preds: Vec<infer::Grpcvideoprediction> = o
-                      .results_video
-                      .iter()
-                      .map(|i| infer::Grpcvideoprediction {
-                          pa: i.p_calm,
-                          pb: i.p_contraversial,
-                          pc: i.p_rd,
-                      })
-                      .collect();
-
-                  let avg = o
-                      .results_video
-                      .iter()
-                      .map(|i| i.majority() as f32)
-                      .sum::<f32>()
-                      / (o.results_video.len() as f32);
-
-                  let bed_scaling_factor: f32 =
-                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
-                          / (o.results_image.len() as f32);
-
-                  let imgpreds: Vec<infer::Grpcimgprediction> = o
-                      .results_image
-                      .into_iter()
-                      .map(|i| infer::Grpcimgprediction {
-                          arm: i.ARM as u32,
-                          rail: i.RAIL as u32,
-                          leg: i.LEG as u32,
-                          pos: i.POS as u32,
-                          bed: i.BED as u32,
-                      })
-                      .collect();
-
-                  let vidver = infer::Version {
-                      major: version::major_version(),
-                      minor: version::minor_version(),
-                  };
-
-                  let ret = infer::Grpcvideopredictionreply {
-                      preds: preds,
-                      majority: avg * bed_scaling_factor,
-                      imgpreds: imgpreds,
-                      vidver: Some(vidver),
-                      videohash: hash.get_hash().to_vec(),
-                      timestamp: get_current_time(),
-                  };
-
-                  match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
-                      Ok(_) => {
-                          tracing::info!(
-                              "Added inference results of {} to cache.",
-                              hash.get_hash_string()
-                          );
-                      }
-                      Err(e) => {
-                          tracing::error!("Failed to cache results for {}.", hash.get_hash_string());
-                      }
-                  };
-
-                  tracing::info!("Done inferring for hash {}", hash.get_hash_string());
-                  return Ok(());
-              }
-              Err(e) => {
-                  tracing::error!(
-                      "Inference failed for {} with error {}",
-                      hash.get_hash_string(),
-                      e
-                  );
+          match &self.cachedb {
+              None => {
                   return Err(anyhow::format_err!(
-                      "Inference failed for {} with error {}",
-                      hash.get_hash_string(),
-                      e
+                      "No db connection found, cant write inference results"
                   ));
               }
-          }
+              Some(maindbconnection) => {
+                  let res = {
+                      let tmphash = hash.clone();
+                      let tmpcache = maindbconnection.clone();
+                      tokio::task::spawn_blocking(move || {
+                          tmpcache.get_Grpcvideopredictionreply(tmphash.as_ref())
+                      })
+                      .await?
+                  };
+
+                  match res {
+                      Ok(_i) => {
+                          tracing::warn!(
+                              "inference results for {} already found in cache, not doing anything.",
+                              hash.get_hash_string()
+                          );
+                          return Ok(());
+                      }
+                      Err(_e) => {
+                          tracing::info!(
+                              "correct inference results for {} not found, running inference.",
+                              hash.get_hash_string()
+                          );
+
+                          tracing::info!(
+                              "number of permits remaining so far {}",
+                              self.semaphore.available_permits()
+                          );
+
+                          let res = {
+                              tracing::info!(
+                                  "Acquiring tokio async Semaphore for {}",
+                                  hash.get_hash_string()
+                              );
+
+                              let infpair = self.infpair.clone();
+
+                              let _path_file_video_output =
+                                  self.filestore.get_path_video(/*key =*/ &hash);
+
+                              let _permit = self.semaphore.acquire().await.map_err(|_| {
+                                  tonic::Status::internal("Semaphore closed unexpectedly")
+                              })?;
+
+                              let res = infpair.do_infer_on_video_file(&hash).await;
+
+                              res
+                          };
+
+                          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
+
+                          match res {
+                              Ok(o) => {
+                                  let preds: Vec<infer::Grpcvideoprediction> = o
+                                      .results_video
+                                      .iter()
+                                      .map(|i| infer::Grpcvideoprediction {
+                                          pa: i.p_calm,
+                                          pb: i.p_contraversial,
+                                          pc: i.p_rd,
+                                      })
+                                      .collect();
+
+                                  let avg = o
+                                      .results_video
+                                      .iter()
+                                      .map(|i| i.majority() as f32)
+                                      .sum::<f32>()
+                                      / (o.results_video.len() as f32);
+
+                                  let bed_scaling_factor: f32 =
+                                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                                          / (o.results_image.len() as f32);
+
+                                  let imgpreds: Vec<infer::Grpcimgprediction> = o
+                                      .results_image
+                                      .into_iter()
+                                      .map(|i| infer::Grpcimgprediction {
+                                          arm: i.ARM as u32,
+                                          rail: i.RAIL as u32,
+                                          leg: i.LEG as u32,
+                                          pos: i.POS as u32,
+                                          bed: i.BED as u32,
+                                      })
+                                      .collect();
+
+                                  let vidver = infer::Version {
+                                      major: version::major_version(),
+                                      minor: version::minor_version(),
+                                      patch: version::patch_version(),
+                                  };
+
+                                  let ret = infer::Grpcvideopredictionreply {
+                                      preds: preds,
+                                      majority: avg * bed_scaling_factor,
+                                      imgpreds: imgpreds,
+                                      vidver: Some(vidver),
+                                      videohash: hash.get_hash().to_vec(),
+                                      timestamp: get_current_time(),
+                                  };
+
+                                  match maindbconnection
+                                      .put_Grpcvideopredictionreply(hash.as_ref(), &ret)
+                                  {
+                                      Ok(_o) => {
+                                          tracing::info!(
+                                              "Successfully wrote inference results for {} into cache.",
+                                              hash.get_hash_string()
+                                          );
+                                      }
+                                      Err(e) => {
+                                          tracing::error!(
+                                              "Failed to write inference results for {} to cache due to {}.",
+                                              hash.get_hash_string(),
+                                              e
+                                          );
+                                      }
+                                  };
+
+                                  tracing::info!(
+                                      "Done inferring for hash {}",
+                                      hash.get_hash_string()
+                                  );
+
+                                  return Ok(());
+                              }
+                              Err(e) => {
+                                  tracing::error!(
+                                      "Inference failed for {} with error {}",
+                                      hash.get_hash_string(),
+                                      e
+                                  );
+                                  return Err(anyhow::format_err!(
+                                      "Inference failed for {} with error {}",
+                                      hash.get_hash_string(),
+                                      e
+                                  ));
+                              }
+                          }
+                      }
+                  }
+              }
+          };
       }
 
       async fn infer_on_all_stale_files(&self) -> anyhow::Result<()> {
@@ -5367,7 +6262,7 @@ struct inference_loop {
               .get_all_files_with_hash()
               .await
               .into_iter()
-              .map(|(h, p)| self.doinfer_on_file(h));
+              .map(|(h, _p)| self.doinfer_on_file(h));
 
           let _ = futures::stream::iter(currentfiles)
               .buffer_unordered(8)
@@ -5392,19 +6287,43 @@ struct inference_loop {
 
           tracing::info!("Got video with hash {}", hash.get_hash_string());
 
-          match read_from_db(hash.clone(), self.cachedb.clone()).await {
-              Ok(ret) => {
+          match &self.cachedb {
+              None => {
                   tracing::warn!(
-                      "Results for {} found in cache, returning cached results.",
+                      "No caching db found, skipping cache loopup step for {}",
                       hash.get_hash_string()
                   );
-                  return Ok(tonic::Response::new(ret));
               }
-              Err(e) => {
-                  tracing::info!(
-                      "inference results for {} not found. proceeding to run inference.",
-                      hash.get_hash_string()
-                  )
+              Some(maincache) => {
+                  let res = {
+                      let tmpcache = maincache.clone();
+                      let tmphash = hash.clone();
+                      let res = tokio::task::spawn_blocking(move || {
+                          tmpcache.get_Grpcvideopredictionreply(tmphash.as_ref())
+                      })
+                      .await;
+
+                      match res {
+                          Ok(o) => o,
+                          Err(_e) => Err(anyhow::format_err!("join error")),
+                      }
+                  };
+
+                  match res {
+                      Ok(o) => {
+                          tracing::warn!(
+                              "inference results for {} found in cache, returning it.",
+                              hash.get_hash_string()
+                          );
+                          return Ok(tonic::Response::new(o));
+                      }
+                      Err(_e) => {
+                          tracing::info!(
+                              "correct inference results for {} not found in cache, proceeding for inference.",
+                              hash.get_hash_string()
+                          );
+                      }
+                  };
               }
           };
 
@@ -5414,32 +6333,28 @@ struct inference_loop {
           );
 
           let res = {
-              tracing::info!("Acquiring GPU Semaphore for {}", hash.get_hash_string());
+              tracing::info!("Acquiring Queue Semaphore for {}", hash.get_hash_string());
 
-              let infpair = self.infpair.clone();
-
-              let permit = self
+              let _permit = self
                   .semaphore
                   .acquire()
                   .await
                   .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
 
-              let path_file_video_output = match self
+              let _path_file_video_output = match self
                   .filestore
                   .put_content(/*key =*/ &hash, /*value =*/ video_data)
                   .await
               {
                   Ok(o) => o,
-                  Err(e) => {
+                  Err(_e) => {
                       return Err(tonic::Status::internal(
                           "Failed to write the video file, CPU RAM full",
                       ));
                   }
               };
 
-              let res = infpair.do_infer_on_video_file(&hash).await;
-
-              res
+              self.infpair.do_infer_on_video_file(&hash).await
           };
 
           tracing::info!("Inference completed for hash {}", hash.get_hash_string());
@@ -5482,6 +6397,7 @@ struct inference_loop {
                   let vidver = infer::Version {
                       major: version::major_version(),
                       minor: version::minor_version(),
+                      patch: version::patch_version(),
                   };
 
                   let ret = infer::Grpcvideopredictionreply {
@@ -5493,17 +6409,27 @@ struct inference_loop {
                       timestamp: get_current_time(),
                   };
 
-                  match write_to_db(hash.clone(), &ret, self.cachedb.clone()).await {
-                      Ok(_) => {
-                          tracing::info!(
-                              "Added inference results of {} to cache.",
-                              hash.get_hash_string()
-                          );
+                  match &self.cachedb {
+                      None => {
+                          tracing::warn!("No cache db connection found, not writing to db");
                       }
-                      Err(e) => {
-                          tracing::error!("Failed to cache results for {}.", hash.get_hash_string());
+                      Some(o) => {
+                          match o.put_Grpcvideopredictionreply(&hash, &ret) {
+                              Ok(_) => {
+                                  tracing::info!(
+                                      "Wrote results for {} to cache.",
+                                      hash.get_hash_string()
+                                  );
+                              }
+                              Err(e) => {
+                                  tracing::error!(
+                                      "Failed to write inference results for {} to cache.",
+                                      hash.get_hash_string()
+                                  );
+                              }
+                          };
                       }
-                  };
+                  }
 
                   tracing::info!("Sending reply for hash {}", hash.get_hash_string());
                   return Ok(tonic::Response::new(ret));
@@ -5514,11 +6440,12 @@ struct inference_loop {
                       hash.get_hash_string(),
                       e
                   );
-                  return Err(tonic::Status::internal("Internal error, inference failed"));
+
+                  return Err(tonic::Status::internal(
+                      format!("Internal error, inference failed due to {}", e)
+                  ));
               }
           }
-
-          Err(tonic::Status::ok("Done inference"))
       }
   }
 
@@ -5529,13 +6456,7 @@ struct inference_loop {
           .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
           .init();
 
-
       unsafe { export::locker_to_inference_mode() };
-
-      // let res = mlockffmpeg::do_default_mlocks().await;
-      // for i in res.iter() {
-      //     eprintln!("{:?}", i);
-      // }
 
       let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
       let port: u16 = 8001;
@@ -5551,7 +6472,7 @@ struct inference_loop {
       let slave = grpc_inferer::new().await?;
       let _ = slave.infer_on_all_stale_files().await;
 
-      let result = tonic::transport::Server::builder()
+      let _result = tonic::transport::Server::builder()
           .add_service(service)
           .add_service(
               infer::rdvideoinfer_server::RdvideoinferServer::new(slave)
@@ -6077,9 +6998,7 @@ struct inference_loop {
 
 ** Main code for the locking
 #+begin_src rust :mkdirp yes :tangle ./src/mlockffmpeg.rs
-  use clap::Parser;
   use futures::StreamExt;
-  use std::io::Read;
 
   fn get_dependency_by_pid_blocking(PID: i64) -> std::collections::HashSet<std::path::PathBuf> {
       jwalk::WalkDir::new(std::path::PathBuf::from("/proc/").join(PID.to_string().as_str()))
@@ -6102,23 +7021,20 @@ struct inference_loop {
   }
 
   fn do_mmap_blocking(inpath: impl AsRef<std::path::Path>) -> anyhow::Result<memmap2::MmapMut> {
-      tracing::info!("Got argument {:?} for mmap + mlock",inpath.as_ref());
+      tracing::info!("Got argument {:?} for mmap + mlock", inpath.as_ref());
 
       let file = std::fs::File::open(inpath.as_ref())?;
       tracing::info!("Opened file");
       let mut res = unsafe { memmap2::MmapMut::map_mut(&file) }?;
       tracing::info!("Performed mmap");
-      let lock =
+      let _lock =
           unsafe { rustix::mm::mlock(res.as_mut_ptr() as *mut std::os::raw::c_void, res.len()) }?;
-
 
       println!("pid={}", std::process::id());
 
       let status = std::fs::read_to_string("/proc/self/status")?;
       for line in status.lines() {
-          if line.starts_with("VmLck:")
-              || line.starts_with("VmRSS:")
-          {
+          if line.starts_with("VmLck:") || line.starts_with("VmRSS:") {
               println!("{line}");
           }
       }
@@ -6136,7 +7052,10 @@ struct inference_loop {
   async fn do_mlock_of_file(
       inpath: std::collections::HashSet<std::path::PathBuf>,
   ) -> Vec<memmap2::MmapMut> {
-      tracing::info!("Inside do_mlock_of_file for mlock. Got the args {:?}",inpath);
+      tracing::info!(
+          "Inside do_mlock_of_file for mlock. Got the args {:?}",
+          inpath
+      );
       futures::stream::iter(inpath.into_iter())
           .map(|e| do_mmap_async(e))
           .buffer_unordered(8)
@@ -6159,29 +7078,6 @@ struct inference_loop {
   pub async fn do_default_mlocks() -> Vec<memmap2::MmapMut> {
       do_mlock_of_file(get_dependency_main()).await
   }
-
-  // #[derive(Parser, Debug)]
-  // #[command(version, about, long_about = None)]
-  // struct Args {
-  //     #[arg(short, long, default_value_t = -1)]
-  //     pid: i64,
-  // }
-
-  // #[tokio::main]
-  // async fn main() -> anyhow::Result<()> {
-  //     let args = Args::parse();
-
-  //     if args.pid > 0 {
-  //         let res = get_dependency_by_pid_async(args.pid).await?;
-  //         let res = do_mlock_of_file(res).await;
-  //         println!("{}", res.len());
-  //     } else {
-  //         let res = do_mlock_of_file(get_dependency_main()).await;
-  //         println!("{}", res.len());
-  //     }
-
-  //     Ok(())
-  // }
 #+end_src
 
 * Code for client
@@ -6330,6 +7226,7 @@ struct inference_loop {
   GITADD 'src/hasher.rs'
   GITADD 'src/inferencerelatedimage.rs'
   GITADD 'src/inferencerelated.rs'
+  GITADD 'src/keyvaluedb.rs'
   GITADD 'src/lockssync.rs'
   GITADD 'src/main.cpp'
   GITADD 'src/main.hpp'
@@ -6352,7 +7249,7 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'More exhaustive mlock stunts'
+  git status ; git commit -m 'Fixed tonic return error codes'
   "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 

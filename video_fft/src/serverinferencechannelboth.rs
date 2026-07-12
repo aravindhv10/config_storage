@@ -10,8 +10,8 @@ use crate::videoview;
 const NUM_BATCHES_IN_VIDEO: u8 = 4;
 
 pub struct combined_infer {
-    infer_rd: serverinferencechannel::inference_pair,
-    infpairimage: serverinferencechannelimage::inference_pair,
+    infer_rd: std::sync::Arc<serverinferencechannel::client>,
+    infpairimage: std::sync::Arc<serverinferencechannelimage::client>,
     file_store: filestore::file_store,
 }
 
@@ -27,8 +27,8 @@ impl combined_infer {
     pub async fn new() -> anyhow::Result<Self> {
         tracing::warn!("Constructing serverinferencechannelboth::combined_infer");
         Ok(Self {
-            infer_rd: serverinferencechannel::inference_pair::new().await?,
-            infpairimage: serverinferencechannelimage::inference_pair::new(),
+            infer_rd: serverinferencechannel::client::new().await?,
+            infpairimage: serverinferencechannelimage::client::new().await,
             file_store: filestore::file_store::new().await?,
         })
     }
@@ -46,19 +46,17 @@ impl combined_infer {
                     &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
                 )
                 .await?;
-            videoview::video_slicer_mapped::new(
-                mmap, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
-                /*size_c =*/ 3,
-            )
+
+            videoview::video_slicer_mapped::new(mmap, 8 as f32, 1280, 720, 3)
         }?;
 
         let video_tensor = slicer.get_video_tensor()?;
 
         let image_batch_tensor: tch::Tensor = {
-            const end_index: u8 =
-                (serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO);
-            let image_indices: std::vec::Vec<i64> = (0..end_index)
-                .map(|x: u8| ((video_tensor.size()[0] - 1) * (x as i64)) / ((end_index - 1) as i64))
+            const END_INDEX: u8 =
+                serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO;
+            let image_indices: std::vec::Vec<i64> = (0..END_INDEX)
+                .map(|x: u8| ((video_tensor.size()[0] - 1) * (x as i64)) / ((END_INDEX - 1) as i64))
                 .collect();
 
             let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
@@ -69,10 +67,11 @@ impl combined_infer {
 
         let image_infer_results = self
             .infpairimage
-            .do_infer_on_image_tensor(image_batch_tensor)?;
+            .do_infer_on_image_batch_tensor_async(image_batch_tensor)
+            .await?;
         tracing::debug!("Ran image inference.");
 
-        let mut list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+        let list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
             /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
             /*use_gpu: bool =*/ true,
         )?;
@@ -82,7 +81,9 @@ impl combined_infer {
 
         let rd_infer_results = self
             .infer_rd
-            .do_infer_on_fft_tensor(list_video_fft_tensor)?;
+            .do_infer_on_fft_tensor(list_video_fft_tensor)
+            .await?;
+
         tracing::debug!("Done video inference.");
 
         return Ok(combined_results {

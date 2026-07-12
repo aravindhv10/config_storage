@@ -55,7 +55,7 @@ impl Drop for infer_slave {
 
 impl infer_slave {
     pub fn new(batch_size: u8) -> Self {
-        tracing::warn!("Constructing the image infer_slave");
+        tracing::info!("Constructing the image infer_slave");
         Self {
             slave: unsafe { export::new_infer_slave_image(batch_size) },
             batch_size: batch_size,
@@ -87,13 +87,13 @@ impl infer_slave {
             tracing::debug!("getting the range {} {}", begin_t, end_t);
 
             let current_batch_tensor = {
-                const sy: i64 = 720;
-                const sx: i64 = 1280;
-                const sc: i64 = 3;
-                const d: i64 = (sx - sy) >> 1;
-                const begin_x: i64 = d;
-                const end_x: i64 = begin_x + sy;
-                let cropped_tensor = vals.i((begin_t..end_t, .., begin_x..end_x, ..));
+                const SY: i64 = 720;
+                const SX: i64 = 1280;
+                const SC: i64 = 3;
+                const D: i64 = (SX - SY) >> 1;
+                const BEGIN_X: i64 = D;
+                const END_X: i64 = BEGIN_X + SY;
+                let cropped_tensor = vals.i((begin_t..end_t, .., BEGIN_X..END_X, ..));
                 let nchw_tensor = cropped_tensor.permute(&[0, 3, 1, 2]);
 
                 let interpolated_nchw =

@@ -57,7 +57,7 @@ impl file_store {
                     .map(|e| e.path())
                     .map(|e| match hasher::blob_hash::new_from_tmp_file(&e) {
                         Ok(o) => Some((o, e)),
-                        Err(e) => None,
+                        Err(_e) => None,
                     })
                     .flatten()
                     .collect()
@@ -145,7 +145,7 @@ impl file_store {
                 None => -128,
                 Some(e) => e,
             },
-            Err(e) => -128,
+            Err(_e) => -128,
         };
 
         if res != 0 {
@@ -161,7 +161,7 @@ impl file_store {
             Ok(_) => {
                 drop(path_file_raw_tmp);
             }
-            Err(e) => {
+            Err(_e) => {
                 tokio::fs::remove_file(&path_file_raw_tmp).await?;
                 tracing::error!(
                     "Unable to move temporary file {:?} to actual raw file {:?}",
@@ -200,7 +200,7 @@ impl file_store {
         })
         .await??;
 
-        return Ok((mmap));
+        return Ok(mmap);
     }
 
     #[inline(always)]
@@ -217,7 +217,7 @@ impl file_store {
         size_x: u16,
         size_y: u16,
     ) -> anyhow::Result<memmap2::Mmap> {
-        let res = self.put_content(key, value).await?;
+        let _res = self.put_content(key, value).await?;
         self.get_raw_tensor(key, fps, size_x, size_y).await
     }
 }

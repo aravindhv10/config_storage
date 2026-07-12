@@ -1,5 +1,4 @@
 use crate::export;
-use anyhow::Context;
 use rayon::prelude::*;
 use std::io::Write;
 use tch::IndexOp;
@@ -8,19 +7,19 @@ use tokio::io::AsyncWriteExt;
 
 #[inline(always)]
 pub fn get_num_windows(total_video_length: u64) -> u8 {
-    const ideal_length: u16 = 160 as u16;
+    const IDEAL_LENGTH: u16 = 160 as u16;
 
-    const min_length: u16 = (ideal_length * 3) >> 2;
+    const MIN_LENGTH: u16 = (IDEAL_LENGTH * 3) >> 2;
 
-    if total_video_length < (min_length as u64) {
+    if total_video_length < (MIN_LENGTH as u64) {
         return 0 as u8;
-    } else if total_video_length <= (ideal_length as u64) {
+    } else if total_video_length <= (IDEAL_LENGTH as u64) {
         return 1 as u8;
     } else {
-        const stride: u16 = ideal_length;
+        const STRIDE: u16 = IDEAL_LENGTH;
 
         let float_val =
-            (((total_video_length - (ideal_length as u64)) as f64) / (stride as f64)) as f64;
+            (((total_video_length - (IDEAL_LENGTH as u64)) as f64) / (STRIDE as f64)) as f64;
 
         let floor_val = float_val.floor();
 
@@ -72,7 +71,7 @@ impl fft_video {
     pub async fn save(&self, filename: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
         let file = tokio::fs::File::create(filename.as_ref()).await?;
         let mut writer = tokio::io::BufWriter::new(file);
-        let size = std::mem::size_of::<fft_video>();
+        const size: usize = std::mem::size_of::<fft_video>();
         let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
         writer.write_all(bytes).await?;
         return Ok(());
@@ -89,18 +88,18 @@ impl fft_video {
             );
         }
 
-        const expected_size: usize = 6 * 160 * 160 * 60;
+        const EXPECTED_SIZE: usize = 6 * 160 * 160 * 60;
         let actual_size: usize = tensor_fft_input.numel();
 
-        if actual_size != expected_size {
+        if actual_size != EXPECTED_SIZE {
             tracing::error!(
                 "expected size of the tensor {} not matching with reality {} returning...",
-                expected_size,
+                EXPECTED_SIZE,
                 actual_size
             );
             anyhow::bail!(
                 "Tensor size mismatch: expected {} elements, found {}",
-                expected_size,
+                EXPECTED_SIZE,
                 actual_size
             );
         }
@@ -111,16 +110,16 @@ impl fft_video {
 
         if true {
             let data: *mut Self = store.as_mut_ptr();
-            const size: [i64; 4] = [6, 160, 160, 60];
-            const strides: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
+            const SIZE: [i64; 4] = [6, 160, 160, 60];
+            const STRIDES: [i64; 4] = [160 * 160 * 60, 160 * 60, 60, 1];
 
             tracing::debug!("Initialized memory, now passing to the tensor");
 
             let mut out_tensor: tch::Tensor = unsafe {
                 tch::Tensor::from_blob(
                     data as *mut u8,
-                    &size,
-                    &strides,
+                    &SIZE,
+                    &STRIDES,
                     tch::Kind::Float,
                     tch::Device::Cpu,
                 )
@@ -222,7 +221,7 @@ impl fft_video {
             return Err(anyhow::format_err!("Input vector is empty"));
         }
 
-        let pool = rayon::ThreadPoolBuilder::new().num_threads(1).build()?;
+        let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
 
         let length = list_torch_video_tensor.len();
 

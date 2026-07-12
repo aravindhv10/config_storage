@@ -1,6 +1,5 @@
 use crate::filestore;
 use crate::hasher;
-use crate::videofn;
 
 pub struct video_slicer_mapped {
     fps: f32,
@@ -29,7 +28,7 @@ impl video_slicer_mapped {
         let size_t: u16 =
             (mmap.len() / ((size_x as usize) * (size_y as usize) * (size_c as usize))) as u16;
 
-        let dist_c: i32 = 1;
+        let _dist_c: i32 = 1;
 
         let dist_c: usize = 1;
         let dist_x: usize = dist_c * (size_c as usize);

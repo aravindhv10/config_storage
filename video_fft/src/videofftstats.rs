@@ -357,15 +357,15 @@ pub async fn eval_mean(target_dir: &str) -> anyhow::Result<String> {
         }
     }
 
-    const nthreads: usize = 16;
-    const nchunks: usize = 1 << 12;
+    const NTHREADS: usize = 16;
+    const NCHUNKS: usize = 1 << 12;
 
     let mut streams = vec![];
-    for i in list_path_file_video.chunks(nchunks) {
+    for i in list_path_file_video.chunks(NCHUNKS) {
         streams.push(eval_actual_mean(i));
     }
 
-    let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
+    let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
 
     let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
 
@@ -408,18 +408,18 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow:
         }
     }
 
-    const nthreads: usize = 16;
-    const nchunks: usize = 1 << 12;
+    const NTHREADS: usize = 16;
+    const NCHUNKS: usize = 1 << 12;
 
     let mean_data = tokio::fs::read(path_file_bin64_mean).await?;
     let mean = unsafe { &*(mean_data.as_ptr() as *const fft_video_64) };
 
     let mut streams = vec![];
-    for i in list_path_file_video.chunks(nchunks) {
+    for i in list_path_file_video.chunks(NCHUNKS) {
         streams.push(eval_actual_sigma(i, mean));
     }
 
-    let mut jobs = stream::iter(streams).buffer_unordered(nthreads);
+    let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
 
     let path_file_sigma_output = target_dir.to_string() + "_sigma.64bin";
 
@@ -446,7 +446,7 @@ pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow:
 pub async fn eval_mean_sigma_slave(path_dir_base: &str) -> anyhow::Result<()> {
     let path_file_64bin_mean = eval_mean(path_dir_base).await?;
 
-    let path_file_64bin_sigma = eval_sigma(
+    let _path_file_64bin_sigma = eval_sigma(
         /* target_dir: &str = */ path_dir_base,
         /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
     )
@@ -461,9 +461,9 @@ pub fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
         .enable_all()
         .build()?;
 
-    rt.block_on(async {
-        tokio::join!(eval_mean_sigma_slave(path_dir_base));
-    });
+    let res = rt.block_on(async { tokio::join!(eval_mean_sigma_slave(path_dir_base)) });
+
+    res.0?;
 
     Ok(())
 }
@@ -478,7 +478,7 @@ impl fft_video_normalizer {
         path_file_bin64_mu: &str,
         path_file_bin64_sigma: &str,
     ) -> anyhow::Result<std::boxed::Box<Self>> {
-        const size: usize = std::mem::size_of::<fft_video_64>();
+        const SIZE: usize = std::mem::size_of::<fft_video_64>();
 
         let mut ret = std::boxed::Box::<Self>::new_uninit();
 
@@ -488,14 +488,14 @@ impl fft_video_normalizer {
             {
                 let mut file = std::fs::File::open(path_file_bin64_mu)?;
                 let ptr = ((&mut base_ref.mu) as *mut fft_video_64) as *mut u8;
-                let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+                let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, SIZE) };
                 file.read_exact(buffer)?;
             }
 
             {
                 let mut file = std::fs::File::open(path_file_bin64_sigma)?;
                 let ptr = ((&mut base_ref.sigma) as *mut fft_video_64) as *mut u8;
-                let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, size) };
+                let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, SIZE) };
                 file.read_exact(buffer)?;
             }
         }

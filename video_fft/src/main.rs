@@ -11,10 +11,8 @@ mod videofftstats;
 mod videofn;
 mod videoview;
 
-use anyhow::{Context, Result};
 use futures::StreamExt;
 use rayon::prelude::*;
-use tch::IndexOp;
 
 const USE_GPU: bool = true;
 const IMAGE_INFERENCE_BATCH_SIZE: i64 = 16;
@@ -105,7 +103,7 @@ async fn video_tensor_2_fft_file_160(
         })
         .await??;
 
-        let tmp = futures::stream::iter(tensors.iter())
+        let _tmp = futures::stream::iter(tensors.iter())
             .enumerate()
             .map(|(i, v)| {
                 let path_output =
@@ -120,7 +118,7 @@ async fn video_tensor_2_fft_file_160(
             .enumerate()
             .for_each(|(i, e)| {
                 match e {
-                    Ok(o) => {}
+                    Ok(_o) => {}
                     Err(e) => {
                         tracing::error!("Failed to write out for index {} due to error {}", i, e);
                     }

@@ -1,6 +1,4 @@
-use clap::Parser;
 use futures::StreamExt;
-use std::io::Read;
 
 fn get_dependency_by_pid_blocking(PID: i64) -> std::collections::HashSet<std::path::PathBuf> {
     jwalk::WalkDir::new(std::path::PathBuf::from("/proc/").join(PID.to_string().as_str()))
@@ -29,7 +27,7 @@ fn do_mmap_blocking(inpath: impl AsRef<std::path::Path>) -> anyhow::Result<memma
     tracing::info!("Opened file");
     let mut res = unsafe { memmap2::MmapMut::map_mut(&file) }?;
     tracing::info!("Performed mmap");
-    let lock =
+    let _lock =
         unsafe { rustix::mm::mlock(res.as_mut_ptr() as *mut std::os::raw::c_void, res.len()) }?;
 
     println!("pid={}", std::process::id());
@@ -80,26 +78,3 @@ fn get_dependency_main() -> std::collections::HashSet<std::path::PathBuf> {
 pub async fn do_default_mlocks() -> Vec<memmap2::MmapMut> {
     do_mlock_of_file(get_dependency_main()).await
 }
-
-// #[derive(Parser, Debug)]
-// #[command(version, about, long_about = None)]
-// struct Args {
-//     #[arg(short, long, default_value_t = -1)]
-//     pid: i64,
-// }
-
-// #[tokio::main]
-// async fn main() -> anyhow::Result<()> {
-//     let args = Args::parse();
-
-//     if args.pid > 0 {
-//         let res = get_dependency_by_pid_async(args.pid).await?;
-//         let res = do_mlock_of_file(res).await;
-//         println!("{}", res.len());
-//     } else {
-//         let res = do_mlock_of_file(get_dependency_main()).await;
-//         println!("{}", res.len());
-//     }
-
-//     Ok(())
-// }
