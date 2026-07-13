@@ -37,4 +37,5 @@ message Grpcvideopredictionreply {
     Version vidver = 4;
     bytes videohash = 5;
     uint64 timestamp = 6;
+    repeated float cvusability = 7;
 }

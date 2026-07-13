@@ -1,36 +1,7 @@
-* Logic for iterating over video:
+* TODO
 
-video.len() in:
-1. [0..120): break;
-2. [120..160]: compress(video).
-3. (160..): for end in range(160, video.len(), 40).
-   
-   y = y1 + ( (y2 - y1) * (x - x1) / (x2 - x1) )
-
-   end_current = 160 + ( (video_length - 160) * (i - 1) / (num_windows - 1) )
-
-* COMPLETE                                                             :DONE:
-
-** Implement C++ side of model inference                               :DONE:
-** Implement the grpc endpoint                                         :DONE:
-*** Implement the protobuf convention                                  :DONE:
-** Unlink and memory optimization                                      :DONE:
-*** Check when is the video unlinked                                   :DONE:
-- convert_encoded_video_to_raw_outpipe cleans the video when it is called with the argument to clean.
-- do_infer_on_video_file in the server.rs calls the fft construction function which in turn calls the decoder with clean option.
-- It is optimal.
-*** Check when is the huge tensor dropped and try to optimize.         :DONE:
-- do_infer_on_video_file in server.rs does this.
-- It is optimal.
-
-* PLANNED
-
-** Start bringing in POD model parts
-*** C++ side
-**** Ignore opencv parts and do all processing in pytorch
-**** Implement the inference slave class                               :DONE:
-- infer_slave_image
-*** Rust side
+1. Check acquiring lock happens before constructing torch AOT inference class.
+2. It is released only after the destructor.
 
 * CONTINUOUS
 ** Maintain the rust torch crate
@@ -1155,6 +1126,13 @@ video.len() in:
 
 *** Function to get path of compiled model names
 
+**** For cv usability
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline std::string get_cv_usability_compiled_model_path() {
+    return std::string("/root/.cache/model_cv_usability.pt2");
+  }
+#+end_src
+
 **** For vsitter
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   inline std::string get_vsitter_compiled_model_path() {
@@ -1269,8 +1247,11 @@ video.len() in:
         mem_locks.push_back(new file_mlock(
             get_compiled_model_path(/*unsigned char i =*/4).c_str()));
 
+        // mem_locks.push_back(
+        //     new file_mlock(get_vsitter_compiled_model_path().c_str()));
+
         mem_locks.push_back(
-            new file_mlock(get_vsitter_compiled_model_path().c_str()));
+            new file_mlock(get_cv_usability_compiled_model_path().c_str()));
 
   #include "./mlockffmpeg.hh"
       }
@@ -1587,6 +1568,17 @@ video.len() in:
 ****** Get device for output tensor
 
 ******* For image
+
+******** CV Usability
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  inline torch::TensorOptions get_image_cv_usability_output_device_and_dtype() {
+    return torch::TensorOptions()
+        .dtype(get_tensor_dtype<float>())
+        .device(torch::kCPU);
+  }
+#+end_src
+
+******** VSitter
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   inline torch::TensorOptions get_image_output_device_and_dtype() {
     return torch::TensorOptions()
@@ -1604,6 +1596,127 @@ video.len() in:
 
 **** Classes
 
+***** Inference class for image cv usability
+
+****** Actual code for the class
+
+******* Name of the class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #define _MACRO_SELF_ infer_slave_image_cv_usability
+#+end_src
+
+******* Actual class
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  class _MACRO_SELF_ {
+  private:
+    lock_guard tmp;
+
+    torch::TensorOptions options_input;
+    torch::TensorOptions options_compute;
+    torch::TensorOptions options_output;
+
+    torch::inductor::AOTIModelPackageLoader loader;
+    std::size_t const batch_size;
+    std::size_t const bytes_to_copy;
+
+    c10::InferenceMode mode;
+
+  public:
+    inline int infer(void *blob_source, void *blob_destination) {
+
+      try {
+
+        torch::Tensor cpu_tensor =
+            torch::from_blob(blob_source,
+                             {static_cast<long>(batch_size), IMAGE_RESOLUTION,
+                              IMAGE_RESOLUTION, NUM_CHANNELS},
+                             options_input);
+
+        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+        std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+        std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+
+        return 0;
+
+      } catch (const std::exception &e) {
+
+        std::memset(blob_destination, 0, bytes_to_copy);
+
+        printf("Error: %s\n", e.what());
+
+        return -1;
+      }
+    }
+
+    _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
+        : options_input(get_image_input_device_and_dtype()),
+          options_compute(get_image_inference_device_and_dtype()),
+          options_output(get_image_cv_usability_output_device_and_dtype()),
+          loader(path_file_model), batch_size(BATCH_SIZE),
+          bytes_to_copy(batch_size * 2 * sizeof(float)) {}
+
+    ~_MACRO_SELF_() {}
+
+    inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+      std::string path_file_model(get_cv_usability_compiled_model_path());
+      return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+    }
+  };
+#+end_src
+
+******* Interface functions
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  extern "C" {
+  void *new_infer_slave_image_cv_usability(unsigned char batch_size) {
+    return static_cast<void *>(
+        _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+  }
+
+  void delete_infer_slave_image_cv_usability(void *in) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+    delete tmp;
+  }
+
+  int run_infer_slave_image_cv_usability(void *in, void *blob_source, void *blob_destination) {
+    _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+    return tmp->infer(/*void *blob_source =*/blob_source,
+                      /*void *blob_destination =*/blob_destination);
+  }
+  }
+#+end_src
+
+******* Clear the named preprocessor macro
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #undef _MACRO_SELF_
+#+end_src
+
+****** Export the class interface functions
+
+******* C++
+#+begin_src cpp :mkdirp yes :tangle ./src/export.cpp
+  void *new_infer_slave_image_cv_usability(unsigned char batch_size);
+  void delete_infer_slave_image_cv_usability(void *in);
+  int run_infer_slave_image_cv_usability(void *in, void *blob_source, void *blob_destination);
+#+end_src
+
+******* RUST
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  unsafe extern "C" {
+      pub fn new_infer_slave_image_cv_usability(batch_size: ::std::os::raw::c_uchar) -> *mut ::std::os::raw::c_void;
+      pub fn delete_infer_slave_image_cv_usability(in_: *mut ::std::os::raw::c_void);
+      pub fn run_infer_slave_image_cv_usability(
+          in_: *mut ::std::os::raw::c_void,
+          blob_source: *mut ::std::os::raw::c_void,
+          blob_destination: *mut ::std::os::raw::c_void,
+      ) -> ::std::os::raw::c_int;
+  }
+#+end_src
+
 ***** Inference class for image
 
 ****** Actual code for the class
@@ -1617,6 +1730,8 @@ video.len() in:
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   class _MACRO_SELF_ {
   private:
+    lock_guard tmp;
+
     torch::TensorOptions options_input;
     torch::TensorOptions options_compute;
     torch::TensorOptions options_output;
@@ -1626,8 +1741,6 @@ video.len() in:
     std::size_t bytes_to_copy;
 
     c10::InferenceMode mode;
-
-    lock_guard tmp;
 
   public:
     inline int infer(void *blob_source, void *blob_destination) {
@@ -1739,6 +1852,8 @@ video.len() in:
 #+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
   class _MACRO_SELF_ {
   private:
+    lock_guard tmp;
+
     torch::TensorOptions options_input;
     torch::TensorOptions options_compute;
     torch::TensorOptions options_output;
@@ -1748,8 +1863,6 @@ video.len() in:
     std::size_t bytes_to_copy;
 
     c10::InferenceMode mode;
-
-    lock_guard tmp;
 
   public:
     inline int infer(void *blob_source, void *blob_destination) {
@@ -3830,6 +3943,116 @@ video.len() in:
 #+end_src
 
 * Rust code for safe inference wrapper of image model
+
+** CV USability
+#+begin_src rust :mkdirp yes :tangle ./src/inferencerelatedimagecvusability.rs
+  use crate::export;
+  use tch::IndexOp;
+
+  #[repr(C)]
+  #[derive(Clone, Copy, Debug)]
+  pub struct infer_results {
+      pub negative: f32,
+      pub positive: f32,
+  }
+
+  impl Default for infer_results {
+      fn default() -> Self {
+          infer_results {
+              negative: 0 as f32,
+              positive: 0 as f32,
+          }
+      }
+  }
+
+  pub struct infer_slave {
+      slave: *mut ::std::os::raw::c_void,
+      batch_size: ::std::os::raw::c_uchar,
+  }
+
+  impl Drop for infer_slave {
+      fn drop(&mut self) {
+          unsafe { export::delete_infer_slave_image_cv_usability(self.slave) };
+      }
+  }
+
+  impl infer_slave {
+      pub fn new(batch_size: u8) -> Self {
+          tracing::info!("Constructing the image infer_slave");
+          Self {
+              slave: unsafe { export::new_infer_slave_image_cv_usability(batch_size) },
+              batch_size: batch_size,
+          }
+      }
+
+      pub fn infer(&mut self, vals: &tch::Tensor) -> anyhow::Result<Vec<f32>> {
+          let size: Vec<i64> = vals.size();
+
+          if ((size[0] as usize) % (self.batch_size as usize)) != 0 {
+              tracing::error!(
+                  "The input vector length should be a multiple of batch size {}",
+                  self.batch_size
+              );
+              return Err(anyhow::format_err!(
+                  "The input vector length should be a multiple of batch size"
+              ));
+          }
+
+          let num_batches: usize = (size[0] as usize) / (self.batch_size as usize);
+
+          let mut ret = Vec::<infer_results>::with_capacity(size[0] as usize);
+          let blob_destination_base = ret.as_mut_ptr();
+
+          for i in 0..num_batches {
+              let begin_t = (i as i64) * (self.batch_size as i64);
+              let end_t = begin_t + (self.batch_size as i64);
+
+              tracing::debug!("getting the range {} {}", begin_t, end_t);
+
+              let current_batch_tensor = {
+                  const SY: i64 = 720;
+                  const SX: i64 = 1280;
+                  const SC: i64 = 3;
+                  const D: i64 = (SX - SY) >> 1;
+                  const BEGIN_X: i64 = D;
+                  const END_X: i64 = BEGIN_X + SY;
+                  let cropped_tensor = vals.i((begin_t..end_t, .., BEGIN_X..END_X, ..));
+                  let nchw_tensor = cropped_tensor.permute(&[0, 3, 1, 2]);
+
+                  let interpolated_nchw =
+                      nchw_tensor.upsample_bicubic2d(&[448, 448], false, None, None);
+
+                  let final_tensor = interpolated_nchw.permute(&[0, 2, 3, 1]);
+
+                  final_tensor.contiguous()
+              };
+
+              let blob_source_base = current_batch_tensor.data_ptr();
+
+              let status = unsafe {
+                  export::run_infer_slave_image_cv_usability(
+                      self.slave,
+                      blob_source_base as *mut ::std::os::raw::c_void,
+                      blob_destination_base.add(i * (self.batch_size as usize))
+                          as *mut ::std::os::raw::c_void,
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+              }
+          }
+
+          unsafe { ret.set_len(size[0] as usize) };
+
+          let ret: Vec<f32> = ret.into_iter().map(|i| i.positive).collect();
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
+** VSitter
 #+begin_src rust :mkdirp yes :tangle ./src/inferencerelatedimage.rs
   use crate::export;
   use tch::IndexOp;
@@ -3967,11 +4190,11 @@ video.len() in:
   }
 
   pub fn minor_version() -> u32 {
-      5
+      7
   }
 
   pub fn patch_version() -> u32 {
-      2
+      1
   }
 #+end_src
 
@@ -4310,6 +4533,7 @@ video.len() in:
       Version vidver = 4;
       bytes videohash = 5;
       uint64 timestamp = 6;
+      repeated float cvusability = 7;
   }
 #+end_src
 
@@ -5444,6 +5668,175 @@ struct inference_loop {
   }
 #+end_src
 
+* Implement the inference loop part for cv usability
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelimagecvusability.rs
+  use crate::inferencerelatedimagecvusability;
+
+  pub const GOOD_BATCH_SIZE: u8 = 8;
+
+  type message_output = Vec<f32>;
+  type message_output_sender = crossfire::oneshot::TxOneshot<message_output>;
+  type message_output_receiver = crossfire::oneshot::RxOneshot<message_output>;
+
+  fn get_message_output_pair() -> (message_output_sender, message_output_receiver) {
+      crossfire::oneshot::oneshot::<message_output>()
+  }
+
+  struct message_input {
+      tensor: tch::Tensor,
+      oneshot_send_channel: message_output_sender,
+  }
+
+  type message_input_receiver = crossfire::AsyncRx<crossfire::mpsc::Array<message_input>>;
+  type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+
+  fn get_message_input_pair() -> (message_input_sender, message_input_receiver) {
+      crossfire::mpsc::bounded_async::<message_input>(32)
+  }
+
+  fn efficient_infer(vals: Vec<tch::Tensor>, batch_size: u8) -> Vec<Result<message_output, String>> {
+      let mut ret: Vec<Result<message_output, String>> = Vec::new();
+      let mut infer_slave = inferencerelatedimagecvusability::infer_slave::new(batch_size);
+      for i in vals.into_iter() {
+          let tmp = infer_slave.infer(&i);
+          match tmp {
+              Ok(o) => {
+                  ret.push(Ok(o));
+              }
+              Err(e) => {
+                  ret.push(Err(format!("Inference failed {}", e)));
+              }
+          }
+      }
+      return ret;
+  }
+
+  async fn inference_loop(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let max_delay = std::time::Duration::from_millis(200);
+      loop {
+          let mut tensors = Vec::<tch::Tensor>::new();
+          let mut senders = Vec::<message_output_sender>::new();
+          let mut do_loop = true;
+          let mut do_infer = false;
+
+          if true {
+              let input_msg = receiver.recv().await;
+
+              match input_msg {
+                  Ok(o) => {
+                      tensors.push(o.tensor);
+                      senders.push(o.oneshot_send_channel);
+                      do_loop = tensors.len() <= 8;
+                      do_infer = true;
+                  }
+
+                  Err(e) => {
+                      tracing::error!(
+                          "Failed to send inference request to the serving thread due to {}",
+                          e
+                      );
+                      do_loop = false;
+                      do_infer = false;
+                  }
+              }
+          }
+
+          let start = tokio::time::Instant::now();
+          while do_loop {
+              let message_input = receiver
+                  .recv_timeout(std::time::Duration::from_millis(200))
+                  .await;
+
+              match message_input {
+                  Ok(o) => {
+                      tensors.push(o.tensor);
+                      senders.push(o.oneshot_send_channel);
+                      do_loop = tensors.len() <= 8;
+                      do_infer = true;
+                  }
+                  Err(_e) => {
+                      do_loop = start.elapsed() < max_delay;
+                  }
+              }
+          }
+
+          if do_infer {
+              let res =
+                  tokio::task::spawn_blocking(move || efficient_infer(tensors, GOOD_BATCH_SIZE))
+                      .await?;
+
+              for (x, y) in res.into_iter().zip(senders.into_iter()) {
+                  match x {
+                      Ok(o) => {
+                          tracing::info!("Inference succeeded, sending results");
+                          y.send(o);
+                      }
+                      Err(e) => {
+                          tracing::error!("Image inference for batch failed due to {}", e);
+                          drop(y);
+                      }
+                  }
+              }
+          }
+      }
+  }
+
+  pub struct client {
+      sender: message_input_sender,
+      handle: Option<tokio::task::JoinHandle<anyhow::Result<()>>>,
+  }
+
+  impl Drop for client {
+      fn drop(&mut self) {
+          match self.handle.take() {
+              Some(o) => {
+                  o.abort();
+              }
+              None => {}
+          }
+      }
+  }
+
+  impl client {
+      pub async fn new() -> std::sync::Arc<Self> {
+          let (sender, receiver) = get_message_input_pair();
+          let tmp = inference_loop(receiver);
+          let handle = tokio::task::spawn(tmp);
+
+          return std::sync::Arc::new(Self {
+              sender: sender,
+              handle: Some(handle),
+          });
+      }
+
+      pub async fn do_infer_on_image_batch_tensor_async(
+          &self,
+          tensors_input: tch::Tensor,
+      ) -> anyhow::Result<Vec<f32>> {
+          let (sender, receiver) = get_message_output_pair();
+
+          let msg = message_input {
+              tensor: tensors_input,
+              oneshot_send_channel: sender,
+          };
+
+          match self.sender.send(msg).await {
+              Ok(_) => {
+                  tracing::info!("Successfullt sent request for inference");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send request for inference");
+                  return Err(anyhow::format_err!("Failed to send request for inference"));
+              }
+          };
+
+          let ret = receiver.recv_async().await?;
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
 * Implement the inference loop part
 
 ** NEW
@@ -5838,6 +6231,126 @@ struct inference_loop {
 #+end_src
 
 * Implement the combined video and image inference class
+
+** NEW CV Usability
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelboth.rs
+  use crate::filestore;
+  use crate::hasher;
+  use crate::inferencerelated;
+  use crate::inferencerelatedimagecvusability;
+  use crate::serverinferencechannel;
+  use crate::serverinferencechannelimagecvusability;
+  use crate::videofft;
+  use crate::videoview;
+
+  const NUM_BATCHES_IN_VIDEO: u8 = 8;
+
+  fn get_num_batches_in_video(num_frames: u32) -> u32 {
+      let ret = {
+          let exact_num_batches = (num_frames as f32)
+              / ((8 as f32) * (serverinferencechannelimagecvusability::GOOD_BATCH_SIZE as f32));
+
+          if exact_num_batches.fract() > 0.1 {
+              exact_num_batches.ceil() as u32
+          } else {
+              exact_num_batches.floor() as u32
+          }
+      };
+
+      ret
+  }
+
+  pub struct combined_infer {
+      infer_rd: std::sync::Arc<serverinferencechannel::client>,
+      infpairimage: std::sync::Arc<serverinferencechannelimagecvusability::client>,
+      file_store: filestore::file_store,
+  }
+
+  #[derive(
+      Debug, serde::Serialize, serde::Deserialize, rkyv::Archive, rkyv::Deserialize, rkyv::Serialize,
+  )]
+  pub struct combined_results {
+      pub results_video: Vec<inferencerelated::infer_results>,
+      pub results_image: Vec<f32>,
+  }
+
+  impl combined_infer {
+      pub async fn new() -> anyhow::Result<Self> {
+          tracing::warn!("Constructing serverinferencechannelboth::combined_infer");
+          Ok(Self {
+              infer_rd: serverinferencechannel::client::new().await?,
+              infpairimage: serverinferencechannelimagecvusability::client::new().await,
+              file_store: filestore::file_store::new().await?,
+          })
+      }
+
+      pub async fn do_infer_on_video_file(
+          &self,
+          key: &hasher::blob_hash,
+      ) -> anyhow::Result<combined_results> {
+          tracing::debug!("Reading the video file using ffmpeg");
+
+          let slicer = {
+              let mmap = self
+                  .file_store
+                  .get_raw_tensor(
+                      &key, /*fps =*/ 8 as f32, /*size_x =*/ 1280, /*size_y =*/ 720,
+                  )
+                  .await?;
+
+              videoview::video_slicer_mapped::new(mmap, 8 as f32, 1280, 720, 3)
+          }?;
+
+          let video_tensor = slicer.get_video_tensor()?;
+
+          let image_batch_tensor: tch::Tensor = {
+              let end_index: u32 = (serverinferencechannelimagecvusability::GOOD_BATCH_SIZE as u32)
+                  ,* get_num_batches_in_video(
+                      /*num_frames: u32 =*/ video_tensor.size()[0] as u32,
+                  );
+
+              let image_indices: std::vec::Vec<i64> = (0..(end_index as i64))
+                  .map(|x: i64| {
+                      ((video_tensor.size()[0] - 1) * (x as i64)) / ((end_index - 1) as i64)
+                  })
+                  .collect();
+
+              let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());
+
+              video_tensor.index_select(/*dim =*/ 0, /*index =*/ &image_indices_tensor)
+          };
+          tracing::debug!("Constructed the image tensor.");
+
+          let image_infer_results = self
+              .infpairimage
+              .do_infer_on_image_batch_tensor_async(image_batch_tensor)
+              .await?;
+          tracing::debug!("Ran image inference.");
+
+          let list_video_fft_tensor = videofft::fft_video::windowed_from_torch_video_tensor(
+              /*tensor_video_input: &tch::Tensor =*/ &video_tensor,
+              /*use_gpu: bool =*/ true,
+          )?;
+
+          drop(video_tensor);
+          drop(slicer);
+
+          let rd_infer_results = self
+              .infer_rd
+              .do_infer_on_fft_tensor(list_video_fft_tensor)
+              .await?;
+
+          tracing::debug!("Done video inference.");
+
+          return Ok(combined_results {
+              results_video: rd_infer_results,
+              results_image: image_infer_results,
+          });
+      }
+  }
+#+end_src
+
+** COMMENT OLD Vsitter
 #+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelboth.rs
   use crate::filestore;
   use crate::hasher;
@@ -5848,7 +6361,7 @@ struct inference_loop {
   use crate::videofft;
   use crate::videoview;
 
-  const NUM_BATCHES_IN_VIDEO: u8 = 4;
+  const NUM_BATCHES_IN_VIDEO: u8 = 8;
 
   pub struct combined_infer {
       infer_rd: std::sync::Arc<serverinferencechannel::client>,
@@ -5945,11 +6458,13 @@ struct inference_loop {
   mod hasher;
   mod inferencerelated;
   mod inferencerelatedimage;
+  mod inferencerelatedimagecvusability;
   mod keyvaluedb;
   mod mlockffmpeg;
   mod serverinferencechannel;
   mod serverinferencechannelboth;
   mod serverinferencechannelimage;
+  mod serverinferencechannelimagecvusability;
   mod version;
   mod videofft;
   mod videofftstats;
@@ -6180,21 +6695,28 @@ struct inference_loop {
                                       .sum::<f32>()
                                       / (o.results_video.len() as f32);
 
+                                  // let bed_scaling_factor: f32 =
+                                  //     o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                                  //         / (o.results_image.len() as f32);
+
                                   let bed_scaling_factor: f32 =
-                                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                                      o.results_image.iter().sum::<f32>()
                                           / (o.results_image.len() as f32);
 
-                                  let imgpreds: Vec<infer::Grpcimgprediction> = o
-                                      .results_image
-                                      .into_iter()
-                                      .map(|i| infer::Grpcimgprediction {
-                                          arm: i.ARM as u32,
-                                          rail: i.RAIL as u32,
-                                          leg: i.LEG as u32,
-                                          pos: i.POS as u32,
-                                          bed: i.BED as u32,
-                                      })
-                                      .collect();
+
+                                  let imgpreds: Vec<infer::Grpcimgprediction> = Vec::new();
+
+                                  // let imgpreds: Vec<infer::Grpcimgprediction> = o
+                                  //     .results_image
+                                  //     .into_iter()
+                                  //     .map(|i| infer::Grpcimgprediction {
+                                  //         arm: i.ARM as u32,
+                                  //         rail: i.RAIL as u32,
+                                  //         leg: i.LEG as u32,
+                                  //         pos: i.POS as u32,
+                                  //         bed: i.BED as u32,
+                                  //     })
+                                  //     .collect();
 
                                   let vidver = infer::Version {
                                       major: version::major_version(),
@@ -6209,6 +6731,7 @@ struct inference_loop {
                                       vidver: Some(vidver),
                                       videohash: hash.get_hash().to_vec(),
                                       timestamp: get_current_time(),
+                                      cvusability: o.results_image,
                                   };
 
                                   match maindbconnection
@@ -6378,21 +6901,27 @@ struct inference_loop {
                       .sum::<f32>()
                       / (o.results_video.len() as f32);
 
+                  // let bed_scaling_factor: f32 =
+                  //     o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                  //         / (o.results_image.len() as f32);
+
                   let bed_scaling_factor: f32 =
-                      o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                      o.results_image.iter().sum::<f32>()
                           / (o.results_image.len() as f32);
 
-                  let imgpreds: Vec<infer::Grpcimgprediction> = o
-                      .results_image
-                      .into_iter()
-                      .map(|i| infer::Grpcimgprediction {
-                          arm: i.ARM as u32,
-                          rail: i.RAIL as u32,
-                          leg: i.LEG as u32,
-                          pos: i.POS as u32,
-                          bed: i.BED as u32,
-                      })
-                      .collect();
+                  let imgpreds: Vec<infer::Grpcimgprediction> = Vec::new();
+
+                  // let imgpreds: Vec<infer::Grpcimgprediction> = o
+                  //     .results_image
+                  //     .into_iter()
+                  //     .map(|i| infer::Grpcimgprediction {
+                  //         arm: i.ARM as u32,
+                  //         rail: i.RAIL as u32,
+                  //         leg: i.LEG as u32,
+                  //         pos: i.POS as u32,
+                  //         bed: i.BED as u32,
+                  //     })
+                  //     .collect();
 
                   let vidver = infer::Version {
                       major: version::major_version(),
@@ -6407,6 +6936,7 @@ struct inference_loop {
                       vidver: Some(vidver),
                       videohash: hash.get_hash().to_vec(),
                       timestamp: get_current_time(),
+                      cvusability: o.results_image,
                   };
 
                   match &self.cachedb {
@@ -7224,6 +7754,7 @@ struct inference_loop {
   GITADD 'src/export.rs'
   GITADD 'src/filestore.rs'
   GITADD 'src/hasher.rs'
+  GITADD 'src/inferencerelatedimagecvusability.rs'
   GITADD 'src/inferencerelatedimage.rs'
   GITADD 'src/inferencerelated.rs'
   GITADD 'src/keyvaluedb.rs'
@@ -7235,6 +7766,7 @@ struct inference_loop {
   GITADD 'src/mlockffmpeg.rs'
   GITADD 'src/mlockffmpeg.txt'
   GITADD 'src/serverinferencechannelboth.rs'
+  GITADD 'src/serverinferencechannelimagecvusability.rs'
   GITADD 'src/serverinferencechannelimage.rs'
   GITADD 'src/serverinferencechannel.rs'
   GITADD 'src/server.rs'
@@ -7249,8 +7781,8 @@ struct inference_loop {
 
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Fixed tonic return error codes'
-  "${HOME}/SSH/K/P/setup.sh" ; git push
+  git status ; git commit -m 'Mostly completed implementing the inference class for cv usability'
+  "${HOME}/SSH/K/W/setup.sh" ; git push
 #+end_src
 
 ** COMMENT Run the script

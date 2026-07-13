@@ -6,11 +6,13 @@ mod filestore;
 mod hasher;
 mod inferencerelated;
 mod inferencerelatedimage;
+mod inferencerelatedimagecvusability;
 mod keyvaluedb;
 mod mlockffmpeg;
 mod serverinferencechannel;
 mod serverinferencechannelboth;
 mod serverinferencechannelimage;
+mod serverinferencechannelimagecvusability;
 mod version;
 mod videofft;
 mod videofftstats;
@@ -241,21 +243,26 @@ impl grpc_inferer {
                                     .sum::<f32>()
                                     / (o.results_video.len() as f32);
 
-                                let bed_scaling_factor: f32 =
-                                    o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
-                                        / (o.results_image.len() as f32);
+                                // let bed_scaling_factor: f32 =
+                                //     o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                                //         / (o.results_image.len() as f32);
 
-                                let imgpreds: Vec<infer::Grpcimgprediction> = o
-                                    .results_image
-                                    .into_iter()
-                                    .map(|i| infer::Grpcimgprediction {
-                                        arm: i.ARM as u32,
-                                        rail: i.RAIL as u32,
-                                        leg: i.LEG as u32,
-                                        pos: i.POS as u32,
-                                        bed: i.BED as u32,
-                                    })
-                                    .collect();
+                                let bed_scaling_factor: f32 = o.results_image.iter().sum::<f32>()
+                                    / (o.results_image.len() as f32);
+
+                                let imgpreds: Vec<infer::Grpcimgprediction> = Vec::new();
+
+                                // let imgpreds: Vec<infer::Grpcimgprediction> = o
+                                //     .results_image
+                                //     .into_iter()
+                                //     .map(|i| infer::Grpcimgprediction {
+                                //         arm: i.ARM as u32,
+                                //         rail: i.RAIL as u32,
+                                //         leg: i.LEG as u32,
+                                //         pos: i.POS as u32,
+                                //         bed: i.BED as u32,
+                                //     })
+                                //     .collect();
 
                                 let vidver = infer::Version {
                                     major: version::major_version(),
@@ -270,6 +277,7 @@ impl grpc_inferer {
                                     vidver: Some(vidver),
                                     videohash: hash.get_hash().to_vec(),
                                     timestamp: get_current_time(),
+                                    cvusability: o.results_image,
                                 };
 
                                 match maindbconnection
@@ -439,21 +447,26 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                     .sum::<f32>()
                     / (o.results_video.len() as f32);
 
-                let bed_scaling_factor: f32 =
-                    o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
-                        / (o.results_image.len() as f32);
+                // let bed_scaling_factor: f32 =
+                //     o.results_image.iter().map(|x| x.bed_status()).sum::<f32>()
+                //         / (o.results_image.len() as f32);
 
-                let imgpreds: Vec<infer::Grpcimgprediction> = o
-                    .results_image
-                    .into_iter()
-                    .map(|i| infer::Grpcimgprediction {
-                        arm: i.ARM as u32,
-                        rail: i.RAIL as u32,
-                        leg: i.LEG as u32,
-                        pos: i.POS as u32,
-                        bed: i.BED as u32,
-                    })
-                    .collect();
+                let bed_scaling_factor: f32 =
+                    o.results_image.iter().sum::<f32>() / (o.results_image.len() as f32);
+
+                let imgpreds: Vec<infer::Grpcimgprediction> = Vec::new();
+
+                // let imgpreds: Vec<infer::Grpcimgprediction> = o
+                //     .results_image
+                //     .into_iter()
+                //     .map(|i| infer::Grpcimgprediction {
+                //         arm: i.ARM as u32,
+                //         rail: i.RAIL as u32,
+                //         leg: i.LEG as u32,
+                //         pos: i.POS as u32,
+                //         bed: i.BED as u32,
+                //     })
+                //     .collect();
 
                 let vidver = infer::Version {
                     major: version::major_version(),
@@ -468,6 +481,7 @@ impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
                     vidver: Some(vidver),
                     videohash: hash.get_hash().to_vec(),
                     timestamp: get_current_time(),
+                    cvusability: o.results_image,
                 };
 
                 match &self.cachedb {

@@ -1,17 +1,32 @@
 use crate::filestore;
 use crate::hasher;
 use crate::inferencerelated;
-use crate::inferencerelatedimage;
+use crate::inferencerelatedimagecvusability;
 use crate::serverinferencechannel;
-use crate::serverinferencechannelimage;
+use crate::serverinferencechannelimagecvusability;
 use crate::videofft;
 use crate::videoview;
 
-const NUM_BATCHES_IN_VIDEO: u8 = 4;
+const NUM_BATCHES_IN_VIDEO: u8 = 8;
+
+fn get_num_batches_in_video(num_frames: u32) -> u32 {
+    let ret = {
+        let exact_num_batches = (num_frames as f32)
+            / ((8 as f32) * (serverinferencechannelimagecvusability::GOOD_BATCH_SIZE as f32));
+
+        if exact_num_batches.fract() > 0.1 {
+            exact_num_batches.ceil() as u32
+        } else {
+            exact_num_batches.floor() as u32
+        }
+    };
+
+    ret
+}
 
 pub struct combined_infer {
     infer_rd: std::sync::Arc<serverinferencechannel::client>,
-    infpairimage: std::sync::Arc<serverinferencechannelimage::client>,
+    infpairimage: std::sync::Arc<serverinferencechannelimagecvusability::client>,
     file_store: filestore::file_store,
 }
 
@@ -20,7 +35,7 @@ pub struct combined_infer {
 )]
 pub struct combined_results {
     pub results_video: Vec<inferencerelated::infer_results>,
-    pub results_image: Vec<inferencerelatedimage::infer_results>,
+    pub results_image: Vec<f32>,
 }
 
 impl combined_infer {
@@ -28,7 +43,7 @@ impl combined_infer {
         tracing::warn!("Constructing serverinferencechannelboth::combined_infer");
         Ok(Self {
             infer_rd: serverinferencechannel::client::new().await?,
-            infpairimage: serverinferencechannelimage::client::new().await,
+            infpairimage: serverinferencechannelimagecvusability::client::new().await,
             file_store: filestore::file_store::new().await?,
         })
     }
@@ -53,10 +68,15 @@ impl combined_infer {
         let video_tensor = slicer.get_video_tensor()?;
 
         let image_batch_tensor: tch::Tensor = {
-            const END_INDEX: u8 =
-                serverinferencechannelimage::GOOD_BATCH_SIZE * NUM_BATCHES_IN_VIDEO;
-            let image_indices: std::vec::Vec<i64> = (0..END_INDEX)
-                .map(|x: u8| ((video_tensor.size()[0] - 1) * (x as i64)) / ((END_INDEX - 1) as i64))
+            let end_index: u32 = (serverinferencechannelimagecvusability::GOOD_BATCH_SIZE as u32)
+                * get_num_batches_in_video(
+                    /*num_frames: u32 =*/ video_tensor.size()[0] as u32,
+                );
+
+            let image_indices: std::vec::Vec<i64> = (0..(end_index as i64))
+                .map(|x: i64| {
+                    ((video_tensor.size()[0] - 1) * (x as i64)) / ((end_index - 1) as i64)
+                })
                 .collect();
 
             let image_indices_tensor = tch::Tensor::from_slice(image_indices.as_slice());

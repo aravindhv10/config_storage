@@ -54,6 +54,18 @@ unsafe extern "C" {
 }
 
 unsafe extern "C" {
+    pub fn new_infer_slave_image_cv_usability(
+        batch_size: ::std::os::raw::c_uchar,
+    ) -> *mut ::std::os::raw::c_void;
+    pub fn delete_infer_slave_image_cv_usability(in_: *mut ::std::os::raw::c_void);
+    pub fn run_infer_slave_image_cv_usability(
+        in_: *mut ::std::os::raw::c_void,
+        blob_source: *mut ::std::os::raw::c_void,
+        blob_destination: *mut ::std::os::raw::c_void,
+    ) -> ::std::os::raw::c_int;
+}
+
+unsafe extern "C" {
     pub fn new_infer_slave_image(
         batch_size: ::std::os::raw::c_uchar,
     ) -> *mut ::std::os::raw::c_void;

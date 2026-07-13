@@ -188,6 +188,10 @@ void named_semaphore_r(void *in) { static_cast<_MACRO_SELF_ *>(in)->r(); }
 
 #undef _MACRO_SELF_
 
+inline std::string get_cv_usability_compiled_model_path() {
+  return std::string("/root/.cache/model_cv_usability.pt2");
+}
+
 inline std::string get_vsitter_compiled_model_path() {
   return std::string("/root/.cache/model_vsitter.pt2");
 }
@@ -277,8 +281,11 @@ public:
       mem_locks.push_back(new file_mlock(
           get_compiled_model_path(/*unsigned char i =*/4).c_str()));
 
+      // mem_locks.push_back(
+      //     new file_mlock(get_vsitter_compiled_model_path().c_str()));
+
       mem_locks.push_back(
-          new file_mlock(get_vsitter_compiled_model_path().c_str()));
+          new file_mlock(get_cv_usability_compiled_model_path().c_str()));
 
 #include "./mlockffmpeg.hh"
     }
@@ -483,6 +490,12 @@ inline torch::TensorOptions get_inference_device_and_dtype() {
   }
 }
 
+inline torch::TensorOptions get_image_cv_usability_output_device_and_dtype() {
+  return torch::TensorOptions()
+      .dtype(get_tensor_dtype<float>())
+      .device(torch::kCPU);
+}
+
 inline torch::TensorOptions get_image_output_device_and_dtype() {
   return torch::TensorOptions()
       .dtype(get_tensor_dtype<long>())
@@ -493,10 +506,95 @@ inline torch::TensorOptions get_output_device_and_dtype() {
   return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
 }
 
+#define _MACRO_SELF_ infer_slave_image_cv_usability
+
+class _MACRO_SELF_ {
+private:
+  lock_guard tmp;
+
+  torch::TensorOptions options_input;
+  torch::TensorOptions options_compute;
+  torch::TensorOptions options_output;
+
+  torch::inductor::AOTIModelPackageLoader loader;
+  std::size_t const batch_size;
+  std::size_t const bytes_to_copy;
+
+  c10::InferenceMode mode;
+
+public:
+  inline int infer(void *blob_source, void *blob_destination) {
+
+    try {
+
+      torch::Tensor cpu_tensor =
+          torch::from_blob(blob_source,
+                           {static_cast<long>(batch_size), IMAGE_RESOLUTION,
+                            IMAGE_RESOLUTION, NUM_CHANNELS},
+                           options_input);
+
+      std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+      std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+      torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+      std::memcpy(blob_destination, out_tensor.const_data_ptr(), bytes_to_copy);
+
+      return 0;
+
+    } catch (const std::exception &e) {
+
+      std::memset(blob_destination, 0, bytes_to_copy);
+
+      printf("Error: %s\n", e.what());
+
+      return -1;
+    }
+  }
+
+  _MACRO_SELF_(std::string const path_file_model, std::size_t BATCH_SIZE)
+      : options_input(get_image_input_device_and_dtype()),
+        options_compute(get_image_inference_device_and_dtype()),
+        options_output(get_image_cv_usability_output_device_and_dtype()),
+        loader(path_file_model), batch_size(BATCH_SIZE),
+        bytes_to_copy(batch_size * 2 * sizeof(float)) {}
+
+  ~_MACRO_SELF_() {}
+
+  inline static _MACRO_SELF_ *NEW(std::size_t BATCH_SIZE) {
+    std::string path_file_model(get_cv_usability_compiled_model_path());
+    return new _MACRO_SELF_(path_file_model, BATCH_SIZE);
+  }
+};
+
+extern "C" {
+void *new_infer_slave_image_cv_usability(unsigned char batch_size) {
+  return static_cast<void *>(
+      _MACRO_SELF_::NEW(static_cast<size_t>(batch_size)));
+}
+
+void delete_infer_slave_image_cv_usability(void *in) {
+  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+  delete tmp;
+}
+
+int run_infer_slave_image_cv_usability(void *in, void *blob_source, void *blob_destination) {
+  _MACRO_SELF_ *tmp = static_cast<_MACRO_SELF_ *>(in);
+
+  return tmp->infer(/*void *blob_source =*/blob_source,
+                    /*void *blob_destination =*/blob_destination);
+}
+}
+
+#undef _MACRO_SELF_
+
 #define _MACRO_SELF_ infer_slave_image
 
 class _MACRO_SELF_ {
 private:
+  lock_guard tmp;
+
   torch::TensorOptions options_input;
   torch::TensorOptions options_compute;
   torch::TensorOptions options_output;
@@ -506,8 +604,6 @@ private:
   std::size_t bytes_to_copy;
 
   c10::InferenceMode mode;
-
-  lock_guard tmp;
 
 public:
   inline int infer(void *blob_source, void *blob_destination) {
@@ -581,6 +677,8 @@ int run_infer_slave_image(void *in, void *blob_source, void *blob_destination) {
 
 class _MACRO_SELF_ {
 private:
+  lock_guard tmp;
+
   torch::TensorOptions options_input;
   torch::TensorOptions options_compute;
   torch::TensorOptions options_output;
@@ -590,8 +688,6 @@ private:
   std::size_t bytes_to_copy;
 
   c10::InferenceMode mode;
-
-  lock_guard tmp;
 
 public:
   inline int infer(void *blob_source, void *blob_destination) {

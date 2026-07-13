@@ -25,6 +25,10 @@ int do_fft_compress_efficient(void *const blob, uint16_t const len_t,
 
 void clear_cuda_cache();
 
+void *new_infer_slave_image_cv_usability(unsigned char batch_size);
+void delete_infer_slave_image_cv_usability(void *in);
+int run_infer_slave_image_cv_usability(void *in, void *blob_source, void *blob_destination);
+
 void *new_infer_slave_image(unsigned char batch_size);
 void delete_infer_slave_image(void *in);
 int run_infer_slave_image(void *in, void *blob_source, void *blob_destination);
