@@ -1,1 +1,1 @@
-FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
+FROM nvidia/cuda:13.3.0-devel-ubuntu26.04
