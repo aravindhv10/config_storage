@@ -796,10 +796,10 @@ get_apt_packages() {
         'bison' \
         'build-essential' \
         'clang' \
+        'clangd' \
         'clang-format' \
         'clang-tidy' \
         'clang-tools' \
-        'clangd' \
         'cmake' \
         'curl' \
         'elfutils' \
@@ -814,6 +814,11 @@ get_apt_packages() {
         'git' \
         'git-lfs' \
         'graphicsmagick' \
+        'gstreamer1.0-libav' \
+        'gstreamer1.0-plugins-bad' \
+        'gstreamer1.0-plugins-base' \
+        'gstreamer1.0-plugins-good' \
+        'gstreamer1.0-plugins-ugly' \
         'imagemagick' \
         'ipython3' \
         'jq' \
@@ -821,6 +826,9 @@ get_apt_packages() {
         'libevent-dev' \
         'libfontconfig-dev' \
         'libgit2-dev' \
+        'libgstreamer1.0-dev' \
+        'libgstreamer-plugins-bad1.0-dev' \
+        'libgstreamer-plugins-base1.0-dev' \
         'liblz4-dev' \
         'liblzo2-dev' \
         'libopencv-dev' \
