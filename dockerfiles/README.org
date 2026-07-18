@@ -52,15 +52,14 @@
 
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
-  FROM nvidia/cuda:13.3.0-devel-ubuntu26.04
+  FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
 #+end_src
 
 *** AMDGPU
 
 **** Main base image
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
-  FROM rocm/dev-ubuntu-24.04:7.2.4-complete
-  # rocm/dev-ubuntu-24.04:7.2.3-complete
+  FROM rocm/dev-ubuntu-24.04:7.2.3-complete
 #+end_src
 
 **** COMMENT provide default python venv for use later
