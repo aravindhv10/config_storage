@@ -1252,7 +1252,7 @@
         ++ [
           (unstable.python313.withPackages (ps:
             with ps; [
-              albumentations
+              # albumentations
               blake3
               datafusion
               einops
@@ -1327,7 +1327,7 @@
 
       fish = {
         enable = true;
-        package = unstable.fish;
+        package = pkgs.fish;
       };
 
       zsh = {
@@ -1351,7 +1351,7 @@
       users.asd = {
         description = "asd";
         isNormalUser = true;
-        shell = unstable.fish;
+        shell = pkgs.fish;
         packages = [];
 
         extraGroups = [
