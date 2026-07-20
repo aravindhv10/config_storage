@@ -11,11 +11,20 @@ RUN \
     echo 'START pip' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install -U \
+        'blake3' \
+        'datafusion' \
+        'fastexcel' \
         'ipython' \
+        'matplotlib' \
         'ninja' \
+        'openpyxl' \
         'packaging' \
+        'pandas' \
         'pip' \
+        'polars' \
         'psutil' \
+        'python-calamine' \
+        'seaborn' \
         'setuptools' \
         'wheel' \
     && echo 'DONE pip' ;
