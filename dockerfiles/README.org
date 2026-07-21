@@ -383,9 +383,6 @@ fd '^torch$' ./venv/  | grep '^\./venv/lib/python3\.[0-9][0-9]/site-packages/tor
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
-
-
-
   RUN \
       echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \

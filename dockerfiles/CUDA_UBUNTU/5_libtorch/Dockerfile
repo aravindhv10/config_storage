@@ -2,9 +2,6 @@ FROM 4_python
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
-
-
-
 RUN \
     echo 'START pytorch' \
     && . "${HOME}/venv/bin/activate" \
