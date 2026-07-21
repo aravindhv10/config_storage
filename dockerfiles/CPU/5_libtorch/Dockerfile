@@ -12,6 +12,6 @@ RUN \
             'torchvision' \
     && echo 'DONE pip' ;
 
-ENV LIBTORCH='/root/venv/lib/python3.13/site-packages/torch'
+ENV LIBTORCH='/root/venv/lib/python3.14/site-packages/torch/'
 ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
 ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"

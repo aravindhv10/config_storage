@@ -351,10 +351,11 @@ echo 'START Download and install zig' \
               'torchvision' \
       && echo 'DONE pip' ;
 
-  ENV LIBTORCH='/root/venv/lib/python3.13/site-packages/torch'
+  ENV LIBTORCH='/root/venv/lib/python3.14/site-packages/torch/'
   ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
+fd '^torch$' ./venv/  | grep '^\./venv/lib/python3\.[0-9][0-9]/site-packages/torch/$'
 
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/5_libtorch/Dockerfile
