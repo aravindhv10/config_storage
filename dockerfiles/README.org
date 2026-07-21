@@ -52,7 +52,7 @@
 
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
-  FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
+  FROM nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04
 #+end_src
 
 *** AMDGPU
@@ -335,6 +335,27 @@ echo 'START Download and install zig' \
     'torchcodec' \
     'torch-tensorrt' \
 
+
+
+
+torch==2.11.0
+torchvision==0.26.0
+torchaudio==2.11.0
+--index-url
+https://download.pytorch.org/whl/cu126
+# ROCM 7.2 (Linux only)
+pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/rocm7.2
+# CUDA 12.6
+pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cu126
+# CUDA 12.8
+pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+# CUDA 13.0
+pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cu130
+# CPU only
+pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+
+    
+
 *** CPU
 #+begin_src conf :mkdirp yes :tangle ./CPU/5_libtorch/Dockerfile
   FROM 4_python
@@ -346,9 +367,9 @@ echo 'START Download and install zig' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           '--index-url' 'https://download.pytorch.org/whl/cpu' \
-              'torch' \
-              'torchcodec' \
-              'torchvision' \
+          'torch==2.11.0' \
+          'torchvision==0.26.0' \
+          'torchaudio==2.11.0' \
       && echo 'DONE pip' ;
 
   ENV LIBTORCH='/root/venv/lib/python3.14/site-packages/torch/'

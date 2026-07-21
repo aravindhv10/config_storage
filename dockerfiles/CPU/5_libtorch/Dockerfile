@@ -7,9 +7,9 @@ RUN \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
         '--index-url' 'https://download.pytorch.org/whl/cpu' \
-            'torch' \
-            'torchcodec' \
-            'torchvision' \
+        'torch==2.11.0' \
+        'torchvision==0.26.0' \
+        'torchaudio==2.11.0' \
     && echo 'DONE pip' ;
 
 ENV LIBTORCH='/root/venv/lib/python3.14/site-packages/torch/'
