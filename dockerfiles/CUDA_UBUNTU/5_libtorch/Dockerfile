@@ -2,15 +2,19 @@ FROM 4_python
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
+
+
+
 RUN \
     echo 'START pytorch' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        '--extra-index-url' 'https://download.pytorch.org/whl/cu132' \
-            'torch' \
-            'torchao' \
-            'torchvision' \
-            'xformers' \
+        '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
+            'torch==2.11.0' \
+            'torchvision==0.26.0' \
+            'torchaudio==2.11.0' \
+            'torchao==0.17.0' \
+            'xformers==0.0.34' \
     && echo 'DONE pytorch' ;
 
 ENV LIBTORCH='/root/venv/lib/python3.12/site-packages/torch'
