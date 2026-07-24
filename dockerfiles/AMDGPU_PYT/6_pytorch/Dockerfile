@@ -1,4 +1,4 @@
-FROM 5_libtorch
+FROM 6_Common_python_data
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
@@ -6,43 +6,21 @@ RUN \
     echo 'START Quantization, optimization and offloading' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        "timm" \
         'accelerate' \
-        'albumentations' \
         'datasets' \
         'deepspeed' \
-        'einops' \
+        'diffusers' \
         'evaluate' \
-        'fastapi[standard]' \
-        'fastexcel' \
-        'grpcio' \
-        'grpcio-tools' \
-        'inotify-simple' \
-        'ipython' \
-        'ipywidgets' \
-        'jupyter' \
-        'jupyterlab' \
+        'huggingface_hub' \
         'lightning[extra]' \
-        'matplotlib' \
         'onnxruntime-gpu' \
         'onnxscript' \
-        'opencv_contrib_python' \
-        'opencv_python' \
-        'openvino' \
         'optimum' \
         'optimum-quanto' \
-        'packaging' \
-        'pillow' \
         'prodigyopt' \
-        'protobuf' \
-        'requests' \
-        'safetensors' \
-        'scikit-learn' \
-        'sentencepiece' \
+        'timm' \
         'torch_dct' \
         'torchmetrics' \
-        'tqdm' \
+        'transformers' \
         'ultralytics' \
-        'urllib3' \
-        'wandb' \
     && echo 'DONE onnxstuff' ;
