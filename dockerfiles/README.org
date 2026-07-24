@@ -539,7 +539,7 @@ echo 'START Download and install zig' \
 #+end_src
 
 *** AMDGPU
-#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/6_pytorch/Dockerfile
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/7_deep_learning/Dockerfile
   FROM 6_Common_python_data
 
   COPY './important_functions.sh' '/root/important_functions.sh'
@@ -596,39 +596,42 @@ echo 'START Download and install zig' \
 ** CPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cpu.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CPU/0_base'
-  './build_container.sh' 'CPU/1_install_packages'
-  './build_container.sh' 'CPU/2_install_rust'
-  './build_container.sh' 'CPU/3_good_setup'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'CPU/5_libtorch'
-  './build_container.sh' 'CPU/6_pytorch'
+  './build_container.sh' 'CPU/0_base/Dockerfile'
+  './build_container.sh' 'CPU/1_install_packages/Dockerfile'
+  './build_container.sh' 'CPU/2_install_rust/Dockerfile'
+  './build_container.sh' 'CPU/3_good_setup/Dockerfile'
+  './build_container.sh' 'CPU/4_python/Dockerfile'
+  './build_container.sh' 'CPU/5_libtorch/Dockerfile'
+  './build_container.sh' 'CPU/6_Common_python_data/Dockerfile'
+  './build_container.sh' 'CPU/7_deep_learning/Dockerfile'
   exit '0'
 #+end_src
 
 ** CUDA_UBUNTU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_cuda.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CUDA_UBUNTU/0_base'
-  './build_container.sh' 'CPU/1_install_packages'
-  './build_container.sh' 'CPU/2_install_rust'
-  './build_container.sh' 'CPU/3_good_setup'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
-  './build_container.sh' 'CUDA_UBUNTU/6_pytorch'
+  './build_container.sh' 'CUDA_UBUNTU/0_base/Dockerfile'
+  './build_container.sh' 'CPU/1_install_packages/Dockerfile'
+  './build_container.sh' 'CPU/2_install_rust/Dockerfile'
+  './build_container.sh' 'CPU/3_good_setup/Dockerfile'
+  './build_container.sh' 'CPU/4_python/Dockerfile'
+  './build_container.sh' 'CUDA_UBUNTU/5_libtorch/Dockerfile'
+  './build_container.sh' 'CPU/6_Common_python_data/Dockerfile'
+  './build_container.sh' 'CUDA_UBUNTU/7_deep_learning/Dockerfile'
   exit '0'
 #+end_src
 
 ** AMDGPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm_pytorch.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'AMDGPU_PYT/0_base'
-  './build_container.sh' 'CPU/1_install_packages'
-  './build_container.sh' 'CPU/2_install_rust'
-  './build_container.sh' 'CPU/3_good_setup'
-  './build_container.sh' 'CPU/4_python'
-  './build_container.sh' 'AMDGPU_PYT/5_libtorch'
-  './build_container.sh' 'AMDGPU_PYT/6_pytorch'
+  './build_container.sh' 'CPU/0_base/Dockerfile'
+  './build_container.sh' 'CPU/1_install_packages/Dockerfile'
+  './build_container.sh' 'CPU/2_install_rust/Dockerfile'
+  './build_container.sh' 'CPU/3_good_setup/Dockerfile'
+  './build_container.sh' 'CPU/4_python/Dockerfile'
+  './build_container.sh' 'CPU/5_libtorch/Dockerfile'
+  './build_container.sh' 'CPU/6_Common_python_data/Dockerfile'
+  './build_container.sh' 'CPU/7_deep_learning/Dockerfile'
   exit '0'
 #+end_src
 
