@@ -624,14 +624,14 @@ echo 'START Download and install zig' \
 ** AMDGPU
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./build_rocm_pytorch.sh
   cd "$(dirname -- "${0}")"
-  './build_container.sh' 'CPU/0_base/Dockerfile'
+  './build_container.sh' 'AMDGPU_PYT/0_base/Dockerfile'
   './build_container.sh' 'CPU/1_install_packages/Dockerfile'
   './build_container.sh' 'CPU/2_install_rust/Dockerfile'
   './build_container.sh' 'CPU/3_good_setup/Dockerfile'
   './build_container.sh' 'CPU/4_python/Dockerfile'
-  './build_container.sh' 'CPU/5_libtorch/Dockerfile'
+  './build_container.sh' 'AMDGPU_PYT/5_libtorch/Dockerfile'
   './build_container.sh' 'CPU/6_Common_python_data/Dockerfile'
-  './build_container.sh' 'CPU/7_deep_learning/Dockerfile'
+  './build_container.sh' 'AMDGPU_PYT/7_deep_learning/Dockerfile'
   exit '0'
 #+end_src
 
@@ -744,30 +744,34 @@ echo 'START Download and install zig' \
   CLEAN '.git.sh'
   CLEAN 'README.org~'
 
-  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
-  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
-  GITADD 'AMDGPU_PYT/6_pytorch/Dockerfile'
   GITADD 'build_container.sh'
   GITADD 'build_cpu.sh'
   GITADD 'build_cuda.sh'
   GITADD 'build_rocm_pytorch.sh'
-  GITADD 'CPU/0_base/Dockerfile'
-  GITADD 'CPU/1_install_packages/Dockerfile'
-  GITADD 'CPU/2_install_rust/Dockerfile'
-  GITADD 'CPU/3_good_setup/Dockerfile'
-  GITADD 'CPU/4_python/Dockerfile'
-  GITADD 'CPU/5_libtorch/Dockerfile'
-  GITADD 'CPU/6_pytorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
-  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
-  GITADD 'CUDA_UBUNTU/6_pytorch/Dockerfile'
   GITADD '.gitignore'
   GITADD 'README.org'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
 
-  git commit -m 'Updated rustup install script hash' ; git status
+  GITADD 'CPU/0_base/Dockerfile'
+  GITADD 'CPU/1_install_packages/Dockerfile'
+  GITADD 'CPU/2_install_rust/Dockerfile'
+  GITADD 'CPU/3_good_setup/Dockerfile'
+  GITADD 'CPU/4_python/Dockerfile'
+  GITADD 'CPU/5_libtorch/Dockerfile'
+  GITADD 'CPU/6_Common_python_data/Dockerfile'
+  GITADD 'CPU/7_deep_learning/Dockerfile'
+
+  GITADD 'AMDGPU_PYT/0_base/Dockerfile'
+  GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
+  GITADD 'AMDGPU_PYT/7_deep_learning/Dockerfile'
+
+  GITADD 'CUDA_UBUNTU/0_base/Dockerfile'
+  GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
+  GITADD 'CUDA_UBUNTU/7_deep_learning/Dockerfile'
+
+  git commit -m 'Major Reorg of docker files' ; git status
   "${HOME}/SSH/K/P/setup.sh" ; git push
 
   exit '0'
