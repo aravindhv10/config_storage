@@ -268,20 +268,10 @@ echo 'START Download and install zig' \
       echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install -U \
-          'blake3' \
-          'datafusion' \
-          'fastexcel' \
           'ipython' \
-          'matplotlib' \
           'ninja' \
-          'openpyxl' \
           'packaging' \
-          'pandas' \
           'pip' \
-          'polars' \
-          'psutil' \
-          'python-calamine' \
-          'seaborn' \
           'setuptools' \
           'wheel' \
       && echo 'DONE pip' ;
@@ -423,22 +413,61 @@ fd '^torch$' ./venv/  | grep '^\./venv/lib/python3\.[0-9][0-9]/site-packages/tor
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
 
-** 6_pytorch
-
-*** CPU
-#+begin_src conf :mkdirp yes :tangle ./CPU/6_pytorch/Dockerfile
+** 6_Common_python_data
+#+begin_src conf :mkdirp yes :tangle ./CPU/6_Common_python_data/Dockerfile
   FROM 5_libtorch
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
   RUN \
-      echo 'START pip' \
+      echo 'START hashing' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'blake3' \
+      && echo 'DONE hashing' ;
+
+  RUN \
+      echo 'START dataframe' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'datafusion' \
+          'fastexcel' \
+          'openpyxl' \
+          'pandas' \
+          'polars' \
+          'python-calamine' \
+      && echo 'DONE dataframe' ;
+
+  RUN \
+      echo 'START others' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'fastapi[standard]' \
+          'inotify-simple' \
+          'ipywidgets' \
+          'jupyter' \
+          'jupyterlab' \
+          'psutil' \
+      && echo 'DONE others' ;
+
+  RUN \
+      echo 'START plotting' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'matplotlib' \
+          'seaborn' \
+      && echo 'DONE plotting' ;
+
+  RUN \
+      echo 'START image and tensor stuff' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           'albumentations' \
           'einops' \
-          'timm' \
-      && echo 'DONE pip' ;
+          'opencv_contrib_python' \
+          'opencv_python' \
+          'openvino' \
+      && echo 'DONE image and tensor stuff' ;
 
   RUN \
       echo 'START GRPC stuff' \
@@ -447,6 +476,22 @@ fd '^torch$' ./venv/  | grep '^\./venv/lib/python3\.[0-9][0-9]/site-packages/tor
           'grpcio' \
           'grpcio-tools' \
       && echo 'DONE GRPC stuff' ;
+#+end_src
+
+** 7_deep_learning
+
+*** CPU
+#+begin_src conf :mkdirp yes :tangle ./CPU/7_deep_learning/Dockerfile
+  FROM 6_Common_python_data
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+
+  RUN \
+      echo 'START timm' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install \
+          'timm' \
+      && echo 'DONE timm' ;
 
   RUN \
       echo 'START onnxstuff' \
@@ -458,10 +503,8 @@ fd '^torch$' ./venv/  | grep '^\./venv/lib/python3\.[0-9][0-9]/site-packages/tor
 #+end_src
 
 *** CUDA_UBUNTU
-
-**** Main parts
-#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/6_pytorch/Dockerfile
-  FROM 5_libtorch
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/7_deep_learning/Dockerfile
+  FROM 6_Common_python_data
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
@@ -473,28 +516,15 @@ fd '^torch$' ./venv/  | grep '^\./venv/lib/python3\.[0-9][0-9]/site-packages/tor
               "timm" \
               "transformers" \
               'accelerate' \
-              'albumentations' \
               'datasets' \
               'deepspeed' \
               'diffusers' \
-              'einops' \
               'evaluate' \
-              'fastapi[standard]' \
-              'fastexcel' \
-              'grpcio' \
-              'grpcio-tools' \
-              'inotify-simple' \
-              'ipython' \
-              'ipywidgets' \
-              'jupyter' \
-              'jupyterlab' \
               'lightning[extra]' \
-              'matplotlib' \
               'onnxruntime-gpu' \
               'onnxscript' \
-              'opencv_contrib_python' \
-              'opencv_python' \
-              'openvino' \
+
+
               'optimum' \
               'optimum-quanto' \
               'packaging' \
