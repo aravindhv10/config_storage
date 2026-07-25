@@ -1,4 +1,4 @@
-FROM 6_Common_python_data
+FROM 6_common_python_data
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 

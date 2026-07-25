@@ -387,8 +387,8 @@ echo 'START Download and install zig' \
   ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
 #+end_src
 
-** 6_Common_python_data
-#+begin_src conf :mkdirp yes :tangle ./CPU/6_Common_python_data/Dockerfile
+** 6_common_python_data
+#+begin_src conf :mkdirp yes :tangle ./CPU/6_common_python_data/Dockerfile
   FROM 5_libtorch
 
   COPY './important_functions.sh' '/root/important_functions.sh'
@@ -465,7 +465,7 @@ echo 'START Download and install zig' \
 
 *** CPU
 #+begin_src conf :mkdirp yes :tangle ./CPU/7_deep_learning/Dockerfile
-  FROM 6_Common_python_data
+  FROM 6_common_python_data
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
@@ -487,7 +487,7 @@ echo 'START Download and install zig' \
 
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/7_deep_learning/Dockerfile
-  FROM 6_Common_python_data
+  FROM 6_common_python_data
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
@@ -540,7 +540,7 @@ echo 'START Download and install zig' \
 
 *** AMDGPU
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/7_deep_learning/Dockerfile
-  FROM 6_Common_python_data
+  FROM 6_common_python_data
 
   COPY './important_functions.sh' '/root/important_functions.sh'
 
@@ -602,7 +602,7 @@ echo 'START Download and install zig' \
   './build_container.sh' 'CPU/3_good_setup'
   './build_container.sh' 'CPU/4_python'
   './build_container.sh' 'CPU/5_libtorch'
-  './build_container.sh' 'CPU/6_Common_python_data'
+  './build_container.sh' 'CPU/6_common_python_data'
   './build_container.sh' 'CPU/7_deep_learning'
   exit '0'
 #+end_src
@@ -616,7 +616,7 @@ echo 'START Download and install zig' \
   './build_container.sh' 'CPU/3_good_setup'
   './build_container.sh' 'CPU/4_python'
   './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
-  './build_container.sh' 'CPU/6_Common_python_data'
+  './build_container.sh' 'CPU/6_common_python_data'
   './build_container.sh' 'CUDA_UBUNTU/7_deep_learning'
   exit '0'
 #+end_src
@@ -630,7 +630,7 @@ echo 'START Download and install zig' \
   './build_container.sh' 'CPU/3_good_setup'
   './build_container.sh' 'CPU/4_python'
   './build_container.sh' 'AMDGPU_PYT/5_libtorch'
-  './build_container.sh' 'CPU/6_Common_python_data'
+  './build_container.sh' 'CPU/6_common_python_data'
   './build_container.sh' 'AMDGPU_PYT/7_deep_learning'
   exit '0'
 #+end_src
@@ -760,7 +760,7 @@ echo 'START Download and install zig' \
   GITADD 'CPU/3_good_setup/Dockerfile'
   GITADD 'CPU/4_python/Dockerfile'
   GITADD 'CPU/5_libtorch/Dockerfile'
-  GITADD 'CPU/6_Common_python_data/Dockerfile'
+  GITADD 'CPU/6_common_python_data/Dockerfile'
   GITADD 'CPU/7_deep_learning/Dockerfile'
 
   GITADD 'AMDGPU_PYT/0_base/Dockerfile'

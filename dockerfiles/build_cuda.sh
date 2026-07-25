@@ -6,6 +6,6 @@ cd "$(dirname -- "${0}")"
 './build_container.sh' 'CPU/3_good_setup'
 './build_container.sh' 'CPU/4_python'
 './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
-'./build_container.sh' 'CPU/6_Common_python_data'
+'./build_container.sh' 'CPU/6_common_python_data'
 './build_container.sh' 'CUDA_UBUNTU/7_deep_learning'
 exit '0'
