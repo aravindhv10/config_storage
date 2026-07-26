@@ -101,7 +101,7 @@
   model = "qwen3b"
 #+begin_src conf :mkdirp yes :tangle ./.config/helix/languages.toml
   [language-server.llm-ls]
-  command = "llm-ls"
+  command = "llm-ls.sh"
 
   [language-server.llm-ls.config]
 
@@ -117,6 +117,13 @@
   model = "qwen3b"
 
   # Local server doesn't require authentication
+  [[language]]
+  name = "rust"
+  language-servers = [ "rust-analyzer", "llm-ls" ]
+
+  [[language]]
+  name = "cpp"
+  language-servers = [ "clangd", "llm-ls" ]
 #+end_src
 
 * COMMENT work space
