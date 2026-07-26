@@ -287,5 +287,3 @@
           './GIT/commit_and_push.sh'
       " "log" "err")
 #+end_src
-
-git 
