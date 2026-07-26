@@ -286,7 +286,3 @@
           './GIT/commit_and_push.sh'
       " "log" "err")
 #+end_src
-
-	coding_setup/test.sh
-
-no changes added to commit (use "git add" and/or "git commit -a")
