@@ -31,6 +31,8 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
+  coding_setup/1_download_model.sh
+  coding_setup/2_start_server.sh
   coding_setup/README.org
   compress.sh
   dockerfiles/README.org
@@ -283,3 +285,19 @@
           './GIT/commit_and_push.sh'
       " "log" "err")
 #+end_src
+
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+rm 'home_config/#main.org#'
+rm 'home_config/.#main.org'
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	coding_setup/test.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
