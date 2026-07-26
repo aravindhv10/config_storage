@@ -8,4 +8,5 @@ cd "$(dirname -- "${0}")"
 './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
 './build_container.sh' 'CPU/6_common_python_data'
 './build_container.sh' 'CUDA_UBUNTU/7_deep_learning'
+'./build_container.sh' 'CPU/8_coding_setup'
 exit '0'
