@@ -14,10 +14,10 @@
       -it --rm \
       --name llama-cpp-openvino \
       --network host \
-      -v "${HOME}/MODELS:/MODELS" \
+      -v "/home/llm/everything/MODELS:/MODELS" \
       -e 'GGML_OPENVINO_DEVICE=CPU' \
       'ghcr.io/ggml-org/llama.cpp:full-openvino' \
-      'llama-server' \
+      --server \
       -m '/MODELS/qwen2.5-coder-3b-instruct-q4_0.gguf' \
       --host 0.0.0.0 \
       --port 8080 \
@@ -26,4 +26,50 @@
       --embedding \
       --alias qwen3b \
   ;
+#+end_src
+curl http://127.0.0.1:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3b",
+    "messages": [{"role": "user", "content": "Write a fast fibonacci function in Rust."}]
+  }'
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./tmp.py
+  {
+      "choices": [
+          {
+              "finish_reason": "stop",
+              "index": 0,
+              "message": {
+                  "role": "assistant",
+                  "content":
+                  '''
+                  Certainly! A fast Fibonacci function can be implemented using memoization or dynamic programming. Here\'s a simple implementation using memoization in Rust:\n\n```rust\nuse std::collections::HashMap;\n\nfn fibonacci_memo(n: usize, memo: &mut HashMap<usize, usize>) -> usize {\n    if let Some(&value) = memo.get(&n) {\n        return value;\n    }\n    if n <= 1 {\n        return n;\n    }\n    let result = fibonacci_memo(n - 1, memo) + fibonacci_memo(n - 2, memo);\n    memo.insert(n, result);\n    result\n}\n\nfn fibonacci(n: usize) -> usize {\n    let mut memo = HashMap::new();\n    fibonacci_memo(n, &mut memo)\n}\n\nfn main() {\n    let n = 10; // Change this to compute a different Fibonacci number\n    println!("Fibonacci number at position {}: {}", n, fibonacci(n));\n}\n```\n\n### Explanation:\n\n1. **Memoization**: We use a `HashMap` to store previously computed Fibonacci numbers, which helps in avoiding redundant calculations and significantly improves performance.\n\n2. **Base Case**: If `n` is 0 or 1, the function returns `n` directly, as these are the base cases of the Fibonacci sequence.\n\n3. **Recursive Case**: For other values of `n`, the function recursively calculates the sum of the two preceding Fibonacci numbers. The result is stored in the `memo` map before being returned.\n\n4. **Main Function**: The `main` function demonstrates how to use the `fibonacci` function to compute the Fibonacci number at a specific position.\n\nThis implementation is efficient and works well for reasonably large values of `n`.
+                  ''',
+              },
+          }
+      ],
+      "created": 1785045268,
+      "model": "qwen3b",
+      "system_fingerprint": "b10121-555881ebc",
+      "object": "chat.completion",
+      "usage": {
+          "completion_tokens": 352,
+          "prompt_tokens": 37,
+          "total_tokens": 389,
+          "prompt_tokens_details": {"cached_tokens": 0},
+      },
+      "id": "chatcmpl-kWZkTP4qhHBLIQGcrqHsyYfbC8sJT9P3",
+      "timings": {
+          "cache_n": 0,
+          "prompt_n": 37,
+          "prompt_ms": 705.126,
+          "prompt_per_token_ms": 19.05745945945946,
+          "prompt_per_second": 52.47289136976938,
+          "predicted_n": 352,
+          "predicted_ms": 57370.599,
+          "predicted_per_token_ms": 162.98465625,
+          "predicted_per_second": 6.135546885260863,
+      },
+  }
 #+end_src
