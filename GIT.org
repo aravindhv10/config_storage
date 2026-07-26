@@ -34,6 +34,7 @@
   coding_setup/1_download_model.sh
   coding_setup/2_start_server.sh
   coding_setup/3_download_lsp.sh
+  coding_setup/.config/helix/languages.toml
   coding_setup/README.org
   compress.sh
   dockerfiles/README.org
@@ -286,3 +287,5 @@
           './GIT/commit_and_push.sh'
       " "log" "err")
 #+end_src
+
+git 
