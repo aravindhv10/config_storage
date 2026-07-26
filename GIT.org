@@ -60,8 +60,6 @@
   GIT.org
   GIT/pull.sh
   home_config/Cargo.toml
-  home_config/#main.org#
-  home_config/.#main.org
   home_config/src/fish_config.fish
   home_config/src/helix_config.toml
   home_config/src/main.rs
@@ -188,6 +186,8 @@
   wrapper_code/wrapper.org~
   zellij_flatpak_wrapper/#main.org#
   zellij_flatpak_wrapper/main.org~
+  home_config/#main.org#
+  home_config/.#main.org
 #+end_src
 
 ** ignore

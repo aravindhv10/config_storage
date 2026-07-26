@@ -11,7 +11,7 @@
 #+end_src
 
 * Start the llama.cpp cpu image
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./tmp.sh
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./2_start_server.sh
   podman run \
       -it --rm \
       --name llama-cpp-openvino \
@@ -41,9 +41,13 @@
 
 #+end_src
 
-git add '--pathspec-from-file='
-
 * COMMENT work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+#+end_src
+
+
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./tmp.py
   {
       "choices": [

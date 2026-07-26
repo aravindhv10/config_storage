@@ -112,6 +112,8 @@
 /wrapper_code/wrapper.org~
 /zellij_flatpak_wrapper/#main.org#
 /zellij_flatpak_wrapper/main.org~
+/home_config/#main.org#
+/home_config/.#main.org
 add_elpaca_submodules.sh
 add_rust_submodules.sh
 dockerfiles/AMDGPU_PYT/0_base/build/
