@@ -591,6 +591,29 @@ echo 'START Download and install zig' \
       && echo 'DONE onnxstuff' ;
 #+end_src
 
+** 8_coding_setup
+
+*** CPU
+#+begin_src conf :mkdirp yes :tangle ./CPU/8_coding_setup/Dockerfile
+  FROM 7_deep_learning
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
+*** CUDA_UBUNTU
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/8_coding_setup/Dockerfile
+  FROM 7_deep_learning
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
+*** AMDGPU
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/8_coding_setup/Dockerfile
+  FROM 7_deep_learning
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
 * Script to build images
 
 ** CPU
