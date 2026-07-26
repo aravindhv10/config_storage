@@ -1,6 +1,8 @@
 /application_shortcut_scripts/README.org~
 /BitNet/main.org~
 /cargo/README.org~
+/coding_setup/#README.org#
+/coding_setup/.#README.org
 /coding_setup/README.org~
 /debootstrap/#README.org#
 /debootstrap/README.org~
@@ -64,6 +66,9 @@
 /.#GIT.org
 /GIT.org~
 /helix/README.org~
+/home_config/#main.org#
+/home_config/.#main.org
+/home_config/src/helix_languages.toml~
 /#main.org#
 /.#main.org
 /.main.org.~undo-tree~
@@ -112,8 +117,6 @@
 /wrapper_code/wrapper.org~
 /zellij_flatpak_wrapper/#main.org#
 /zellij_flatpak_wrapper/main.org~
-/home_config/#main.org#
-/home_config/.#main.org
 add_elpaca_submodules.sh
 add_rust_submodules.sh
 dockerfiles/AMDGPU_PYT/0_base/build/

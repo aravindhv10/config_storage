@@ -30,6 +30,7 @@
 #+end_src
 
 ** git add
+coding_setup/test.sh
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
   coding_setup/1_download_model.sh
   coding_setup/2_start_server.sh
@@ -66,6 +67,7 @@
   home_config/Cargo.toml
   home_config/src/fish_config.fish
   home_config/src/helix_config.toml
+  home_config/src/helix_languages.toml
   home_config/src/main.rs
   home_config/src/mysync.rs
   home_config/src/shrc
@@ -79,6 +81,8 @@
   application_shortcut_scripts/README.org~
   BitNet/main.org~
   cargo/README.org~
+  coding_setup/#README.org#
+  coding_setup/.#README.org
   coding_setup/README.org~
   debootstrap/#README.org#
   debootstrap/README.org~
@@ -142,6 +146,9 @@
   .#GIT.org
   GIT.org~
   helix/README.org~
+  home_config/#main.org#
+  home_config/.#main.org
+  home_config/src/helix_languages.toml~
   #main.org#
   .#main.org
   .main.org.~undo-tree~
@@ -190,8 +197,6 @@
   wrapper_code/wrapper.org~
   zellij_flatpak_wrapper/#main.org#
   zellij_flatpak_wrapper/main.org~
-  home_config/#main.org#
-  home_config/.#main.org
 #+end_src
 
 ** ignore
