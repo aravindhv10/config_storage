@@ -31,8 +31,10 @@
 
 ** git add
 #+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
+  coding_setup/README.org
   compress.sh
   dockerfiles/README.org
+  dockerfiles/tmp.sh
   emacs_new/bindings.el
   emacs_new/.emacs.d/early-init.el
   emacs_new/.emacs.d/init.el
@@ -58,6 +60,8 @@
   GIT.org
   GIT/pull.sh
   home_config/Cargo.toml
+  home_config/#main.org#
+  home_config/.#main.org
   home_config/src/fish_config.fish
   home_config/src/helix_config.toml
   home_config/src/main.rs
@@ -73,9 +77,11 @@
   application_shortcut_scripts/README.org~
   BitNet/main.org~
   cargo/README.org~
+  coding_setup/README.org~
   debootstrap/#README.org#
   debootstrap/README.org~
   dnsmasq/README.org~
+  dockerfiles/CPU/6_Common_python_data/Dockerfile
   dockerfiles/#README.org#
   dockerfiles/.#README.org
   emacs.d/early-init.el~
@@ -242,6 +248,12 @@
   work.sh
   wrapper_code/result
   wrapper_code/wrapper.el
+  dockerfiles/CPU/6_common_python_data/build/
+  dockerfiles/CPU/6_common_python_data/important_functions.sh
+  dockerfiles/CPU/7_deep_learning/build/
+  dockerfiles/CPU/7_deep_learning/important_functions.sh
+  dockerfiles/CPU/7_deep_learning/run_cpu.sh
+  dockerfiles/CPU/7_deep_learning/run_cpu_7_deep_learning.sh
 #+end_src
 
 * work space

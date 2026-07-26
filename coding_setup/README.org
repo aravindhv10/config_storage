@@ -1,3 +1,4 @@
+* Download the main qwen coding model
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./1_download_model.sh
   . "${HOME}/important_functions.sh" 
 
@@ -9,6 +10,7 @@
   ;
 #+end_src
 
+* Start the llama.cpp cpu image
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./tmp.sh
   podman run \
       -it --rm \
@@ -27,13 +29,21 @@
       --alias qwen3b \
   ;
 #+end_src
-curl http://127.0.0.1:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "qwen3b",
-    "messages": [{"role": "user", "content": "Write a fast fibonacci function in Rust."}]
-  }'
 
+* Try sending a query
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./test.sh
+  curl http://127.0.0.1:8080/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+      "model": "qwen3b",
+      "messages": [{"role": "user", "content": "Write a fast fibonacci function in Rust."}]
+    }'
+
+#+end_src
+
+git add '--pathspec-from-file='
+
+* COMMENT work space
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./tmp.py
   {
       "choices": [
