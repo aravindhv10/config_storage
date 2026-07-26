@@ -1,42 +1,17 @@
-# ==============================================================================
-# 1. THE RECOGNIZED LLM-LS CORE DEFINITION Blueprint
-# ==============================================================================
 [language-server.llm-ls]
 command = "llm-ls"
-args = ["--stdio"]
 
 [language-server.llm-ls.config]
-# llm-ls appends "/v1/completions" internally on "openai" backend types. 
-# Provide the clean root socket path matching your Podman port mapping:
-url = "http://127.0.0.1:8080"
+
+[language-server.llm-ls.config.model]
+
+# OpenAI-compatible provider
+type = "open_ai"
+
+# Your llama.cpp endpoint
+chat_endpoint = "http://127.0.0.1:8080/v1/chat/completions"
+
+# Replace with your model id
 model = "qwen3b"
-backend = "openai"
-context_window = 4096
 
-# The exact structural keys llm-ls demands to feed llama-server's OpenAI API layer
-[language-server.llm-ls.config.request_body]
-max_tokens = 128
-temperature = 0.2
-top_p = 0.95
-
-# Explicit Qwen 2.5 Coder specific exact raw tokens
-[language-server.llm-ls.config.fim]
-enabled = true
-prefix = "<fim_prefix>"
-middle = "<fim_middle>"
-suffix = "<fim_suffix>"
-
-# Bypass strict network security layers inside local container hooks
-[language-server.llm-ls.config.tls]
-verify = false
-
-# ==============================================================================
-# 2. FILE TYPE ALLOCATIONS (Array of Tables Override Layout)
-# ==============================================================================
-[[language]]
-name = "rust"
-language-servers = [ "rust-analyzer", "llm-ls" ]
-
-[[language]]
-name = "cpp"
-language-servers = [ "clangd", "llm-ls" ]
+# Local server doesn't require authentication
