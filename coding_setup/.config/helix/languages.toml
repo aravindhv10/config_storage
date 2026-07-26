@@ -2,25 +2,33 @@
 command = "llm-ls"
 args = ["--stdio"]
 
-[language-server.llm-ls.config]
-# point this to your local podman container port
-url = "http://127.0.0.1:8080/v1/completions"
-model = "qwen3b"
+# [language-server.llm-ls.config]
+# # point this to your local podman container port
+# url = "http://127.0.0.1:8080/v1/completions"
+# model = "qwen3b"
+# backend = "openai"
+# Move your settings from config to initialization_options
+[language-server.llm-ls.initialization_options]
 backend = "openai"
+model = "qwen3b"
+url = "http://127.0.0.1:8080"
+context_window = { max_tokens = 4096 }
+tls = { skip_tls_verification = true }
+fim = { enabled = true, prefix = "<fim_prefix>", middle = "<fim_middle>", suffix = "<fim_suffix>" }
 
 # Configure the Fill-In-The-Middle structure layout explicitly for Qwen
-[language-server.llm-ls.config.fim]
-enabled = true
-prefix = "<fim_prefix>"
-middle = "<fim_middle>"
-suffix = "<fim_suffix>"
+# [language-server.llm-ls.config.fim]
+# enabled = true
+# prefix = "<fim_prefix>"
+# middle = "<fim_middle>"
+# suffix = "<fim_suffix>"
 
 # Set the operational context scope parameters
-[language-server.llm-ls.config.context_window]
-max_tokens = 4096
+# [language-server.llm-ls.config.context_window]
+# max_tokens = 4096
 
-[language-server.llm-ls.config.tls]
-verify = false
+# [language-server.llm-ls.config.tls]
+# verify = false
 
 [[language]]
 name = "rust"
