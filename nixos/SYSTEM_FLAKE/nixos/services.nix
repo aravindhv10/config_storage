@@ -4,6 +4,7 @@
   ...
 }: {
   services = {
+
     chrony.enable = true;
     openssh.enable = true;
     printing.enable = true;
@@ -108,8 +109,8 @@
     };
 
     k3s = {
-      enable = false;
-      role = "server";
-    };
+        enable = false;
+        role = "server";
+    } ;
   };
 }

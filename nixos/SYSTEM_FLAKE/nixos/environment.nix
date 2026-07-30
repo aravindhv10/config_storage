@@ -133,6 +133,7 @@
     ffmpeg_8-full
     fzf
     garage_2
+    ghostty
     gitui
     gptfdisk
     helix
