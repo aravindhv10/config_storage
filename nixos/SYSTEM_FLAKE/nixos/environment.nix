@@ -988,7 +988,7 @@ in {
       ++ [
         (unstable.python313.withPackages (ps:
           with ps; [
-            albumentations
+            albumentationsx
             blake3
             datafusion
             einops
