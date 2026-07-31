@@ -50,7 +50,7 @@ RUN \
     echo 'START image and tensor stuff' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install \
-        'albumentations' \
+        'albumentationsx' \
         'einops' \
         'opencv_contrib_python' \
         'opencv_python' \
