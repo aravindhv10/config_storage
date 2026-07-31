@@ -9,8 +9,6 @@
     alsa-utils
     appstream
     azure-cli
-    blend2d
-    brave
     bridge-utils
     buildah
     cargo
@@ -19,14 +17,12 @@
     chromium
     clinfo
     cmake
-    conky
     curl
     dig
     distrobox
     dive
     dmidecode
     dnsmasq
-    docker-compose
     ffmpeg
     ffmpeg.dev
     file
@@ -59,14 +55,11 @@
     libseccomp
     libxml2
     lldb
-    llvmPackages_20.clang
-    llvmPackages_20.clang-tools
+    llvmPackages_21.clang
+    llvmPackages_21.clang-tools
     lxc
     man-pages
     man-pages-posix
-    mate.mate-panel
-    mate.mate-panel-with-applets
-    mate.mate-session-manager
     meson
     mpv
     networkmanagerapplet
@@ -74,8 +67,6 @@
     nh
     nix-index
     nix-ld
-    # onlyoffice-desktopeditors
-    # onlyoffice-documentserver
     openconnect
     openssl
     parted
@@ -106,7 +97,6 @@
     waybar
     wayland
     wayland-protocols
-    # wf-recorder
     wget
     wl-clipboard
     wlogout

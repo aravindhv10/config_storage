@@ -148,16 +148,6 @@
       thermald.enable = true;
       libinput.enable = true;
 
-      # onlyoffice = {
-      #     enable = true;
-      #     hostname = "localhost";
-      #     enableExampleServer = true;
-      #     examplePort = 8013;
-      #     securityNonceFile = "${pkgs.writeText "nixos-test-onlyoffice-nonce.conf" ''
-      #         set $secure_link_secret "nixostest";
-      #     ''}";
-      # };
-
       nfs = {
         server = {
           enable = true;
@@ -197,17 +187,6 @@
         };
       };
 
-      # greetd = {
-      #   enable = false;
-      #   settings = rec {
-      #     initial_session = {
-      #       command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-      #       user = "asd";
-      #     };
-      #     default_session = initial_session;
-      #   };
-      # };
-
       dnsmasq = {
         enable = true;
         alwaysKeepRunning = true;
@@ -245,10 +224,10 @@
         };
       };
 
-      k3s = {
-          enable = false;
-          role = "server";
-      } ;
+      # k3s = {
+      #     enable = false;
+      #     role = "server";
+      # } ;
     };
   }
 #+end_src
@@ -266,8 +245,6 @@
       alsa-utils
       appstream
       azure-cli
-      blend2d
-      brave
       bridge-utils
       buildah
       cargo
@@ -276,14 +253,12 @@
       chromium
       clinfo
       cmake
-      conky
       curl
       dig
       distrobox
       dive
       dmidecode
       dnsmasq
-      docker-compose
       ffmpeg
       ffmpeg.dev
       file
@@ -316,14 +291,11 @@
       libseccomp
       libxml2
       lldb
-      llvmPackages_20.clang
-      llvmPackages_20.clang-tools
+      llvmPackages_21.clang
+      llvmPackages_21.clang-tools
       lxc
       man-pages
       man-pages-posix
-      mate.mate-panel
-      mate.mate-panel-with-applets
-      mate.mate-session-manager
       meson
       mpv
       networkmanagerapplet
@@ -331,8 +303,6 @@
       nh
       nix-index
       nix-ld
-      # onlyoffice-desktopeditors
-      # onlyoffice-documentserver
       openconnect
       openssl
       parted
@@ -363,7 +333,6 @@
       waybar
       wayland
       wayland-protocols
-      # wf-recorder
       wget
       wl-clipboard
       wlogout

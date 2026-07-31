@@ -4,22 +4,11 @@
   ...
 }: {
   services = {
-
     chrony.enable = true;
     openssh.enable = true;
     printing.enable = true;
     thermald.enable = true;
     libinput.enable = true;
-
-    # onlyoffice = {
-    #     enable = true;
-    #     hostname = "localhost";
-    #     enableExampleServer = true;
-    #     examplePort = 8013;
-    #     securityNonceFile = "${pkgs.writeText "nixos-test-onlyoffice-nonce.conf" ''
-    #         set $secure_link_secret "nixostest";
-    #     ''}";
-    # };
 
     nfs = {
       server = {
@@ -60,17 +49,6 @@
       };
     };
 
-    # greetd = {
-    #   enable = false;
-    #   settings = rec {
-    #     initial_session = {
-    #       command = "${pkgs.uwsm}/bin/uwsm start ${pkgs.wayfire}/bin/wayfire";
-    #       user = "asd";
-    #     };
-    #     default_session = initial_session;
-    #   };
-    # };
-
     dnsmasq = {
       enable = true;
       alwaysKeepRunning = true;
@@ -108,9 +86,9 @@
       };
     };
 
-    k3s = {
-        enable = false;
-        role = "server";
-    } ;
+    # k3s = {
+    #     enable = false;
+    #     role = "server";
+    # } ;
   };
 }
