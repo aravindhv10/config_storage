@@ -164,6 +164,7 @@
     yazi
     ydotool
     zed-editor
+    zig
     zoxide
 
     (gnuplot.override {
