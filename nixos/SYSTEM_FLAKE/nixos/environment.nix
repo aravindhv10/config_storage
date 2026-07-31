@@ -164,6 +164,7 @@
     yazi
     ydotool
     zed-editor
+    zellij
     zig
     zoxide
 
@@ -987,7 +988,7 @@ in {
       ++ [
         (unstable.python313.withPackages (ps:
           with ps; [
-            # albumentations
+            albumentations
             blake3
             datafusion
             einops
