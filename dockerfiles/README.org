@@ -1,28 +1,5 @@
 * Files to ignore
 #+begin_src conf :mkdirp yes :tangle ./.gitignore
-  /CPU/0_base/build/
-  /CPU/0_base/important_functions.sh
-  /CPU/1_install_packages/build/
-  /CPU/1_install_packages/important_functions.sh
-  /CPU/1_install_packages/run_rocm.sh
-  /CPU/1_rust_builder/
-  /CPU/2_install_rust/build/
-  /CPU/2_install_rust/important_functions.sh
-  /CPU/2_install_rust/run_rocm.sh
-  /CPU/2_zsh/
-  /CPU/3_good_setup/build/
-  /CPU/3_good_setup/important_functions.sh
-  /CPU/4_python/build/
-  /CPU/4_python/important_functions.sh
-  /CPU/5_libtorch/build/
-  /CPU/5_libtorch/important_functions.sh
-  /CPU/6_pytorch/build/
-  /CPU/6_pytorch/important_functions.sh
-  /CPU/6_pytorch/main.c
-  /CPU/6_pytorch/main.h
-  /CPU/6_pytorch/run_cpu.sh
-  /important_functions.sh
-  /waste/
 #+end_src
 
 * Main build script
@@ -731,6 +708,37 @@ echo 'START Download and install zig' \
       -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
       -v "CACHE:/root/cargo/registry" \
       -v "CACHE:/root/.cache" \
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+** CPU rust build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_cpu_rust_build.sh
+  cd "$('dirname' '--' "${0}")"
+
+  IMAGE_NAME='2_install_rust'
+  # IMAGE_NAME="$(basename -- "$(realpath -- .)")"
+  IMAGE_CMD='bash'
+  PATH_DIR_SRC="$('realpath' '.')"
+  PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
+
+  podman run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--net' 'host' \
+      '--ipc' 'host' \
+      '--tmpfs' '/tmp:size=107374182400,exec' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--device' '/dev/dri' \
+      '--security-opt' 'seccomp=unconfined' \
+      -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+      -v "CACHE:/root/cargo/registry" \
+      -v "CACHE:/root/.cache" \
+      -v "${HOME}/GITHUB:/root/GITHUB" \
       "${IMAGE_NAME}" "${IMAGE_CMD}" \
   ;
 #+end_src
