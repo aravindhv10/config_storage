@@ -532,6 +532,7 @@ get_rust_packages_standard(){
     get_repo 'https://github.com/rust-cross/cargo-zigbuild.git'
     cargo build --release
     cp -vf -- './target/release/cargo-zigbuild' '/usr/local/bin/'
+    find './target/release/' -maxdepth 1 -type f -executable -exec cp -vf '{}' '/usr/local/bin/' ';'
     get_rust_package 'https://github.com/rust-cross/cargo-zigbuild.git'
 
     get_helix_evil_editor
