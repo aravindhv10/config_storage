@@ -1,5 +1,7 @@
 FROM 1_install_packages
 
+COPY './important_functions.sh' '/root/important_functions.sh'
+
 ENV CARGO_HOME="${HOME}/cargo"
 ENV RUSTUP_HOME="${HOME}/rustup"
 ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"

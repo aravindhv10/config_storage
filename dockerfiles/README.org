@@ -101,7 +101,7 @@
 #+end_src
 
 *** Copy important functions
-#+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
+#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
