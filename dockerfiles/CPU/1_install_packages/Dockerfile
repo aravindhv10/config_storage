@@ -16,3 +16,5 @@ RUN \
     && . '/root/important_functions.sh' \
     && get_apt_packages \
     && echo 'DONE apt-get update' ;
+
+COPY './important_functions.sh' '/root/important_functions.sh'

@@ -100,6 +100,11 @@
   FROM 1_install_packages
 #+end_src
 
+*** Copy important functions
+#+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
+  COPY './important_functions.sh' '/root/important_functions.sh'
+#+end_src
+
 *** Setting env
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   ENV CARGO_HOME="${HOME}/cargo"
