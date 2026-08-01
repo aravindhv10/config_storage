@@ -291,6 +291,7 @@ build_rust_package_in_cwd(){
 get_rust_package(){
     get_repo "${1}"
     zigbuild_rust_package_in_cwd
+    find './target/x86_64-unknown-linux-musl/release/' -maxdepth 1 -type f -executable -exec cp -vf '{}' '/usr/local/bin/' ';'
 
     # PKG_NAME="$('basename' "$(realpath .)")"
 
