@@ -528,19 +528,25 @@ get_glibc () {
 
 get_rust_packages_standard(){
 
+    get_repo 'https://github.com/rust-cross/cargo-zigbuild.git'
+    cargo build --release
+    cp -vf -- './target/release/cargo-zigbuild' '/usr/local/bin/'
+    get_rust_package 'https://github.com/rust-cross/cargo-zigbuild.git'
+
     get_helix_evil_editor
     get_helix_editor
     # get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
 
+    get_rust_package 'https://github.com/nushell/nushell.git'
     get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
     get_rust_package 'https://github.com/BurntSushi/xsv.git'
-    get_rust_package 'https://github.com/ClementTsang/bottom.git'
     get_rust_package 'https://github.com/Wilfred/difftastic.git'
-    get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
     get_rust_package 'https://github.com/alexpasmantier/television.git'
     get_rust_package 'https://github.com/aravindhv10/deb_mirror.git'
     get_rust_package 'https://github.com/astral-sh/ruff.git'
     get_rust_package 'https://github.com/astral-sh/uv.git'
+    get_rust_package 'https://github.com/ClementTsang/bottom.git'
+    get_rust_package 'https://github.com/ajeetdsouza/zoxide.git'
     get_rust_package 'https://github.com/atuinsh/atuin.git'
     get_rust_package 'https://github.com/bootandy/dust.git'
     get_rust_package 'https://github.com/chmln/sd.git'
@@ -559,7 +565,6 @@ get_rust_packages_standard(){
     get_rust_package 'https://github.com/latex-lsp/texlab.git'
     get_rust_package 'https://github.com/lsd-rs/lsd.git'
     get_rust_package 'https://github.com/matheus-git/systemd-manager-tui.git'
-    get_rust_package 'https://github.com/nushell/nushell.git'
     get_rust_package 'https://github.com/redox-os/ion.git'
     get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
     get_rust_package 'https://github.com/sharkdp/bat.git'
