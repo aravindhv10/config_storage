@@ -791,8 +791,11 @@ echo 'START Download and install zig' \
   GITADD 'build_cpu.sh'
   GITADD 'build_cuda.sh'
   GITADD 'build_rocm_pytorch.sh'
+
   GITADD '.gitignore'
   GITADD 'README.org'
+
+  GITADD 'run_cpu_rust_build.sh'
   GITADD 'run_cpu.sh'
   GITADD 'run_cuda.sh'
   GITADD 'run_rocm.sh'
