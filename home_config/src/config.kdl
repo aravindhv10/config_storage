@@ -15,8 +15,8 @@ keybinds clear-defaults=true {
         bind "Ctrl F3" { MoveFocus "left"; }
 
         bind "F4" { GoToNextTab; }
-        bind "Shift F3" { MoveFocus "down"; }
-        bind "Ctrl F3" { MoveFocus "right"; }
+        bind "Shift F4" { MoveFocus "down"; }
+        bind "Ctrl F4" { MoveFocus "right"; }
 
         bind "F5" { EditScrollback; }
 
