@@ -693,7 +693,8 @@
             return 0;
         }
 
-        static char * const args[] = {"byobu-tmux", NULL};
+        // static char * const args[] = {"byobu-tmux", NULL};
+        static char * const args[] = {"zellij", NULL};
 
         int main () {
             do_start(args);
