@@ -1,6 +1,6 @@
 keybinds clear-defaults=true {
     locked {
-        bind "F1" { SwitchToMode "normal"; }
+        bind "Shift F1" { SwitchToMode "normal"; }
 
         bind "F2" { NewTab; }
         bind "Shift F2" { NewPane "down"; }
@@ -14,7 +14,16 @@ keybinds clear-defaults=true {
         bind "Shift F4" { MoveFocus "up"; }
         bind "Ctrl F4" { MoveFocus "left"; }
 
-        bind "F7" { EditScrollback; }
+        bind "F5" { EditScrollback; }
+
+
+        bind "F10" { Detach; }
+        bind "Shift F10" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
     }
     pane {
         bind "left" { MoveFocus "left"; }
@@ -166,6 +175,8 @@ keybinds clear-defaults=true {
         bind "Alt ]" { NextSwapLayout; }
         bind "Alt f" { ToggleFloatingPanes; }
         bind "F1" { SwitchToMode "locked"; }
+        bind "Shift esc" { SwitchToMode "locked"; }
+        bind "Ctrl esc" { SwitchToMode "locked"; }
         bind "Alt h" { MoveFocusOrTab "left"; }
         bind "Alt i" { MoveTab "left"; }
         bind "Alt j" { MoveFocus "down"; }
