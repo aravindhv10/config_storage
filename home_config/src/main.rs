@@ -111,7 +111,9 @@ async fn get_path_helix_config(HOME: std::string::String) -> anyhow::Result<std:
     Ok(path_str + "/config.toml")
 }
 
-async fn get_path_helix_languages(HOME: std::string::String) -> anyhow::Result<std::string::String> {
+async fn get_path_helix_languages(
+    HOME: std::string::String,
+) -> anyhow::Result<std::string::String> {
     let path_str = HOME + "/.config/helix";
     let path = std::path::Path::new(path_str.as_str());
     tokio::fs::create_dir_all(path).await?;
@@ -124,6 +126,21 @@ async fn get_content_helix_config() -> std::string::String {
 
 async fn get_content_helix_languages() -> std::string::String {
     std::string::String::from(include_str!("helix_languages.toml"))
+}
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+async fn get_path_zellij_config(HOME: std::string::String) -> anyhow::Result<std::string::String> {
+    let path_str = HOME + "/.config/zellij";
+    let path = std::path::Path::new(path_str.as_str());
+    tokio::fs::create_dir_all(path).await?;
+    Ok(path_str + "/config.kdl")
+}
+
+async fn get_content_zellij_config() -> std::string::String {
+    std::string::String::from(include_str!("config.kdl"))
 }
 
 ////////////////////////////////////////////////////////////////
@@ -355,6 +372,7 @@ struct configurator {
     path_bashrc: std::string::String,
     path_helix_config: std::string::String,
     path_helix_languages: std::string::String,
+    path_zellij_config: std::string::String,
     path_ghostty_config: std::string::String,
     path_ghostty_modus_vivendi: std::string::String,
     path_fish_config: std::string::String,
@@ -376,6 +394,7 @@ impl configurator {
             path_bashrc,
             path_helix_config,
             path_helix_languages,
+            path_zellij_config,
             path_ghostty_config,
             path_ghostty_modus_vivendi,
             path_fish_config,
@@ -390,6 +409,7 @@ impl configurator {
             get_path_bashrc(path_home.clone()),
             get_path_helix_config(path_home.clone()),
             get_path_helix_languages(path_home.clone()),
+            get_path_zellij_config(path_home.clone()),
             get_path_ghostty_config(path_home.clone()),
             get_path_ghostty_modus_vivandi(path_home.clone()),
             get_path_fish_config(path_home.clone()),
@@ -408,6 +428,7 @@ impl configurator {
             path_bashrc: path_bashrc,
             path_helix_config: path_helix_config?,
             path_helix_languages: path_helix_languages?,
+            path_zellij_config: path_zellij_config?,
             path_ghostty_config: path_ghostty_config?,
             path_ghostty_modus_vivendi: path_ghostty_modus_vivendi?,
             path_fish_config: path_fish_config?,
@@ -529,7 +550,11 @@ impl configurator {
             tokio::fs::write(&self.path_zshrc, get_content_zshrc().await),
             tokio::fs::write(&self.path_bashrc, get_content_bashrc().await),
             tokio::fs::write(&self.path_helix_config, get_content_helix_config().await),
-            tokio::fs::write(&self.path_helix_languages, get_content_helix_languages().await),
+            tokio::fs::write(
+                &self.path_helix_languages,
+                get_content_helix_languages().await
+            ),
+            tokio::fs::write(&self.path_zellij_config, get_content_zellij_config().await),
             tokio::fs::write(
                 &self.path_ghostty_config,
                 get_content_ghostty_config().await
