@@ -678,14 +678,12 @@
       get_rust_package 'https://github.com/dalance/procs.git'
       get_rust_package 'https://github.com/eza-community/eza.git'
       get_rust_package 'https://github.com/fish-shell/fish-shell.git'
-
       get_rust_package 'https://github.com/zellij-org/zellij.git'
       get_rust_package 'https://github.com/shshemi/tabiew.git'
       get_rust_package 'https://github.com/skim-rs/skim.git'
       get_rust_package 'https://github.com/starship/starship.git'
       get_rust_package 'https://github.com/svenstaro/miniserve.git'
       get_rust_package 'https://github.com/sxyazi/yazi.git'
-
       get_rust_package 'https://github.com/latex-lsp/texlab.git'
       get_rust_package 'https://github.com/gitui-org/gitui.git'
       get_rust_package 'https://github.com/konradsz/igrep.git'
@@ -695,22 +693,26 @@
       get_rust_package 'https://github.com/sharkdp/bat.git'
       get_rust_package 'https://github.com/sharkdp/fd.git'
       get_rust_package 'https://github.com/sharkdp/hyperfine.git'
-
       get_rust_package 'https://github.com/vishaltelangre/ff.git'
       get_rust_package 'https://github.com/watchexec/watchexec.git'
       get_rust_package 'https://github.com/whitfin/runiq.git'
-
+      get_rust_package 'https://github.com/your-tools/ruplacer.git'
       get_rust_package 'https://github.com/gblach/imge.git'
-      get_rust_package 'https://github.com/alacritty/alacritty.git'
+      get_rust_package 'https://github.com/gblach/reflicate.git'
       get_rust_package 'https://github.com/RaphGL/Tuckr.git'
       get_rust_package 'https://github.com/SUPERCILEX/fuc.git'
       get_rust_package 'https://github.com/darakian/ddh.git'
-      get_rust_package 'https://github.com/denisidoro/navi.git'
-      get_rust_package 'https://github.com/gblach/reflicate.git'
-      get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
-      get_rust_package 'https://github.com/your-tools/ruplacer.git'
 
-      get_repo 'https://github.com/deuxfleurs-org/garage.git' ; git checkout 'tags/v2.3.0' ; build_rust_package_in_cwd
+      get_rust_package 'https://github.com/denisidoro/navi.git'
+
+      get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
+
+      get_rust_package 'https://github.com/alacritty/alacritty.git'
+
+      get_repo 'https://github.com/deuxfleurs-org/garage.git' 
+      git checkout 'tags/v2.3.0' 
+      zigbuild_rust_package_in_cwd
+      find './target/x86_64-unknown-linux-musl/release/' -maxdepth 1 -type f -executable -exec cp -vf '{}' '/usr/local/bin/' ';'
 
       get_tmux
       get_byobu
@@ -741,41 +743,8 @@
 *** Function to install all good packages
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   INSTALL_ALL_GOOD_PACKAGES () {
-      INSTALL_ZST_ZRCHIVE '0f1acddc9130967384cd07ee4b5fb52b542e79d560931e131bb785571b44cef09f04c7d5365339cffab73de7ddfdf9071accac390d8951209d01aed240123894' 'deb_mirror'
-      INSTALL_ZST_ZRCHIVE '2a1ec10e812cc761490e0878057a3d460d9aebbf3ce4c5960a55f6de6db04ff67a4e4a0f939d935a45be84616f96d170533e4ce6d244625e2b0c0ad89b075adc' 'hyperfine'
-      INSTALL_ZST_ZRCHIVE '307cc386b0342f50cb8747f1088198736923fdde446e319abede9734e9a677e022d5315a271dff2c74eb12d700f88fe7724a1887619a8db42d825ba338665a4e' 'watchexec'
-      INSTALL_ZST_ZRCHIVE '4172772fce14101ff0affe736d2402abece027077c592adb8c30347a8f6a24a20f0971a88e197ce0b85ff4ab8f222a043556fe0318710281de44c572c961af37' 'sd'
-      INSTALL_ZST_ZRCHIVE '4e73a476d3afbffc6161bea54bb552df33491eb3f61fea729f4e0758dde5664e63ca4192e9f57bf7aa3d0ad7c3ff49f56b2df50fb689349a7e87c90a2a721d40' 'texlab'
-      INSTALL_ZST_ZRCHIVE '4e9f0efc5b45f316ad6725f414f357d5aec57c7208896dbd68c674ed3547b7954932e2059bc17ddd907b7a6026fec7c10d2715662537c932960a0c47b7beec62' 'tmux'
-      INSTALL_ZST_ZRCHIVE '58b44fd80d3a6a485e487d8124c51445dc2247f54a05a2f2931aa8224a779aa5865b8636d206461fcb852dd0ce04b4ba8f441aec866a9e5f81feb5d22cee70e2' 'igrep'
-      INSTALL_ZST_ZRCHIVE '59d5f005ec0d11dbe5b4b690703d7abcf87f482cfb42eaa3268de82d70d80629dc50964091c3dd15cc13b36dc3c273c9c07a712078b7fe5174ebf8f607ebfbcf' 'rust-bindgen'
-      INSTALL_ZST_ZRCHIVE '5c5fb6af56f319134600288890ebada9e59301aeb19b07a72e516bb44c54fe7fc855baf6605b17b61567a3fd8ab6f3bf322d7da095886bfdddf8516207ecf869' 'Tuckr'
-      INSTALL_ZST_ZRCHIVE '5e335b48650bb13008ee120fe82e8afcad3e9d0f8d33f2cbe9b7924094ecaa88c0f7319c2b2d32f519674aa5388b5a8a54cce80e92fbc51e7966d4c70aa9ab41' 'lsd'
-      INSTALL_ZST_ZRCHIVE '6546593671b3b81d01b07dbf9d014acd15589679a57e9624cc49dc55540ccce243cae05d723dc7865522e0b4cdfa9a5661c962d7c0a767d88d4dd10e21f61b64' 'imge'
-      INSTALL_ZST_ZRCHIVE '930c5e8d81c3cb881cdbf9b1fd70a4d74eb616a3812a875689edf346e6f52dcd9e4444891553a5ca1250faf45a43836fc6c70554c7954c6ec75c16b71e124cf3' 'nushell'
-      INSTALL_ZST_ZRCHIVE '956a087e43f021dca59b9f43c1a2e7f83071145dadf9657e5421316cfcd03bcf328f3136b2da024e1f8db6e735b140613ea0f08e6651245ad134e8d49aa4aedf' 'tabiew'
-      INSTALL_ZST_ZRCHIVE '979b06d17ec79f4fdb1dfb849953fa7d061b38ee2b83eb44e427145cdcb2808830c09678f742c8dfadbbdf581db0ddab5eb87db68cbf967133f4147f12c13462' 'squashfs'
-      INSTALL_ZST_ZRCHIVE '9a383353d4bffd9736954c1d2cea6a5a31e4f549a25101cf196e9c512ea0d79d07674f32f214c62500ee94d8ea338812363d2213820884808508183cda70dd35' 'skim'
-      INSTALL_ZST_ZRCHIVE '9b81eb5d86e4f21a3af8573c7b7d7ea6b91a56b4b152de3a84cdbd1dd9ea3b5b8f3a25d9969890af4acae56c80a3f3f065acc2b614e7ec5a9f6364e78a673834' 'fuc'
-      INSTALL_ZST_ZRCHIVE 'b2e6fd862902891a0a95f7f59a0fbf6a512354cef2a4c7441d324650d23590272788831077d094b1bb0c78c70714bc7d377c100fc4554b1cb2f02f8bffff1f11' 'navi'
-      INSTALL_ZST_ZRCHIVE 'bcc47b69aa74153a4f9d8cf5f4ddc9f223772cdc18419933193d67e0bc8533abc0a4c6fb74ce5433325fda29d6ea4435c3a134f69f2e28f3ee60518b525c89c1' 'ripgrep'
-      INSTALL_ZST_ZRCHIVE 'c11a3e29844d311887ecf526508c07fa4dfc0b23fc86f86e7b680c41412a460916b0b763787cef8bf45f78c211218dbfdd121e43506ffcd051400ba06dcec2b2' 'reflicate'
-      INSTALL_ZST_ZRCHIVE 'c7f4f29c3e14f5754abd7cfde0a9e1dcaf27978534490d1c329ef56052c4ecc4966b54c773cf32a1291bac894a4067780bb3cf029cc6a05bf9d98bc1d8e0710a' 'runiq'
       INSTALL_ZST_ZRCHIVE 'cc2f60f73ebc6b084bdce9991a94c9be674b5fb8dd33dd0723f82574c0dbf9ba089342fc03f0d0eb88be7e6a7248d657c9c94e60ca3e162cf8a670644157dbfb' 'evil-helix'
-      INSTALL_ZST_ZRCHIVE 'cfffaed9795393d6b5333aadec7b615a56b1391aede5bbe68ba301639f135c461b8839d5584ee7223012b8b0c381fa264a23157ea9f561e451172589c31ac5c9' 'byobu'
-      INSTALL_ZST_ZRCHIVE 'd7f9702d1886f39a0803fd0ce94e6e2b6ea1bc51dc09f6c2b6b093c4a3e0d380521b9bfe3432019794ab0c924d1e4f86c706db3499e457f5db128fc95aac629f' 'television'
-      INSTALL_ZST_ZRCHIVE 'd855544cee6a1bbd3adc435123a303cfccce256e750751c4ab49dcad1bb74dcc4fa4707279435d4f2453748380c2ab4155cc66f351a2dec74da8c04d75e2931f' 'ruplacer'
-      INSTALL_ZST_ZRCHIVE 'd8b7e24d37f095c317421da838816f32241133ba4107fa60325e4ff3a3e1ec1b076345c59f20eddd58a8c332cbb6827a59768c83a2e48d7574600a528d0e6239' 'zellij'
-      INSTALL_ZST_ZRCHIVE 'db06e1d686c9730b0a7886320c1f9bb0570f0d434d7400da50ed60738a4415d2bc954b3541958553efa25fef4e59fd7b2a2d91983a3c854dc4883aa5c70ed155' 'home_config'
-      INSTALL_ZST_ZRCHIVE 'dc80f2cd671b80afe4dd13fb74e6ac6a3759ccbd796089749f5a15fc4b21e0f3aedd7d6f8037de922ad6991eedf7a9cf8d4aa63d882f199da96ec026ba0d6418' 'ddh'
-      INSTALL_ZST_ZRCHIVE 'e28c49cea5cff530c8305bdd4b3b75e1577d62d412834526c261df9ab671e6aad69319d01288cbb57d339e8f83eb42fdc76a4e4f37d1cf4305311dd916cfa3dc' 'miniserve'
-      INSTALL_ZST_ZRCHIVE 'e7304e13a5d6eb2ebc0f4815f3f8daacbf36dbf17e99a32af338b97d399a6da95f7190b8aa1a7b669c665bbffeca1f21f541d9d3e3b784db8fb18ef125c560f3' 'ruff'
-      INSTALL_ZST_ZRCHIVE 'ec367c10aaad295316e29e60cd88a315e503acc02f7f6363be84a7abc46dcdd4c4552957cb33c2c8ee3c35ed256bc17ab266988a42c03771fd0a81559b5e5851' 'systemd-manager-tui'
-      INSTALL_ZST_ZRCHIVE 'f4b1679c4628d709abbc02ff3ca5e67f01d8611d455770dd8b1067fc20dd347374c717ef0ee5fd579472aa00d67625eca79ade6304c7bb61f202281d661261b2' 'starship'
-      INSTALL_ZST_ZRCHIVE '75d774faf861ba34c66e0de8f8368c2654ba9361c71cc30ead6f9d1139909aee6d90fd51c527650e40022ac48afb077f321e6e91e28ae5e002df87abdc2f1154' 'alacritty'
-
-      INSTALL_ZST_ZRCHIVE '4e50a7540037518757a756b656c17e2ca505b182ea21d19bbb92cc3cdd98501a5e8ff5dac65c211c6c5e1513eb46d9d84786ede4262b3138d7b83762bd49f98f' 'STATIC_ZIG_RUST'
-
+      INSTALL_ZST_ZRCHIVE 'b604e25a6120fbc3de71b77c3ff7a9a74e87c1b166c5497ec9bf1104b941dd9be5b9119721915ec8daf805df86cbf65903f7aa863ae853434d8b2ae310d2e460' 'STATIC_ZIG_RUST'
       INSTALL_ZST_ZRCHIVE '9a9510486b4bbcff8e77cce627515101e1dca8223d9a80e2f0f60c2a1ada1321d2a39ffddb2f2ce9ce3109637c86fc2e694419a7672092fe3e81b1abed837395' 'helix'
   }
 #+end_src
