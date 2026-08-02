@@ -1,8 +1,19 @@
 keybinds clear-defaults=true {
     locked {
         bind "F1" { SwitchToMode "normal"; }
+
         bind "F2" { NewTab; }
-        bind "Ctrl F2" { NewTab; }
+        bind "Shift F2" { NewPane "down"; }
+        bind "Ctrl F2" { NewPane "right"; }
+
+        bind "F3" { GoToPreviousTab; }
+        bind "Shift F3" { MoveFocus "down"; }
+        bind "Ctrl F3" { MoveFocus "right"; }
+
+        bind "F4" { GoToNextTab; }
+        bind "Shift F4" { MoveFocus "up"; }
+        bind "Ctrl F4" { MoveFocus "left"; }
+
         bind "F7" { EditScrollback; }
     }
     pane {
