@@ -592,7 +592,8 @@
 
         #include <unistd.h>
 
-        static char * const args[] = {"alacritty", "msg", "create-window", "-e", "byobu-tmux", NULL};
+        // static char * const args[] = {"alacritty", "msg", "create-window", "-e", "byobu-tmux", NULL};
+        static char * const args[] = {"alacritty", "msg", "create-window", "-e", "zellij", NULL};
 
         int main () {
             int ret = execvp(args[0], args);
