@@ -33,6 +33,7 @@ RUN \
         'psutil' \
         'requests' \
         'scikit-learn' \
+        'starlette' \
         'tqdm' \
         'urllib3' \
         'wandb' \

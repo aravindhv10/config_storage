@@ -406,6 +406,7 @@ echo 'START Download and install zig' \
            'psutil' \
            'requests' \
            'scikit-learn' \
+           'starlette' \
            'tqdm' \
            'urllib3' \
            'wandb' \
