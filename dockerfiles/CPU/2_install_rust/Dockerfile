@@ -32,12 +32,12 @@ RUN \
     echo 'START Download and install zig' \
     && . "${HOME}/important_functions.sh" \
     && adown \
-        'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz' \
-        'zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz' \
-        '148f7e5e3ec6971d141c3bf2f93cb90285f68d7e391f9b07017c057cd89e187821ea8c97e9a0b53da04f90dc73a9bd748cf24f5f44176b2a1d8c8fdb9d3ed856' \
-        "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz" \
+        'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
+        'zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
+        'ac0b7866a539299083bb74cf1ae4ecdb90a9e33d81241f61ef5892dc5448211c63fd1f3afc335cba9b0dd3557d39adb73d9dd92948e5a37004d3be13a5a4359c' \
+        "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz" \
     && cd "${HOME}/ZIG/" \
-    && tar -xf './zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz' \
-    && cd './zig-x86_64-linux-0.17.0-dev.1417+20befa4e6/' \
+    && tar -xf './zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
+    && cd './zig-x86_64-linux-0.17.0-dev.1941+71115f0ab' \
     && mv * /usr/local/bin/ \
     && echo 'DONE Download and install zig' ;
