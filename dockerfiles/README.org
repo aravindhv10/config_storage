@@ -29,7 +29,7 @@
 
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
-  FROM nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04
+  FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
 #+end_src
 
 *** AMDGPU
@@ -138,43 +138,6 @@
   RUN rustup component add rustfmt
 #+end_src
 
-  RUN rustup target add x86_64-unknown-linux-musl
-
-RUSTUP_HOME="${HOME}/rustup"
-CARGO_HOME="${HOME}/cargo"
-PATH="${CARGO_HOME}/bin:${HOME}/bin:${PATH}"
-mkdir -pv -- "${HOME}/bin/"
-
-echo 'START Download and install rust' \
-&& . "${HOME}/important_functions.sh" \
-&& adown \
-    'https://sh.rustup.rs' \
-    'rustup.rs' \
-    'cd9fd64eabc989f19a6a16e9cd2caabe935082e2715b9308150f86d3839c99eb9a7e42a7ef6730c6d956d870638ee89a04dd9e7e14fe243cc165967b7f2918da' \
-    "${HOME}/rustup-init.sh" \
-&& cd "${HOME}" \
-&& chmod +x 'rustup-init.sh' \
-&& './rustup-init.sh' '-y' '--no-modify-path' \
-&& echo 'DONE Download and install rust'
-
-rustup component add rust-src
-rustup component add rust-analyzer
-rustup component add rustfmt
-rustup target add x86_64-unknown-linux-musl
-
-echo 'START Download and install zig' \
-&& . "${HOME}/important_functions.sh" \
-&& adown \
-    'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz' \
-    'zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz' \
-    'e27651509bc4f7f316d29a8c4dfa459c72fcbe340d0c4aed3bab4d229c46ea3ff33131de1b382d1440b132d5e8fb43a080d950d809bc9d833b619f2728b622eb' \
-    "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
-&& cd "${HOME}/ZIG/" \
-&& tar -xf "./zig-x86_64-linux-0.17.0-dev.135+9df02121d.tar.xz" \
-&& cd './zig-x86_64-linux-0.17.0-dev.135+9df02121d/' \
-&& mv * "${HOME}/bin/" \
-&& echo 'DONE Download and install zig' ;
-
 *** Download and install zig
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN \
@@ -183,13 +146,13 @@ echo 'START Download and install zig' \
       echo 'START Download and install zig' \
       && . "${HOME}/important_functions.sh" \
       && adown \
-          'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz' \
-          'zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz' \
-          '148f7e5e3ec6971d141c3bf2f93cb90285f68d7e391f9b07017c057cd89e187821ea8c97e9a0b53da04f90dc73a9bd748cf24f5f44176b2a1d8c8fdb9d3ed856' \
-          "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz" \
+          'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
+          'zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
+          'ac0b7866a539299083bb74cf1ae4ecdb90a9e33d81241f61ef5892dc5448211c63fd1f3afc335cba9b0dd3557d39adb73d9dd92948e5a37004d3be13a5a4359c' \
+          "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz" \
       && cd "${HOME}/ZIG/" \
-      && tar -xf './zig-x86_64-linux-0.17.0-dev.1417+20befa4e6.tar.xz' \
-      && cd './zig-x86_64-linux-0.17.0-dev.1417+20befa4e6/' \
+      && tar -xf './zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
+      && cd './zig-x86_64-linux-0.17.0-dev.1941+71115f0ab' \
       && mv * /usr/local/bin/ \
       && echo 'DONE Download and install zig' ;
 #+end_src
@@ -221,11 +184,6 @@ echo 'START Download and install zig' \
       fd '\.tar$' '/var/tmp' -t f -x unlink '{}' \
       echo 'DONE Delete tar files after installing' ;
 #+end_src
-
-  rustup default stable
-  rustup component add rust-src
-  rustup component add rust-analyzer
-  rustup component add rustfmt
 
 ** 4_python
 
@@ -313,9 +271,8 @@ echo 'START Download and install zig' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           '--index-url' 'https://download.pytorch.org/whl/cpu' \
-              'torch==2.11.0' \
-              'torchvision==0.26.0' \
-              'torchaudio==2.11.0' \
+              'torch' \
+              'torchvision' \
       && echo 'DONE pip' ;
 
   ENV LIBTORCH='/root/venv/lib/python3.14/site-packages/torch/'
@@ -333,12 +290,11 @@ echo 'START Download and install zig' \
       echo 'START pytorch' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
-          '--extra-index-url' 'https://download.pytorch.org/whl/cu130' \
-              'torch==2.11.0' \
-              'torchvision==0.26.0' \
-              'torchaudio==2.11.0' \
-              'torchao==0.17.0' \
-              'xformers==0.0.35' \
+          '--extra-index-url' 'https://download.pytorch.org/whl/cu132' \
+              'torch' \
+              'torchvision' \
+              'torchao' \
+              'xformers' \
       && echo 'DONE pytorch' ;
 
   ENV LIBTORCH='/root/venv/lib/python3.12/site-packages/torch'
@@ -357,11 +313,10 @@ echo 'START Download and install zig' \
       && . "${HOME}/venv/bin/activate" \
       && uv pip install \
           '--extra-index-url' 'https://download.pytorch.org/whl/rocm7.2' \
-              'torch==2.11.0' \
-              'torchvision==0.26.0' \
-              'torchaudio==2.11.0' \
-              'torchao==0.17.0' \
-              'xformers==0.0.35' \
+              'torch' \
+              'torchvision' \
+              'torchao' \
+              'xformers' \
       && echo 'DONE pytorch' ;
 
   ENV LIBTORCH='/root/venv/lib/python3.12/site-packages/torch'
