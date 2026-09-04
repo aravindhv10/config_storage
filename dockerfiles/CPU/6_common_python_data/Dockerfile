@@ -22,6 +22,14 @@ RUN \
     && echo 'DONE dataframe' ;
 
 RUN \
+    echo 'START lancedb' \
+    && . "${HOME}/venv/bin/activate" \
+    && uv pip install -U \
+        'lancedb' \
+        'pylance' \
+    && echo 'DONE lancedb' ;
+
+RUN \
     echo 'START others' \
     && . "${HOME}/venv/bin/activate" \
     && uv pip install -U \
