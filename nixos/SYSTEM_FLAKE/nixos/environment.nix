@@ -116,7 +116,7 @@
     delta
     difftastic
     dust
-    emacs30
+    emacs
     emacs-lsp-booster
     eza
     fd
