@@ -137,6 +137,7 @@
     neovim
     nixfmt
     nushell
+    ollama-vulkan
     openblas
     openblas.dev
     opencv4
