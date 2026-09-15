@@ -27,11 +27,6 @@
   FROM debian:testing-backports
 #+end_src
 
-*** nvidia dgx spark
-#+begin_src conf :mkdirp yes :tangle ./CUDA_DGX/0_base/Dockerfile
-  FROM nvcr.io/nvidia/pytorch:26.08-py3
-#+end_src
-
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
   FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
@@ -67,14 +62,12 @@
 
 ** 1_install_packages
 
-*** AMD64 CPU
-
-**** Base image
+*** Base image
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   FROM 0_base
 #+end_src
 
-**** Important env
+*** Important env
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   ENV HOME='/root'
   ENV DEBIAN_FRONTEND='noninteractive'
@@ -83,12 +76,12 @@
   USER root
 #+end_src
 
-**** Copy important functions
+*** Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-**** Install common packages
+*** Install common packages
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
@@ -102,26 +95,24 @@
 
 ** 2_install_rust
 
-*** AARCH64
-
-**** Base image
+*** Base image
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   FROM 1_install_packages
 #+end_src
 
-**** Copy important functions
+*** Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
 
-**** Setting env
+*** Setting env
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   ENV CARGO_HOME="${HOME}/cargo"
   ENV RUSTUP_HOME="${HOME}/rustup"
   ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 #+end_src
 
-**** Download and install rust
+*** Download and install rust
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
@@ -139,7 +130,7 @@
       && echo 'DONE Download and install rust'
 #+end_src
 
-**** Install additional rust components
+*** Install additional rust components
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN rustup default stable
   RUN rustup component add rust-src
@@ -147,71 +138,7 @@
   RUN rustup component add rustfmt
 #+end_src
 
-**** Download and install zig
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  RUN \
-      --mount=target=/root/SHA512SUM,type=cache \
-      --mount=target=/root/TMP,type=cache \
-      echo 'START Download and install zig' \
-      && . "${HOME}/important_functions.sh" \
-      && adown \
-          'https://ziglang.org/builds/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
-          'zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
-          'dc816d391b4a81f5c34a70466716678374b696eadabdf766e13b78b79e931a3c8345f7bfb86cd0db607f5980a8a283dbfd9086f6542fad9d43a8180f2e7a1933' \
-          "${HOME}/ZIG/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz" \
-      && cd "${HOME}/ZIG/" \
-      && tar -xf './zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
-      && cd './zig-aarch64-linux-0.17.0-dev.2131+d08989840' \
-      && mv * /usr/local/bin/ \
-      && echo 'DONE Download and install zig' ;
-#+end_src
-
-*** AMD64
-
-**** Base image
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  FROM 1_install_packages
-#+end_src
-
-**** Copy important functions
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-**** Setting env
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  ENV CARGO_HOME="${HOME}/cargo"
-  ENV RUSTUP_HOME="${HOME}/rustup"
-  ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
-#+end_src
-
-**** Download and install rust
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  RUN \
-      --mount=target=/root/SHA512SUM,type=cache \
-      --mount=target=/root/TMP,type=cache \
-      echo 'START Download and install rust' \
-      && . "${HOME}/important_functions.sh" \
-      && adown \
-          'https://sh.rustup.rs' \
-          'rustup.rs' \
-          '494ddf67a104d5deb49380968ecccd8648ee0d7a3e61a8fa45b4dfd3bdc51ba8777922ed0e1864bf81ba78ce718bd40c55c1835c328df3cd1cd0d17312411460' \
-          "${HOME}/rustup-init.sh" \
-      && cd "${HOME}" \
-      && chmod +x 'rustup-init.sh' \
-      && './rustup-init.sh' '-y' '--no-modify-path' \
-      && echo 'DONE Download and install rust'
-#+end_src
-
-**** Install additional rust components
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  RUN rustup default stable
-  RUN rustup component add rust-src
-  RUN rustup component add rust-analyzer
-  RUN rustup component add rustfmt
-#+end_src
-
-**** Download and install zig
+*** Download and install zig
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
@@ -817,6 +744,53 @@
       # '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
 #+end_src
 
+* Scripts for DGX spark
+#+begin_src conf :mkdirp yes :tangle ./CUDA_DGX/Dockerfile
+  FROM nvcr.io/nvidia/pytorch:26.08-py3
+
+  COPY './important_functions.sh' '/root/important_functions.sh'
+
+  ENV CARGO_HOME="${HOME}/cargo"
+  ENV RUSTUP_HOME="${HOME}/rustup"
+  ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
+
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install rust' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://sh.rustup.rs' \
+          'rustup.rs' \
+          '494ddf67a104d5deb49380968ecccd8648ee0d7a3e61a8fa45b4dfd3bdc51ba8777922ed0e1864bf81ba78ce718bd40c55c1835c328df3cd1cd0d17312411460' \
+          "${HOME}/rustup-init.sh" \
+      && cd "${HOME}" \
+      && chmod +x 'rustup-init.sh' \
+      && './rustup-init.sh' '-y' '--no-modify-path' \
+      && echo 'DONE Download and install rust'
+
+  RUN rustup default stable
+  RUN rustup component add rust-src
+  RUN rustup component add rust-analyzer
+  RUN rustup component add rustfmt
+
+  RUN \
+      --mount=target=/root/SHA512SUM,type=cache \
+      --mount=target=/root/TMP,type=cache \
+      echo 'START Download and install zig' \
+      && . "${HOME}/important_functions.sh" \
+      && adown \
+          'https://ziglang.org/builds/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
+          'zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
+          'dc816d391b4a81f5c34a70466716678374b696eadabdf766e13b78b79e931a3c8345f7bfb86cd0db607f5980a8a283dbfd9086f6542fad9d43a8180f2e7a1933' \
+          "${HOME}/ZIG/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz" \
+      && cd "${HOME}/ZIG/" \
+      && tar -xf './zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
+      && cd './zig-aarch64-linux-0.17.0-dev.2131+d08989840' \
+      && mv * /usr/local/bin/ \
+      && echo 'DONE Download and install zig' ;
+#+end_src
+
 * Script to work
 
 ** Actual script
@@ -860,7 +834,9 @@
   GITADD 'CUDA_UBUNTU/5_libtorch/Dockerfile'
   GITADD 'CUDA_UBUNTU/7_deep_learning/Dockerfile'
 
-  git commit -m 'Started writing another docker image for coding setup' ; git status
+  GITADD 'CUDA_DGX/Dockerfile'
+
+  git commit -m 'Started writing container for DGX spark' ; git status
   "${HOME}/SSH/K/P/setup.sh" ; git push
 
   exit '0'
