@@ -87,10 +87,7 @@ RUN \
             'requests' \
             'scikit-learn' \
             'starlette' \
-            'tqdm' \
             'urllib3' \
-            'wandb' \
-            'matplotlib' \
             'seaborn' \
             'albumentationsx' \
             'einops' \
@@ -100,9 +97,6 @@ RUN \
             'pillow' \
             'safetensors' \
             'sentencepiece' \
-            'grpcio' \
-            'grpcio-tools' \
-            'protobuf' \
             'lightning[extra]' \
             'timm' \
     && echo 'Done installing python packages' ;
