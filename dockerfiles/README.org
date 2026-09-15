@@ -766,26 +766,6 @@
       && . '/root/important_functions.sh' \
       && apt-get -y install \
           'aria2' \
-          'automake' \
-          'bear' \
-          'bison' \
-          'build-essential' \
-          'cmake' \
-          'curl' \
-          'ffmpeg' \
-          'fish' \
-          'fzf' \
-          'git' \
-          'git-lfs' \
-          'make' \
-          'mold' \
-          'squashfs-tools' \
-          'unzip' \
-          'wget' \
-          'yacc' \
-          'zip' \
-          'zsh' \
-          'zstd' \
       && echo 'DONE apt-get update' ;
 
   ENV CARGO_HOME="${HOME}/cargo"
@@ -828,6 +808,36 @@
       && mv * /usr/local/bin/ \
       && echo 'DONE Download and install zig' ;
 #+end_src
+
+  RUN \
+      --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+      --mount=target=/var/cache/apt,type=cache,sharing=locked \
+      echo 'START apt-get update' \
+      && apt-get update \
+      && . '/root/important_functions.sh' \
+      && apt-get -y install \
+          'aria2' \
+          'automake' \
+          'bear' \
+          'bison' \
+          'build-essential' \
+          'cmake' \
+          'curl' \
+          'ffmpeg' \
+          'fish' \
+          'fzf' \
+          'git' \
+          'git-lfs' \
+          'make' \
+          'mold' \
+          'squashfs-tools' \
+          'unzip' \
+          'wget' \
+          'yacc' \
+          'zip' \
+          'zsh' \
+          'zstd' \
+      && echo 'DONE apt-get update' ;
 
 ** build scripts
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./build_container_dgx.sh

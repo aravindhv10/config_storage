@@ -16,26 +16,6 @@ RUN \
     && . '/root/important_functions.sh' \
     && apt-get -y install \
         'aria2' \
-        'automake' \
-        'bear' \
-        'bison' \
-        'build-essential' \
-        'cmake' \
-        'curl' \
-        'ffmpeg' \
-        'fish' \
-        'fzf' \
-        'git' \
-        'git-lfs' \
-        'make' \
-        'mold' \
-        'squashfs-tools' \
-        'unzip' \
-        'wget' \
-        'yacc' \
-        'zip' \
-        'zsh' \
-        'zstd' \
     && echo 'DONE apt-get update' ;
 
 ENV CARGO_HOME="${HOME}/cargo"
