@@ -791,6 +791,11 @@
           'rustup.rs' \
           '494ddf67a104d5deb49380968ecccd8648ee0d7a3e61a8fa45b4dfd3bdc51ba8777922ed0e1864bf81ba78ce718bd40c55c1835c328df3cd1cd0d17312411460' \
           "${HOME}/rustup-init.sh" \
+      && adown \
+          'https://ziglang.org/builds/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
+          'zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
+          'dc816d391b4a81f5c34a70466716678374b696eadabdf766e13b78b79e931a3c8345f7bfb86cd0db607f5980a8a283dbfd9086f6542fad9d43a8180f2e7a1933' \
+          "${HOME}/ZIG/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz" \
       && cd "${HOME}" \
       && chmod +x 'rustup-init.sh' \
       && './rustup-init.sh' '-y' '--no-modify-path' \
@@ -800,12 +805,6 @@
       && rustup component add rustfmt \
       && echo 'DONE Download and install rust' \
       && echo 'START Download and install zig' \
-      && . "${HOME}/important_functions.sh" \
-      && adown \
-          'https://ziglang.org/builds/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
-          'zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
-          'dc816d391b4a81f5c34a70466716678374b696eadabdf766e13b78b79e931a3c8345f7bfb86cd0db607f5980a8a283dbfd9086f6542fad9d43a8180f2e7a1933' \
-          "${HOME}/ZIG/zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz" \
       && cd "${HOME}/ZIG/" \
       && tar -xf './zig-aarch64-linux-0.17.0-dev.2131+d08989840.tar.xz' \
       && cd './zig-aarch64-linux-0.17.0-dev.2131+d08989840' \
