@@ -807,7 +807,20 @@
       && cd './zig-aarch64-linux-0.17.0-dev.2131+d08989840' \
       && mv * /usr/local/bin/ \
       && echo 'DONE Download and install zig' ;
+
+  ENV LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch/'
+  ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
+  ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
+
+  RUN \
+      echo 'Start installing python packages' \
+      && 'python3' '-m' 'venv' "${HOME}/venv" '--system-site-packages' \
+      && . "${HOME}/venv/bin/activate" \
+      && python3 -m \
+          'pip' 'install' '-U' \
+      && echo 'Done installing python packages' ;
 #+end_src
+
 
   RUN \
       --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
