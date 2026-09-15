@@ -1,0 +1,25 @@
+#!/bin/sh
+cd "$('dirname' '--' "${0}")"
+
+IMAGE_NAME='7_deep_learning'
+IMAGE_CMD='zsh'
+PATH_DIR_SRC="$('realpath' '.')"
+PATH_DIR_DST="/data/$('basename' -- "${PATH_DIR_SRC}")"
+
+docker run \
+    '--cap-add=IPC_LOCK' \
+    '--ulimit' 'memlock=-1:-1' \
+    '--tty' \
+    '--interactive' \
+    '--rm' \
+    '--net' 'host' \
+    '--ipc' 'host' \
+    '--tmpfs' '/tmp:size=107374182400,exec' \
+    '--ulimit' 'memlock=-1' \
+    '--ulimit' 'stack=268435456' \
+    '--gpus' 'all,"capabilities=compute,utility,video"' \
+    -v "${PATH_DIR_SRC}:${PATH_DIR_DST}" \
+    -v "CACHE:/root/cargo/registry" \
+    -v "CACHE:/root/.cache" \
+    "${IMAGE_NAME}" "${IMAGE_CMD}" \
+;
