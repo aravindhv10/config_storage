@@ -68,4 +68,41 @@ RUN \
     && . "${HOME}/venv/bin/activate" \
     && python3 -m \
         'pip' 'install' '-U' \
+            'xformers' \
+            'blake3' \
+            'datafusion' \
+            'fastexcel' \
+            'openpyxl' \
+            'pandas' \
+            'polars' \
+            'python-calamine' \
+            'lancedb' \
+            'pylance' \
+            'fastapi[standard]' \
+            'inotify-simple' \
+            'ipywidgets' \
+            'jupyter' \
+            'jupyterlab' \
+            'psutil' \
+            'requests' \
+            'scikit-learn' \
+            'starlette' \
+            'tqdm' \
+            'urllib3' \
+            'wandb' \
+            'matplotlib' \
+            'seaborn' \
+            'albumentationsx' \
+            'einops' \
+            'opencv_contrib_python' \
+            'opencv_python' \
+            'openvino' \
+            'pillow' \
+            'safetensors' \
+            'sentencepiece' \
+            'grpcio' \
+            'grpcio-tools' \
+            'protobuf' \
+            'lightning[extra]' \
+            'timm' \
     && echo 'Done installing python packages' ;
