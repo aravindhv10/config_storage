@@ -27,6 +27,11 @@
   FROM debian:testing-backports
 #+end_src
 
+*** nvidia dgx spark
+#+begin_src conf :mkdirp yes :tangle ./CUDA_DGX/0_base/Dockerfile
+  FROM nvcr.io/nvidia/pytorch:26.08-py3
+#+end_src
+
 *** CUDA_UBUNTU
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
   FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
