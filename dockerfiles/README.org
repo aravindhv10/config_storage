@@ -852,6 +852,7 @@
   GITADD 'CUDA_UBUNTU/7_deep_learning/Dockerfile'
 
   GITADD 'CUDA_DGX/Dockerfile'
+  GITADD 'build_container_dgx.sh'
 
   git commit -m 'Started writing container for DGX spark' ; git status
   "${HOME}/SSH/K/P/setup.sh" ; git push
