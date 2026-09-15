@@ -2,8 +2,9 @@ FROM nvcr.io/nvidia/pytorch:26.08-py3
 
 ENV HOME='/root' \
     DEBIAN_FRONTEND='noninteractive' \
-    CMAKE_EXPORT_COMPILE_COMMANDS=1 \
-    CARGO_HOME="${HOME}/cargo" \
+    CMAKE_EXPORT_COMPILE_COMMANDS=1
+
+ENV CARGO_HOME="${HOME}/cargo" \
     RUSTUP_HOME="${HOME}/rustup" \
     PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}" \
     LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch/' \
