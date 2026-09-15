@@ -100,3 +100,7 @@ RUN \
             'lightning[extra]' \
             'timm' \
     && echo 'Done installing python packages' ;
+
+ENV VIRTUAL_ENV="${HOME}/venv"
+ENV VIRTUAL_ENV_PROMPT='(venv)'
+ENV PATH="/root/venv/bin:${PATH}"
