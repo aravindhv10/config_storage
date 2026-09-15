@@ -2,6 +2,7 @@ FROM nvcr.io/nvidia/pytorch:26.08-py3
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
+ENV HOME="/root"
 ENV CARGO_HOME="${HOME}/cargo"
 ENV RUSTUP_HOME="${HOME}/rustup"
 ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
