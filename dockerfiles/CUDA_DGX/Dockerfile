@@ -2,17 +2,17 @@ FROM nvcr.io/nvidia/pytorch:26.08-py3
 
 ENV HOME='/root' \
     DEBIAN_FRONTEND='noninteractive' \
+    LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch/' \
     CMAKE_EXPORT_COMPILE_COMMANDS=1
 
 ENV CARGO_HOME="${HOME}/cargo" \
     RUSTUP_HOME="${HOME}/rustup" \
-    PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}" \
-    LIBTORCH='/usr/local/lib/python3.12/dist-packages/torch/' \
     CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake" \
     LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}" \
     VIRTUAL_ENV="${HOME}/venv" \
     VIRTUAL_ENV_PROMPT='(venv)' \
-    PATH="/root/venv/bin:${PATH}"
+
+ENV PATH="${HOME}/venv/bin:${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 
 WORKDIR '/root'
 USER root
