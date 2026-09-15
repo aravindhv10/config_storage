@@ -818,55 +818,48 @@
       && . "${HOME}/venv/bin/activate" \
       && python3 -m \
           'pip' 'install' '-U' \
-              'xformers' \
+              'albumentationsx' \
               'blake3' \
               'datafusion' \
-              'fastexcel' \
-              'openpyxl' \
-              'pandas' \
-              'polars' \
-              'python-calamine' \
-              'lancedb' \
-              'pylance' \
+              'einops' \
               'fastapi[standard]' \
+              'fastexcel' \
+              'google-auth' \
+              'google-cloud-storage' \
               'inotify-simple' \
               'ipywidgets' \
               'jupyter' \
               'jupyterlab' \
-              'psutil' \
-              'requests' \
-              'scikit-learn' \
-              'starlette' \
-              'urllib3' \
-              'seaborn' \
-              'albumentationsx' \
-              'einops' \
+              'lancedb' \
+              'lightning[extra]' \
               'opencv_contrib_python' \
               'opencv_python' \
+              'opencv-python-headless' \
+              'openpyxl' \
               'openvino' \
+              'pandas' \
               'pillow' \
+              'polars' \
+              'psutil' \
+              'psycopg[binary,pool]' \
+              'pylance' \
+              'python-calamine' \
+              'python-multipart' \
+              'ray[serve]' \
+              'requests' \
               'safetensors' \
+              'scikit-learn' \
+              'seaborn' \
               'sentencepiece' \
-              'lightning[extra]' \
+              'starlette' \
               'timm' \
+              'urllib3' \
+              'xformers' \
       && echo 'Done installing python packages' ;
 
   ENV VIRTUAL_ENV="${HOME}/venv"
   ENV VIRTUAL_ENV_PROMPT='(venv)'
   ENV PATH="/root/venv/bin:${PATH}"
-
-  RUN \
-      echo 'Start installing python packages' \
-      && 'python3' '-m' 'venv' "${HOME}/venv" '--system-site-packages' \
-      && . "${HOME}/venv/bin/activate" \
-      && python3 -m \
-          'pip' 'install' '-U' \
-              'google-auth' \
-              'google-cloud-storage' \
-              'psycopg[binary,pool]' \
-              'python-multipart' \
-              'ray[serve]' \
-      && echo 'Done installing python packages' ;
 #+end_src
 
   RUN \
