@@ -2,7 +2,21 @@ FROM nvcr.io/nvidia/pytorch:26.08-py3
 
 COPY './important_functions.sh' '/root/important_functions.sh'
 
-ENV HOME="/root"
+ENV HOME='/root'
+ENV DEBIAN_FRONTEND='noninteractive'
+ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
+WORKDIR '/root'
+USER root
+
+RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    echo 'START apt-get update' \
+    && apt-get update \
+    && . '/root/important_functions.sh' \
+    && get_apt_packages \
+    && echo 'DONE apt-get update' ;
+
 ENV CARGO_HOME="${HOME}/cargo"
 ENV RUSTUP_HOME="${HOME}/rustup"
 ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
