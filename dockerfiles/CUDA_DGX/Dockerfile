@@ -110,3 +110,12 @@ RUN \
 ENV VIRTUAL_ENV="${HOME}/venv"
 ENV VIRTUAL_ENV_PROMPT='(venv)'
 ENV PATH="/root/venv/bin:${PATH}"
+
+RUN \
+    --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    echo 'START apt-get update' \
+    && apt-get -y install \
+        'libxcb1' \
+        'libgl-dev' \
+    && echo 'DONE apt-get update' ;
