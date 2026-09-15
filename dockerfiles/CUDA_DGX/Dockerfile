@@ -10,7 +10,7 @@ ENV CARGO_HOME="${HOME}/cargo" \
     CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake" \
     LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}" \
     VIRTUAL_ENV="${HOME}/venv" \
-    VIRTUAL_ENV_PROMPT='(venv)' \
+    VIRTUAL_ENV_PROMPT='(venv)'
 
 ENV PATH="${HOME}/venv/bin:${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 
