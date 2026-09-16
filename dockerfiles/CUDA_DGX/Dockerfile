@@ -29,7 +29,10 @@ RUN \
         'aria2' \
         'libgl-dev' \
         'libxcb1' \
-    && echo 'DONE apt-get update' ;
+        'llvm' \
+        'libclang-dev' \
+        'clang' \
+    && echo 'DONE apt-get update'
 
 RUN \
     --mount=target=/root/SHA512SUM,type=cache \

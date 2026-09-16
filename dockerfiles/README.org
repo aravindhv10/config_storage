@@ -747,9 +747,7 @@
 * Scripts for DGX spark
 
 ** Actual dockerfile
-llvm \
-    libclang-dev \
-    clang \
+llvm libclang-dev clang
 #+begin_src conf :mkdirp yes :tangle ./CUDA_DGX/Dockerfile
   FROM nvcr.io/nvidia/pytorch:26.08-py3
 
@@ -782,7 +780,10 @@ llvm \
           'aria2' \
           'libgl-dev' \
           'libxcb1' \
-      && echo 'DONE apt-get update' ;
+          'llvm' \
+          'libclang-dev' \
+          'clang' \
+      && echo 'DONE apt-get update'
 
   RUN \
       --mount=target=/root/SHA512SUM,type=cache \
