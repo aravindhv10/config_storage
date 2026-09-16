@@ -32,6 +32,7 @@ RUN \
         'llvm' \
         'libclang-dev' \
         'clang' \
+        'ffmpeg' \
     && echo 'DONE apt-get update'
 
 RUN \
