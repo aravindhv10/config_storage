@@ -747,6 +747,9 @@
 * Scripts for DGX spark
 
 ** Actual dockerfile
+llvm \
+    libclang-dev \
+    clang \
 #+begin_src conf :mkdirp yes :tangle ./CUDA_DGX/Dockerfile
   FROM nvcr.io/nvidia/pytorch:26.08-py3
 
