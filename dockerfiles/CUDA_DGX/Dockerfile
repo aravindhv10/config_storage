@@ -28,7 +28,6 @@ RUN \
     && apt-get -y install \
         'aria2' \
         'libgl-dev' \
-        'libopencv-dev' \
         'libxcb1' \
     && echo 'DONE apt-get update' ;
 
