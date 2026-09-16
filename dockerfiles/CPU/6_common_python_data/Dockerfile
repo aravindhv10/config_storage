@@ -39,6 +39,9 @@ RUN \
         'jupyter' \
         'jupyterlab' \
         'psutil' \
+        'psycopg[binary,pool]' \
+        'python-multipart' \
+        'ray[serve]' \
         'requests' \
         'scikit-learn' \
         'starlette' \
