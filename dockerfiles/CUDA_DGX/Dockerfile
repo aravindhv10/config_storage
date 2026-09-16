@@ -27,8 +27,9 @@ RUN \
     && . '/root/important_functions.sh' \
     && apt-get -y install \
         'aria2' \
-        'libxcb1' \
         'libgl-dev' \
+        'libopencv-dev' \
+        'libxcb1' \
     && echo 'DONE apt-get update' ;
 
 RUN \
