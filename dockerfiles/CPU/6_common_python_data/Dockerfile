@@ -48,6 +48,7 @@ RUN \
         'tqdm' \
         'urllib3' \
         'wandb' \
+        'zarr' \
     && echo 'DONE others' ;
 
 RUN \
