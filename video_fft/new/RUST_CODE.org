@@ -1,0 +1,4409 @@
+* TMP
+
+** Start container in the location
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./tmp.sh
+  cd "${HOME}/GITHUB/cloudphysician-codehub/LOS/respiratory_distress/HIGH_FIDALITY_RD"
+  "${HOME}/run_cuda.sh"
+#+end_src
+
+* Important shell scripts
+
+** Initial env setup
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
+  # export RUSTFLAGS="-C target-cpu=x86-64-v3 -C target-feature=+aes,+sse2"
+  export RUSTFLAGS='-C target-cpu=native'
+#+end_src
+
+** build scripts
+
+*** cargo_build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cargo_build.sh
+  cd "$(dirname -- "${0}")"
+  . './env.sh'
+  exec cargo build '--release'
+#+end_src
+
+*** all_build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./all_build.sh
+  cd "$(dirname -- "${0}")"
+  './cargo_build.sh'
+#+end_src
+
+*** all_install
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./all_install.sh
+  cd "$(dirname -- "${0}")"
+  './cargo_build.sh'
+  cp -vf -- './target/release/video_fft' '/bin/'
+  cp -vf -- './target/release/infer-server' '/bin/'
+  cp -vf -- './target/release/infer-client' '/bin/'
+  exit '0'
+#+end_src
+
+** run server
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_server.sh
+  export RUST_LOG='info'
+  'infer-server'
+  exec "${0}"
+#+end_src
+
+** Shell script to convert video to raw format
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./convert_video_2_raw.sh
+  cd "$('dirname' -- "${0}")"
+  ffmpeg \
+      "-i" './video.mp4' \
+      "-r" '8' \
+      "-nostdin" \
+      "-f" "rawvideo" \
+      "-pix_fmt" "rgb24" \
+      "-vf" "scale=1280:720" \
+      './video.mp4.raw' \
+  ;
+  exit '0'
+#+end_src
+
+* Main C++ - RUST INTEROP API
+#+begin_src cpp :mkdirp yes :tangle ./src/mytorch.hpp
+  #ifndef _HEADER_GUARD_src_main_hpp_
+  #define _HEADER_GUARD_src_main_hpp_
+
+  /**************** Defining important data types ****************/
+
+  // Defining important data types
+  using float32_t = float;
+  using float64_t = double;
+
+  using f32_t = float;
+  using f64_t = double;
+
+  using i8_t = char;
+  using u8_t = unsigned char;
+
+  using i16_t = short int;
+  using u16_t = unsigned short int;
+
+  using i32_t = int;
+  using u32_t = unsigned int;
+
+  using i64_t = long;
+  using u64_t = unsigned long;
+
+  // Data types for cv usability image classification
+  using TYPE_DATA_IMAGE = u8_t;
+  using TYPE_DATA_CV_USABILITY_INFERENCE_OUTPUT = f32_t;
+
+  // Data types for FFT and video classifier
+  using TYPE_DATA_VIDEO_TENSOR = TYPE_DATA_IMAGE;
+  using TYPE_DATA_FFT_TENSOR = f32_t;
+
+  /**************** Defining Important parameters ****************/
+
+  // Number of GPU semaphore permits
+  i32_t constexpr NUM_GPU_SEMAPHORE_PERMITS = 2;
+
+  // Number of channels in a color image
+  u32_t constexpr NUM_CHANNELS_COLOR_IMAGE = 3;
+
+  // CV Usability input image related parameters
+  u32_t constexpr SIZE_IMAGE_RESOLUTION = 448;
+  u32_t constexpr SIZE_IMAGE_C = NUM_CHANNELS_COLOR_IMAGE;
+  u32_t constexpr SIZE_IMAGE_X = SIZE_IMAGE_RESOLUTION;
+  u32_t constexpr SIZE_IMAGE_Y = SIZE_IMAGE_RESOLUTION;
+
+  u32_t constexpr DIST_IMAGE_C = 1;
+  u32_t constexpr DIST_IMAGE_X = SIZE_IMAGE_C * DIST_IMAGE_C;
+  u32_t constexpr DIST_IMAGE_Y = SIZE_IMAGE_X * DIST_IMAGE_X;
+  u32_t constexpr SIZE_IMAGE_TOTAL = SIZE_IMAGE_Y * DIST_IMAGE_Y;
+
+  // CV Usability output tensor parameters
+  u32_t constexpr SIZE_IMAGE_CLASSIFICATION_OUTPUT = 2;
+
+  // Video input parameters
+  f32_t constexpr IDEAL_LENGTH_SECONDS_VIDEO = 20.0;
+  f32_t constexpr FPS_VIDEO_TENSOR = 8.0;
+  u32_t constexpr SIZE_VIDEO_TENSOR_C = NUM_CHANNELS_COLOR_IMAGE;
+  u32_t constexpr SIZE_VIDEO_TENSOR_X = 1280;
+  u32_t constexpr SIZE_VIDEO_TENSOR_Y = 720;
+
+  u32_t constexpr DIST_VIDEO_TENSOR_C = 1;
+  u32_t constexpr DIST_VIDEO_TENSOR_X = SIZE_VIDEO_TENSOR_C * DIST_VIDEO_TENSOR_C;
+  u32_t constexpr DIST_VIDEO_TENSOR_Y = DIST_VIDEO_TENSOR_X * SIZE_VIDEO_TENSOR_X;
+  u32_t constexpr DIST_VIDEO_TENSOR_T = DIST_VIDEO_TENSOR_Y * SIZE_VIDEO_TENSOR_Y;
+
+  // Video FFT tensor related parameters
+  f32_t constexpr FREQUENCY_LIMIT_FFT_TENSOR = 3.0;
+  u32_t constexpr SIZE_FFT_TENSOR_T = 60;
+  u32_t constexpr SIZE_FFT_TENSOR_X = SIZE_VIDEO_TENSOR_X / 5;
+  u32_t constexpr SIZE_FFT_TENSOR_Y = SIZE_VIDEO_TENSOR_Y / 5;
+  u32_t constexpr SIZE_FFT_TENSOR_C = SIZE_VIDEO_TENSOR_C * 2;
+
+  u32_t constexpr DIST_FFT_TENSOR_T = 1;
+  u32_t constexpr DIST_FFT_TENSOR_X = SIZE_FFT_TENSOR_T * DIST_FFT_TENSOR_T;
+  u32_t constexpr DIST_FFT_TENSOR_Y = SIZE_FFT_TENSOR_X * DIST_FFT_TENSOR_X;
+  u32_t constexpr DIST_FFT_TENSOR_C = SIZE_FFT_TENSOR_Y * DIST_FFT_TENSOR_Y;
+
+  u32_t constexpr SIZE_FFT_TENSOR_TOTAL = SIZE_FFT_TENSOR_C * DIST_FFT_TENSOR_C;
+
+  // RD video classifier output size
+  u32_t constexpr SIZE_VIDEO_CLASSIFICATION_OUTPUT = 17;
+
+  /**************** Defining Important structures ****************/
+
+  // Important structures for CV usability image classification model input
+  struct CV_USABILITY_IMAGE_PIXEL {
+    TYPE_DATA_IMAGE c[SIZE_IMAGE_C];
+  };
+
+  struct CV_USABILITY_IMAGE_X {
+    CV_USABILITY_IMAGE_PIXEL x[SIZE_IMAGE_X];
+  };
+
+  struct CV_USABILITY_IMAGE {
+    CV_USABILITY_IMAGE_X y[SIZE_IMAGE_Y];
+  };
+
+  // Important structures for CV usability image classification model output
+  struct CV_USABILITY_INFERENCE_OUTPUT {
+    TYPE_DATA_CV_USABILITY_INFERENCE_OUTPUT p[SIZE_IMAGE_CLASSIFICATION_OUTPUT];
+  };
+
+  // FFT video input tensors
+  struct frame_video_C {
+    TYPE_DATA_VIDEO_TENSOR c[SIZE_VIDEO_TENSOR_C];
+  };
+
+  struct frame_video_X {
+    frame_video_C x[SIZE_VIDEO_TENSOR_X];
+  };
+
+  struct frame_video_Y {
+    frame_video_X y[SIZE_VIDEO_TENSOR_Y];
+  };
+
+  struct full_video {
+    frame_video_Y const *data;
+    u32_t len_t;
+  };
+
+  // Classifier model input structures
+  struct a_t {
+    TYPE_DATA_FFT_TENSOR t[SIZE_FFT_TENSOR_T];
+  };
+
+  struct a_x {
+    a_t x[SIZE_FFT_TENSOR_X];
+  };
+
+  struct a_y {
+    a_x y[SIZE_FFT_TENSOR_Y];
+  };
+
+  struct a_p {
+    a_y p[SIZE_FFT_TENSOR_C];
+  };
+
+  struct fft_video {
+    a_p v;
+  };
+
+  // RD inference output
+  struct rd_classifier_output {
+    f32_t out[SIZE_VIDEO_CLASSIFICATION_OUTPUT];
+  };
+
+  /**************** Defining Main function conventions ****************/
+  extern "C" {
+
+  // Global resource management functions
+  void locker_to_inference_mode();
+  void locker_to_preprocessing_mode();
+  void clear_cuda_cache();
+
+  // CV usability image classification class
+  void *new_infer_slave_image_cv_usability();
+
+  void delete_infer_slave_image_cv_usability(void *in);
+
+  i32_t run_infer_slave_image_cv_usability(
+      void *in, CV_USABILITY_IMAGE const *blob_source,
+      CV_USABILITY_INFERENCE_OUTPUT *blob_destination, u32_t const batch_size);
+
+  // Function to process the input image for CV usability
+  void frame_video_to_cv_usability(frame_video_Y const *src,
+                                   CV_USABILITY_IMAGE *dst);
+
+  // FFT functions
+  i32_t do_fft_compress(full_video const src, fft_video *const dest,
+                        bool use_gpu);
+
+  // RD video classification class
+  void *new_infer_slave();
+
+  void delete_infer_slave(void *in);
+
+  i32_t run_infer_slave(void *in, fft_video const *blob_source,
+                        rd_classifier_output *blob_destination,
+                        u32_t const batch_size);
+  }
+
+  #endif
+#+end_src
+
+* Cargo.toml
+
+** Header
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [package]
+  name = "video_fft"
+  version = "0.1.0"
+  edition = "2024"
+#+end_src
+
+** Dependencies
+
+*** Single binary for fft and inference
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [[bin]]
+  name = "video_fft"
+  path = "src/main.rs"
+#+end_src
+
+*** Running the inference endpoint
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [[bin]]
+  name = "infer-server"
+  path = "src/server.rs"
+#+end_src
+
+*** The inference client sample implementation
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [[bin]]
+  name = "infer-client"
+  path = "src/client.rs"
+#+end_src
+
+** Build time only Dependencies
+#+begin_src toml :mkdirp yes :tangle ./Cargo.toml
+  [build-dependencies]
+#+end_src
+
+*** Tonic build
+#+begin_src toml :mkdirp yes :tangle ./Cargo.toml
+  tonic-prost-build = "0"
+#+end_src
+
+*** Bindgen
+#+begin_src toml :mkdirp yes :tangle ./Cargo.toml
+  bindgen = "0"
+#+end_src
+
+** Full dependencies
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  [dependencies]
+#+end_src
+
+*** Tonic stuff
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tonic = { version = "0", features = ["zstd"] }
+  tonic-prost = "0"
+  tonic-reflection = "0"
+  prost = "0"
+#+end_src
+
+*** Message channels
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  crossfire = { version = "3", features = ["tokio"] }
+#+end_src
+
+*** Async
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tokio = { version = "1", features = ["full"] }
+  futures = "0"
+#+end_src
+
+*** Tracing
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  tracing-subscriber = { version = "0", features = ["env-filter"] }
+  tracing = { version = "0", features = ["async-await"] }
+#+end_src
+
+*** Parallel loops and file crawling
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  rayon = "1"
+  jwalk = "0"
+#+end_src
+
+*** Memory mapped io and key value db
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  fjall = { version = "3", features = ["lz4", "default"] }
+  scc = "3"
+#+end_src
+
+*** Hashing
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  blake3 = { version = "1", features = ["rayon", "serde"] }
+#+end_src
+
+*** Serialization
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  serde = { version = "1", features = ["derive"] }
+#+end_src
+
+*** rustix
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  memfd = "0"
+  memmapix = "0"
+  rustix = { version = "1", features = ["all-apis", "linux_latest"] }
+#+end_src
+
+*** COMMENT Lancedb
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  lancedb = "0.37.1" # or the latest version
+  arrow-schema = "58"
+  arrow-array = "58"
+#+end_src
+
+*** Misc
+#+begin_src conf :mkdirp yes :tangle ./Cargo.toml
+  anyhow = "1"
+  c32 = { version = "0", features = ["alloc"] }
+  half = "2"
+  mimalloc = "0"
+  which = { version = "8", features = ["regex", "tracing"] }
+#+end_src
+
+* build.rs
+#+begin_src rust :mkdirp yes :tangle ./build.rs
+  use std::{env, path::PathBuf};
+
+  fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+      let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+
+      tonic_prost_build::configure()
+          .file_descriptor_set_path(out_dir.join("infer.bin"))
+          .compile_protos(&["./infer.proto"], &["proto"])
+          .unwrap();
+
+      let bindings = bindgen::Builder::default()
+          .header("./src/mytorch.hpp")
+          .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+          .generate()
+          .expect("Unable to generate bindings");
+
+      bindings.write_to_file(out_dir.join("mytorch.rs")).expect("Couldn't write bindings!");
+
+      println!("cargo:rustc-link-arg=-lmytorch");
+      
+      Ok(())
+  }
+#+end_src
+
+* Include the c++ bindings
+#+begin_src rust :mkdirp yes :tangle ./src/export.rs
+  include!(concat!(env!("OUT_DIR"), "/mytorch.rs"));
+#+end_src
+
+* Write the function to do the hashing
+#+begin_src rust :mkdirp yes :tangle ./src/hasher.rs
+  pub type key_type = blake3::Hash;
+
+  pub fn get_hash_key_size() -> usize {
+      std::mem::size_of::<key_type>()
+  }
+
+  pub struct blob_hash {
+      pub hash: key_type,
+      string_rep: std::string::String,
+      filepath: Option<std::path::PathBuf>,
+  }
+
+  impl blob_hash {
+      #[inline(always)]
+      pub fn new_from_slice(inblob: &[u8]) -> Self {
+          let hash = blake3::hash(inblob);
+          let string_rep = c32::encode(hash.as_slice());
+          Self {
+              hash: hash,
+              string_rep: string_rep,
+              filepath: None,
+          }
+      }
+
+      pub fn new_from_tmp_file(infilepath: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+          let file: std::fs::File = std::fs::File::open(infilepath.as_ref())?;
+          let mmap_result = unsafe { memmapix::Mmap::map(&file) }?;
+          let tmp = Self::new_from_slice(&mmap_result);
+          Ok(tmp)
+      }
+
+      #[inline(always)]
+      pub fn new_from_file(infilepath: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
+          let mut tmp = Self::new_from_tmp_file(infilepath.as_ref())?;
+          tmp.filepath = Some(infilepath.as_ref().to_path_buf());
+          Ok(tmp)
+      }
+
+      #[inline(always)]
+      pub fn get_hash(&self) -> &[u8] {
+          self.hash.as_slice()
+      }
+
+      #[inline(always)]
+      pub fn get_hash_string(&self) -> &str {
+          &self.string_rep
+      }
+
+      #[inline(always)]
+      pub fn get_file_path(&self) -> &Option<std::path::PathBuf> {
+          &self.filepath
+      }
+  }
+#+end_src
+
+* Rust module for storing and retrieving files
+#+begin_src rust :mkdirp yes :tangle ./src/videodecoder.rs
+  use std::io::Seek;
+
+  use tokio::io::AsyncWriteExt;
+
+  fn get_fps_and_resolution() -> String {
+      format!(
+          "fps={},scale={}:{}",
+          crate::export::FPS_VIDEO_TENSOR as u16,
+          crate::export::SIZE_VIDEO_TENSOR_X as u16,
+          crate::export::SIZE_VIDEO_TENSOR_Y as u16
+      )
+  }
+
+  pub async fn ffmpeg_video_to_raw_stdin_stdout_async(
+      fd_in: std::process::Stdio,
+      fd_out: std::process::Stdio,
+  ) -> anyhow::Result<std::process::ExitStatus> {
+      tracing::info!("Running FFMPEG with input and output as memfds in async mode.");
+
+      let res = tokio::process::Command::new("ffmpeg")
+          // .arg("-init_hw_device")
+          // .arg("vulkan=vk:0")
+          // .arg("-hwaccel")
+          // .arg("vulkan")
+          .arg("-y")
+          .arg("-i")
+          .arg("/dev/fd/0")
+          .arg("-vf")
+          .arg(get_fps_and_resolution())
+          .arg("-nostdin")
+          .arg("-loglevel")
+          .arg("quiet")
+          .arg("-f")
+          .arg("rawvideo")
+          .arg("-pix_fmt")
+          .arg("rgb24")
+          .arg("/dev/fd/1")
+          .stdin(fd_in)
+          .stdout(fd_out)
+          .status()
+          .await?;
+      tracing::info!("FFMPEG completed.");
+      Ok(res)
+  }
+
+  pub async fn ffmpeg_video_to_raw_file_stdout_async(
+      path_in: impl AsRef<std::path::Path>,
+      fd_out: std::process::Stdio,
+  ) -> anyhow::Result<std::process::ExitStatus> {
+      tracing::info!("Running FFMPEG with file as input and memfd as output in async mode.");
+      let res = tokio::process::Command::new("ffmpeg")
+          // .arg("-init_hw_device")
+          // .arg("vulkan=vk:0")
+          // .arg("-hwaccel")
+          // .arg("vulkan")
+          .arg("-y")
+          .arg("-i")
+          .arg(path_in.as_ref())
+          .arg("-vf")
+          .arg(get_fps_and_resolution())
+          .arg("-nostdin")
+          .arg("-loglevel")
+          .arg("quiet")
+          .arg("-f")
+          .arg("rawvideo")
+          .arg("-pix_fmt")
+          .arg("rgb24")
+          .arg("/dev/fd/1")
+          .stdout(fd_out)
+          .status()
+          .await?;
+      tracing::info!("FFMPEG completed.");
+      Ok(res)
+  }
+
+  pub fn ffmpeg_video_to_raw_stdin_stdout_blocking(
+      fd_in: std::process::Stdio,
+      fd_out: std::process::Stdio,
+  ) -> anyhow::Result<std::process::ExitStatus> {
+      tracing::info!("Running FFMPEG with input and output as memfds in blocking mode.");
+      let res = std::process::Command::new("ffmpeg")
+          // .arg("-init_hw_device")
+          // .arg("vulkan=vk:0")
+          // .arg("-hwaccel")
+          // .arg("vulkan")
+          .arg("-y")
+          .arg("-i")
+          .arg("/dev/fd/0")
+          .arg("-vf")
+          .arg(get_fps_and_resolution())
+          .arg("-nostdin")
+          .arg("-loglevel")
+          .arg("quiet")
+          .arg("-f")
+          .arg("rawvideo")
+          .arg("-pix_fmt")
+          .arg("rgb24")
+          .arg("/dev/fd/1")
+          .stdin(fd_in)
+          .stdout(fd_out)
+          .status()?;
+      tracing::info!("FFMPEG completed.");
+      Ok(res)
+  }
+
+  pub fn ffmpeg_video_to_raw_file_stdout_blocking(
+      path_in: impl AsRef<std::path::Path>,
+      fd_out: std::process::Stdio,
+  ) -> anyhow::Result<std::process::ExitStatus> {
+      tracing::info!("Running FFMPEG with file as input and memfd as output in blocking mode.");
+      let res = std::process::Command::new("ffmpeg")
+          // .arg("-init_hw_device")
+          // .arg("vulkan=vk:0")
+          // .arg("-hwaccel")
+          // .arg("vulkan")
+          .arg("-y")
+          .arg("-i")
+          .arg(path_in.as_ref())
+          .arg("-vf")
+          .arg(get_fps_and_resolution())
+          .arg("-nostdin")
+          .arg("-loglevel")
+          .arg("quiet")
+          .arg("-f")
+          .arg("rawvideo")
+          .arg("-pix_fmt")
+          .arg("rgb24")
+          .arg("/dev/fd/1")
+          .stdout(fd_out)
+          .status()?;
+      tracing::info!("FFMPEG completed.");
+      Ok(res)
+  }
+
+  pub struct VideoReader {
+      pub opt: memfd::MemfdOptions,
+  }
+
+  pub struct VideoReaderPayload {
+      pub data: memmapix::Mmap,
+  }
+
+  impl VideoReader {
+      pub fn new() -> Self {
+          Self {
+              opt: memfd::MemfdOptions::default().allow_sealing(true),
+          }
+      }
+
+      pub async fn tensor_from_slice_async(
+          &self,
+          data: &[u8],
+          name: &str,
+      ) -> anyhow::Result<VideoReaderPayload> {
+          tracing::info!("Started processing video content in async mode.");
+          let memfd = self.opt.create(name)?;
+          let out_memfd = self.opt.create(name.to_string() + "out")?;
+          tracing::info!("Created input and output memfds.");
+
+          let mut res: usize = 0;
+          while res < data.len() {
+              res += rustix::io::write(memfd.as_file(), &data[res..])?;
+          }
+
+          memfd.as_file().seek(std::io::SeekFrom::Start(0))?;
+          tracing::info!("Wrote data into the FD and seeked to start.");
+
+          match ffmpeg_video_to_raw_stdin_stdout_async(
+              std::process::Stdio::from(memfd.as_file().try_clone()?),
+              std::process::Stdio::from(out_memfd.as_file().try_clone()?),
+          )
+          .await?
+          .code()
+          {
+              Some(i) => {
+                  if i != 0 {
+                      tracing::error!("FFMPEG exited with non-0 error code {}", i);
+                      return Err(anyhow::format_err!("ffmpeg failed with error code {}", i));
+                  } else {
+                      let memmap = tokio::task::spawn_blocking(move || unsafe {
+                          memmapix::Mmap::map(out_memfd.as_file())
+                      })
+                      .await??;
+                      tracing::info!("FFMPEG completed and final memfd is memory mapped.");
+                      return Ok(VideoReaderPayload { data: memmap });
+                  }
+              }
+              None => {
+                  tracing::error!("FFMPEG exited with unknown error.");
+                  return Err(anyhow::format_err!("ffmpeg failed with unknown error code"));
+              }
+          };
+      }
+
+      pub fn tensor_from_slice_blocking(
+          &self,
+          data: &[u8],
+          name: &str,
+      ) -> anyhow::Result<VideoReaderPayload> {
+          tracing::info!("Started processing video content in blocking mode.");
+          let memfd = self.opt.create(name)?;
+          let out_memfd = self.opt.create(name.to_string() + "out")?;
+          tracing::info!("Done creating the input - output memfds.");
+
+          let mut res: usize = 0;
+          while res < data.len() {
+              res += rustix::io::write(memfd.as_file(), &data[res..])?;
+          }
+
+          memfd.as_file().seek(std::io::SeekFrom::Start(0))?;
+          tracing::info!("Wrote data into the FD and seeked to start.");
+
+          match ffmpeg_video_to_raw_stdin_stdout_blocking(
+              std::process::Stdio::from(memfd.as_file().try_clone()?),
+              std::process::Stdio::from(out_memfd.as_file().try_clone()?),
+          )?
+          .code()
+          {
+              Some(i) => {
+                  if i != 0 {
+                      tracing::error!("FFMPEG exited with non-0 error code {}", i);
+                      return Err(anyhow::format_err!("ffmpeg failed with error code {}", i));
+                  } else {
+                      let memmap = unsafe { memmapix::Mmap::map(out_memfd.as_file()) }?;
+                      tracing::info!("FFMPEG completed and final memfd is memory mapped.");
+                      return Ok(VideoReaderPayload { data: memmap });
+                  }
+              }
+              None => {
+                  tracing::error!("FFMPEG exited with unknown error.");
+                  return Err(anyhow::format_err!("ffmpeg failed with unknown error code"));
+              }
+          };
+      }
+
+      pub async fn tensor_from_path_async(
+          &self,
+          fdpath: impl AsRef<std::path::Path>,
+          name: &str,
+      ) -> anyhow::Result<VideoReaderPayload> {
+          let out_memfd = self.opt.create(name)?;
+
+          match ffmpeg_video_to_raw_file_stdout_async(
+              fdpath,
+              std::process::Stdio::from(out_memfd.as_file().try_clone()?),
+          )
+          .await?
+          .code()
+          {
+              Some(i) => {
+                  if i != 0 {
+                      return Err(anyhow::format_err!("ffmpeg failed with error code {}", i));
+                  } else {
+                      let memmap = tokio::task::spawn_blocking(move || unsafe {
+                          memmapix::Mmap::map(out_memfd.as_file())
+                      })
+                      .await??;
+                      return Ok(VideoReaderPayload { data: memmap });
+                  }
+              }
+              None => {
+                  return Err(anyhow::format_err!("ffmpeg failed with unknown error code"));
+              }
+          };
+      }
+
+      pub fn tensor_from_path_blocking(
+          &self,
+          fdpath: impl AsRef<std::path::Path>,
+          name: &str,
+      ) -> anyhow::Result<VideoReaderPayload> {
+          let out_memfd = self.opt.create(name)?;
+
+          match ffmpeg_video_to_raw_file_stdout_blocking(
+              fdpath,
+              std::process::Stdio::from(out_memfd.as_file().try_clone()?),
+          )?
+          .code()
+          {
+              Some(i) => {
+                  if i != 0 {
+                      return Err(anyhow::format_err!("ffmpeg failed with error code {}", i));
+                  } else {
+                      let memmap = unsafe { memmapix::Mmap::map(out_memfd.as_file()) }?;
+                      return Ok(VideoReaderPayload { data: memmap });
+                  }
+              }
+              None => {
+                  return Err(anyhow::format_err!("ffmpeg failed with unknown error code"));
+              }
+          };
+      }
+  }
+#+end_src
+
+* Rust module for storing and retrieving files
+#+begin_src rust :mkdirp yes :tangle ./src/filestore.rs
+  use tonic::IntoRequest;
+
+  use crate::export;
+  use crate::hasher;
+  use crate::videodecoder;
+  use std::io::Seek;
+
+  pub type payload = memmapix::Mmap;
+
+  pub struct file_store {
+      pub main_store: scc::HashMap<hasher::key_type, memfd::Memfd>,
+      video_reader: std::sync::Arc<videodecoder::VideoReader>,
+  }
+
+  impl file_store {
+      pub async fn new() -> anyhow::Result<Self> {
+          return Ok(Self {
+              main_store: scc::HashMap::new(),
+              video_reader: std::sync::Arc::new(videodecoder::VideoReader::new()),
+          });
+      }
+
+      pub fn put_content_blocking(
+          &self,
+          key: &hasher::blob_hash,
+          value: &[u8],
+      ) -> anyhow::Result<()> {
+          let name = key.get_hash_string();
+          let key = key.hash.clone();
+
+          match self.main_store.entry_sync(key) {
+              scc::hash_map::Entry::Occupied(_) => {
+                  tracing::warn!("Key {} already exists, not doing anything.", name);
+              }
+              scc::hash_map::Entry::Vacant(v) => {
+                  let memfd = self.video_reader.opt.create(name)?;
+                  let mut res: usize = 0;
+                  while res < value.len() {
+                      res += rustix::io::write(memfd.as_file(), &value[res..])?;
+                  }
+                  memfd.as_file().seek(std::io::SeekFrom::Start(0))?;
+                  memfd.add_seal(memfd::FileSeal::SealWrite)?;
+                  v.insert_entry(memfd);
+              }
+          };
+
+          Ok(())
+      }
+
+      pub async fn put_content_async(
+          &self,
+          key: &hasher::blob_hash,
+          value: &[u8],
+      ) -> anyhow::Result<()> {
+          let name = key.get_hash_string();
+          let key = key.hash.clone();
+
+          match self.main_store.entry_async(key).await {
+              scc::hash_map::Entry::Occupied(_) => {
+                  tracing::warn!("Key {} already exists, not doing anything.", name);
+              }
+              scc::hash_map::Entry::Vacant(v) => {
+                  let memfd = self.video_reader.opt.create(name)?;
+                  let mut res: usize = 0;
+                  while res < value.len() {
+                      res += rustix::io::write(memfd.as_file(), &value[res..])?;
+                  }
+                  memfd.as_file().seek(std::io::SeekFrom::Start(0))?;
+                  memfd.add_seal(memfd::FileSeal::SealWrite);
+                  v.insert_entry(memfd);
+              }
+          };
+
+          Ok(())
+      }
+
+      pub async fn get_raw_tensor_async(&self, key: &hasher::blob_hash) -> anyhow::Result<payload> {
+          match self.main_store.entry_async(key.hash).await {
+              scc::hash_map::Entry::Occupied(o) => {
+                  let memfd = o.remove();
+                  let stdin = std::process::Stdio::from(memfd.as_file().try_clone()?);
+
+                  let name = key.get_hash_string().to_string() + "out";
+                  let memfd_out = self.video_reader.opt.create(name)?;
+                  let stdout = std::process::Stdio::from(memfd_out.as_file().try_clone()?);
+
+                  match videodecoder::ffmpeg_video_to_raw_stdin_stdout_async(stdin, stdout)
+                      .await?
+                      .code()
+                  {
+                      None => {
+                          return Err(anyhow::format_err!("ffmpeg failed with unknown error code"));
+                      }
+                      Some(o) => {
+                          if o != 0 {
+                              return Err(anyhow::format_err!("ffmpeg failed with error code {}", o));
+                          } else {
+                              let memmap = tokio::task::spawn_blocking(move || unsafe {
+                                  payload::map(memfd_out.as_file())
+                              })
+                              .await??;
+                              return Ok(memmap);
+                          }
+                      }
+                  }
+              }
+              scc::hash_map::Entry::Vacant(_) => {
+                  match key.get_file_path() {
+                      None => {
+                          return Err(anyhow::format_err!("Could not find any such key"));
+                      }
+                      Some(p) => {
+                          let name = key.get_hash_string().to_string() + "out";
+                          let memfd_out = self.video_reader.opt.create(name)?;
+                          let stdout = std::process::Stdio::from(memfd_out.as_file().try_clone()?);
+
+                          match videodecoder::ffmpeg_video_to_raw_file_stdout_async(p, stdout)
+                              .await?
+                              .code()
+                          {
+                              None => {
+                                  return Err(anyhow::format_err!(
+                                      "ffmpeg failed with unknown error code"
+                                  ));
+                              }
+                              Some(o) => {
+                                  if o != 0 {
+                                      return Err(anyhow::format_err!(
+                                          "ffmpeg failed with error code {}",
+                                          o
+                                      ));
+                                  } else {
+                                      let memmap = tokio::task::spawn_blocking(move || unsafe {
+                                          payload::map(memfd_out.as_file())
+                                      })
+                                      .await??;
+                                      return Ok(memmap);
+                                  }
+                              }
+                          }
+                      }
+                  };
+              }
+          };
+      }
+
+      pub fn get_raw_tensor_blocking(&self, key: &hasher::blob_hash) -> anyhow::Result<payload> {
+          match self.main_store.entry_sync(key.hash) {
+              scc::hash_map::Entry::Occupied(o) => {
+                  let memfd = o.remove();
+                  let stdin = std::process::Stdio::from(memfd.as_file().try_clone()?);
+
+                  let name = key.get_hash_string().to_string() + "out";
+                  let memfd_out = self.video_reader.opt.create(name)?;
+                  let stdout = std::process::Stdio::from(memfd_out.as_file().try_clone()?);
+
+                  match videodecoder::ffmpeg_video_to_raw_stdin_stdout_blocking(stdin, stdout)?.code()
+                  {
+                      None => {
+                          return Err(anyhow::format_err!("ffmpeg failed with unknown error code"));
+                      }
+                      Some(o) => {
+                          if o != 0 {
+                              return Err(anyhow::format_err!("ffmpeg failed with error code {}", o));
+                          } else {
+                              let memmap = unsafe { payload::map(memfd_out.as_file()) }?;
+                              return Ok(memmap);
+                          }
+                      }
+                  }
+              }
+              scc::hash_map::Entry::Vacant(_) => {
+                  match key.get_file_path() {
+                      None => {
+                          return Err(anyhow::format_err!("Could not find any such key"));
+                      }
+                      Some(p) => {
+                          let name = key.get_hash_string().to_string() + "out";
+                          let memfd_out = self.video_reader.opt.create(name)?;
+                          let stdout = std::process::Stdio::from(memfd_out.as_file().try_clone()?);
+
+                          match videodecoder::ffmpeg_video_to_raw_file_stdout_blocking(p, stdout)?
+                              .code()
+                          {
+                              None => {
+                                  return Err(anyhow::format_err!(
+                                      "ffmpeg failed with unknown error code"
+                                  ));
+                              }
+                              Some(o) => {
+                                  if o != 0 {
+                                      return Err(anyhow::format_err!(
+                                          "ffmpeg failed with error code {}",
+                                          o
+                                      ));
+                                  } else {
+                                      let memmap = unsafe { payload::map(memfd_out.as_file()) }?;
+                                      return Ok(memmap);
+                                  }
+                              }
+                          }
+                      }
+                  };
+              }
+          };
+      }
+  }
+#+end_src
+
+* Rust class for interpreting video as torch tensor
+#+begin_src rust :mkdirp yes :tangle ./src/videoview.rs
+  use crate::export;
+  use crate::hasher;
+  use crate::videodecoder;
+
+  pub const IDEAL_LENGTH: u16 = (export::IDEAL_LENGTH_SECONDS_VIDEO * export::FPS_VIDEO_TENSOR) as u16;
+
+  #[inline(always)]
+  pub fn get_num_windows(total_video_length: u64) -> u8 {
+      const MIN_LENGTH: u16 = (IDEAL_LENGTH * 3) >> 2;
+
+      if total_video_length < (MIN_LENGTH as u64) {
+          return 0 as u8;
+      } else if total_video_length <= (IDEAL_LENGTH as u64) {
+          return 1 as u8;
+      } else {
+          const STRIDE: u16 = IDEAL_LENGTH;
+
+          let float_val =
+              (((total_video_length - (IDEAL_LENGTH as u64)) as f64) / (STRIDE as f64)) as f64;
+
+          let floor_val = float_val.floor();
+
+          let diff = float_val - floor_val;
+
+          let num_windows: u8 = {
+              if diff < 0.1 {
+                  (floor_val as u8) + 1
+              } else {
+                  (floor_val as u8) + 2
+              }
+          };
+
+          return num_windows;
+      }
+  }
+
+  pub struct video_slicer_mapped {
+      pub size_t: u16,
+      mmap: memmapix::Mmap,
+  }
+
+  impl video_slicer_mapped {
+      pub fn new(mmap: memmapix::Mmap) -> anyhow::Result<Self> {
+          let size_t: u16 = (mmap.len() / (export::DIST_VIDEO_TENSOR_T as usize)) as u16;
+
+          if mmap.len() % (export::DIST_VIDEO_TENSOR_T as usize) != 0 {
+              tracing::warn!(
+                  "Mmap size {} is not an exact multiple of frame size {}",
+                  mmap.len(),
+                  export::DIST_VIDEO_TENSOR_T
+              );
+          }
+
+          Ok(Self {
+              size_t: size_t,
+              mmap: mmap,
+          })
+      }
+
+      async fn new_from_key_value(
+          key: &hasher::blob_hash,
+          value: std::sync::Arc<Vec<u8>>,
+      ) -> anyhow::Result<Self> {
+          let slave = videodecoder::VideoReader::new();
+          let name = key.get_hash_string().to_string();
+          let result = tokio::task::spawn_blocking(move || {
+              slave.tensor_from_slice_blocking(&value, name.as_str())
+          })
+          .await??;
+
+          Self::new(result.data)
+      }
+
+      pub fn get_video_tensor(&self) -> anyhow::Result<&[export::frame_video_Y]> {
+          if self.size_t < 2 {
+              return Err(anyhow::format_err!("The video blob seems too small"));
+          }
+
+          let tensor_data = unsafe {
+              std::slice::from_raw_parts(
+                  self.mmap.as_ptr() as *const export::frame_video_Y,
+                  self.size_t as usize,
+              )
+          };
+
+          return Ok(tensor_data);
+      }
+
+      pub fn get_windowed_slices(&self) -> anyhow::Result<Vec<export::full_video>> {
+          let num_windows = get_num_windows(/*total_video_length: u64 =*/ self.size_t as u64);
+
+          tracing::info!("Need to split input to {} windows", num_windows);
+
+          match num_windows {
+              0 => {
+                  tracing::error!("Video too short...");
+                  return Err(anyhow::format_err!("Video too short..."));
+              }
+              1 => {
+                  let mut ret: Vec<export::full_video> = Vec::with_capacity(1);
+                  ret.push(export::full_video {
+                      data: self.mmap.as_ptr() as *const export::frame_video_Y,
+                      len_t: self.size_t as u32,
+                  });
+
+                  return Ok(ret);
+              }
+              _ => {
+                  let calc = self.size_t / (num_windows as u16);
+                  let len_chunk = {
+                      if (self.size_t % (num_windows as u16)) == 0 {
+                          calc as usize
+                      } else {
+                          (calc + 1) as usize
+                      }
+                  }
+                  .max(IDEAL_LENGTH as usize);
+
+                  tracing::info!("Length of each chunk = {}", len_chunk);
+
+                  let dataptr = self.mmap.as_ptr() as *const export::frame_video_Y;
+
+                  let mut ret: Vec<export::full_video> = Vec::with_capacity(num_windows as usize);
+
+                  for i in 0..num_windows {
+                      let video_end_pos = (len_chunk as usize)
+                          + (((i as usize) * ((self.size_t as usize) - (len_chunk as usize)))
+                              / ((num_windows as usize) - (1 as usize)));
+
+                      let video_start_pos = video_end_pos - len_chunk;
+
+                      tracing::debug!("Current chunk: {} - {}", video_start_pos, video_end_pos);
+
+                      ret.push(export::full_video {
+                          data: unsafe { dataptr.add(video_start_pos) },
+                          len_t: len_chunk as u32,
+                      });
+                  }
+
+                  return Ok(ret);
+              }
+          }
+      }
+  }
+#+end_src
+
+* COMMENT lancedb writer
+#+begin_src rust :mkdirp yes :tangle ./src/lancedbwriter.rs
+  use crate::export;
+  use crate::videofft;
+
+  use futures::StreamExt;
+  use rayon::prelude::*;
+
+  use arrow_array::FixedSizeListArray;
+  use arrow_array::Float32Array;
+  use arrow_array::RecordBatch;
+  use arrow_array::RecordBatchIterator;
+  use arrow_array::RecordBatchReader;
+  use arrow_array::StringArray;
+  use arrow_array::UInt8Array;
+  use arrow_array::types::Float32Type;
+  use arrow_schema::DataType;
+  use arrow_schema::Field;
+  use arrow_schema::Schema;
+  use arrow_schema::SchemaRef;
+  use futures::stream::BoxStream;
+  use futures::stream::Stream;
+  use lancedb::arrow::RecordBatchStream;
+  use lancedb::arrow::SendableRecordBatchStream;
+  use lancedb::arrow::arrow_buffer;
+  use lancedb::connect;
+  use std::boxed::Box;
+  use std::pin::Pin;
+  use std::sync::Arc;
+  use std::task::Context;
+  use std::task::Poll;
+
+  impl export::fft_video {
+      fn get_arrow_array(&self) -> Float32Array {
+          let tmp = unsafe {
+              std::slice::from_raw_parts(
+                  (self as *const export::fft_video) as *const f32,
+                  export::SIZE_FFT_TENSOR_TOTAL as usize,
+              )
+          };
+          tmp.iter().copied().collect()
+      }
+
+      async fn record_builder_from_path(
+          path_file_video_input: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<(FixedSizeListArray, UInt8Array, StringArray)> {
+          let windows =
+              export::fft_video::windowed_from_video_path_async(path_file_video_input.as_ref(), true)
+                  .await?;
+
+          let num_windows = windows.len();
+
+          let mut flat_floats =
+              Vec::with_capacity(num_windows * (export::SIZE_FFT_TENSOR_TOTAL as usize));
+
+          for win in &windows {
+              let slice = unsafe {
+                  std::slice::from_raw_parts(
+                      (win as *const export::fft_video) as *const f32,
+                      (export::SIZE_FFT_TENSOR_TOTAL as usize),
+                  )
+              };
+              flat_floats.extend_from_slice(slice);
+          }
+
+          let values_array = Float32Array::from(flat_floats);
+          let field = Arc::new(Field::new("item", DataType::Float32, true));
+          let vectors = FixedSizeListArray::new(
+              field,
+              export::SIZE_FFT_TENSOR_TOTAL as i32,
+              Arc::new(values_array),
+              None,
+          );
+
+          let segment_ids = UInt8Array::from_iter(0..(num_windows as u8));
+
+          let path_str = path_file_video_input
+              .as_ref()
+              .to_string_lossy()
+              .into_owned();
+
+          let paths = StringArray::from(vec![path_str; num_windows]);
+
+          Ok((vectors, segment_ids, paths))
+      }
+  }
+
+  struct LanceDBWriter {
+      schema: Arc<Schema>,
+      connection: lancedb::Connection,
+      main_table: lancedb::Table,
+  }
+
+  impl LanceDBWriter {
+      async fn new(db_uri: &str) -> anyhow::Result<Self> {
+          let schema = Arc::new(Schema::new(vec![
+              Field::new("path_file_video_input", DataType::Utf8, false),
+              Field::new("segment_id", DataType::UInt8, false),
+              Field::new(
+                  "fft_video_vector",
+                  DataType::FixedSizeList(
+                      Arc::new(Field::new("item", DataType::Float32, true)),
+                      export::SIZE_FFT_TENSOR_TOTAL as i32,
+                  ),
+                  false,
+              ),
+          ]));
+
+          let db = lancedb::connect(db_uri).execute().await?;
+
+          let table = db
+              .create_empty_table("video_vectors", schema.clone())
+              .execute()
+              .await?;
+
+          Ok(Self {
+              schema: schema,
+              connection: db,
+              main_table: table,
+          })
+      }
+
+      async fn get_record_batches_from_path(
+          &self,
+          path_file_video_input: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<RecordBatch> {
+          let (vectors, segment_ids, paths) =
+              export::fft_video::record_builder_from_path(path_file_video_input).await?;
+
+          // Order must match Schema: [path_file_video_input, segment_id, fft_video_vector]
+          let res = RecordBatch::try_new(
+              self.schema.clone(),
+              vec![Arc::new(paths), Arc::new(segment_ids), Arc::new(vectors)],
+          )?;
+
+          Ok(res)
+      }
+
+      async fn write_tensors_to_table(
+          &self,
+          path_file_video_input: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<()> {
+          let batch = self
+              .get_record_batches_from_path(path_file_video_input)
+              .await?;
+
+          let reader: Box<dyn RecordBatchReader + Send> = Box::new(RecordBatchIterator::new(
+              vec![Ok(batch)].into_iter(),
+              self.schema.clone(),
+          ));
+
+          let _tmp = self.main_table.add(reader).execute().await?;
+
+          Ok(())
+      }
+  }
+
+  pub async fn make_lancedb_of_all_mp4_under_dir(
+      root: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+      let mut outdbname = root.as_ref().as_os_str().to_owned();
+      outdbname.push(".lancedb");
+
+      let outdbname = match outdbname.into_string() {
+          Ok(o) => o,
+          Err(e) => {
+              return Err(anyhow::format_err!(
+                  "Unable to automatically generate lancedb name"
+              ));
+          }
+      };
+
+      let slave = LanceDBWriter::new(outdbname.as_str()).await?;
+
+      let tmp: Vec<std::path::PathBuf> = jwalk::WalkDir::new(root)
+          .into_iter()
+          .filter_map(|e| e.ok())
+          .map(|e| e.path())
+          .filter(|e| !e.is_dir())
+          .filter(|e| {
+              if let Some(ext) = e.extension() {
+                  ext == "mp4"
+              } else {
+                  false
+              }
+          })
+          .collect();
+
+      let res = futures::stream::iter(tmp.iter().map(|i| slave.write_tensors_to_table(i)))
+          .buffer_unordered(4)
+          .collect::<Vec<_>>()
+          .await;
+
+      Ok(())
+  }
+#+end_src
+
+* video fft struct implementation
+#+begin_src rust :mkdirp yes :tangle ./src/videofft.rs
+  use crate::export;
+  use crate::videodecoder;
+  use crate::videoview;
+  use futures::StreamExt;
+  use half::bf16;
+  use rayon::prelude::*;
+  use std::io::Write;
+  use tokio::io::AsyncWriteExt;
+
+  unsafe impl Sync for export::full_video {}
+  unsafe impl Send for export::full_video {}
+
+  impl export::fft_video {
+      pub fn alloc_zeroed() -> Box<Self> {
+          let layout = std::alloc::Layout::new::<Self>();
+          let ptr = unsafe { std::alloc::alloc_zeroed(layout) } as *mut Self;
+          if ptr.is_null() {
+              std::alloc::handle_alloc_error(layout);
+          }
+          unsafe { Box::from_raw(ptr) }
+      }
+
+      pub async fn save(&self, filename: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
+          let file = tokio::fs::File::create(filename.as_ref()).await?;
+          let mut writer = tokio::io::BufWriter::new(file);
+          const size: usize = std::mem::size_of::<export::fft_video>();
+          let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
+          writer.write_all(bytes).await?;
+          return Ok(());
+      }
+
+      pub fn to_bf16_accuracy(&mut self) {
+          for ip in 0..(export::SIZE_FFT_TENSOR_C as usize) {
+              for iy in 0..(export::SIZE_FFT_TENSOR_Y as usize) {
+                  for ix in 0..(export::SIZE_FFT_TENSOR_X as usize) {
+                      for it in 0..(export::SIZE_FFT_TENSOR_T as usize) {
+                          self.v.p[ip].y[iy].x[ix].t[it] =
+                              bf16::from_f32(self.v.p[ip].y[iy].x[ix].t[it]).to_f32();
+                      }
+                  }
+              }
+          }
+      }
+
+      pub fn from_video_tensor(
+          tensor_video_input: &[export::frame_video_Y],
+          use_gpu: bool,
+      ) -> anyhow::Result<std::boxed::Box<Self>> {
+          tracing::debug!("Allocating the box pointer on the heap");
+          let mut store: std::boxed::Box<std::mem::MaybeUninit<Self>> = std::boxed::Box::new_uninit();
+
+          tracing::debug!("Passing the box pointer to torch tensor");
+          if true {
+              let data: *mut Self = store.as_mut_ptr();
+              tracing::debug!("Got pointer from heap Box");
+
+              let tmpbuf = export::full_video {
+                  data: tensor_video_input.as_ptr(),
+                  len_t: tensor_video_input.len() as u32,
+              };
+
+              let status: i32 = unsafe {
+                  export::do_fft_compress(
+                      /*src: full_video =*/ tmpbuf, /*dest: *mut fft_video =*/ data,
+                      /*use_gpu: bool =*/ use_gpu,
+                  )
+              } as i32;
+
+              tracing::debug!("Called the fft function with status {}", status);
+
+              if status != 0 {
+                  tracing::error!("FFT step failed with exit status {}...", status);
+                  return Err(anyhow::format_err!(
+                      "FFT step failed with exit status {}...",
+                      status
+                  ));
+              }
+          }
+
+          tracing::debug!("Casting the final tensor");
+          let final_video: std::boxed::Box<Self> = unsafe { store.assume_init() };
+
+          tracing::debug!("Returning the fully valid tensor");
+          return Ok(final_video);
+      }
+
+      pub fn windowed_from_video_slicer(
+          inslicer: &videoview::video_slicer_mapped,
+          use_gpu: bool,
+      ) -> anyhow::Result<Vec<Self>> {
+          let slices = inslicer.get_windowed_slices()?;
+          tracing::debug!("Got the window slices");
+
+          let mut ret: Vec<std::mem::MaybeUninit<Self>> = Vec::with_capacity(slices.len());
+          unsafe { ret.set_len(slices.len()) };
+          tracing::debug!("Allocated destination memory");
+
+          ret.par_iter_mut()
+              .zip(slices.into_par_iter())
+              .for_each(|(dst, src)| {
+                  unsafe {
+                      export::do_fft_compress(
+                          /*src =*/ src,
+                          dst.as_mut_ptr() as *mut export::fft_video,
+                          use_gpu,
+                      )
+                  };
+              });
+
+          tracing::debug!("Executed the parallel FFT loop, returning results");
+
+          Ok(unsafe { std::mem::transmute(ret) })
+      }
+
+      pub fn windowed_from_video_mem(data: &[u8], use_gpu: bool) -> anyhow::Result<Vec<Self>> {
+          let slave = videodecoder::VideoReader::new();
+          let tmp = slave.tensor_from_slice_blocking(data, "tmpdecoder")?.data;
+          let tmp = videoview::video_slicer_mapped::new(tmp)?;
+
+          Self::windowed_from_video_slicer(
+              /*inslicer: &videoview::video_slicer_mapped =*/ &tmp,
+              /*use_gpu: bool =*/ use_gpu,
+          )
+      }
+
+      pub fn windowed_from_video_path_blocking(
+          path: impl AsRef<std::path::Path>,
+          use_gpu: bool,
+      ) -> anyhow::Result<Vec<Self>> {
+          let slave = videodecoder::VideoReader::new();
+          let tmp = slave.tensor_from_path_blocking(path, "tmpdecoder")?.data;
+          let tmp = videoview::video_slicer_mapped::new(tmp)?;
+
+          Self::windowed_from_video_slicer(
+              /*inslicer: &videoview::video_slicer_mapped =*/ &tmp,
+              /*use_gpu: bool =*/ use_gpu,
+          )
+      }
+
+      pub async fn windowed_from_video_path_async(
+          path: impl AsRef<std::path::Path>,
+          use_gpu: bool,
+      ) -> anyhow::Result<Vec<Self>> {
+          let slave = videodecoder::VideoReader::new();
+          let tmp = slave.tensor_from_path_async(path, "tmpdecoder").await?.data;
+          let tmp = videoview::video_slicer_mapped::new(tmp)?;
+
+          let ret = tokio::task::spawn_blocking(move || {
+              Self::windowed_from_video_slicer(
+                  /*inslicer: &videoview::video_slicer_mapped =*/ &tmp,
+                  /*use_gpu: bool =*/ use_gpu,
+              )
+          })
+          .await?;
+
+          return ret;
+      }
+
+      pub async fn video_2_dir_bin(
+          path_video_input: impl AsRef<std::path::Path>,
+          path_dir_output: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<()> {
+          let _ = tokio::fs::create_dir_all(path_dir_output.as_ref()).await?;
+
+          fn get_out_path(
+              path_dir_output: impl AsRef<std::path::Path>,
+              index: usize,
+          ) -> std::path::PathBuf {
+              path_dir_output
+                  .as_ref()
+                  .to_owned()
+                  .join("out-".to_string() + index.to_string().as_str() + ".bin")
+          }
+
+          let path_video_input = path_video_input.as_ref().to_owned();
+
+          let tmp = Self::windowed_from_video_path_async(path_video_input, true).await?;
+
+          let tmp = tmp
+              .iter()
+              .enumerate()
+              .map(|i| i.1.save(get_out_path(&path_dir_output, i.0)));
+
+          let _ = futures::stream::iter(tmp)
+              .buffer_unordered(8)
+              .collect::<Vec<_>>()
+              .await
+              .iter()
+              .for_each(|e| match e {
+                  Ok(_) => {}
+                  Err(e) => {
+                      tracing::error!("Some saving failed due to {}", e);
+                  }
+              });
+
+          Ok(())
+      }
+
+      pub async fn video_2_dir_bin_default(
+          path_video_input: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<()> {
+          let mut path_dir_output = path_video_input.as_ref().as_os_str().to_os_string();
+
+          path_dir_output.push(".dir");
+
+          let path_dir_output = std::path::PathBuf::from(path_dir_output);
+
+          let tmp = path_dir_output.is_dir();
+          if tmp {
+              tracing::error!(
+                  "output dir {:?} exists, not doing anything...",
+                  path_dir_output
+              );
+
+              return Err(anyhow::format_err!(
+                  "output dir {:?} exists, not doing anything...",
+                  path_dir_output
+              ));
+          } else {
+              return Self::video_2_dir_bin(path_video_input, path_dir_output).await;
+          }
+      }
+  }
+#+end_src
+
+* video fft struct implementation in bf16
+#+begin_src rust :mkdirp yes :tangle ./src/videofftbf16.rs
+  use crate::export;
+  use crate::videofft;
+  use half::bf16;
+  use futures::StreamExt;
+  use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  pub struct a_t {
+      pub t: [bf16; export::SIZE_FFT_TENSOR_T as usize],
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  pub struct a_x {
+      pub x: [a_t; export::SIZE_FFT_TENSOR_X as usize],
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  pub struct a_y {
+      pub y: [a_x; export::SIZE_FFT_TENSOR_Y as usize],
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  pub struct a_p {
+      pub p: [a_y; export::SIZE_FFT_TENSOR_C as usize],
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  pub struct fft_video {
+      pub v: a_p,
+  }
+
+  impl fft_video {
+      fn alloc_zeroed() -> Box<Self> {
+          let layout = std::alloc::Layout::new::<Self>();
+          let ptr = unsafe { std::alloc::alloc_zeroed(layout) } as *mut Self;
+          if ptr.is_null() {
+              std::alloc::handle_alloc_error(layout);
+          }
+          unsafe { Box::from_raw(ptr) }
+      }
+
+      pub async fn save(&self, filename: impl AsRef<std::path::Path>) -> anyhow::Result<()> {
+          let file = tokio::fs::File::create(filename.as_ref()).await?;
+          let mut writer = tokio::io::BufWriter::new(file);
+          const size: usize = std::mem::size_of::<fft_video>();
+          let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
+          writer.write_all(bytes).await?;
+          return Ok(());
+      }
+
+      pub async fn load_from_file(
+          filename: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<std::boxed::Box<Self>> {
+          // 1. Allocate correctly aligned, zeroed memory on the heap first
+          let mut boxed_video = Self::alloc_zeroed();
+          const SIZE: usize = std::mem::size_of::<fft_video>();
+
+          // 2. Get a mutable byte slice pointing to our heap allocation
+          let dest_bytes = unsafe {
+              std::slice::from_raw_parts_mut((&mut *boxed_video as *mut Self) as *mut u8, SIZE)
+          };
+
+          // 3. Stream the file directly into our heap allocation (no intermediate Vec<u8> alignment issues)
+          let mut file = tokio::fs::File::open(filename).await?;
+          file.read_exact(dest_bytes).await?;
+
+          Ok(boxed_video)
+      }
+
+      pub fn from_32(input: &export::fft_video) -> std::boxed::Box<Self> {
+          let mut ret = Self::alloc_zeroed();
+
+          for ip in 0..(export::SIZE_FFT_TENSOR_C as usize) {
+              for iy in 0..(export::SIZE_FFT_TENSOR_Y as usize) {
+                  for ix in 0..(export::SIZE_FFT_TENSOR_X as usize) {
+                      for it in 0..(export::SIZE_FFT_TENSOR_T as usize) {
+                          let tmp = input.v.p[ip].y[iy].x[ix].t[it];
+                          ret.v.p[ip].y[iy].x[ix].t[it] = bf16::from_f32(tmp);
+                      }
+                  }
+              }
+          }
+
+          return ret;
+      }
+
+      pub fn to_32(&self) -> std::boxed::Box<crate::export::fft_video> {
+          let mut ret = crate::export::fft_video::alloc_zeroed();
+
+          for ip in 0..(export::SIZE_FFT_TENSOR_C as usize) {
+              for iy in 0..(export::SIZE_FFT_TENSOR_Y as usize) {
+                  for ix in 0..(export::SIZE_FFT_TENSOR_X as usize) {
+                      for it in 0..(export::SIZE_FFT_TENSOR_T as usize) {
+                          let tmp = self.v.p[ip].y[iy].x[ix].t[it];
+                          ret.v.p[ip].y[iy].x[ix].t[it] = tmp.to_f32();
+                      }
+                  }
+              }
+          }
+
+          ret
+      }
+
+      pub async fn video_2_dir_bin(
+          path_video_input: impl AsRef<std::path::Path>,
+          path_dir_output: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<()> {
+          let _ = tokio::fs::create_dir_all(path_dir_output.as_ref()).await?;
+
+          fn get_out_path(
+              path_dir_output: impl AsRef<std::path::Path>,
+              index: usize,
+          ) -> std::path::PathBuf {
+              path_dir_output
+                  .as_ref()
+                  .to_owned()
+                  .join("out-".to_string() + index.to_string().as_str() + ".bin16")
+          }
+
+          let path_video_input = path_video_input.as_ref().to_owned();
+
+          let tmp = export::fft_video::windowed_from_video_path_async(path_video_input, true).await?;
+
+          let tmp = tmp
+              .iter()
+              .enumerate()
+              .map(|i| {
+                  let path_output = get_out_path(&path_dir_output, i.0);
+                  let tmpvec = Self::from_32(&i.1);
+                  async move {tmpvec.save(path_output).await}
+              }
+              );
+
+          let _ = futures::stream::iter(tmp)
+              .buffer_unordered(8)
+              .collect::<Vec<_>>()
+              .await
+              .iter()
+              .for_each(|e| match e {
+                  Ok(_) => {}
+                  Err(e) => {
+                      tracing::error!("Some saving failed due to {}", e);
+                  }
+              });
+
+          Ok(())
+      }
+
+      pub async fn video_2_dir_bin_default(
+          path_video_input: impl AsRef<std::path::Path>,
+      ) -> anyhow::Result<()> {
+          let mut path_dir_output = path_video_input.as_ref().as_os_str().to_os_string();
+
+          path_dir_output.push(".dir");
+
+          let path_dir_output = std::path::PathBuf::from(path_dir_output);
+
+          let tmp = path_dir_output.is_dir();
+          if tmp {
+              tracing::error!(
+                  "output dir {:?} exists, not doing anything...",
+                  path_dir_output
+              );
+
+              return Err(anyhow::format_err!(
+                  "output dir {:?} exists, not doing anything...",
+                  path_dir_output
+              ));
+          } else {
+              return Self::video_2_dir_bin(path_video_input, path_dir_output).await;
+          }
+      }
+  }
+#+end_src
+
+* rust code for class to evaluate video stats
+#+begin_src rust :mkdirp yes :tangle ./src/videofftstats.rs
+  use crate::export;
+  use crate::videofft;
+  use crate::videofftbf16;
+
+  // use arrow_array::Array;
+  // use arrow_array::FixedSizeListArray;
+  // use arrow_array::Float32Array;
+  // use arrow_array::RecordBatch;
+  use futures::stream;
+  use futures::stream::StreamExt;
+  use futures::stream::TryStreamExt;
+  // use lancedb;
+  // use lancedb::query::ExecutableQuery;
+  // use lancedb::query::QueryBase;
+  // use lancedb::query::QueryExecutionOptions;
+  // use lancedb::query::Select;
+  use rayon::prelude::*;
+  use std::io::Read;
+  use tokio::io::AsyncWriteExt;
+
+  const SIZE_FLAT_FFT: usize = export::SIZE_FFT_TENSOR_TOTAL as usize;
+  const NAME_TABLE_VECTOR: &str = "video_vectors";
+  const NAME_COLUMN_VECTOR: &str = "fft_video_vector";
+
+  // One row is SIZE_FLAT_FFT * 4 bytes (~53 MiB with the current constants),
+  // so the default arrow batch length of 1024 rows would be ~54 GiB.
+  const ROWS_PER_BATCH: u32 = 1;
+
+  // Number of record batches allowed to sit between the reader and the
+  // accumulator; bounds the in-flight memory to DEPTH_PIPELINE + 1 rows.
+  const DEPTH_PIPELINE: usize = 2;
+
+  // Rayon granularity along the flattened component axis.
+  const GRAIN_COMPONENTS: usize = 1 << 16;
+
+  // false => divide by N (population sigma, matches eval_sigma above)
+  // true  => divide by N - 1 (sample sigma)
+  const USE_SAMPLE_VARIANCE: bool = false;
+
+  // The flat f64 buffers below are written out verbatim, so their layout has
+  // to stay byte compatible with fft_video_64 (fft_video_normalizer reads it).
+  const _: () =
+      assert!(std::mem::size_of::<fft_video_64>() == SIZE_FLAT_FFT * std::mem::size_of::<f64>());
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  struct a_t_64 {
+      t: [f64; export::SIZE_FFT_TENSOR_T as usize],
+  }
+
+  #[inline(always)]
+  fn normalize_a_t(x: &mut export::a_t, mu: &a_t_64, sigma: &a_t_64) {
+      for i in 0..x.t.len() {
+          x.t[i] = (x.t[i] - (mu.t[i] as f32)) / (sigma.t[i] as f32);
+      }
+  }
+
+  impl a_t_64 {
+      #[inline(always)]
+      fn take_sqrt(&mut self) {
+          for i in 0..self.t.len() {
+              self.t[i] = self.t[i].sqrt();
+          }
+      }
+
+      #[inline(always)]
+      fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &export::a_t) {
+          for i in 0..self.t.len() {
+              let d = (other.t[i] as f64) - mu.t[i];
+              self.t[i] += d * d;
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self(&mut self, other: &export::a_t) {
+          for i in 0..self.t.len() {
+              self.t[i] += other.t[i] as f64;
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self_64(&mut self, other: &Self) {
+          for i in 0..self.t.len() {
+              self.t[i] += other.t[i] as f64;
+          }
+      }
+
+      #[inline(always)]
+      fn divide_self(&mut self, val: f64) {
+          for i in 0..self.t.len() {
+              self.t[i] /= val;
+          }
+      }
+
+      #[inline(always)]
+      fn new(val: f64) -> Self {
+          Self {
+              t: [val; export::SIZE_FFT_TENSOR_T as usize],
+          }
+      }
+  }
+
+  impl Default for a_t_64 {
+      fn default() -> Self {
+          Self {
+              t: [0.0 as f64; export::SIZE_FFT_TENSOR_T as usize],
+          }
+      }
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  struct a_x_64 {
+      x: [a_t_64; export::SIZE_FFT_TENSOR_X as usize],
+  }
+
+  #[inline(always)]
+  fn normalize_a_x(x: &mut export::a_x, mu: &a_x_64, sigma: &a_x_64) {
+      for i in 0..x.x.len() {
+          normalize_a_t(&mut x.x[i], &mu.x[i], &sigma.x[i]);
+      }
+  }
+
+  impl Default for a_x_64 {
+      fn default() -> Self {
+          Self {
+              x: [a_t_64::default(); export::SIZE_FFT_TENSOR_X as usize],
+          }
+      }
+  }
+
+  impl a_x_64 {
+      #[inline(always)]
+      fn take_sqrt(&mut self) {
+          for i in 0..self.x.len() {
+              self.x[i].take_sqrt();
+          }
+      }
+
+      #[inline(always)]
+      fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &export::a_x) {
+          for i in 0..self.x.len() {
+              self.x[i].add_unnormalized_sigma_2_self(&(mu.x[i]), &(other.x[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self(&mut self, other: &export::a_x) {
+          for i in 0..self.x.len() {
+              self.x[i].add_2_self(&(other.x[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self_64(&mut self, other: &Self) {
+          for i in 0..self.x.len() {
+              self.x[i].add_2_self_64(&(other.x[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn divide_self(&mut self, val: f64) {
+          for i in 0..self.x.len() {
+              self.x[i].divide_self(val);
+          }
+      }
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  struct a_y_64 {
+      y: [a_x_64; export::SIZE_FFT_TENSOR_Y as usize],
+  }
+
+  #[inline(always)]
+  fn normalize_a_y(x: &mut export::a_y, mu: &a_y_64, sigma: &a_y_64) {
+      for i in 0..x.y.len() {
+          normalize_a_x(&mut x.y[i], &mu.y[i], &sigma.y[i]);
+      }
+  }
+
+  impl Default for a_y_64 {
+      fn default() -> Self {
+          Self {
+              y: [a_x_64::default(); export::SIZE_FFT_TENSOR_Y as usize],
+          }
+      }
+  }
+
+  impl a_y_64 {
+      #[inline(always)]
+      fn take_sqrt(&mut self) {
+          for i in 0..self.y.len() {
+              self.y[i].take_sqrt();
+          }
+      }
+
+      #[inline(always)]
+      fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &export::a_y) {
+          for i in 0..self.y.len() {
+              self.y[i].add_unnormalized_sigma_2_self(&(mu.y[i]), &(other.y[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self(&mut self, other: &export::a_y) {
+          for i in 0..self.y.len() {
+              self.y[i].add_2_self(&(other.y[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self_64(&mut self, other: &Self) {
+          for i in 0..self.y.len() {
+              self.y[i].add_2_self_64(&(other.y[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn divide_self(&mut self, val: f64) {
+          for i in 0..self.y.len() {
+              self.y[i].divide_self(val);
+          }
+      }
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Copy, Clone)]
+  struct a_p_64 {
+      p: [a_y_64; export::SIZE_FFT_TENSOR_C as usize],
+  }
+
+  #[inline(always)]
+  fn normalize_a_p(x: &mut export::a_p, mu: &a_p_64, sigma: &a_p_64) {
+      for i in 0..x.p.len() {
+          normalize_a_y(&mut x.p[i], &mu.p[i], &sigma.p[i]);
+      }
+  }
+
+  impl Default for a_p_64 {
+      fn default() -> Self {
+          Self {
+              p: [a_y_64::default(); export::SIZE_FFT_TENSOR_C as usize],
+          }
+      }
+  }
+
+  impl a_p_64 {
+      #[inline(always)]
+      fn take_sqrt(&mut self) {
+          for i in 0..self.p.len() {
+              self.p[i].take_sqrt();
+          }
+      }
+
+      #[inline(always)]
+      fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &export::a_p) {
+          for i in 0..self.p.len() {
+              self.p[i].add_unnormalized_sigma_2_self(&(mu.p[i]), &(other.p[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self(&mut self, other: &export::a_p) {
+          for i in 0..self.p.len() {
+              self.p[i].add_2_self(&(other.p[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn add_2_self_64(&mut self, other: &Self) {
+          for i in 0..self.p.len() {
+              self.p[i].add_2_self_64(&(other.p[i]));
+          }
+      }
+
+      #[inline(always)]
+      fn divide_self(&mut self, val: f64) {
+          for i in 0..self.p.len() {
+              self.p[i].divide_self(val);
+          }
+      }
+  }
+
+  #[repr(C)]
+  #[derive(Debug, Default, Clone)]
+  pub struct fft_video_64 {
+      v: a_p_64,
+  }
+
+  #[inline(always)]
+  fn normalize_fft_video(x: &mut export::fft_video, mu: &fft_video_64, sigma: &fft_video_64) {
+      normalize_a_p(&mut x.v, &mu.v, &sigma.v);
+  }
+
+  impl fft_video_64 {
+      #[inline(always)]
+      fn take_sqrt(&mut self) {
+          self.v.take_sqrt();
+      }
+
+      #[inline(always)]
+      fn add_unnormalized_sigma_2_self(&mut self, mu: &Self, other: &export::fft_video) {
+          self.v.add_unnormalized_sigma_2_self(&(mu.v), &(other.v));
+      }
+
+      #[inline(always)]
+      fn add_2_self(&mut self, other: &export::fft_video) {
+          self.v.add_2_self(&(other.v));
+      }
+
+      #[inline(always)]
+      fn add_2_self_64(&mut self, other: &Self) {
+          self.v.add_2_self_64(&(other.v));
+      }
+
+      #[inline(always)]
+      fn divide_self(&mut self, val: f64) {
+          self.v.divide_self(val);
+      }
+
+      pub async fn save(&self, filename: &str) -> anyhow::Result<()> {
+          let size = std::mem::size_of::<Self>();
+          let bytes = unsafe { std::slice::from_raw_parts((self as *const Self) as *const u8, size) };
+
+          if false {
+              let mut file = tokio::fs::File::create(filename).await?;
+              file.write_all(bytes).await?;
+          } else {
+              tokio::fs::File::create(filename)
+                  .await?
+                  .write_all(bytes)
+                  .await?;
+          }
+
+          return Ok(());
+      }
+  }
+
+  async fn eval_actual_mean16(
+      list_path_file_video_input: &[String],
+  ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+      let mut accumulator: std::boxed::Box<fft_video_64> =
+          std::boxed::Box::new(fft_video_64::default());
+
+      for i in list_path_file_video_input {
+          let data = tokio::fs::read(i.as_str()).await?;
+
+          let tmp = &unsafe { *(data.as_ptr() as *const videofftbf16::fft_video) };
+
+          let data_fft = tmp.to_32();
+
+          accumulator.add_2_self(&data_fft);
+      }
+
+      Ok(accumulator)
+  }
+
+  async fn eval_actual_mean(
+      list_path_file_video_input: &[String],
+  ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+      let mut accumulator: std::boxed::Box<fft_video_64> =
+          std::boxed::Box::new(fft_video_64::default());
+
+      for i in list_path_file_video_input {
+          let data = tokio::fs::read(i.as_str()).await?;
+
+          let tmp = &unsafe { *(data.as_ptr() as *const export::fft_video) };
+
+          let data_fft = tmp;
+
+          accumulator.add_2_self(data_fft);
+      }
+
+      Ok(accumulator)
+  }
+
+  async fn eval_actual_sigma16(
+      list_path_file_video_input: &[String],
+      mu: &fft_video_64,
+  ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+      let mut accumulator: std::boxed::Box<fft_video_64> =
+          std::boxed::Box::new(fft_video_64::default());
+
+      for i in list_path_file_video_input {
+          let data = tokio::fs::read(i.as_str()).await?;
+
+          let tmp = &unsafe { *(data.as_ptr() as *const videofftbf16::fft_video) };
+
+          let data_fft = tmp.to_32();
+
+          accumulator.add_unnormalized_sigma_2_self(
+              /* mu: &Self = */ mu, /* other: &videofft::fft_video = */ &data_fft,
+          );
+      }
+
+      Ok(accumulator)
+  }
+
+  async fn eval_actual_sigma(
+      list_path_file_video_input: &[String],
+      mu: &fft_video_64,
+  ) -> anyhow::Result<std::boxed::Box<fft_video_64>> {
+      let mut accumulator: std::boxed::Box<fft_video_64> =
+          std::boxed::Box::new(fft_video_64::default());
+
+      for i in list_path_file_video_input {
+          let data = tokio::fs::read(i.as_str()).await?;
+
+          let tmp = &unsafe { *(data.as_ptr() as *const export::fft_video) };
+
+          // let data_fft = tmp.to_32();
+          let data_fft = tmp;
+
+          accumulator.add_unnormalized_sigma_2_self(
+              /* mu: &Self = */ mu, /* other: &videofft::fft_video = */ data_fft,
+          );
+      }
+
+      Ok(accumulator)
+  }
+
+  pub async fn eval_mean16(target_dir: &str) -> anyhow::Result<String> {
+      let mut list_path_file_video: Vec<String> = vec![];
+
+      if true {
+          for entry in jwalk::WalkDir::new(target_dir)
+              .into_iter()
+              .filter_map(|e| e.ok())
+          {
+              let path = entry.path();
+
+              if !path.is_dir() {
+                  if let Some(ext) = path.extension() {
+                      if ext == "bin16" {
+                          list_path_file_video.push(path.display().to_string());
+                      }
+                  }
+              }
+          }
+      }
+
+      const NTHREADS: usize = 16;
+      const NCHUNKS: usize = 1 << 12;
+
+      let mut streams = vec![];
+      for i in list_path_file_video.chunks(NCHUNKS) {
+          streams.push(eval_actual_mean16(i));
+      }
+
+      let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
+
+      let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
+
+      if true {
+          let mut accumulator: std::boxed::Box<fft_video_64> =
+              std::boxed::Box::new(fft_video_64::default());
+
+          while let Some(result) = jobs.next().await {
+              let arr = result?;
+              accumulator.add_2_self_64(&*arr);
+          }
+
+          accumulator.divide_self(list_path_file_video.len() as f64);
+
+          if true {
+              accumulator.save(path_file_mean_output.as_str()).await?;
+          }
+      }
+
+      Ok(path_file_mean_output)
+  }
+
+  pub async fn eval_mean(target_dir: &str) -> anyhow::Result<String> {
+      let mut list_path_file_video: Vec<String> = vec![];
+
+      if true {
+          for entry in jwalk::WalkDir::new(target_dir)
+              .into_iter()
+              .filter_map(|e| e.ok())
+          {
+              let path = entry.path();
+
+              if !path.is_dir() {
+                  if let Some(ext) = path.extension() {
+                      if ext == "bin" {
+                          list_path_file_video.push(path.display().to_string());
+                      }
+                  }
+              }
+          }
+      }
+
+      const NTHREADS: usize = 16;
+      const NCHUNKS: usize = 1 << 12;
+
+      let mut streams = vec![];
+      for i in list_path_file_video.chunks(NCHUNKS) {
+          streams.push(eval_actual_mean(i));
+      }
+
+      let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
+
+      let path_file_mean_output = target_dir.to_string() + "_mean.64bin";
+
+      if true {
+          let mut accumulator: std::boxed::Box<fft_video_64> =
+              std::boxed::Box::new(fft_video_64::default());
+
+          while let Some(result) = jobs.next().await {
+              let arr = result?;
+              accumulator.add_2_self_64(&*arr);
+          }
+
+          accumulator.divide_self(list_path_file_video.len() as f64);
+
+          if true {
+              accumulator.save(path_file_mean_output.as_str()).await?;
+          }
+      }
+
+      Ok(path_file_mean_output)
+  }
+
+  pub async fn eval_sigma16(target_dir: &str, path_file_bin64_mean: &str) -> anyhow::Result<String> {
+      let mut list_path_file_video: Vec<String> = vec![];
+
+      if true {
+          for entry in jwalk::WalkDir::new(target_dir)
+              .into_iter()
+              .filter_map(|e| e.ok())
+          {
+              let path = entry.path();
+
+              if !path.is_dir() {
+                  if let Some(ext) = path.extension() {
+                      if ext == "bin16" {
+                          list_path_file_video.push(path.display().to_string());
+                      }
+                  }
+              }
+          }
+      }
+
+      const NTHREADS: usize = 16;
+      const NCHUNKS: usize = 1 << 12;
+
+      let mean_data = tokio::fs::read(path_file_bin64_mean).await?;
+      let mean = unsafe { &*(mean_data.as_ptr() as *const fft_video_64) };
+
+      let mut streams = vec![];
+      for i in list_path_file_video.chunks(NCHUNKS) {
+          streams.push(eval_actual_sigma16(i, mean));
+      }
+
+      let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
+
+      let path_file_sigma_output = target_dir.to_string() + "_sigma.64bin";
+
+      if true {
+          let mut accumulator: std::boxed::Box<fft_video_64> =
+              std::boxed::Box::new(fft_video_64::default());
+
+          while let Some(result) = jobs.next().await {
+              let arr = result?;
+              accumulator.add_2_self_64(&*arr);
+          }
+
+          accumulator.divide_self(list_path_file_video.len() as f64);
+          accumulator.take_sqrt();
+
+          if true {
+              accumulator.save(path_file_sigma_output.as_str()).await?;
+          }
+      }
+
+      Ok(path_file_sigma_output)
+  }
+
+  pub async fn eval_sigma(target_dir: &str, path_file_bin64_mean: &str) -> anyhow::Result<String> {
+      let mut list_path_file_video: Vec<String> = vec![];
+
+      if true {
+          for entry in jwalk::WalkDir::new(target_dir)
+              .into_iter()
+              .filter_map(|e| e.ok())
+          {
+              let path = entry.path();
+
+              if !path.is_dir() {
+                  if let Some(ext) = path.extension() {
+                      if ext == "bin" {
+                          list_path_file_video.push(path.display().to_string());
+                      }
+                  }
+              }
+          }
+      }
+
+      const NTHREADS: usize = 16;
+      const NCHUNKS: usize = 1 << 12;
+
+      let mean_data = tokio::fs::read(path_file_bin64_mean).await?;
+      let mean = unsafe { &*(mean_data.as_ptr() as *const fft_video_64) };
+
+      let mut streams = vec![];
+      for i in list_path_file_video.chunks(NCHUNKS) {
+          streams.push(eval_actual_sigma(i, mean));
+      }
+
+      let mut jobs = stream::iter(streams).buffer_unordered(NTHREADS);
+
+      let path_file_sigma_output = target_dir.to_string() + "_sigma.64bin";
+
+      if true {
+          let mut accumulator: std::boxed::Box<fft_video_64> =
+              std::boxed::Box::new(fft_video_64::default());
+
+          while let Some(result) = jobs.next().await {
+              let arr = result?;
+              accumulator.add_2_self_64(&*arr);
+          }
+
+          accumulator.divide_self(list_path_file_video.len() as f64);
+          accumulator.take_sqrt();
+
+          if true {
+              accumulator.save(path_file_sigma_output.as_str()).await?;
+          }
+      }
+
+      Ok(path_file_sigma_output)
+  }
+
+  pub async fn eval_mean_sigma_slave16(path_dir_base: &str) -> anyhow::Result<()> {
+      let path_file_64bin_mean = eval_mean16(path_dir_base).await?;
+
+      let _path_file_64bin_sigma = eval_sigma16(
+          /* target_dir: &str = */ path_dir_base,
+          /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
+      )
+      .await?;
+
+      Ok(())
+  }
+
+  pub async fn eval_mean_sigma_slave(path_dir_base: &str) -> anyhow::Result<()> {
+      let path_file_64bin_mean = eval_mean(path_dir_base).await?;
+
+      let _path_file_64bin_sigma = eval_sigma(
+          /* target_dir: &str = */ path_dir_base,
+          /* path_file_bin64_mean: &str = */ path_file_64bin_mean.as_str(),
+      )
+      .await?;
+
+      Ok(())
+  }
+
+  pub async fn eval_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
+      eval_mean_sigma_slave(path_dir_base).await?;
+
+      Ok(())
+  }
+
+  pub async fn eval16_mean_sigma(path_dir_base: &str) -> anyhow::Result<()> {
+      eval_mean_sigma_slave16(path_dir_base).await?;
+
+      Ok(())
+  }
+
+  pub struct fft_video_normalizer {
+      mu: fft_video_64,
+      sigma: fft_video_64,
+  }
+
+  impl fft_video_normalizer {
+      pub fn new(
+          path_file_bin64_mu: &str,
+          path_file_bin64_sigma: &str,
+      ) -> anyhow::Result<std::boxed::Box<Self>> {
+          const SIZE: usize = std::mem::size_of::<fft_video_64>();
+
+          let mut ret = std::boxed::Box::<Self>::new_uninit();
+
+          {
+              let base_ref = unsafe { &mut *(ret.as_mut_ptr()) };
+
+              {
+                  let mut file = std::fs::File::open(path_file_bin64_mu)?;
+                  let ptr = ((&mut base_ref.mu) as *mut fft_video_64) as *mut u8;
+                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, SIZE) };
+                  file.read_exact(buffer)?;
+              }
+
+              {
+                  let mut file = std::fs::File::open(path_file_bin64_sigma)?;
+                  let ptr = ((&mut base_ref.sigma) as *mut fft_video_64) as *mut u8;
+                  let buffer = unsafe { std::slice::from_raw_parts_mut(ptr, SIZE) };
+                  file.read_exact(buffer)?;
+              }
+          }
+
+          let ret_final = unsafe { ret.assume_init() };
+          return Ok(ret_final);
+      }
+
+      #[inline(always)]
+      pub fn normalize(&self, x: &mut export::fft_video) {
+          normalize_fft_video(
+              /*x: &mut videofft::fft_video =*/ x,
+              /*mu: &fft_video_64 =*/ &self.mu,
+              /*sigma: &fft_video_64 =*/ &self.sigma,
+          );
+      }
+
+      #[inline(always)]
+      pub fn normalize_vec(&self, x: &mut Vec<export::fft_video>) {
+          x.par_iter_mut().for_each(|i| self.normalize(i));
+      }
+  }
+
+  // Single pass, per component (mean, M2) accumulator.
+  //
+  // Never holds more than one row of the database at a time; the two f64
+  // buffers are ~106 MiB each with the current tensor constants.
+  // pub struct fft_video_stats {
+  //     count: u64,
+  //     mean: Box<[f64]>,
+  //     m2: Box<[f64]>,
+  // }
+
+  // impl fft_video_stats {
+  //     pub fn new() -> Self {
+  //         // vec![0.0; n] goes through alloc_zeroed, so this never builds a
+  //         // multi hundred megabyte temporary on the stack.
+  //         Self {
+  //             count: 0,
+  //             mean: vec![0.0f64; SIZE_FLAT_FFT].into_boxed_slice(),
+  //             m2: vec![0.0f64; SIZE_FLAT_FFT].into_boxed_slice(),
+  //         }
+  //     }
+
+  //     pub fn count(&self) -> u64 {
+  //         self.count
+  //     }
+
+  //     /// Welford update for one flattened fft_video vector.
+  //     /// Parallel over the component axis, not over rows, so there is only
+  //     /// ever one accumulator in memory.
+  //     pub fn add_row(&mut self, row: &[f32]) {
+  //         debug_assert_eq!(row.len(), SIZE_FLAT_FFT);
+
+  //         self.count += 1;
+  //         let n = self.count as f64;
+
+  //         self.mean
+  //             .par_chunks_mut(GRAIN_COMPONENTS)
+  //             .zip(self.m2.par_chunks_mut(GRAIN_COMPONENTS))
+  //             .zip(row.par_chunks(GRAIN_COMPONENTS))
+  //             .for_each(|((mean, m2), row)| {
+  //                 for i in 0..row.len() {
+  //                     let x = row[i] as f64;
+  //                     let delta = x - mean[i];
+  //                     mean[i] += delta / n;
+  //                     m2[i] += delta * (x - mean[i]);
+  //                 }
+  //             });
+  //     }
+
+  //     /// Chan et al. pairwise merge; lets several accumulators (several
+  //     /// shards / tables / machines) be reduced without a second pass.
+  //     pub fn merge(&mut self, other: &Self) {
+  //         if other.count == 0 {
+  //             return;
+  //         }
+
+  //         if self.count == 0 {
+  //             self.mean.copy_from_slice(&other.mean);
+  //             self.m2.copy_from_slice(&other.m2);
+  //             self.count = other.count;
+  //             return;
+  //         }
+
+  //         let na = self.count as f64;
+  //         let nb = other.count as f64;
+  //         let n = na + nb;
+
+  //         self.mean
+  //             .par_chunks_mut(GRAIN_COMPONENTS)
+  //             .zip(self.m2.par_chunks_mut(GRAIN_COMPONENTS))
+  //             .zip(other.mean.par_chunks(GRAIN_COMPONENTS))
+  //             .zip(other.m2.par_chunks(GRAIN_COMPONENTS))
+  //             .for_each(|(((mean, m2), mean_other), m2_other)| {
+  //                 for i in 0..mean.len() {
+  //                     let delta = mean_other[i] - mean[i];
+  //                     // m2 first: it needs the old mean
+  //                     m2[i] += m2_other[i] + delta * delta * na * nb / n;
+  //                     mean[i] += delta * nb / n;
+  //                 }
+  //             });
+
+  //         self.count += other.count;
+  //     }
+
+  //     /// Consumes the accumulator and turns M2 into sigma in place, so the
+  //     /// second 106 MiB buffer is reused instead of allocated again.
+  //     pub fn into_mean_sigma(self) -> (Box<[f64]>, Box<[f64]>) {
+  //         let Self {
+  //             count,
+  //             mean,
+  //             mut m2,
+  //         } = self;
+
+  //         let denominator = if USE_SAMPLE_VARIANCE {
+  //             if count > 1 { (count - 1) as f64 } else { 1.0 }
+  //         } else {
+  //             if count > 0 { count as f64 } else { 1.0 }
+  //         };
+
+  //         m2.par_iter_mut().for_each(|i| {
+  //             *i = (*i / denominator).sqrt();
+  //         });
+
+  //         (mean, m2)
+  //     }
+  // }
+
+  // impl Default for fft_video_stats {
+  //     fn default() -> Self {
+  //         Self::new()
+  //     }
+  // }
+
+  // Writes a flat buffer in the exact byte layout of fft_video_64, so the
+  // result can be fed straight to fft_video_normalizer::new.
+  // async fn save_flat_f64(data: &[f64], filename: &str) -> anyhow::Result<()> {
+  //     anyhow::ensure!(
+  //         data.len() == SIZE_FLAT_FFT,
+  //         "expected {} components, got {}",
+  //         SIZE_FLAT_FFT,
+  //         data.len()
+  //     );
+
+  //     let bytes = unsafe {
+  //         std::slice::from_raw_parts(data.as_ptr() as *const u8, std::mem::size_of_val(data))
+  //     };
+
+  //     tokio::fs::File::create(filename)
+  //         .await?
+  //         .write_all(bytes)
+  //         .await?;
+
+  //     Ok(())
+  // }
+
+  // fn add_record_batch(
+  //     accumulator: &mut fft_video_stats,
+  //     batch: &RecordBatch,
+  // ) -> anyhow::Result<()> {
+  //     let column = batch
+  //         .column_by_name(NAME_COLUMN_VECTOR)
+  //         .ok_or_else(|| anyhow::format_err!("no column named {}", NAME_COLUMN_VECTOR))?;
+
+  //     let list = column
+  //         .as_any()
+  //         .downcast_ref::<FixedSizeListArray>()
+  //         .ok_or_else(|| anyhow::format_err!("{} is not a FixedSizeList", NAME_COLUMN_VECTOR))?;
+
+  //     anyhow::ensure!(
+  //         list.value_length() as usize == SIZE_FLAT_FFT,
+  //         "vector width mismatch: database has {}, binary was built for {}",
+  //         list.value_length(),
+  //         SIZE_FLAT_FFT
+  //     );
+
+  //     anyhow::ensure!(list.null_count() == 0, "null vectors are not supported");
+
+  //     let values = list.values();
+
+  //     let values = values
+  //         .as_any()
+  //         .downcast_ref::<Float32Array>()
+  //         .ok_or_else(|| anyhow::format_err!("{} is not f32", NAME_COLUMN_VECTOR))?;
+
+  //     let flat: &[f32] = values.values();
+
+  //     // FixedSizeListArray::slice slices the child array as well, so the
+  //     // values buffer is already aligned with row 0; assert it anyway.
+  //     anyhow::ensure!(
+  //         flat.len() == list.len() * SIZE_FLAT_FFT,
+  //         "unexpected values length {} for {} rows",
+  //         flat.len(),
+  //         list.len()
+  //     );
+
+  //     for row in flat.chunks_exact(SIZE_FLAT_FFT) {
+  //         accumulator.add_row(row);
+  //     }
+
+  //     Ok(())
+  // }
+
+  // Streams the whole table once and returns the per component mean and
+  // sigma of fft_video_vector. Peak resident memory is
+  // 2 * SIZE_FFT_TENSOR_TOTAL * 8 bytes plus a couple of rows in flight,
+  // independent of the size of the database.
+  // pub async fn eval_mean_sigma_from_lancedb_table(
+  //     path_database_input: &str,
+  //     name_table: &str,
+  // ) -> anyhow::Result<(String, String)> {
+  //     let db = lancedb::connect(path_database_input).execute().await?;
+  //     let table = db.open_table(name_table).execute().await?;
+
+  //     let count_rows_expected = table.count_rows(None).await?;
+
+  //     tracing::info!(
+  //         "scanning {} rows of {}/{}",
+  //         count_rows_expected,
+  //         path_database_input,
+  //         name_table
+  //     );
+
+  //     let mut options = QueryExecutionOptions::default();
+  //     options.max_batch_length = ROWS_PER_BATCH;
+
+  //     // Projection pushdown: only fft_video_vector is read off disk, the
+  //     // path and segment_id columns are never touched.
+  //     let mut stream = table
+  //         .query()
+  //         .select(Select::Columns(vec![NAME_COLUMN_VECTOR.to_string()]))
+  //         .execute_with_options(options)
+  //         .await?;
+
+  //     // The reader stays on the async runtime, the arithmetic runs on a
+  //     // blocking thread (and fans out over rayon from there), so io and
+  //     // compute overlap while the channel bounds memory.
+  //     // let (tx, mut rx) = tokio::sync::mpsc::channel::<RecordBatch>(DEPTH_PIPELINE);
+  //     let (tx, rx) = crossfire::spsc::bounded_async_blocking::<RecordBatch>(DEPTH_PIPELINE);
+
+  //     let consumer = tokio::task::spawn_blocking(move || -> anyhow::Result<fft_video_stats> {
+  //         let mut accumulator = fft_video_stats::new();
+
+  //         // while let Some(batch) = rx.blocking_recv()  
+  //         while let Ok(batch) = rx.recv() {
+  //             add_record_batch(&mut accumulator, &batch)?;
+  //         }
+
+  //         Ok(accumulator)
+  //     });
+
+  //     while let Some(batch) = stream.try_next().await? {
+  //         if tx.send(batch).await.is_err() {
+  //             // consumer died, its error is the interesting one
+  //             break;
+  //         }
+  //     }
+
+  //     drop(tx);
+
+  //     let accumulator = consumer.await??;
+
+  //     anyhow::ensure!(
+  //         accumulator.count() > 0,
+  //         "table {} is empty",
+  //         name_table
+  //     );
+
+  //     if (accumulator.count() as usize) != count_rows_expected {
+  //         tracing::warn!(
+  //             "consumed {} rows, table reported {}",
+  //             accumulator.count(),
+  //             count_rows_expected
+  //         );
+  //     }
+
+  //     let (mean, sigma) = accumulator.into_mean_sigma();
+
+  //     let path_file_mean_output = format!("{}_mean.64bin", path_database_input);
+  //     let path_file_sigma_output = format!("{}_sigma.64bin", path_database_input);
+
+  //     save_flat_f64(&mean, path_file_mean_output.as_str()).await?;
+  //     save_flat_f64(&sigma, path_file_sigma_output.as_str()).await?;
+
+  //     Ok((path_file_mean_output, path_file_sigma_output))
+  // }
+
+  // pub async fn eval_mean_sigma_from_lancedb(path_database_input: &str) -> anyhow::Result<()> {
+  //     let (path_file_mean, path_file_sigma) =
+  //         eval_mean_sigma_from_lancedb_table(path_database_input, NAME_TABLE_VECTOR).await?;
+
+  //     tracing::info!("wrote {} and {}", path_file_mean, path_file_sigma);
+
+  //     Ok(())
+  // }
+#+end_src
+
+* Rust code for safe inference wrapper
+#+begin_src rust :mkdirp yes :tangle ./src/inferencerelated.rs
+  use crate::export;
+  use crate::videofft;
+
+  pub const GOOD_BATCH_SIZE: u32 = 3;
+
+  impl Default for export::rd_classifier_output {
+      fn default() -> Self {
+          Self {
+              out: [0.0; export::SIZE_VIDEO_CLASSIFICATION_OUTPUT as usize],
+          }
+      }
+  }
+
+  impl export::rd_classifier_output {
+      pub fn majority(&self) -> f32 {
+          return self.out[1];
+      }
+  }
+
+  pub struct infer_slave {
+      slave: *mut std::ffi::c_void,
+  }
+
+  unsafe impl Sync for infer_slave {}
+  unsafe impl Send for infer_slave {}
+
+  impl Drop for infer_slave {
+      fn drop(&mut self) {
+          unsafe { export::delete_infer_slave(self.slave) };
+      }
+  }
+
+  impl infer_slave {
+      pub fn new() -> Self {
+          Self {slave: unsafe { export::new_infer_slave() }}
+      }
+
+      pub fn infer(
+          &mut self,
+          vals: &Vec<export::fft_video>,
+          batch_size: u32,
+      ) -> anyhow::Result<Vec<export::rd_classifier_output>> {
+
+          let num_batches: usize = vals.len() / (batch_size as usize);
+          let end_remaining: usize = vals.len() % (batch_size as usize);
+          let mut ret = Vec::<export::rd_classifier_output>::with_capacity(vals.len());
+          let blob_source_base = vals.as_ptr();
+          let blob_destination_base = ret.as_mut_ptr();
+
+          for i in 0..num_batches {
+              let status = unsafe {
+                  export::run_infer_slave(
+                      self.slave,
+                      blob_source_base.add(i * (batch_size as usize)),
+                      blob_destination_base.add(i * (batch_size as usize)),
+                      batch_size as u32,
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+
+                  return Err(anyhow::format_err!(
+                      "Inference failed with error code {}",
+                      status
+                  ));
+              }
+          }
+
+          if end_remaining > 0 {
+              let i = num_batches;
+              
+              let status = unsafe {
+                  export::run_infer_slave(
+                      self.slave,
+                      blob_source_base.add(i * (batch_size as usize)),
+                      blob_destination_base.add(i * (batch_size as usize)),
+                      end_remaining as u32,
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+
+                  return Err(anyhow::format_err!(
+                      "Inference failed with error code {}",
+                      status
+                  ));
+              }
+          }
+
+          unsafe {
+              ret.set_len(vals.len());
+          };
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
+* Rust code for safe inference wrapper of image model
+#+begin_src rust :mkdirp yes :tangle ./src/inferencerelatedimagecvusability.rs
+  use crate::export;
+
+  pub const GOOD_BATCH_SIZE: u32 = 8;
+
+  impl Default for export::CV_USABILITY_INFERENCE_OUTPUT {
+      fn default() -> Self {
+          Self {
+              p: [0.0; export::SIZE_IMAGE_CLASSIFICATION_OUTPUT as usize],
+          }
+      }
+  }
+
+  pub struct infer_slave {
+      slave: *mut std::ffi::c_void,
+  }
+
+  impl Drop for infer_slave {
+      fn drop(&mut self) {
+          unsafe { export::delete_infer_slave_image_cv_usability(self.slave) };
+      }
+  }
+
+  impl infer_slave {
+      pub fn new() -> Self {
+          tracing::info!("Constructing the image infer_slave");
+          Self {
+              slave: unsafe { export::new_infer_slave_image_cv_usability() }
+          }
+      }
+
+      pub fn infer(
+          &mut self,
+          vals: &Vec<export::CV_USABILITY_IMAGE>,
+          batch_size: u32,
+      ) -> anyhow::Result<Vec<f32>> {
+          let num_batches: usize = vals.len() / (batch_size as usize);
+          let remaining_end: usize = vals.len() % (batch_size as usize);
+          let mut ret = Vec::<export::CV_USABILITY_INFERENCE_OUTPUT>::with_capacity(vals.len());
+          let blob_source_base = vals.as_ptr();
+          let blob_destination_base = ret.as_mut_ptr();
+
+          for i in 0..num_batches {
+              let status = unsafe {
+                  export::run_infer_slave_image_cv_usability(
+                      self.slave,
+                      blob_source_base.add(i * (batch_size as usize)),
+                      blob_destination_base.add(i * (batch_size as usize)),
+                      batch_size as u32,
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+
+                  return Err(anyhow::format_err!(
+                      "Inference failed with error code {}",
+                      status
+                  ));
+              }
+          }
+
+          if remaining_end > 0 {
+              tracing::error!("Inferring the remaining end which did not complete a batch {}", remaining_end);
+              let i = num_batches;
+              let status = unsafe {
+                  export::run_infer_slave_image_cv_usability(
+                      self.slave,
+                      blob_source_base.add(i * (batch_size as usize)),
+                      blob_destination_base.add(i * (batch_size as usize)),
+                      remaining_end as u32,
+                  )
+              } as i32;
+
+              if status != 0 {
+                  tracing::error!("Inference failed with error code {}", status);
+
+                  return Err(anyhow::format_err!(
+                      "Inference failed with error code {}",
+                      status
+                  ));
+              }
+          }
+
+          unsafe {
+              ret.set_len(vals.len());
+          };
+
+          let ret: Vec<f32> = ret.into_iter().map(|i| i.p[1]).collect();
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
+* Time and versioning
+#+begin_src rust :mkdirp yes :tangle ./src/version.rs
+  pub const fn major_version() -> u32 {
+      1
+  }
+
+  pub const fn minor_version() -> u32 {
+      9
+  }
+
+  pub const fn patch_version() -> u32 {
+      2
+  }
+#+end_src
+
+* Main rust code
+#+begin_src rust :mkdirp yes :tangle ./src/main.rs
+  #![allow(non_snake_case)]
+  #![allow(non_camel_case_types)]
+  #![allow(non_upper_case_globals)]
+  #[global_allocator]
+  static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+  // mod lancedbwriter;
+  mod export;
+  mod filestore;
+  mod hasher;
+  mod inferencerelated;
+  mod inferencerelatedimagecvusability;
+  mod videodecoder;
+  mod videofft;
+  mod videofftbf16;
+  mod videofftstats;
+  mod videoview;
+
+  use futures::StreamExt;
+  use rayon::prelude::*;
+
+  const USE_GPU: bool = true;
+
+  async fn infer_video_end_2_end(
+      key: hasher::blob_hash,
+      use_gpu: bool,
+  ) -> anyhow::Result<Vec<export::rd_classifier_output>> {
+      let filestore = filestore::file_store::new().await?;
+      let raw_tensor = filestore.get_raw_tensor_async(&key).await?;
+
+      let slicer = videoview::video_slicer_mapped::new(raw_tensor)?;
+      let video_tensor = slicer.get_video_tensor()?;
+      let y2 = video_tensor.len() - 1;
+
+      {
+          let mut image_from_video: Vec<export::CV_USABILITY_IMAGE> = Vec::with_capacity(16);
+          let image_from_video_ptr = image_from_video.as_mut_ptr();
+          for i in 0..16 {
+              let y = i * y2 / 15;
+              let src = &video_tensor[y] as *const export::frame_video_Y;
+              unsafe { export::frame_video_to_cv_usability(src, image_from_video_ptr.add(i)) };
+          }
+          unsafe { image_from_video.set_len(16) };
+          let mut slave = inferencerelatedimagecvusability::infer_slave::new();
+          let res = slave.infer(&mut image_from_video, inferencerelatedimagecvusability::GOOD_BATCH_SIZE)?;
+          tracing::trace!("{:?}", res);
+      }
+
+      let mut list_video_fft_tensor =
+          export::fft_video::windowed_from_video_slicer(&slicer, use_gpu)?;
+
+      /* Normalize the video tensor */
+      {
+          let normalizer = videofftstats::fft_video_normalizer::new(
+              /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+              /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+          )?;
+
+          normalizer.normalize_vec(
+              /*x: &mut Vec<videofft::fft_video> =*/ &mut list_video_fft_tensor,
+          );
+      }
+
+      let mut infer_slave = inferencerelated::infer_slave::new();
+
+      let ret = infer_slave.infer(
+          &mut list_video_fft_tensor,
+          inferencerelated::GOOD_BATCH_SIZE,
+      )?;
+
+      for i in ret.iter() {
+          tracing::trace!("{} {} {}", i.out[0], i.out[1], i.out[2]);
+      }
+
+      return Ok(ret);
+  }
+
+  async fn video_tensor_2_fft_file_160(
+      tensor_video_input: videoview::video_slicer_mapped,
+      path_dir_output: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+      let num_windows = videoview::get_num_windows(tensor_video_input.size_t as u64);
+
+      if num_windows == 0 {
+          return Err(anyhow::format_err!("Video too short..."));
+      } else {
+          tokio::fs::create_dir_all(/*path =*/ path_dir_output.as_ref()).await?;
+          let use_gpu: bool = USE_GPU;
+          let path_dir_output = std::sync::Arc::new(path_dir_output.as_ref().to_path_buf());
+
+          eprintln!("Starting");
+          let tensors = tokio::task::spawn_blocking(move || {
+              eprintln!("inside loop");
+              export::fft_video::windowed_from_video_slicer(&tensor_video_input, use_gpu)
+          })
+          .await??;
+          eprintln!("Done");
+
+          let _tmp = futures::stream::iter(tensors.iter())
+              .enumerate()
+              .map(|(i, v)| {
+                  let path_output =
+                      path_dir_output.join("out-".to_string() + i.to_string().as_str() + ".bin16");
+
+                  async move { videofftbf16::fft_video::from_32(v).save(path_output).await }
+              })
+              .buffer_unordered(16)
+              .collect::<Vec<_>>()
+              .await
+              .into_iter()
+              .enumerate()
+              .for_each(|(i, e)| {
+                  match e {
+                      Ok(_o) => {}
+                      Err(e) => {
+                          tracing::error!("Failed to write out for index {} due to error {}", i, e);
+                      }
+                  };
+              });
+
+          Ok(())
+      }
+  }
+
+  async fn process_video_file(key: hasher::blob_hash) -> anyhow::Result<()> {
+      println!("Called with hash {}", key.get_hash_string());
+
+      let file_store = filestore::file_store::new().await?;
+      let path_file_video_input = match key.get_file_path() {
+          Some(o) => o,
+          None => {
+              return Err(anyhow::format_err!(
+                  "The input hash is not associated with a file"
+              ));
+          }
+      };
+
+      let mut path_dir_output = path_file_video_input.clone().into_os_string();
+      path_dir_output.push(".dir");
+
+      let out_dir = std::path::PathBuf::from(path_dir_output);
+
+      println!("Done with paths for {}", key.get_hash_string());
+
+      if tokio::fs::try_exists(&out_dir).await? {
+          eprintln!(
+              "{:?} already exists, not working on the input file {:?}",
+              out_dir, path_file_video_input
+          );
+
+          return Err(anyhow::format_err!(
+              "{:?} already exists, not working on the input file {:?}",
+              out_dir,
+              path_file_video_input
+          ));
+      } else {
+          let mmap = file_store.get_raw_tensor_async(&key).await?;
+
+          let res = videoview::video_slicer_mapped::new(mmap)?;
+
+          // let full_tensor = res.get_video_tensor()?;
+
+          return video_tensor_2_fft_file_160(res, out_dir).await;
+      }
+  }
+
+  async fn fft_all_video_files_under_dir(
+      target_dir: impl AsRef<std::path::Path>,
+  ) -> anyhow::Result<()> {
+
+      // lancedbwriter::make_lancedb_of_all_mp4_under_dir(target_dir).await?;
+
+      // return Ok(());
+
+      let tmp = target_dir.as_ref().to_path_buf();
+
+      let tmp = jwalk::WalkDir::new(tmp)
+          .into_iter()
+          .filter_map(|e| e.ok())
+          .map(|e| e.path())
+          .filter(|e| !e.is_dir())
+          .filter(|p| {
+              if let Some(ext) = p.extension() {
+                  ext == "mp4"
+              } else {
+                  false
+              }
+          })
+          .map(|f| videofftbf16::fft_video::video_2_dir_bin_default(f));
+
+      let tmp = futures::stream::iter(tmp)
+          .buffer_unordered(2)
+          .collect::<Vec<_>>()
+          .await
+          .iter()
+          .for_each(|e| {
+              match e {
+                  Ok(_) => {}
+                  Err(e) => {
+                      tracing::error!("processing file failed due to e {}", e);
+                  }
+              };
+          });
+
+      Ok(())
+  }
+
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
+      tracing_subscriber::fmt()
+          .with_writer(std::io::stderr)
+          .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+          .init();
+
+      let args: Vec<String> = std::env::args().collect();
+
+      match args.len() {
+          0 => {
+              eprintln!("Usage: <self> <s/f> <directory>");
+              eprintln!("s: stats for bin files under <directory>");
+              eprintln!("f: perform fft compression for videos under <directory>");
+              eprintln!("i: End to end file inference");
+              return Err(anyhow::format_err!("Wrong invocation"));
+          }
+
+          1 => {
+              eprintln!("Usage: {} <s/f> <directory>", args[0]);
+              eprintln!("s: stats for bin files under <directory>");
+              eprintln!("f: perform fft compression for videos under <directory>");
+              eprintln!("i: End to end file inference");
+              return Err(anyhow::format_err!("Wrong invocation"));
+          }
+
+          2 => {
+              eprintln!("Usage: {} <s/f> <directory>", args[0]);
+              eprintln!("s: stats for bin files under <directory>");
+              eprintln!("f: perform fft compression for videos under <directory>");
+              eprintln!("i: End to end file inference");
+              return Err(anyhow::format_err!("Wrong invocation"));
+          }
+
+          3 => {
+              match args[1].as_str() {
+                  "s" => {
+                      videofftstats::eval16_mean_sigma(args[2].as_str()).await?;
+                      return Ok(());
+                  }
+                  "f" => {
+                      fft_all_video_files_under_dir(/*target_dir: &str =*/ args[2].as_str()).await?;
+                      return Ok(());
+                  }
+                  "i" => {
+                      infer_video_end_2_end(
+                          /*path_file_video_input: String =*/
+                          hasher::blob_hash::new_from_file(&args[2])?,
+                          /*use_gpu: bool =*/ true,
+                      )
+                      .await?;
+                      return Ok(());
+                  }
+                  _ => {
+                      eprintln!("Usage: {} <s/f> <directory>", args[0]);
+                      eprintln!("s: stats for bin files under <directory>");
+                      eprintln!("f: perform fft compression for videos under <directory>");
+                      eprintln!("i: End to end file inference");
+                      return Err(anyhow::format_err!("Wrong invocation"));
+                  }
+              };
+          }
+
+          _ => {
+              eprintln!("Spurious arguments detected");
+              eprintln!("Usage: {} <s/f> <directory>", args[0]);
+              eprintln!("s: stats for bin files under <directory>");
+              eprintln!("f: perform fft compression for videos under <directory>");
+              eprintln!("i: End to end file inference");
+              return Err(anyhow::format_err!("Wrong invocation"));
+          }
+      };
+  }
+#+end_src
+
+* Protobuf side
+#+begin_src conf :mkdirp yes :tangle ./infer.proto
+  syntax = "proto3";
+
+  package myrdvideoinferinfer;
+
+  service Rdvideoinfer {
+    rpc Doinfer(Grpcvideodata) returns (Grpcvideopredictionreply) {}
+  }
+
+  message Grpcvideodata {
+      bytes data = 1;
+  }
+
+  message Version {
+      uint32 major = 1;
+      uint32 minor = 2;
+      uint32 patch = 3;
+  }
+
+  message Facialexpressions {
+      float pgrimacing = 1;
+  }
+
+  message Nasalflaring {
+      float pnotvisible = 1;
+      float pabsent = 2;
+      float ppresent = 3;
+  }
+
+  message Neckmuscle {
+      float notvisible = 1;
+      float nousage = 2;
+      float slightrise = 3;
+      float prominentrise = 4;
+  }
+
+  message Abdomenmuscles {
+      float notvisible = 1;
+      float absent = 2;
+      float present = 3;
+  }
+
+  message Respiratoryrate {
+      float lessthan18 = 1;
+      float between18to30 = 2;
+      float morethan30 = 3;
+  }
+
+  message Grpcvideoprediction {
+      float pa = 1;
+      float pb = 2;
+      float pc = 3;
+  }
+
+  message Grpcimgprediction {
+      uint32 arm = 1; 
+      uint32 rail = 2; 
+      uint32 leg = 3; 
+      uint32 pos = 4; 
+      uint32 bed = 5; 
+  }
+
+  message Grpcvideopredictionreply {
+      repeated Grpcvideoprediction preds = 1;
+      float majority = 2;
+      repeated Grpcimgprediction imgpreds = 3;
+
+      Version vidver = 4;
+      bytes videohash = 5;
+      uint64 timestamp = 6;
+      repeated float cvusability = 7;
+
+      repeated Facialexpressions predsface = 8;
+      repeated Nasalflaring predsnose = 9;
+      repeated Neckmuscle predsneck = 10;
+      repeated Abdomenmuscles predsabdomen = 11;
+      repeated Respiratoryrate predsrr = 12;
+  }
+#+end_src
+
+* Key - Value database
+#+begin_src rust :mkdirp yes :tangle ./src/keyvaluedb.rs
+  use crate::hasher;
+  use crate::version;
+  use prost::Message;
+
+  pub struct key_value_db {
+      diskdb: fjall::Database,
+      items_Grpcvideopredictionreply: fjall::Keyspace,
+  }
+
+  impl key_value_db {
+      pub fn new(path: impl AsRef<std::path::Path>) -> anyhow::Result<std::sync::Arc<Self>> {
+          let diskdb: fjall::Database = fjall::Database::builder(path.as_ref()).open()?;
+
+          let items_Grpcvideopredictionreply = diskdb.keyspace(
+              "Grpcvideopredictionreply",
+              fjall::KeyspaceCreateOptions::default,
+          )?;
+
+          let ret = std::sync::Arc::new(Self {
+              diskdb: diskdb,
+              items_Grpcvideopredictionreply: items_Grpcvideopredictionreply,
+          });
+
+          Ok(ret)
+      }
+
+      pub fn put_Grpcvideopredictionreply(
+          &self,
+          key: &crate::hasher::blob_hash,
+          value: &crate::Grpcvideopredictionreply,
+      ) -> anyhow::Result<()> {
+
+          const bufsize: usize = std::mem::size_of::<hasher::key_type>() + std::mem::size_of::<u32>();
+
+          let mut tmp_buf: [u8; bufsize] = [0; bufsize];
+
+          const tail: u32 = (version::major_version() << 16) + version::minor_version();
+
+          tmp_buf[0..std::mem::size_of::<hasher::key_type>()].copy_from_slice(key.get_hash());
+          tmp_buf[std::mem::size_of::<hasher::key_type>()..].copy_from_slice(&tail.to_le_bytes());
+
+          let mut buf: Vec<u8> = Vec::with_capacity(value.encoded_len());
+
+          value.encode(&mut buf)?;
+
+          self.items_Grpcvideopredictionreply
+              .insert(tmp_buf, buf.as_slice())?;
+
+          Ok(())
+      }
+
+      pub fn get_Grpcvideopredictionreply(
+          &self,
+          key: &crate::hasher::blob_hash,
+      ) -> anyhow::Result<crate::Grpcvideopredictionreply> {
+          const bufsize: usize = std::mem::size_of::<hasher::key_type>() + std::mem::size_of::<u32>();
+
+          let mut tmp_buf: [u8; bufsize] = [0; bufsize];
+
+          const tail: u32 = (version::major_version() << 16) + version::minor_version();
+
+          tmp_buf[0..std::mem::size_of::<hasher::key_type>()].copy_from_slice(key.get_hash());
+
+          tmp_buf[std::mem::size_of::<hasher::key_type>()..].copy_from_slice(&tail.to_le_bytes());
+
+          let bytes = match self.items_Grpcvideopredictionreply.get(tmp_buf)? {
+              Some(o) => crate::Grpcvideopredictionreply::decode(o.as_slice())?,
+              None => {
+                  return Err(anyhow::format_err!("Key not found in db"));
+              }
+          };
+
+          return Ok(bytes);
+      }
+  }
+#+end_src
+
+* Implement the inference loop part
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannel.rs
+  use crate::export;
+  use crate::filestore;
+  use crate::hasher;
+  use crate::inferencerelated;
+  use crate::videofft;
+  use crate::videofftstats;
+  use crate::videoview;
+
+  type message_output = export::rd_classifier_output;
+  type message_output_sender = crossfire::oneshot::TxOneshot<message_output>;
+  type message_output_receiver = crossfire::oneshot::RxOneshot<message_output>;
+
+  fn get_message_output_pair() -> (message_output_sender, message_output_receiver) {
+      crossfire::oneshot::oneshot::<message_output>()
+  }
+
+  pub struct message_input {
+      tensor: Vec<export::fft_video>,
+      oneshot_send_channel: Vec<message_output_sender>,
+  }
+  // type message_input_receiver = crossfire::AsyncRx<crossfire::mpsc::Array<message_input>>;
+  // type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+
+  type message_input_receiver = crossfire::Rx<crossfire::mpsc::Array<message_input>>;
+  type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+
+  fn get_message_input_pair() -> (message_input_sender, message_input_receiver) {
+      // crossfire::mpsc::bounded_async::<message_input>(32)
+      crossfire::mpsc::bounded_async_blocking::<message_input>(32)
+  }
+
+  pub fn inference_loop_blocking(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let normalizer = videofftstats::fft_video_normalizer::new(
+          /*path_file_bin64_mu: String =*/ "/data/input/train_mean.64bin",
+          /*path_file_bin64_sigma: String =*/ "/data/input/train_sigma.64bin",
+      )?;
+
+      // let normalizer: std::sync::Arc<videofftstats::fft_video_normalizer> =
+      //     std::sync::Arc::from(normalizer);
+
+      let mut infer_slave = inferencerelated::infer_slave::new();
+
+      // let mut infer_slave =
+      //     std::sync::Arc::<inferencerelated::infer_slave>::new(inferencerelated::infer_slave::new(1));
+
+      loop {
+          let mut tensors = Vec::<export::fft_video>::new();
+          let mut senders = Vec::<message_output_sender>::new();
+          let mut do_loop = true;
+          let mut do_infer = false;
+
+          if true {
+              let input_msg = receiver.recv();
+
+              match input_msg {
+                  Ok(o) => {
+                      tensors.extend_from_slice(o.tensor.as_slice());
+
+                      for i in o.oneshot_send_channel.into_iter() {
+                          senders.push(i);
+                      }
+
+                      do_loop = tensors.len() <= 20;
+                      do_infer = true;
+                  }
+                  Err(e) => {
+                      tracing::error!(
+                          "Failed to send inference request to the serving thread due to {}",
+                          e
+                      );
+                      do_loop = false;
+                      do_infer = false;
+                  }
+              }
+          }
+
+          while do_loop {
+              let message_input = receiver.recv_timeout(std::time::Duration::from_millis(100));
+
+              match message_input {
+                  Ok(o) => {
+                      tensors.extend_from_slice(o.tensor.as_slice());
+
+                      for i in o.oneshot_send_channel.into_iter() {
+                          senders.push(i);
+                      }
+
+                      do_loop = tensors.len() <= 20;
+                      do_infer = true;
+                  }
+                  Err(e) => {
+                      tracing::info!(
+                          "Did not receive another batch before the timeout {}, proceeding to infer",
+                          e
+                      );
+                      do_loop = false;
+                  }
+              }
+          }
+
+          if do_infer {
+              // let tmp_norm = normalizer.clone();
+
+              // let infer_slave_tmp = infer_slave.clone();
+              // for i in tensors.iter_mut() {
+              //     i.to_bf16_accuracy();
+              // }
+
+              normalizer.normalize_vec(&mut tensors);
+
+              let ret = infer_slave.infer(&tensors, inferencerelated::GOOD_BATCH_SIZE);
+
+              match ret {
+                  Ok(o) => {
+                      for (i, j) in o.into_iter().zip(senders.into_iter()) {
+                          j.send(i);
+                      }
+                  }
+                  Err(e) => {
+                      drop(senders);
+                      tracing::error!("Inference failed due to {}", e);
+                  }
+              };
+          }
+      }
+  }
+
+  pub async fn inference_loop(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let res = tokio::task::spawn_blocking(move || inference_loop_blocking(receiver)).await?;
+      return res;
+  }
+
+  pub struct client {
+      sender: message_input_sender,
+      handle: Option<tokio::task::JoinHandle<anyhow::Result<()>>>,
+      file_store: filestore::file_store,
+  }
+
+  impl Drop for client {
+      fn drop(&mut self) {
+          match self.handle.take() {
+              Some(o) => {
+                  o.abort();
+              }
+              None => {}
+          }
+      }
+  }
+
+  impl client {
+      pub async fn new() -> anyhow::Result<std::sync::Arc<Self>> {
+          let (sender, receiver) = get_message_input_pair();
+          let tmp = inference_loop(receiver);
+          let handle = tokio::task::spawn(tmp);
+
+          return Ok(std::sync::Arc::new(Self {
+              sender: sender,
+              handle: Some(handle),
+              file_store: filestore::file_store::new().await?,
+          }));
+      }
+
+      pub async fn do_infer_on_fft_tensor(
+          &self,
+          tensors_input: Vec<export::fft_video>,
+      ) -> anyhow::Result<Vec<export::rd_classifier_output>> {
+          let mut oneshot_receive_channel =
+              Vec::<message_output_receiver>::with_capacity(tensors_input.len());
+
+          let msg = {
+              let mut oneshot_send_channel =
+                  Vec::<message_output_sender>::with_capacity(tensors_input.len());
+
+              for _i in 0..tensors_input.len() {
+                  let (sender, receiver) = get_message_output_pair();
+                  oneshot_send_channel.push(sender);
+                  oneshot_receive_channel.push(receiver);
+              }
+
+              message_input {
+                  tensor: tensors_input,
+                  oneshot_send_channel: oneshot_send_channel,
+              }
+          };
+
+          match self.sender.send(msg).await {
+              Ok(_) => {
+                  tracing::info!("Sent inference request to the serving thread");
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Failed to send inference request to the serving thread due to {}",
+                      e
+                  );
+                  return Err(anyhow::format_err!(
+                      "Failed to send inference request to the serving thread"
+                  ));
+              }
+          };
+
+          let mut ret =
+              Vec::<export::rd_classifier_output>::with_capacity(oneshot_receive_channel.len());
+
+          for i in oneshot_receive_channel.into_iter() {
+              let tmp = i.recv_async().await;
+              match tmp {
+                  Ok(o) => {
+                      ret.push(o);
+                  }
+                  Err(e) => {
+                      tracing::error!("inference failed on one of the video clips due to {}", e);
+                      ret.push(export::rd_classifier_output::default());
+                  }
+              };
+          }
+
+          return Ok(ret);
+      }
+
+      pub async fn do_infer_on_video_file(
+          &self,
+          key: &hasher::blob_hash,
+      ) -> anyhow::Result<Vec<export::rd_classifier_output>> {
+          let list_video_fft_tensor = {
+              let slicer = {
+                  let mmap = self.file_store.get_raw_tensor_async(&key).await?;
+                  videoview::video_slicer_mapped::new(mmap)
+              }?;
+
+              let tmp = tokio::task::spawn_blocking(move || {
+                  export::fft_video::windowed_from_video_slicer(
+                      /*tensor_video_input: &tch::Tensor =*/ &slicer,
+                      /*use_gpu: bool =*/ true,
+                  )
+              })
+              .await??;
+              tmp
+          };
+
+          let tmp = self.do_infer_on_fft_tensor(list_video_fft_tensor).await;
+
+          tmp
+      }
+  }
+#+end_src
+
+* Implement the inference loop part for cv usability
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelimagecvusability.rs
+  use crate::export;
+  use crate::inferencerelatedimagecvusability;
+
+  pub const GOOD_BATCH_SIZE: u8 = 8;
+
+  type batched_input = Vec<export::CV_USABILITY_IMAGE>;
+  type batched_output = Vec<f32>;
+  type message_output = batched_output;
+  type message_output_sender = crossfire::oneshot::TxOneshot<message_output>;
+  type message_output_receiver = crossfire::oneshot::RxOneshot<message_output>;
+
+  fn get_message_output_pair() -> (message_output_sender, message_output_receiver) {
+      crossfire::oneshot::oneshot::<message_output>()
+  }
+
+  struct message_input {
+      tensor: batched_input,
+      oneshot_send_channel: message_output_sender,
+  }
+
+  type message_input_receiver = crossfire::Rx<crossfire::mpsc::Array<message_input>>;
+  type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+
+  // type message_input_receiver = crossfire::AsyncRx<crossfire::mpsc::Array<message_input>>;
+  // type message_input_sender = crossfire::MAsyncTx<crossfire::mpsc::Array<message_input>>;
+
+  fn get_message_input_pair() -> (message_input_sender, message_input_receiver) {
+      // crossfire::mpsc::bounded_async::<message_input>(32)
+      crossfire::mpsc::bounded_async_blocking::<message_input>(32)
+  }
+
+  fn efficient_infer(
+      vals: Vec<batched_input>,
+      infer_slave: &mut inferencerelatedimagecvusability::infer_slave,
+  ) -> Vec<Result<message_output, String>> {
+      let mut ret: Vec<Result<message_output, String>> = Vec::new();
+      // tracing::info!("Constructing the torch aot inductor class");
+      // let mut infer_slave = inferencerelatedimagecvusability::infer_slave::new(batch_size);
+      tracing::info!("Running the inference");
+      for mut i in vals.into_iter() {
+          let tmp = infer_slave.infer(&mut i, inferencerelatedimagecvusability::GOOD_BATCH_SIZE);
+          match tmp {
+              Ok(o) => {
+                  ret.push(Ok(o));
+              }
+              Err(e) => {
+                  ret.push(Err(format!("Inference failed {}", e)));
+              }
+          }
+      }
+      return ret;
+  }
+
+  fn inference_loop_blocking(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let max_delay = std::time::Duration::from_millis(200);
+      let mut infer_slave = inferencerelatedimagecvusability::infer_slave::new();
+      loop {
+          tracing::info!("Starting the cv usability inference loop");
+          let mut tensors: Vec<batched_input> = Vec::new();
+          let mut senders: Vec<message_output_sender> = Vec::new();
+          let mut do_loop = true;
+          let mut do_infer = false;
+
+          if true {
+              let input_msg = receiver.recv();
+
+              match input_msg {
+                  Ok(o) => {
+                      tensors.push(o.tensor);
+                      senders.push(o.oneshot_send_channel);
+                      do_loop = tensors.len() <= 8;
+                      do_infer = true;
+                      tracing::info!("Received and construct the 1st inference request");
+                  }
+
+                  Err(e) => {
+                      tracing::error!(
+                          "Failed to send inference request to the serving thread due to {}",
+                          e
+                      );
+                      do_loop = false;
+                      do_infer = false;
+                  }
+              }
+          }
+
+          let start = tokio::time::Instant::now();
+          while do_loop {
+              tracing::info!("Checking for additional requests");
+              let message_input = receiver.recv_timeout(std::time::Duration::from_millis(100));
+
+              match message_input {
+                  Ok(o) => {
+                      tensors.push(o.tensor);
+                      senders.push(o.oneshot_send_channel);
+                      do_loop = tensors.len() <= 8;
+                      do_infer = true;
+                      tracing::info!("Appended another batch to the request");
+                  }
+                  Err(_e) => {
+                      do_loop = start.elapsed() < max_delay;
+                  }
+              }
+          }
+
+          if do_infer {
+              let res = efficient_infer(tensors, &mut infer_slave);
+
+              for (x, y) in res.into_iter().zip(senders.into_iter()) {
+                  match x {
+                      Ok(o) => {
+                          tracing::info!("Inference succeeded, sending results");
+                          y.send(o);
+                      }
+                      Err(e) => {
+                          tracing::error!("Image inference for batch failed due to {}", e);
+                          drop(y);
+                      }
+                  }
+              }
+          }
+      }
+  }
+
+  async fn inference_loop(receiver: message_input_receiver) -> anyhow::Result<()> {
+      let res = tokio::task::spawn_blocking(move || inference_loop_blocking(receiver)).await?;
+      return res;
+  }
+
+  pub struct client {
+      sender: message_input_sender,
+      handle: Option<tokio::task::JoinHandle<anyhow::Result<()>>>,
+  }
+
+  impl Drop for client {
+      fn drop(&mut self) {
+          match self.handle.take() {
+              Some(o) => {
+                  o.abort();
+              }
+              None => {}
+          }
+      }
+  }
+
+  impl client {
+      pub async fn new() -> std::sync::Arc<Self> {
+          let (sender, receiver) = get_message_input_pair();
+          let tmp = inference_loop(receiver);
+          let handle = tokio::task::spawn(tmp);
+
+          return std::sync::Arc::new(Self {
+              sender: sender,
+              handle: Some(handle),
+          });
+      }
+
+      pub async fn do_infer_on_image_batch_tensor_async(
+          &self,
+          tensors_input: batched_input,
+      ) -> anyhow::Result<Vec<f32>> {
+          let (sender, receiver) = get_message_output_pair();
+
+          let msg = message_input {
+              tensor: tensors_input,
+              oneshot_send_channel: sender,
+          };
+
+          match self.sender.send(msg).await {
+              Ok(_) => {
+                  tracing::info!("Successfullt sent request for inference");
+              }
+              Err(_) => {
+                  tracing::error!("Failed to send request for inference");
+                  return Err(anyhow::format_err!("Failed to send request for inference"));
+              }
+          };
+
+          let ret = receiver.recv_async().await?;
+
+          return Ok(ret);
+      }
+  }
+#+end_src
+
+* Implement the combined video and image inference class
+#+begin_src rust :mkdirp yes :tangle ./src/serverinferencechannelboth.rs
+  use crate::export;
+  use crate::filestore;
+  use crate::hasher;
+  use crate::inferencerelated;
+  use crate::inferencerelatedimagecvusability;
+  use crate::serverinferencechannel;
+  use crate::serverinferencechannelimagecvusability;
+  use crate::videofft;
+  use crate::videoview;
+
+  fn get_num_batches_in_video(num_frames: u32) -> u32 {
+      const image_FPS: u32 = 2;
+      let ret = {
+          let exact_num_batches = ((image_FPS * num_frames) as f32)
+              / ((8 * serverinferencechannelimagecvusability::GOOD_BATCH_SIZE) as f32);
+
+          if exact_num_batches.fract() > 0.1 {
+              exact_num_batches.ceil() as u32
+          } else {
+              exact_num_batches.floor() as u32
+          }
+      };
+
+      ret
+  }
+
+  pub struct combined_infer {
+      infer_rd: std::sync::Arc<serverinferencechannel::client>,
+      infpairimage: std::sync::Arc<serverinferencechannelimagecvusability::client>,
+      pub file_store: filestore::file_store,
+  }
+
+  pub struct combined_results {
+      pub results_video: Vec<export::rd_classifier_output>,
+      pub results_image: Vec<f32>,
+  }
+
+  impl combined_infer {
+      pub async fn new() -> anyhow::Result<Self> {
+          tracing::warn!("Constructing serverinferencechannelboth::combined_infer");
+          Ok(Self {
+              infer_rd: serverinferencechannel::client::new().await?,
+              infpairimage: serverinferencechannelimagecvusability::client::new().await,
+              file_store: filestore::file_store::new().await?,
+          })
+      }
+
+      pub async fn do_infer_on_video_file(
+          &self,
+          key: &hasher::blob_hash,
+      ) -> anyhow::Result<combined_results> {
+          tracing::debug!("Reading the video file using ffmpeg");
+
+          let slicer = {
+              let mmap = self.file_store.get_raw_tensor_async(&key).await?;
+              videoview::video_slicer_mapped::new(mmap)
+          }?;
+
+          let image_infer_results = {
+              let image_batch_tensor: Vec<export::CV_USABILITY_IMAGE> = {
+                  let videotensor = slicer.get_video_tensor()?;
+
+                  let total_images =
+                      get_num_batches_in_video(/*num_frames: u32 =*/ slicer.size_t as u32)
+                          ,* (serverinferencechannelimagecvusability::GOOD_BATCH_SIZE as u32);
+
+                  let mut ret: Vec<export::CV_USABILITY_IMAGE> =
+                      Vec::with_capacity(total_images as usize);
+
+                  let ret_ptr = ret.as_mut_ptr();
+
+                  for i in 0..total_images {
+                      // (v2 - v1) / (i2 - i1) = (v - v1) / (i - i1)
+                      let v = ((slicer.size_t as usize) * (i as usize)) / (total_images as usize);
+
+                      unsafe {
+                          export::frame_video_to_cv_usability(
+                              /*src: *const frame_video_Y =*/
+                              &videotensor[v] as *const export::frame_video_Y,
+                              /*dst: *mut CV_USABILITY_IMAGE =*/
+                              ret_ptr.add(i as usize),
+                          )
+                      };
+                  }
+
+                  unsafe { ret.set_len(total_images as usize) };
+
+                  ret
+              };
+
+              tracing::debug!("Constructed the image tensor.");
+
+              self.infpairimage
+                  .do_infer_on_image_batch_tensor_async(image_batch_tensor)
+              // .await?
+          };
+
+          tracing::debug!("Ran image inference.");
+
+          let rd_infer_results = async move {
+              let list_video_fft_tensor = tokio::task::spawn_blocking(move || {
+                  export::fft_video::windowed_from_video_slicer(
+                      &slicer, /*use_gpu: bool =*/ true,
+                  )
+              })
+              .await??;
+
+              self.infer_rd.do_infer_on_fft_tensor(list_video_fft_tensor)
+              .await
+          };
+
+          let (image_infer_results, rd_infer_results) =
+              tokio::join!(image_infer_results, rd_infer_results);
+
+          tracing::debug!("Done video inference.");
+
+          return Ok(combined_results {
+              results_video: rd_infer_results?,
+              results_image: image_infer_results?,
+          });
+      }
+  }
+#+end_src
+
+* Implementation for the server endpoint
+#+begin_src rust :mkdirp yes :tangle ./src/server.rs
+  #![allow(non_snake_case)]
+  #![allow(non_camel_case_types)]
+  #![allow(non_upper_case_globals)]
+  #[global_allocator]
+  static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+  // mod lancedbwriter;
+  mod export;
+  mod filestore;
+  mod hasher;
+  mod inferencerelated;
+  mod inferencerelatedimagecvusability;
+  mod keyvaluedb;
+  mod serverinferencechannel;
+  mod serverinferencechannelboth;
+  mod serverinferencechannelimagecvusability;
+  mod version;
+  mod videodecoder;
+  mod videofft;
+  mod videofftbf16;
+  mod videofftstats;
+  mod videoview;
+
+  use futures::StreamExt;
+  use prost::Message;
+  use rayon::prelude::*;
+
+  use crate::infer::Grpcvideopredictionreply;
+
+  pub mod infer {
+      tonic::include_proto!("myrdvideoinferinfer");
+
+      pub(crate) const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("infer");
+  }
+
+  const USE_GPU: bool = true;
+
+  fn get_current_time() -> u64 {
+      match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+          Ok(o) => {
+              return o.as_secs();
+          }
+          Err(_e) => {
+              return 1782492853;
+          }
+      }
+  }
+
+  type in_flight_checker_type = scc::HashSet<Vec<u8>>;
+
+  struct grpc_inferer {
+      infpair: std::sync::Arc<serverinferencechannelboth::combined_infer>,
+      semaphore: std::sync::Arc<tokio::sync::Semaphore>,
+      cachedb: Option<std::sync::Arc<keyvaluedb::key_value_db>>,
+      in_flight_status_receiver: in_flight_checker_type,
+  }
+
+  impl grpc_inferer {
+      async fn new() -> anyhow::Result<Self> {
+          let cachedb = keyvaluedb::key_value_db::new("/root/.cache/infdb.fjall");
+
+          let ret = Self {
+              infpair: std::sync::Arc::<serverinferencechannelboth::combined_infer>::new(
+                  serverinferencechannelboth::combined_infer::new().await?,
+              ),
+              semaphore: std::sync::Arc::new(tokio::sync::Semaphore::new(12)),
+              cachedb: cachedb.ok(),
+              in_flight_status_receiver: in_flight_checker_type::new(),
+          };
+
+          Ok(ret)
+      }
+  }
+
+  #[tonic::async_trait]
+  impl infer::rdvideoinfer_server::Rdvideoinfer for grpc_inferer {
+      async fn doinfer(
+          &self,
+          request: tonic::Request<infer::Grpcvideodata>,
+      ) -> std::result::Result<tonic::Response<infer::Grpcvideopredictionreply>, tonic::Status> {
+          tracing::info!("Received an inference request");
+
+          let video_data = &(request.into_inner().data);
+
+          let hash = std::sync::Arc::new(hasher::blob_hash::new_from_slice(video_data.as_slice()));
+
+          tracing::info!("Got video with hash {}", hash.get_hash_string());
+
+          match &self.cachedb {
+              None => {
+                  tracing::warn!(
+                      "No caching db found, skipping cache loopup step for {}",
+                      hash.get_hash_string()
+                  );
+              }
+              Some(maincache) => {
+                  let res = {
+                      let tmpcache = maincache.clone();
+                      let tmphash = hash.clone();
+                      let res = tokio::task::spawn_blocking(move || {
+                          tmpcache.get_Grpcvideopredictionreply(tmphash.as_ref())
+                      })
+                      .await;
+
+                      match res {
+                          Ok(o) => o,
+                          Err(_e) => Err(anyhow::format_err!("join error")),
+                      }
+                  };
+
+                  match res {
+                      Ok(o) => {
+                          tracing::warn!(
+                              "inference results for {} found in cache, returning it.",
+                              hash.get_hash_string()
+                          );
+                          return Ok(tonic::Response::new(o));
+                      }
+                      Err(_e) => {
+                          tracing::info!(
+                              "correct inference results for {} not found in cache, proceeding for inference.",
+                              hash.get_hash_string()
+                          );
+                      }
+                  };
+              }
+          };
+
+          // match self
+          //     .in_flight_status_receiver
+          //     .insert_async(hash.get_hash().to_vec())
+          //     .await
+          // {
+          //     Ok(_) => {
+          //         tracing::info!(
+          //             " Running inference for {}, number of permits remaining so far {}",
+          //             hash.get_hash_string(),
+          //             self.semaphore.available_permits()
+          //         );
+          //     }
+          //     Err(_) => {
+          //         tracing::error!(
+          //             "Rejecting duplicate request. Inference for {} is already running.",
+          //             hash.get_hash_string()
+          //         );
+          //         return Err(tonic::Status::already_exists(
+          //             "An identical video inference request is currently in progress. Please retry shortly.",
+          //         ));
+          //     }
+          // };
+
+          let res = {
+              tracing::info!("Acquiring Queue Semaphore for {}", hash.get_hash_string());
+
+              let _permit = self
+                  .semaphore
+                  .acquire()
+                  .await
+                  .map_err(|_| tonic::Status::internal("Semaphore closed unexpectedly"))?;
+
+              let _path_file_video_output = match self
+                  .infpair
+                  .file_store
+                  .put_content_async(/*key =*/ &hash, /*value =*/ video_data)
+                  .await
+              {
+                  Ok(o) => o,
+                  Err(_e) => {
+                      // let _ = self.in_flight_status_receiver.remove_async(hash.get_hash());
+                      return Err(tonic::Status::internal(
+                          "Failed to write the video file, CPU RAM full",
+                      ));
+                  }
+              };
+
+              self.infpair.do_infer_on_video_file(&hash).await
+          };
+
+          tracing::info!("Inference completed for hash {}", hash.get_hash_string());
+
+          match res {
+              Ok(o) => {
+                  let preds: Vec<infer::Grpcvideoprediction> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Grpcvideoprediction {
+                          pa: i.out[0],
+                          pb: 0 as f32,
+                          pc: i.out[1],
+                      })
+                      .collect();
+
+                  let predsface: Vec<infer::Facialexpressions> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Facialexpressions {
+                          pgrimacing: i.out[3],
+                      })
+                      .collect();
+
+                  let predsnose: Vec<infer::Nasalflaring> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Nasalflaring {
+                          pnotvisible: i.out[4],
+                          pabsent: i.out[5],
+                          ppresent: i.out[6],
+                      })
+                      .collect();
+
+                  let predsneck: Vec<infer::Neckmuscle> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Neckmuscle {
+                          notvisible: i.out[7],
+                          nousage: i.out[8],
+                          slightrise: i.out[9],
+                          prominentrise: i.out[10],
+                      })
+                      .collect();
+
+                  let predsabdomen: Vec<infer::Abdomenmuscles> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Abdomenmuscles {
+                          notvisible: i.out[11],
+                          absent: i.out[12],
+                          present: i.out[13],
+                      })
+                      .collect();
+
+                  let predsrr: Vec<infer::Respiratoryrate> = o
+                      .results_video
+                      .iter()
+                      .map(|i| infer::Respiratoryrate {
+                          lessthan18: i.out[14],
+                          between18to30: i.out[15],
+                          morethan30: i.out[16],
+                      })
+                      .collect();
+
+                  let avg = o
+                      .results_video
+                      .iter()
+                      .map(|i| i.majority() as f32)
+                      .sum::<f32>()
+                      / (o.results_video.len() as f32);
+
+                  let bed_scaling_factor: f32 =
+                      o.results_image.iter().sum::<f32>() / (o.results_image.len() as f32);
+
+                  let imgpreds: Vec<infer::Grpcimgprediction> = Vec::new();
+
+                  let vidver = infer::Version {
+                      major: version::major_version(),
+                      minor: version::minor_version(),
+                      patch: version::patch_version(),
+                  };
+
+                  let ret = infer::Grpcvideopredictionreply {
+                      preds: preds,
+                      majority: avg * bed_scaling_factor,
+                      imgpreds: imgpreds,
+                      vidver: Some(vidver),
+                      videohash: hash.get_hash().to_vec(),
+                      timestamp: get_current_time(),
+                      cvusability: o.results_image,
+                      predsface: predsface,
+                      predsnose: predsnose,
+                      predsneck: predsneck,
+                      predsabdomen: predsabdomen,
+                      predsrr: predsrr,
+                  };
+
+                  match &self.cachedb {
+                      None => {
+                          tracing::warn!("No cache db connection found, not writing to db");
+                      }
+
+                      Some(o) => {
+                          match o.put_Grpcvideopredictionreply(&hash, &ret) {
+                              Ok(_) => {
+                                  tracing::info!(
+                                      "Wrote results for {} to cache.",
+                                      hash.get_hash_string()
+                                  );
+                              }
+                              Err(e) => {
+                                  tracing::error!(
+                                      "Failed to write inference results for {} to cache due to {}.",
+                                      hash.get_hash_string(),
+                                      e
+                                  );
+                              }
+                          };
+                      }
+                  }
+
+                  // let _ = self.in_flight_status_receiver.remove_async(hash.get_hash());
+
+                  tracing::info!("Sending reply for hash {}", hash.get_hash_string());
+
+                  return Ok(tonic::Response::new(ret));
+              }
+              Err(e) => {
+                  tracing::error!(
+                      "Inference failed for {} with error {}",
+                      hash.get_hash_string(),
+                      e
+                  );
+
+                  // let _ = self.in_flight_status_receiver.remove_async(hash.get_hash());
+
+                  return Err(tonic::Status::internal(format!(
+                      "Internal error, inference failed due to {}",
+                      e
+                  )));
+              }
+          }
+      }
+  }
+
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
+      tracing_subscriber::fmt()
+          .with_writer(std::io::stderr)
+          .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+          .init();
+
+      unsafe { export::locker_to_inference_mode() };
+
+      let ip_v4 = std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0));
+      let port: u16 = 8001;
+      let addr = std::net::SocketAddr::new(ip_v4, port);
+
+      let service = tonic_reflection::server::Builder::configure()
+          .register_encoded_file_descriptor_set(infer::FILE_DESCRIPTOR_SET)
+          .build_v1()
+          .unwrap();
+
+      tracing::warn!("Server attempting to bind to {}", addr);
+
+      let slave = grpc_inferer::new().await?;
+
+      let _result = tonic::transport::Server::builder()
+          .add_service(service)
+          .add_service(
+              infer::rdvideoinfer_server::RdvideoinferServer::new(slave)
+                  .max_encoding_message_size(1 << 26)
+                  .max_decoding_message_size(1 << 26),
+          )
+          .serve(addr)
+          .await?;
+
+      Ok(())
+  }
+#+end_src
+
+* Code for client
+#+begin_src rust :mkdirp yes :tangle ./src/client.rs
+  pub mod infer {
+      tonic::include_proto!("myrdvideoinferinfer");
+  }
+
+  #[tokio::main]
+  async fn main() -> anyhow::Result<()> {
+      let args: Vec<String> = std::env::args().collect();
+      if args.len() < 2 {
+          return Err(anyhow::format_err!(
+              "Need atleast 1 commandline argument for the video file"
+          ));
+      }
+
+      let data = tokio::fs::read(args[1].as_str()).await?;
+      let payload = infer::Grpcvideodata { data: data };
+
+      let mut client =
+          infer::rdvideoinfer_client::RdvideoinferClient::connect("http://127.0.0.1:8001").await?;
+
+      let res = client.doinfer(payload).await?.into_inner();
+      for i in res.preds.iter() {
+          println!("{:?}", i);
+      }
+
+      return Ok(());
+  }
+#+end_src
+
+* gitignore
+#+begin_src conf :mkdirp yes :tangle ./.gitignore
+  /build/
+  /.cache/
+  /video.mp4
+  /video.mp4.raw
+#+end_src
+
+* Main script to manage git stuff
+
+** Main script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** Clean the old / tmp files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  CLEAN '.git.sh'
+  CLEAN 'README.org~'
+#+end_src
+
+** Format files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cargo fmt
+#+end_src
+
+** Add all the important files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD 'all_build.sh'
+  GITADD 'all_install.sh'
+  GITADD 'build.rs'
+  GITADD 'cargo_build.sh'
+  GITADD 'cargo_run.sh'
+  GITADD 'Cargo.toml'
+  GITADD 'cargo_watch.sh'
+  GITADD 'convert_video_2_raw.sh'
+  GITADD 'env.sh'
+  GITADD 'infer.proto'
+  GITADD 'README.org'
+  GITADD 'run_server.sh'
+  GITADD 'src/client.rs'
+  GITADD 'src/export.rs'
+  GITADD 'src/filestore.rs'
+  GITADD 'src/hasher.rs'
+  GITADD 'src/inferencerelatedimagecvusability.rs'
+  GITADD 'src/inferencerelated.rs'
+  GITADD 'src/keyvaluedb.rs'
+  GITADD 'src/lancedbwriter.rs'
+  GITADD 'src/main.rs'
+  GITADD 'src/mlockffmpeg.rs'
+  GITADD 'src/mytorch.hpp'
+  GITADD 'src/serverinferencechannelboth.rs'
+  GITADD 'src/serverinferencechannelimagecvusability.rs'
+  GITADD 'src/serverinferencechannel.rs'
+  GITADD 'src/server.rs'
+  GITADD 'src/version.rs'
+  GITADD 'src/videodecoder.rs'
+  GITADD 'src/videofftbf16.rs'
+  GITADD 'src/videofft.rs'
+  GITADD 'src/videofftstats.rs'
+  GITADD 'src/videoview.rs'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  git status ; git commit -m 'Started writing rust side of the code for NICU RR inference.'
+  "${HOME}/SSH/K/W/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the script
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src

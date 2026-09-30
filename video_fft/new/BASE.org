@@ -1,0 +1,666 @@
+* Important links
+
+** Clinical doc
+https://docs.google.com/document/d/12z7bpl6NC5keu96RF-qyHMr1P8aL4BNPc5tpu5m9VeA/edit?usp=sharing
+
+* For logging
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./start_web_console_logging.sh
+  docker run \
+      --name dozzle \
+      '--volume=/var/run/docker.sock:/var/run/docker.sock:ro' \
+      -p 8888:8080 \
+      'amir20/dozzle:latest' \
+  ;
+#+end_src
+
+* Login to GCP
+#+begin_src sh :shebang #!/usr/bin/env bash :results output :mkdirp yes :tangle ./GCP_Login.sh
+  "${HOME}/GCP/sandbox/google-cloud-sdk/bin/gcloud" 'auth' 'login'
+#+end_src
+
+* Downloading checkpoints
+#+begin_src sh :shebang #!/usr/bin/env bash :results output :mkdirp yes :tangle ./download_checkpoints.sh
+  cd "$(dirname -- "${0}")"
+
+  'rm' '-rf' './input/'
+
+  MYSHELL='bash'
+
+  mkdir -pv -- './input'
+
+  "${HOME}/GCP/google-cloud-sdk/bin/gcloud" \
+      'storage' 'ls' \
+      'gs://ml_data_pipelines/models/respiratory_distress/' \
+  ;
+
+  "${HOME}/GCP/google-cloud-sdk/bin/gcloud" \
+      'storage' 'rsync' '-r' \
+      'gs://ml_data_pipelines/models/respiratory_distress/RD_HF-2026.August.31.09.03.46.AM.IST' \
+      './input' \
+  ;
+
+  ln -vf \
+      './input/model_training/RDHF-epoch=20-val_accuracy=0.878091.ckpt' \
+      './input/model.ckpt' \
+  ;
+
+  "${HOME}/GCP/google-cloud-sdk/bin/gcloud" \
+      'storage' 'cp' \
+      'gs://video-image-store-dev/MODEL_CHECKPOINTS/cv_usability-2026.July.13.02.36.PM.IST/checkpoints/cv_usability-epoch=20-val_accuracy=0.917516.ckpt' \
+      './cv_usability-epoch=20-val_accuracy=0.917516.ckpt' \
+  ;
+
+  exit '0'
+#+end_src
+
+* Build docker image for inference
+
+  "${HOME}/GCP/google-cloud-sdk/bin/gcloud" \
+      'storage' 'ls' \
+      'gs://ml_data_pipelines/CONTAINER_IMAGE/RD' \
+  ;
+
+
+  "${HOME}/GCP/google-cloud-sdk/bin/gcloud" \
+      'storage' 'cp' \
+      'RD_HF_CONTAINER_IMAGE-2026.Sep.01.02.38.02.PM.IST.tar' \
+      'gs://ml_data_pipelines/DOCKER_IMAGE/RD/RD_HF_CONTAINER_IMAGE-2026.Sep.01.02.38.02.PM.IST.tar' \
+  ;
+
+
+** Actual dockerfile
+
+*** Main base image
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  FROM 7_deep_learning
+#+end_src
+
+*** Copy important common utils
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'important_common_utils' '/root/important_common_utils'
+#+end_src
+
+*** COMMENT Important python packages
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  RUN \
+      echo 'START pip' \
+      && . "${HOME}/venv/bin/activate" \
+      && uv pip install -U \
+          'fastapi[standard]' \
+          'google-auth' \
+          'google-cloud-storage' \
+          'psycopg[binary,pool]' \
+          'python-multipart' \
+          'ray[serve]' \
+          'requests' \
+          'starlette' \
+      && echo 'DONE pip'
+#+end_src
+
+*** Prepare directories
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  RUN \
+      echo 'START Making dir' \
+      && mkdir -pv -- \
+          '/data/input/train' \
+          '/RUST_CODE/src' \
+          '/CPP_CODE/src/includes.dir' \
+          '/PYTHON_CODE/RD' \
+          '/PYTHON_CODE/CV' \
+      && echo 'DONE Making dir'
+#+end_src
+
+*** All links
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  RUN \
+      echo 'START copying and linking model files' \
+      && ln -vfs -- 'ALL_DATA_mean.64bin' '/data/input/train_mean.64bin' \
+      && ln -vfs -- 'ALL_DATA_sigma.64bin' '/data/input/train_sigma.64bin' \
+      && ln -vfs -- 'cv_usability-epoch=20-val_accuracy=0.917516.ckpt' '/data/input/cv_usability.ckpt' \
+      && ln -vfs -- '/root/important_common_utils' '/PYTHON_CODE/CV/important_common_utils' \
+      && ln -vfs -- '/root/important_common_utils' '/PYTHON_CODE/RD/important_common_utils' \
+      && echo 'DONE copying and linking model files'
+#+end_src
+
+*** Copy checkpoints
+
+**** RD
+
+***** NEW SMALL
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY \
+      'input/model.ckpt' \
+      'input/ALL_DATA_mean.64bin' \
+      'input/ALL_DATA_sigma.64bin' \
+      'cv_usability-epoch=20-val_accuracy=0.917516.ckpt' \
+      '/data/input/'
+#+end_src
+
+***** COMMENT OLD LARGE
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'input/model.ckpt' '/data/input/model.ckpt'
+  COPY 'input/ALL_DATA_mean.64bin' '/data/input/train_mean.64bin'
+  COPY 'input/ALL_DATA_sigma.64bin' '/data/input/train_sigma.64bin'
+#+end_src
+
+**** COMMENT CV usability
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'cv_usability-epoch=20-val_accuracy=0.917516.ckpt' '/data/input/cv_usability.ckpt'
+#+end_src
+
+*** Copy compiling code
+
+**** RD
+
+***** NEW SMALL
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY \
+      'training/compile_model.py' \
+      'training/main.py' \
+      '/PYTHON_CODE/RD/'
+#+end_src
+
+***** COMMENT OLD LARGE
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'training/compile_model.py' '/PYTHON_CODE/RD/compile_model.py'
+  COPY 'training/main.py' '/PYTHON_CODE/RD/main.py'
+  RUN ln -vfs -- '/root/important_common_utils' '/PYTHON_CODE/RD/important_common_utils'
+#+end_src
+
+**** CV usability
+
+***** NEW SMALL
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY \
+      'CLEAN_IMAGE_CLASSIFY/compile.py' \
+      'CLEAN_IMAGE_CLASSIFY/main.py' \
+      '/PYTHON_CODE/CV/'
+#+end_src
+
+***** COMMENT OLD LARGE
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'CLEAN_IMAGE_CLASSIFY/compile.py' '/PYTHON_CODE/CV/compile.py'
+  COPY 'CLEAN_IMAGE_CLASSIFY/main.py' '/PYTHON_CODE/CV/main.py'
+  RUN ln -vfs -- '/root/important_common_utils' '/PYTHON_CODE/CV/important_common_utils'
+#+end_src
+
+*** Copy inference code
+
+**** CPP
+
+***** NEW SMALL
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY \
+      'CPP_CODE/all_install.sh' \
+      'CPP_CODE/cmake_build.sh' \
+      'CPP_CODE/CMakeLists.txt' \
+      '/CPP_CODE/'
+
+  COPY \
+      'CPP_CODE/src/common_torch.hpp' \
+      'CPP_CODE/src/cv_usability.hpp' \
+      'CPP_CODE/src/file_mlock.hpp' \
+      'CPP_CODE/src/includes.hpp' \
+      'CPP_CODE/src/main.cpp' \
+      'CPP_CODE/src/main.hpp' \
+      'CPP_CODE/src/rd_inference.hpp' \
+      'CPP_CODE/src/semaphore.hpp' \
+      'CPP_CODE/src/static_inits.hpp' \
+      '/CPP_CODE/src/'
+
+  COPY \
+      'CPP_CODE/src/includes.dir/header_cpp.hpp' \
+      'CPP_CODE/src/includes.dir/header_opencv.hpp' \
+      'CPP_CODE/src/includes.dir/header_os_c.hpp' \
+      'CPP_CODE/src/includes.dir/header_torch.hpp' \
+      '/CPP_CODE/src/includes.dir/'
+#+end_src
+
+***** COMMENT OLD LARGE
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'CPP_CODE/all_install.sh' '/CPP_CODE/all_install.sh'
+  COPY 'CPP_CODE/cmake_build.sh' '/CPP_CODE/cmake_build.sh'
+  COPY 'CPP_CODE/CMakeLists.txt' '/CPP_CODE/CMakeLists.txt'
+  COPY 'CPP_CODE/src/common_torch.hpp' '/CPP_CODE/src/common_torch.hpp'
+  COPY 'CPP_CODE/src/cv_usability.hpp' '/CPP_CODE/src/cv_usability.hpp'
+  COPY 'CPP_CODE/src/file_mlock.hpp' '/CPP_CODE/src/file_mlock.hpp'
+  COPY 'CPP_CODE/src/includes.dir/header_cpp.hpp' '/CPP_CODE/src/includes.dir/header_cpp.hpp'
+  COPY 'CPP_CODE/src/includes.dir/header_opencv.hpp' '/CPP_CODE/src/includes.dir/header_opencv.hpp'
+  COPY 'CPP_CODE/src/includes.dir/header_os_c.hpp' '/CPP_CODE/src/includes.dir/header_os_c.hpp'
+  COPY 'CPP_CODE/src/includes.dir/header_torch.hpp' '/CPP_CODE/src/includes.dir/header_torch.hpp'
+  COPY 'CPP_CODE/src/includes.hpp' '/CPP_CODE/src/includes.hpp'
+  COPY 'CPP_CODE/src/main.cpp' '/CPP_CODE/src/main.cpp'
+  COPY 'CPP_CODE/src/main.hpp' '/CPP_CODE/src/main.hpp'
+  COPY 'CPP_CODE/src/rd_inference.hpp' '/CPP_CODE/src/rd_inference.hpp'
+  COPY 'CPP_CODE/src/semaphore.hpp' '/CPP_CODE/src/semaphore.hpp'
+  COPY 'CPP_CODE/src/static_inits.hpp' '/CPP_CODE/src/static_inits.hpp'
+#+end_src
+
+**** RUST
+
+***** NEW SMALL
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY \
+      'RUST_CODE/all_build.sh' \
+      'RUST_CODE/all_install.sh' \
+      'RUST_CODE/build.rs' \
+      'RUST_CODE/cargo_build.sh' \
+      'RUST_CODE/Cargo.lock' \
+      'RUST_CODE/Cargo.toml' \
+      'RUST_CODE/env.sh' \
+      'RUST_CODE/infer.proto' \
+      'RUST_CODE/run_server.sh' \
+      '/RUST_CODE/'
+
+  COPY \
+      'RUST_CODE/src/client.rs' \
+      'RUST_CODE/src/export.rs' \
+      'RUST_CODE/src/filestore.rs' \
+      'RUST_CODE/src/hasher.rs' \
+      'RUST_CODE/src/inferencerelatedimagecvusability.rs' \
+      'RUST_CODE/src/inferencerelated.rs' \
+      'RUST_CODE/src/keyvaluedb.rs' \
+      'RUST_CODE/src/lancedbwriter.rs' \
+      'RUST_CODE/src/main.rs' \
+      'RUST_CODE/src/mytorch.hpp' \
+      'RUST_CODE/src/serverinferencechannelboth.rs' \
+      'RUST_CODE/src/serverinferencechannelimagecvusability.rs' \
+      'RUST_CODE/src/serverinferencechannel.rs' \
+      'RUST_CODE/src/server.rs' \
+      'RUST_CODE/src/version.rs' \
+      'RUST_CODE/src/videodecoder.rs' \
+      'RUST_CODE/src/videofftbf16.rs' \
+      'RUST_CODE/src/videofft.rs' \
+      'RUST_CODE/src/videofftstats.rs' \
+      'RUST_CODE/src/videoview.rs' \
+      '/RUST_CODE/src/'
+#+end_src
+
+***** COMMENT OLD LARGE
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'RUST_CODE/all_build.sh' '/RUST_CODE/all_build.sh'
+  COPY 'RUST_CODE/all_install.sh' '/RUST_CODE/all_install.sh'
+  COPY 'RUST_CODE/build.rs' '/RUST_CODE/build.rs'
+  COPY 'RUST_CODE/cargo_build.sh' '/RUST_CODE/cargo_build.sh'
+  COPY 'RUST_CODE/Cargo.lock' '/RUST_CODE/Cargo.lock'
+  COPY 'RUST_CODE/Cargo.toml' '/RUST_CODE/Cargo.toml'
+  COPY 'RUST_CODE/env.sh' '/RUST_CODE/env.sh'
+  COPY 'RUST_CODE/infer.proto' '/RUST_CODE/infer.proto'
+  COPY 'RUST_CODE/run_server.sh' '/RUST_CODE/run_server.sh'
+  COPY 'RUST_CODE/src/client.rs' '/RUST_CODE/src/client.rs'
+  COPY 'RUST_CODE/src/export.rs' '/RUST_CODE/src/export.rs'
+  COPY 'RUST_CODE/src/filestore.rs' '/RUST_CODE/src/filestore.rs'
+  COPY 'RUST_CODE/src/hasher.rs' '/RUST_CODE/src/hasher.rs'
+  COPY 'RUST_CODE/src/inferencerelatedimagecvusability.rs' '/RUST_CODE/src/inferencerelatedimagecvusability.rs'
+  COPY 'RUST_CODE/src/inferencerelated.rs' '/RUST_CODE/src/inferencerelated.rs'
+  COPY 'RUST_CODE/src/keyvaluedb.rs' '/RUST_CODE/src/keyvaluedb.rs'
+  COPY 'RUST_CODE/src/lancedbwriter.rs' '/RUST_CODE/src/lancedbwriter.rs'
+  COPY 'RUST_CODE/src/main.rs' '/RUST_CODE/src/main.rs'
+  COPY 'RUST_CODE/src/mytorch.hpp' '/RUST_CODE/src/mytorch.hpp'
+  COPY 'RUST_CODE/src/serverinferencechannelboth.rs' '/RUST_CODE/src/serverinferencechannelboth.rs'
+  COPY 'RUST_CODE/src/serverinferencechannelimagecvusability.rs' '/RUST_CODE/src/serverinferencechannelimagecvusability.rs'
+  COPY 'RUST_CODE/src/serverinferencechannel.rs' '/RUST_CODE/src/serverinferencechannel.rs'
+  COPY 'RUST_CODE/src/server.rs' '/RUST_CODE/src/server.rs'
+  COPY 'RUST_CODE/src/version.rs' '/RUST_CODE/src/version.rs'
+  COPY 'RUST_CODE/src/videodecoder.rs' '/RUST_CODE/src/videodecoder.rs'
+  COPY 'RUST_CODE/src/videofftbf16.rs' '/RUST_CODE/src/videofftbf16.rs'
+  COPY 'RUST_CODE/src/videofft.rs' '/RUST_CODE/src/videofft.rs'
+  COPY 'RUST_CODE/src/videofftstats.rs' '/RUST_CODE/src/videofftstats.rs'
+  COPY 'RUST_CODE/src/videofn.rs' '/RUST_CODE/src/videofn.rs'
+  COPY 'RUST_CODE/src/videoview.rs' '/RUST_CODE/src/videoview.rs'
+#+end_src
+
+*** Copy the main container init part
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY 'container_init.sh' '/root/container_init.sh'
+#+end_src
+
+** Main script to run within the container
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./container_init.sh
+  compile_cvusability(){
+      test -e '/root/.cache/model_cv_usability.pt2' \
+          || 'python3' '/PYTHON_CODE/CV/compile.py' \
+              '/data/input/cv_usability.ckpt' '/root/.cache/model_cv_usability.pt2' ;
+  }
+
+  compile_video(){
+      test -e '/root/.cache/model_rd.pt2' \
+          || 'python3' '/PYTHON_CODE/RD/compile_model.py' ;
+  }
+
+  build_cpp() {
+      (test -e '/root/.cache/libmytorch.so' \
+              && test -e '/root/.cache/libmytorch.so.1.0' \
+              && cp '/root/.cache/libmytorch.so' '/lib/libmytorch.so' \
+              && cp '/root/.cache/libmytorch.so.1.0' '/lib/libmytorch.so.1.0') \
+          || ('/CPP_CODE/cmake_build.sh' \
+              && cp -vf -- '/lib/libmytorch.so' '/root/.cache/libmytorch.so' \
+              && cp -vf -- '/lib/libmytorch.so.1.0' '/root/.cache/libmytorch.so.1.0')
+  }
+
+  build_rust() {
+      (test -e '/root/.cache/video_fft' \
+              && test -e '/root/.cache/infer-client' \
+              && test -e '/root/.cache/infer-server' \
+              && cp -vf -- '/root/.cache/video_fft' '/bin/video_fft' \
+              && cp -vf -- '/root/.cache/infer-client' '/bin/infer-client' \
+              && cp -vf -- '/root/.cache/infer-server' '/bin/infer-server') \
+          || ('/RUST_CODE/all_build.sh' && '/RUST_CODE/all_install.sh' \
+              && cp -vf -- '/bin/video_fft' '/root/.cache/video_fft' \
+              && cp -vf -- '/bin/infer-client' '/root/.cache/infer-client' \
+              && cp -vf -- '/bin/infer-server' '/root/.cache/infer-server')
+  }
+
+  build_cpp
+  build_rust
+  compile_video
+  compile_cvusability
+  exec '/RUST_CODE/run_server.sh'
+#+end_src
+
+** Script to build docker image
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./build_container.sh
+  cd "$(dirname -- "${0}")"
+
+  mkdir -pv -- './CLEAN_IMAGE_CLASSIFY'
+  cp -vf -- '../CLEAN_IMAGE_CLASSIFY/compile.py' './CLEAN_IMAGE_CLASSIFY'
+  cp -vf -- '../CLEAN_IMAGE_CLASSIFY/main.py' './CLEAN_IMAGE_CLASSIFY'
+
+  'cp' '-apf' '--' '../../important_common_utils' './'
+
+  IMAGE_NAME='8_rd_infer'
+  CMD='sudo -A docker'
+  which buildah && CMD='buildah'
+  ${CMD} \
+      build \
+      -t "${IMAGE_NAME}" \
+      -f './Dockerfile' \
+      . ;
+  exit '0'
+#+end_src
+
+** Code to run inference container
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run_inference_EP.sh
+  cd "$('dirname' '--' "${0}")"
+
+  IMAGE_NAME='8_rd_infer'
+  IMAGE_CMD='/root/container_init.sh' 
+
+  PORT_ON_HOST='8001'
+  PORT_ON_CONTAINER='8001'
+
+  . "${HOME}/important_functions.sh"
+
+  sudo -A docker run \
+      '--cap-add=IPC_LOCK' \
+      '--ulimit' 'memlock=-1:-1' \
+      '--tty' \
+      '--interactive' \
+      '--rm' \
+      '--ipc' 'host' \
+      '--ulimit' 'memlock=-1' \
+      '--ulimit' 'stack=67108864' \
+      '--gpus' 'device=0,"capabilities=compute,utility,video"' \
+      -v "CACHE:/root/.cache" \
+      -v "CACHE:/root/.triton" \
+      -p "${PORT_ON_HOST}:${PORT_ON_CONTAINER}"\
+      "${IMAGE_NAME}" "${IMAGE_CMD}" \
+  ;
+#+end_src
+
+* K3S migration
+
+** pod.yaml
+
+*** For the service
+#+begin_src conf :mkdirp yes :tangle ./service.yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: rd-infer-service
+    namespace: default
+  spec:
+    selector:
+      # This MUST match the labels on your Pod
+      app: rd-infer 
+    ports:
+      - name: grpc-tcp
+        protocol: TCP
+        port: 8001      # The port external clients hit
+        targetPort: 8001 # The port your container listens on
+      - name: grpc-udp
+        protocol: UDP
+        port: 8001
+        targetPort: 8001
+    type: LoadBalancer
+#+end_src
+
+*** For actual container
+#+begin_src conf :mkdirp yes :tangle ./pod.yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: rd-infer-interactive
+    namespace: default
+    labels:
+      app: rd-infer
+  spec:
+    restartPolicy: OnFailure
+    runtimeClassName: nvidia
+    hostIPC: true
+    containers:
+    - name: infer-container
+      image: docker.io/library/7_rd_infer:latest 
+      imagePullPolicy: IfNotPresent 
+      command: ["/bin/bash"]
+      args: ["/RUST_VIDEO_FFT/run_server.sh"]
+      stdin: true
+      tty: true
+      ports:
+      - containerPort: 8001
+        protocol: TCP
+      - containerPort: 8001
+        protocol: UDP
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+      env:
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: all
+      - name: NVIDIA_DRIVER_CAPABILITIES
+        value: all
+      volumeMounts:
+      - name: cache-vol
+        mountPath: /root/.cache
+      - name: triton-vol
+        mountPath: /root/.triton
+    volumes:
+    - name: cache-vol
+      hostPath:
+        path: /var/tmp/K3S_CACHE/cache
+    - name: triton-vol
+      hostPath:
+        path: /var/tmp/K3S_CACHE/triton
+#+end_src
+
+** Import the image from docker to k3s
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./image_docker_2_k3s.sh
+  cd "$('dirname' -- "${0}")"
+  'docker' 'save' '7_rd_infer' | 'k3s' 'ctr' 'images' 'import' '-'
+#+end_src
+
+** list_available_images
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./list_available_images.sh
+  cd "$('dirname' -- "${0}")"
+  k3s crictl images
+#+end_src
+
+** Delete existing pod
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./delete_existing_pod.sh
+  cd "$('dirname' -- "${0}")"
+  k3s kubectl delete pod rd-infer-interactive --force
+#+end_src
+
+k3s kubectl describe pod rd-infer-interactive
+** List running pods
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./list_running_pods.sh
+  cd "$('dirname' -- "${0}")"
+  k3s kubectl get pods
+#+end_src
+
+** Apply the pod
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./apply_pod.sh
+  cd "$('dirname' -- "${0}")"
+  'kubectl' 'apply' '-f' 'service.yaml'
+  'kubectl' 'apply' '-f' 'pod.yaml'
+  exit '0'
+#+end_src
+
+** Connect to the pod
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect_2_image.sh
+  cd "$('dirname' -- "${0}")"
+
+  k3s kubectl exec -it \
+      'rd-infer-interactive' -- zsh ;
+#+end_src
+
+* Script to do all the GIT stuff
+
+** Executable Scripts
+
+*** Add git stuff
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/work.sh
+  sed 's@^@(rm -vf -- "./@g ; s@$@");@g' './GIT/rm.txt' | sh &
+  sed 's@^@/@g' './GIT/rm.txt' > './.gitignore'
+  sed 's@^@/@g' './GIT/gitignore.txt' >> './.gitignore'
+  wait
+  git add '--pathspec-from-file=./GIT/git_add.txt'
+  git status
+#+end_src
+
+*** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  git commit -m "$(cat './GIT/message.txt')"
+  "${HOME}/SSH/K/W/setup.sh"
+  git push
+#+end_src
+
+*** Pull
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/pull.sh
+  "${HOME}/SSH/K/W/setup.sh"
+  git pull
+  git status
+#+end_src
+
+** Non executable data
+
+*** git add
+#+begin_src conf :mkdirp yes :tangle ./GIT/git_add.txt
+  build_container.sh
+  container_init.sh
+  Dockerfile
+  download_checkpoints.sh
+  GCP_Login.sh
+  GIT/commit_and_push.sh
+  GIT/git_add.txt
+  GIT/gitignore.txt
+  .gitignore
+  GIT/message.txt
+  GIT/pull.sh
+  GIT/rm.txt
+  GIT/work.sh
+  README.org
+  run_inference_EP.sh
+  start_web_console_logging.sh
+#+end_src
+
+*** rm
+#+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
+  debug.py
+  delete_existing_pod.sh
+  download_calm_and_sedation_data.sh
+  download_calm_data.sh
+  download_RD_data.sh
+  download_sedation_data.sh
+  endpoint.sh
+  export_model.py
+  gemini.py
+  image_docker_2_k3s.sh
+  __init__.py
+  list_available_images.sh
+  list_running_pods.sh
+  pod.yaml
+  prompt.txt
+  README.org~
+  run_cuda_1.sh
+  run_cuda_2.sh
+  run_cuda_all.sh
+  run_cuda_inference_endpoint.sh
+  run_cuda_inference_interactive.sh
+  run_cuda_inference_postgres_worker.sh
+  run_cuda_inference.sh
+  run_mayo.sh
+  RUST_CODE_ORIGINAL/src/#main.cpp#
+  service.yaml
+  split.sh
+  tmp.py
+  tmp.sh
+  training/README.org~
+  training/test.py
+  training/tmp.py
+  train.py
+  train_resume.py
+  venv
+  apply_pod.sh
+  compile.py
+  connect_2_image.sh
+  convert1.py
+  convert2.py
+#+end_src
+
+*** ignore
+#+begin_src conf :mkdirp yes :tangle ./GIT/gitignore.txt
+  CPP_CODE/a.out
+  CPP_CODE/.cache/
+  CPP_CODE/target/
+  data_prep/165bbb44a44e604651b21bcf2e84514007c4718108757d6a9c83f451526d0e9e.parquet
+  data_prep/4dd443884eef77003f3fc4c5271c891a590514bdd1d944dcf93475bbd35f8058.parquet
+  rust-bindgen/
+  RUST_CODE_ORIGINAL/target/
+  RUST_CODE/target/
+#+end_src
+
+*** Message to commit
+#+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
+  More clean ups and reorg of RD HF
+#+end_src
+
+** COMMENT work space
+
+*** Pull
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './GIT/pull.sh'
+      " "log" "err")
+#+end_src
+
+*** Only add
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './GIT/work.sh'
+      " "log" "err")
+#+end_src
+
+*** Commit and push
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './GIT/work.sh'
+          './GIT/commit_and_push.sh'
+      " "log" "err")
+#+end_src

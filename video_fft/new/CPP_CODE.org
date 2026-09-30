@@ -1,0 +1,1079 @@
+* Main cmake file
+
+** Version check
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+#+end_src
+
+** Important variables
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=native -mtune=native -flto")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -mtune=native -flto")
+  set(CMAKE_INSTALL_PREFIX "/usr")
+  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+#+end_src
+
+** Project name
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  project(video_fft VERSION 1.0 DESCRIPTION "Code to evaluate FFT of videos")
+#+end_src
+
+** Look for existing libraries
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  find_package(Torch REQUIRED)
+  # find_package(OpenCV REQUIRED)
+  find_package(OpenMP REQUIRED)
+#+end_src
+
+** Expose the main torch c++ functions
+#+begin_src conf :mkdirp yes :tangle ./CMakeLists.txt
+  add_library(mytorch SHARED src/main.cpp)
+  target_link_libraries(mytorch "${TORCH_LIBRARIES}" OpenMP::OpenMP_CXX)
+  # target_link_libraries(mytorch "${TORCH_LIBRARIES}" "${OpenCV_LIBS}" OpenMP::OpenMP_CXX)
+  set_target_properties(mytorch PROPERTIES VERSION ${PROJECT_VERSION} CXX_STANDARD 17)
+  install(TARGETS mytorch LIBRARY DESTINATION lib)
+#+end_src
+
+* Compile commands generated from cmake
+#+begin_src conf :mkdirp yes :tangle ./compile_commands.json
+  [
+  {
+    "directory": "/data/HIGH_FIDALITY_RD/CPP_CODE/target",
+    "command": "/usr/bin/c++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -Dmytorch_EXPORTS -isystem /root/venv/lib/python3.14/site-packages/torch/include -isystem /root/venv/lib/python3.14/site-packages/torch/include/torch/csrc/api/include -isystem /usr/include/opencv4  -O3 -march=x86-64-v3 -flto -std=gnu++17 -fPIC -o CMakeFiles/mytorch.dir/src/main.cpp.o -c /data/HIGH_FIDALITY_RD/CPP_CODE/src/main.cpp",
+    "file": "/data/HIGH_FIDALITY_RD/CPP_CODE/src/main.cpp",
+    "output": "CMakeFiles/mytorch.dir/src/main.cpp.o"
+  }
+  ]
+#+end_src
+
+* Important shell scripts
+
+** cmake_build
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./cmake_build.sh
+  cd "$(dirname -- "${0}")"
+
+  mkdir -pv -- 'target'
+  cd 'target'
+
+  rm -rf -- 'CMakeFiles'
+
+  unlink 'CMakeCache.txt'
+  unlink 'cmake_install.cmake'
+  unlink 'compile_commands.json'
+  unlink 'libmytorch.so'
+  unlink 'libmytorch.so.1.0'
+  unlink 'Makefile'
+
+  cmake .. 
+  make -j
+  cp -vf -- 'libmytorch.so' 'libmytorch.so.1.0' '/lib'
+#+end_src
+
+** all_install
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./all_install.sh
+  cd "$(dirname -- "${0}")"
+  cp -vf -- './target/libmytorch.so' './target/libmytorch.so.1.0' '/lib/'
+  exit '0'
+#+end_src
+
+* Important definitions
+#+begin_src cpp :mkdirp yes :tangle ./src/main.hpp
+  #ifndef _HEADER_GUARD_src_main_hpp_
+  #define _HEADER_GUARD_src_main_hpp_
+
+  /**************** Defining important data types ****************/
+
+  // Defining important data types
+  using float32_t = float;
+  using float64_t = double;
+
+  using f32_t = float;
+  using f64_t = double;
+
+  using i8_t = char;
+  using u8_t = unsigned char;
+
+  using i16_t = short int;
+  using u16_t = unsigned short int;
+
+  using i32_t = int;
+  using u32_t = unsigned int;
+
+  using i64_t = long;
+  using u64_t = unsigned long;
+
+  // Data types for cv usability image classification
+  using TYPE_DATA_IMAGE = u8_t;
+  using TYPE_DATA_CV_USABILITY_INFERENCE_OUTPUT = f32_t;
+
+  // Data types for FFT and video classifier
+  using TYPE_DATA_VIDEO_TENSOR = TYPE_DATA_IMAGE;
+  using TYPE_DATA_FFT_TENSOR = f32_t;
+
+  /**************** Defining Important parameters ****************/
+
+  // Number of GPU semaphore permits
+  i32_t constexpr NUM_GPU_SEMAPHORE_PERMITS = 2;
+
+  // Number of channels in a color image
+  u32_t constexpr NUM_CHANNELS_COLOR_IMAGE = 3;
+
+  // CV Usability input image related parameters
+  u32_t constexpr SIZE_IMAGE_RESOLUTION = 448;
+  u32_t constexpr SIZE_IMAGE_C = NUM_CHANNELS_COLOR_IMAGE;
+  u32_t constexpr SIZE_IMAGE_X = SIZE_IMAGE_RESOLUTION;
+  u32_t constexpr SIZE_IMAGE_Y = SIZE_IMAGE_RESOLUTION;
+
+  u32_t constexpr DIST_IMAGE_C = 1;
+  u32_t constexpr DIST_IMAGE_X = SIZE_IMAGE_C * DIST_IMAGE_C;
+  u32_t constexpr DIST_IMAGE_Y = SIZE_IMAGE_X * DIST_IMAGE_X;
+  u32_t constexpr SIZE_IMAGE_TOTAL = SIZE_IMAGE_Y * DIST_IMAGE_Y;
+
+  // CV Usability output tensor parameters
+  u32_t constexpr SIZE_IMAGE_CLASSIFICATION_OUTPUT = 2;
+
+  // Video input parameters
+  f32_t constexpr IDEAL_LENGTH_SECONDS_VIDEO = 20.0;
+  f32_t constexpr FPS_VIDEO_TENSOR = 8.0;
+  u32_t constexpr SIZE_VIDEO_TENSOR_C = NUM_CHANNELS_COLOR_IMAGE;
+  u32_t constexpr SIZE_VIDEO_TENSOR_X = 1280;
+  u32_t constexpr SIZE_VIDEO_TENSOR_Y = 720;
+
+  u32_t constexpr DIST_VIDEO_TENSOR_C = 1;
+  u32_t constexpr DIST_VIDEO_TENSOR_X = SIZE_VIDEO_TENSOR_C * DIST_VIDEO_TENSOR_C;
+  u32_t constexpr DIST_VIDEO_TENSOR_Y = DIST_VIDEO_TENSOR_X * SIZE_VIDEO_TENSOR_X;
+  u32_t constexpr DIST_VIDEO_TENSOR_T = DIST_VIDEO_TENSOR_Y * SIZE_VIDEO_TENSOR_Y;
+
+  // Video FFT tensor related parameters
+  f32_t constexpr FREQUENCY_LIMIT_FFT_TENSOR = 3.0;
+  u32_t constexpr SIZE_FFT_TENSOR_T = 60;
+  u32_t constexpr SIZE_FFT_TENSOR_X = SIZE_VIDEO_TENSOR_X / 5;
+  u32_t constexpr SIZE_FFT_TENSOR_Y = SIZE_VIDEO_TENSOR_Y / 5;
+  u32_t constexpr SIZE_FFT_TENSOR_C = SIZE_VIDEO_TENSOR_C * 2;
+
+  u32_t constexpr DIST_FFT_TENSOR_T = 1;
+  u32_t constexpr DIST_FFT_TENSOR_X = SIZE_FFT_TENSOR_T * DIST_FFT_TENSOR_T;
+  u32_t constexpr DIST_FFT_TENSOR_Y = SIZE_FFT_TENSOR_X * DIST_FFT_TENSOR_X;
+  u32_t constexpr DIST_FFT_TENSOR_C = SIZE_FFT_TENSOR_Y * DIST_FFT_TENSOR_Y;
+
+  u32_t constexpr SIZE_FFT_TENSOR_TOTAL = SIZE_FFT_TENSOR_C * DIST_FFT_TENSOR_C;
+
+  // RD video classifier output size
+  u32_t constexpr SIZE_VIDEO_CLASSIFICATION_OUTPUT = 17;
+
+  /**************** Defining Important structures ****************/
+
+  // Important structures for CV usability image classification model input
+  struct CV_USABILITY_IMAGE_PIXEL {
+    TYPE_DATA_IMAGE c[SIZE_IMAGE_C];
+  };
+
+  struct CV_USABILITY_IMAGE_X {
+    CV_USABILITY_IMAGE_PIXEL x[SIZE_IMAGE_X];
+  };
+
+  struct CV_USABILITY_IMAGE {
+    CV_USABILITY_IMAGE_X y[SIZE_IMAGE_Y];
+  };
+
+  // Important structures for CV usability image classification model output
+  struct CV_USABILITY_INFERENCE_OUTPUT {
+    TYPE_DATA_CV_USABILITY_INFERENCE_OUTPUT p[SIZE_IMAGE_CLASSIFICATION_OUTPUT];
+  };
+
+  // FFT video input tensors
+  struct frame_video_C {
+    TYPE_DATA_VIDEO_TENSOR c[SIZE_VIDEO_TENSOR_C];
+  };
+
+  struct frame_video_X {
+    frame_video_C x[SIZE_VIDEO_TENSOR_X];
+  };
+
+  struct frame_video_Y {
+    frame_video_X y[SIZE_VIDEO_TENSOR_Y];
+  };
+
+  struct full_video {
+    frame_video_Y const *data;
+    u32_t len_t;
+  };
+
+  // Classifier model input structures
+  struct a_t {
+    TYPE_DATA_FFT_TENSOR t[SIZE_FFT_TENSOR_T];
+  };
+
+  struct a_x {
+    a_t x[SIZE_FFT_TENSOR_X];
+  };
+
+  struct a_y {
+    a_x y[SIZE_FFT_TENSOR_Y];
+  };
+
+  struct a_p {
+    a_y p[SIZE_FFT_TENSOR_C];
+  };
+
+  struct fft_video {
+    a_p v;
+  };
+
+  // RD inference output
+  struct rd_classifier_output {
+    f32_t out[SIZE_VIDEO_CLASSIFICATION_OUTPUT];
+  };
+
+  /**************** Defining Main function conventions ****************/
+  extern "C" {
+
+  // Global resource management functions
+  void locker_to_inference_mode();
+  void locker_to_preprocessing_mode();
+  void clear_cuda_cache();
+
+  // CV usability image classification class
+  void *new_infer_slave_image_cv_usability();
+
+  void delete_infer_slave_image_cv_usability(void *in);
+
+  i32_t run_infer_slave_image_cv_usability(
+      void *in, CV_USABILITY_IMAGE const *blob_source,
+      CV_USABILITY_INFERENCE_OUTPUT *blob_destination, u32_t const batch_size);
+
+  // Function to process the input image for CV usability
+  void frame_video_to_cv_usability(frame_video_Y const *src,
+                                   CV_USABILITY_IMAGE *dst);
+
+  // FFT functions
+  i32_t do_fft_compress(full_video const src, fft_video *const dest,
+                        bool use_gpu);
+
+  // RD video classification class
+  void *new_infer_slave();
+
+  void delete_infer_slave(void *in);
+
+  i32_t run_infer_slave(void *in, fft_video const *blob_source,
+                        rd_classifier_output *blob_destination,
+                        u32_t const batch_size);
+  }
+
+  #endif
+#+end_src
+
+* Including standard headers
+
+** Individual parts
+
+*** OS C
+#+begin_src cpp :mkdirp yes :tangle ./src/includes.dir/header_os_c.hpp
+  #ifndef _HEADER_GUARD_src_includes_dir_header_os_c_hpp_
+  #define  _HEADER_GUARD_src_includes_dir_header_os_c_hpp_
+
+  #include <fcntl.h>
+  #include <omp.h>
+  #include <semaphore.h>
+  #include <stdio.h>
+  #include <sys/mman.h>
+  #include <sys/stat.h>
+  #include <unistd.h>
+
+  #endif
+#+end_src
+
+*** CPP
+#+begin_src cpp :mkdirp yes :tangle ./src/includes.dir/header_cpp.hpp
+  #ifndef _HEADER_GUARD_src_includes_dir_header_cpp_hpp_
+  #define _HEADER_GUARD_src_includes_dir_header_cpp_hpp_
+
+  #include <iostream>
+  #include <string>
+  #include <vector>
+
+  #endif
+#+end_src
+
+*** OPENCV
+#+begin_src cpp :mkdirp yes :tangle ./src/includes.dir/header_opencv.hpp
+  #ifndef _HEADER_GUARD_src_includes_dir_header_opencv_hpp_
+  #define _HEADER_GUARD_src_includes_dir_header_opencv_hpp_
+
+  // #include <opencv2/core/mat.hpp>
+  // #include <opencv2/imgcodecs.hpp>
+  // #include <opencv2/opencv.hpp>
+
+  #endif
+#+end_src
+
+*** TORCH
+#+begin_src cpp :mkdirp yes :tangle ./src/includes.dir/header_torch.hpp
+  #ifndef _HEADER_GUARD_src_includes_dir_header_torch_hpp_
+  #define _HEADER_GUARD_src_includes_dir_header_torch_hpp_
+
+  #include <ATen/ops/sum.h>
+  #include <c10/core/TensorOptions.h>
+  #include <torch/csrc/inductor/aoti_package/model_package_loader.h>
+  #include <torch/fft.h>
+  #include <torch/torch.h>
+
+  // #define USE_CUDA 1 // This is specifically for clearing cuda cache after the lock is released, no need for now.
+
+  #ifdef USE_CUDA
+  #include <c10/cuda/CUDACachingAllocator.h>
+  #endif
+
+  #endif
+#+end_src
+
+** Include all of them
+#+begin_src cpp :mkdirp yes :tangle ./src/includes.hpp
+  #ifndef _HEADER_GUARD_src_includes_hpp_
+  #define _HEADER_GUARD_src_includes_hpp_
+
+  #include "./main.hpp"
+
+  #include "./includes.dir/header_torch.hpp"
+  #include "./includes.dir/header_opencv.hpp"
+  #include "./includes.dir/header_cpp.hpp"
+  #include "./includes.dir/header_os_c.hpp"
+
+  #endif
+#+end_src
+
+* file memory lock wrapper
+#+begin_src cpp :mkdirp yes :tangle ./src/file_mlock.hpp
+  #ifndef _HEADER_GUARD_src_file_mlock_hpp_
+  #define _HEADER_GUARD_src_file_mlock_hpp_
+
+  #include "./includes.dir/header_os_c.hpp"
+  #include "./main.hpp"
+
+  #define _MACRO_SELF_ file_mlock
+
+  class _MACRO_SELF_ {
+  private:
+    void *addr;
+    i64_t length;
+
+  public:
+    _MACRO_SELF_(char const *path_file_input) : addr(MAP_FAILED), length(-1) {
+      int fd = open(path_file_input, O_RDONLY);
+      if (fd == -1) {
+        printf("Failed to open the file %s\n", path_file_input);
+      } else {
+        struct stat st;
+        if (fstat(fd, &st) == 0) {
+          length = st.st_size;
+          printf("Size of file %s is %ld\n", path_file_input, length);
+          if (length > 0) {
+            addr = mmap(NULL, length, PROT_READ, MAP_SHARED, fd, 0);
+            if (addr == MAP_FAILED) {
+              printf("mmap of file %s failed\n", path_file_input);
+              length = -1;
+            } else {
+              if (mlock(addr, length) == 0) {
+                printf("mlock for %s and length %ld succeeded\n", path_file_input,
+                       length);
+              } else {
+                printf("mlock for %s failed\n", path_file_input);
+                munmap(addr, length);
+                addr = MAP_FAILED;
+                length = -1;
+              }
+            }
+          } else {
+            printf("Got invalid file size %ld for file %s\n", length,
+                   path_file_input);
+            length = -1;
+          }
+        } else {
+          printf("fstat for %s failed\n", path_file_input);
+        }
+        close(fd);
+      }
+    }
+
+    ~_MACRO_SELF_() {
+      if ((addr != MAP_FAILED) && (length > 0)) {
+        munmap(addr, length);
+      }
+    }
+  };
+
+  #undef _MACRO_SELF_
+
+  #endif
+#+end_src
+
+* Semaphore wrapper
+#+begin_src cpp :mkdirp yes :tangle ./src/semaphore.hpp
+  #ifndef _HEADER_GUARD_src_semaphore_hpp_
+  #define _HEADER_GUARD_src_semaphore_hpp_
+
+  #include "./includes.dir/header_os_c.hpp"
+
+  #define _MACRO_SELF_ unnamed_semaphore
+
+  class _MACRO_SELF_ {
+  private:
+    sem_t main_sem;
+
+  public:
+    _MACRO_SELF_(int const num) { sem_init(&main_sem, 0, num); }
+    ~_MACRO_SELF_() { sem_destroy(&main_sem); }
+    inline void l() { sem_wait(&main_sem); }
+    inline void r() { sem_post(&main_sem); }
+  };
+
+  #undef _MACRO_SELF_
+
+  #define _MACRO_SELF_ named_semaphore
+
+  class _MACRO_SELF_ {
+  private:
+    sem_t *main_sem;
+
+  public:
+    _MACRO_SELF_(char const *name, int const num) : main_sem(sem_open(name, O_CREAT, S_IRWXU, num)) {}
+    ~_MACRO_SELF_() { sem_close(main_sem); }
+    inline void l() { sem_wait(main_sem); }
+    inline void r() { sem_post(main_sem); }
+  };
+
+  #undef _MACRO_SELF_
+
+  #endif
+#+end_src
+
+* Generic torch
+#+begin_src cpp :mkdirp yes :tangle ./src/common_torch.hpp
+  #ifndef _HEADER_GUARD_src_common_torch_hpp_
+  #define _HEADER_GUARD_src_common_torch_hpp_
+
+  #include "./includes.dir/header_cpp.hpp"
+  #include "./includes.dir/header_torch.hpp"
+  #include "./main.hpp"
+
+  template <typename T> inline torch::ScalarType get_tensor_dtype() {
+    return torch::kBFloat16;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<f32_t>() {
+    return torch::kFloat32;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<f64_t>() {
+    return torch::kFloat64;
+  }
+
+  template <> inline torch::ScalarType get_tensor_dtype<i8_t>() {
+    return torch::kInt8;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<i16_t>() {
+    return torch::kInt16;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<i32_t>() {
+    return torch::kInt32;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<i64_t>() {
+    return torch::kInt64;
+  }
+
+  template <> inline torch::ScalarType get_tensor_dtype<u8_t>() {
+    return torch::kUInt8;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<u16_t>() {
+    return torch::kUInt16;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<u32_t>() {
+    return torch::kUInt32;
+  }
+  template <> inline torch::ScalarType get_tensor_dtype<u64_t>() {
+    return torch::kUInt64;
+  }
+
+  namespace cv_usability {
+  inline std::string get_compiled_model_path() {
+    return std::string("/root/.cache/model_cv_usability.pt2");
+  }
+  } // namespace cv_usability
+
+  namespace rd {
+  inline std::string get_compiled_model_path() {
+    return std::string("/root/.cache/model_rd.pt2");
+  }
+  } // namespace rd
+
+  extern "C" {
+  void clear_cuda_cache() {
+  #ifdef USE_CUDA
+    c10::cuda::CUDACachingAllocator::emptyCache();
+    printf("Cleaned cuda cache...\n");
+  #endif
+  }
+  }
+
+  #endif
+#+end_src
+
+* Static inits
+#+begin_src cpp :mkdirp yes :tangle ./src/static_inits.hpp
+  #ifndef _HEADER_GUARD_src_static_inits_hpp_
+  #define _HEADER_GUARD_src_static_inits_hpp_
+
+  #include "./common_torch.hpp"
+  #include "./file_mlock.hpp"
+  #include "./semaphore.hpp"
+
+  #define _MACRO_SELF_ gpu_locker
+
+  class _MACRO_SELF_ {
+
+  private:
+    named_semaphore gpu_semaphore_named;
+    unnamed_semaphore gpu_semaphore;
+    bool for_inference_server;
+
+    std::vector<file_mlock *> mem_locks;
+
+  public:
+    _MACRO_SELF_()
+        : gpu_semaphore_named("/gpuLock", NUM_GPU_SEMAPHORE_PERMITS),
+          gpu_semaphore(NUM_GPU_SEMAPHORE_PERMITS), for_inference_server(false) {}
+
+    ~_MACRO_SELF_() {
+      for (size_t i = 0; i < mem_locks.size(); ++i) {
+        delete mem_locks[i];
+      }
+    }
+
+    inline void configure_for_preprocessing() { for_inference_server = false; }
+
+    inline void configure_for_inference() {
+      printf("Configuring for inference\n");
+      for_inference_server = true;
+
+      printf("Locking compiled models into memory\n");
+      if (mem_locks.size() == 0) {
+        mem_locks.reserve(2);
+        mem_locks.push_back(new file_mlock(rd::get_compiled_model_path().c_str()));
+        mem_locks.push_back(new file_mlock(cv_usability::get_compiled_model_path().c_str()));
+      }
+    }
+
+    inline void l() {
+      if (torch::cuda::is_available()) {
+        if (for_inference_server) {
+          gpu_semaphore.l();
+          // gpu_semaphore_named.l();
+        } else {
+          gpu_semaphore.l();
+        }
+      }
+    }
+
+    inline void r() {
+      if (torch::cuda::is_available()) {
+        if (for_inference_server) {
+          clear_cuda_cache();
+          // gpu_semaphore_named.r();
+          gpu_semaphore.r();
+        } else {
+          gpu_semaphore.r();
+        }
+      }
+    }
+  };
+
+  static _MACRO_SELF_ locker;
+
+  #undef _MACRO_SELF_
+
+  extern "C" {
+  void locker_to_inference_mode() { locker.configure_for_inference(); }
+  void locker_to_preprocessing_mode() { locker.configure_for_preprocessing(); }
+  }
+
+  #define _MACRO_SELF_ lock_guard
+
+  class _MACRO_SELF_ {
+  public:
+    _MACRO_SELF_() { locker.l(); }
+    ~_MACRO_SELF_() { locker.r(); }
+  };
+
+  #undef _MACRO_SELF_
+
+  #endif
+#+end_src
+
+* CV Usability
+#+begin_src cpp :mkdirp yes :tangle ./src/cv_usability.hpp
+  #ifndef _HEADER_GUARD_src_cv_usability_hpp_
+  #define _HEADER_GUARD_src_cv_usability_hpp_
+
+  #include "./common_torch.hpp"
+  #include "./includes.dir/header_cpp.hpp"
+  #include "./includes.dir/header_torch.hpp"
+  #include "./main.hpp"
+  #include "./static_inits.hpp"
+
+  namespace cv_usability {
+
+  inline torch::TensorOptions get_input_device_and_dtype() {
+    return torch::TensorOptions()
+        .dtype(get_tensor_dtype<u8_t>())
+        .device(torch::kCPU);
+  }
+
+  inline torch::TensorOptions get_inference_device_and_dtype() {
+    if (torch::cuda::is_available()) {
+      return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCUDA);
+    } else {
+      return torch::TensorOptions().dtype(torch::kBFloat16).device(torch::kCPU);
+    }
+  }
+
+  inline torch::TensorOptions get_output_device_and_dtype() {
+    return torch::TensorOptions()
+        .dtype(get_tensor_dtype<f32_t>())
+        .device(torch::kCPU);
+  }
+
+  #define _MACRO_SELF_ infer_slave
+
+  class _MACRO_SELF_ {
+  private:
+    c10::InferenceMode mode;
+    torch::TensorOptions options_input;
+    torch::TensorOptions options_compute;
+    torch::TensorOptions options_output;
+    torch::inductor::AOTIModelPackageLoader loader;
+
+  public:
+    inline i32_t infer(CV_USABILITY_IMAGE const *blob_source,
+                       CV_USABILITY_INFERENCE_OUTPUT *blob_destination,
+                       u32_t const batch_size) {
+
+      try {
+
+        torch::Tensor cpu_tensor =
+            torch::from_blob(const_cast<CV_USABILITY_IMAGE *>(blob_source),
+                             {static_cast<i64_t>(batch_size), SIZE_IMAGE_Y,
+                              SIZE_IMAGE_X, SIZE_IMAGE_C},
+                             options_input);
+
+        lock_guard tmp;
+
+        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+        std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+        std::memcpy(blob_destination, out_tensor.const_data_ptr(),
+                    batch_size * sizeof(CV_USABILITY_INFERENCE_OUTPUT));
+
+        return 0;
+
+      } catch (const std::exception &e) {
+
+        std::memset(blob_destination, 0,
+                    batch_size * sizeof(CV_USABILITY_INFERENCE_OUTPUT));
+
+        printf("Error: %s\n", e.what());
+
+        return -1;
+      }
+    }
+
+    _MACRO_SELF_(std::string const path_file_model)
+        : options_input(get_input_device_and_dtype()),
+          options_compute(get_inference_device_and_dtype()),
+          options_output(get_output_device_and_dtype()), loader(path_file_model) {
+    }
+
+    ~_MACRO_SELF_() {}
+
+    inline static _MACRO_SELF_ *NEW() {
+      std::string path_file_model(get_compiled_model_path());
+      return new _MACRO_SELF_(path_file_model);
+    }
+  };
+
+  #undef _MACRO_SELF_
+
+  } // namespace cv_usability
+
+  extern "C" {
+  void *new_infer_slave_image_cv_usability() {
+
+    return static_cast<void *>(cv_usability::infer_slave::NEW());
+  }
+
+  void delete_infer_slave_image_cv_usability(void *in) {
+
+    cv_usability::infer_slave *tmp = static_cast<cv_usability::infer_slave *>(in);
+
+    delete tmp;
+  }
+
+  i32_t run_infer_slave_image_cv_usability(
+      void *in, CV_USABILITY_IMAGE const *blob_source,
+      CV_USABILITY_INFERENCE_OUTPUT *blob_destination, u32_t const batch_size) {
+
+    cv_usability::infer_slave *tmp = static_cast<cv_usability::infer_slave *>(in);
+
+    return tmp->infer(
+        /*CV_USABILITY_IMAGE const *blob_source =*/blob_source,
+        /*CV_USABILITY_INFERENCE_OUTPUT *blob_destination =*/blob_destination,
+        /*u32_t const batch_size =*/batch_size);
+  }
+
+  void frame_video_to_cv_usability(frame_video_Y const *src,
+                                   CV_USABILITY_IMAGE *dst) {
+
+    c10::InferenceMode mode;
+    torch::Tensor intensor =
+        torch::nn::functional::interpolate(
+            torch::from_blob(
+                const_cast<void *>(static_cast<void const *>(src)),
+                {SIZE_VIDEO_TENSOR_Y, SIZE_VIDEO_TENSOR_X, SIZE_VIDEO_TENSOR_C},
+                {DIST_VIDEO_TENSOR_Y, DIST_VIDEO_TENSOR_X, DIST_VIDEO_TENSOR_C},
+                torch::TensorOptions()
+                    .dtype(get_tensor_dtype<TYPE_DATA_VIDEO_TENSOR>())
+                    .device(torch::kCPU))
+                .narrow(1, (SIZE_VIDEO_TENSOR_X - SIZE_VIDEO_TENSOR_Y) >> 1,
+                        SIZE_VIDEO_TENSOR_Y)
+                .permute({2, 0, 1})
+                .unsqueeze(0),
+            torch::nn::functional::InterpolateFuncOptions()
+                .size(std::vector<i64_t>({SIZE_IMAGE_Y, SIZE_IMAGE_X}))
+                .mode(torch::kBilinear)
+                .align_corners(false)) /* Done interpolating */
+            .squeeze()
+            .clamp(0, 255)
+            .to(get_tensor_dtype<TYPE_DATA_IMAGE>())
+            .permute({1, 2, 0})
+            .contiguous();
+    // Y1 X2 C0
+
+    std::memcpy(dst, intensor.const_data_ptr(), sizeof(CV_USABILITY_IMAGE));
+  }
+  }
+
+  #endif
+#+end_src
+
+* Main RD inference
+#+begin_src cpp :mkdirp yes :tangle ./src/rd_inference.hpp
+  #ifndef _HEADER_GUARD_src_rd_inference_hpp_
+  #define _HEADER_GUARD_src_rd_inference_hpp_
+
+  #include "./common_torch.hpp"
+  #include "./includes.dir/header_cpp.hpp"
+  #include "./includes.dir/header_torch.hpp"
+  #include "./main.hpp"
+  #include "./static_inits.hpp"
+
+  extern "C" {
+
+  i32_t do_fft_compress(full_video const src, fft_video *const dest,
+                        bool use_gpu) {
+
+    u32_t constexpr position_start_x =
+        (SIZE_VIDEO_TENSOR_X - SIZE_FFT_TENSOR_X) >> 1;
+
+    u32_t constexpr position_start_y =
+        (SIZE_VIDEO_TENSOR_Y - SIZE_FFT_TENSOR_Y) >> 1;
+
+    u32_t constexpr position_end_x = position_start_x + SIZE_FFT_TENSOR_X;
+    u32_t constexpr position_end_y = position_start_y + SIZE_FFT_TENSOR_Y;
+
+    try {
+
+      c10::InferenceMode mode;
+
+      auto device_gpu =
+          torch::cuda::is_available() && use_gpu ? torch::kCUDA : torch::kCPU;
+
+      auto t_cutoff =
+          torch::sum((torch::fft::rfftfreq(src.len_t,
+                                           torch::TensorOptions()
+                                               .dtype(get_tensor_dtype<f32_t>())
+                                               .device(torch::kCPU)) *
+                      FPS_VIDEO_TENSOR) /* Scaled frequency mode range tensor */
+                     < FREQUENCY_LIMIT_FFT_TENSOR) /* Done evaluating number of
+                                                      modes to keep */
+              .item()
+              .to<u32_t>();
+
+      lock_guard tmp;
+
+      torch::Tensor tensor_video_padded =
+          torch::from_blob(
+              /* data = */ const_cast<void *>(
+                  static_cast<void const *>(src.data)),
+              /* sizes = */
+              {src.len_t, SIZE_VIDEO_TENSOR_Y, SIZE_VIDEO_TENSOR_X,
+               SIZE_VIDEO_TENSOR_C},
+              /* strides = */
+              {DIST_VIDEO_TENSOR_T, DIST_VIDEO_TENSOR_Y, DIST_VIDEO_TENSOR_X,
+               DIST_VIDEO_TENSOR_C},
+              /* Device_DType = */
+              torch::TensorOptions()
+                  .dtype(get_tensor_dtype<u8_t>())
+                  .device(torch::kCPU)) /* T Y X C */
+              .to(device_gpu)
+              .to(torch::kFloat32)
+              .permute({3, 1, 2, 0}); // C Y X T
+
+      if (true) {
+        i64_t constexpr i = 3;
+
+        tensor_video_padded =
+            torch::fft::rfft(tensor_video_padded, /*n=*/std::nullopt, /*dim=*/i)
+                .narrow(i, 0, t_cutoff);
+      }
+
+      if (true) {
+        i64_t constexpr i = 2;
+
+        tensor_video_padded =
+            torch::fft::fftshift(
+                torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i),
+                {i})
+                .narrow(i, position_start_x, SIZE_FFT_TENSOR_X);
+      }
+
+      if (true) {
+        i64_t constexpr i = 1;
+
+        tensor_video_padded =
+            torch::fft::fftshift(
+                torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i),
+                {i})
+                .narrow(i, position_start_y, SIZE_FFT_TENSOR_Y);
+      }
+
+      if (true) {
+        i64_t constexpr i = 0;
+
+        tensor_video_padded = torch::fft::fftshift(
+            torch::fft::fft(tensor_video_padded, std::nullopt, /*dim=*/i), {i});
+      }
+
+      torch::Tensor compressed_tensor_video_fft =
+          torch::nn::functional::interpolate(
+              torch::cat(
+                  {tensor_video_padded.abs(), tensor_video_padded.angle()},
+                  /*dim=*/0) /* Done extracting abs and angle into real tensor*/
+                  .unsqueeze(0),
+              torch::nn::functional::InterpolateFuncOptions()
+                  .size(
+                      std::vector<i64_t>({SIZE_FFT_TENSOR_Y, SIZE_FFT_TENSOR_X,
+                                          static_cast<i64_t>(SIZE_FFT_TENSOR_T)}))
+                  .mode(torch::kTrilinear)
+                  .align_corners(false)) /* Done interpolating */
+              .squeeze()
+              .to(torch::kCPU)
+              .contiguous();
+
+      std::memcpy(dest, compressed_tensor_video_fft.data_ptr(),
+                  sizeof(fft_video));
+
+      return 0;
+
+    } catch (const std::exception &e) {
+      std::memset(dest, 0, sizeof(fft_video));
+      printf("Error: %s\n", e.what());
+      return -1;
+    }
+  }
+  }
+
+  namespace rd {
+
+  inline torch::TensorOptions get_input_device_and_dtype() {
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+  }
+
+  inline torch::TensorOptions get_inference_device_and_dtype() {
+    if (torch::cuda::is_available()) {
+      return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCUDA);
+    } else {
+      return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+    }
+  }
+
+  inline torch::TensorOptions get_output_device_and_dtype() {
+    return torch::TensorOptions().dtype(torch::kFloat32).device(torch::kCPU);
+  }
+
+  #define _MACRO_SELF_ infer_slave
+
+  class _MACRO_SELF_ {
+  private:
+    c10::InferenceMode mode;
+
+    torch::TensorOptions options_input;
+    torch::TensorOptions options_compute;
+    torch::TensorOptions options_output;
+
+    torch::inductor::AOTIModelPackageLoader loader;
+
+  public:
+    inline i32_t infer(fft_video const *blob_source,
+                       rd_classifier_output *blob_destination,
+                       u32_t const batch_size) {
+      try {
+        lock_guard tmp;
+
+        torch::Tensor cpu_tensor = torch::from_blob(
+            const_cast<void *>(static_cast<void const *>(blob_source)),
+            {static_cast<i64_t>(batch_size),
+             static_cast<i64_t>(SIZE_FFT_TENSOR_C),
+             static_cast<i64_t>(SIZE_FFT_TENSOR_Y),
+             static_cast<i64_t>(SIZE_FFT_TENSOR_X),
+             static_cast<i64_t>(SIZE_FFT_TENSOR_T)},
+            options_input);
+
+        std::vector<torch::Tensor> inputs = {cpu_tensor.to(options_compute)};
+
+        std::vector<torch::Tensor> outputs = loader.run(inputs);
+
+        torch::Tensor out_tensor = outputs[0].to(options_output).contiguous();
+
+        std::memcpy(blob_destination, out_tensor.const_data_ptr(),
+                    batch_size * sizeof(rd_classifier_output));
+
+        return 0;
+
+      } catch (const std::exception &e) {
+
+        std::memset(blob_destination, 0,
+                    batch_size * sizeof(rd_classifier_output));
+
+        printf("Error: %s\n", e.what());
+
+        return 1;
+      }
+    }
+
+    _MACRO_SELF_(std::string const path_file_model)
+        : options_input(get_input_device_and_dtype()),
+          options_compute(get_inference_device_and_dtype()),
+          options_output(get_output_device_and_dtype()), loader(path_file_model) {
+    }
+
+    ~_MACRO_SELF_() {}
+
+    inline static _MACRO_SELF_ *NEW() {
+      std::string path_file_model(get_compiled_model_path());
+      return new _MACRO_SELF_(path_file_model);
+    }
+  };
+
+  #undef _MACRO_SELF_
+
+  } // namespace rd
+
+  extern "C" {
+  void *new_infer_slave() { return static_cast<void *>(rd::infer_slave::NEW()); }
+
+  void delete_infer_slave(void *in) {
+    rd::infer_slave *tmp = static_cast<rd::infer_slave *>(in);
+    delete tmp;
+  }
+
+  i32_t run_infer_slave(void *in, fft_video const *blob_source,
+                        rd_classifier_output *blob_destination,
+                        u32_t const batch_size) {
+
+    rd::infer_slave *tmp = static_cast<rd::infer_slave *>(in);
+
+    return tmp->infer(
+        /*fft_video const *blob_source =*/blob_source,
+        /*rd_classifier_output *blob_destination =*/blob_destination,
+        /*size_t const batch_size =*/batch_size);
+  }
+  }
+
+  #endif
+#+end_src
+
+* The main library file
+#+begin_src cpp :mkdirp yes :tangle ./src/main.cpp
+  #include "./cv_usability.hpp"
+  #include "./includes.hpp"
+  #include "./main.hpp"
+  #include "./rd_inference.hpp"
+  #include "./static_inits.hpp"
+#+end_src
+
+* For testing
+#+begin_src cpp :mkdirp yes :tangle ./test.cpp
+  #include "./src/main.hpp"
+  #include <stdio.h>
+
+  int main() {
+    frame_video_Y src;
+    CV_USABILITY_IMAGE dst;
+
+    frame_video_to_cv_usability(/*frame_video_Y *src =*/&src,
+                                /*CV_USABILITY_IMAGE *dst =*/&dst);
+  }
+#+end_src
+
+* Main script to manage git stuff
+
+** Main script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** Clean the old / tmp files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  CLEAN '.git.sh'
+  CLEAN 'README.org~'
+#+end_src
+
+** Add all the important files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD 'all_install.sh'
+  GITADD 'cmake_build.sh'
+  GITADD 'CMakeLists.txt'
+  GITADD 'compile_commands.json'
+  GITADD 'README.org'
+  GITADD 'src/common_torch.hpp'
+  GITADD 'src/cv_usability.hpp'
+  GITADD 'src/file_mlock.hpp'
+  GITADD 'src/includes.dir/header_cpp.hpp'
+  GITADD 'src/includes.dir/header_opencv.hpp'
+  GITADD 'src/includes.dir/header_os_c.hpp'
+  GITADD 'src/includes.dir/header_torch.hpp'
+  GITADD 'src/includes.hpp'
+  GITADD 'src/main.cpp'
+  GITADD 'src/main.hpp'
+  GITADD 'src/rd_inference.hpp'
+  GITADD 'src/semaphore.hpp'
+  GITADD 'src/static_inits.hpp'
+  GITADD 'test.cpp'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  git status ; git commit -m 'Some cleanups of CPP code for HF RD'
+  "${HOME}/SSH/K/W/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the script
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src
