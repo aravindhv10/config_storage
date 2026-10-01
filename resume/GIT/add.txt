@@ -1,0 +1,11 @@
+GIT/add.sh
+GIT/add.txt
+GIT/commit_and_push.sh
+.gitignore
+GIT/ignore.sh
+GIT/ignore.txt
+GIT/message.txt
+GIT.org
+GIT/remove.sh
+README.org
+resume.pdf
