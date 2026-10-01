@@ -1,0 +1,81 @@
+* git management scripts
+
+** message
+#+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
+  Started writing resume org
+#+end_src
+
+** commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  'git' 'commit' '-m' "$('cat' 'GIT/message.txt')"
+  'git' 'push'
+#+end_src
+
+** add
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
+  GIT.org
+  README.org
+  resume.pdf
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/add.sh
+  cd "$('dirname' '--' "${0}")/.."
+
+  'git' 'add' \
+      '--pathspec-from-file=GIT/add.txt' ;
+
+  exit '0'
+#+end_src
+
+** remove
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
+  GIT.org~
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/remove.sh
+  cd "$('dirname' '--' "${0}")/.."
+
+  'sed' 's@^@("rm" "-vf" "--" "@g ; s@$@");@g' 'GIT/rm.txt' \
+      | 'sh'
+
+  exit '0'
+#+end_src
+
+** ignore
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/ignore.txt
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/ignore.sh
+  cd "$('dirname' '--' "${0}")/.."
+
+  'cat' 'GIT/rm.txt' \
+      | 'sed' 's@^@/@g' \
+      > '.gitignore'
+
+
+  'cat' 'GIT/ignore.txt' \
+      >> '.gitignore'
+
+  exit '0'
+#+end_src
+
+** Commit and push
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './GIT/remove.sh'
+          './GIT/ignore.sh'
+          './GIT/add.sh'
+          './GIT/commit_and_push.sh'
+      " "log" "err")
+#+end_src
