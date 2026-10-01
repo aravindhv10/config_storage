@@ -234,7 +234,6 @@ coding_setup/test.sh
   GIT/gitignore.txt
   gitignore.txt
   GIT/message.txt
-  GIT.org
   GIT/pull.sh
   GIT/rm.txt
   GIT/work.sh
