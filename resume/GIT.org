@@ -15,6 +15,7 @@
 
 *** list
 #+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
+  .gitignore
   GIT.org
   README.org
   resume.pdf
