@@ -9,5 +9,5 @@
 in (pkgs.mkShell {
   name = "good_rust_zig_env";
   packages = mylist;
-  runScript = "bash";
+  runScript = "ls";
 })

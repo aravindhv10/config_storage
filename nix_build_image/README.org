@@ -26,9 +26,12 @@
 
 * The nix shell
 
-** Copy the code to docker
+** Copy the code to docker and run
 #+begin_src conf :mkdirp yes :tangle ./Dockerfile
   COPY shell.nix /root/shell.nix
+  USER root
+  WORKDIR /root
+  RUN nix-shell
 #+end_src
 
 ** Actual code
@@ -44,8 +47,15 @@
   in (pkgs.mkShell {
     name = "good_rust_zig_env";
     packages = mylist;
-    runScript = "bash";
+    runScript = "ls";
   })
+#+end_src
+
+** Try running to ensure dependencies are cached
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  USER root
+  WORKDIR /root
+  RUN nix-shell
 #+end_src
 
 * COMMENT WORK SPACE
