@@ -1,10 +1,9 @@
 {pkgs ? import <nixpkgs> {}}: let
   mylist = with pkgs; [
-    rustc
     cargo
     cargo-zigbuild
+    rustc
     zig
-    rust-std-rustc
   ];
 in (pkgs.mkShell {
   name = "good_rust_zig_env";
