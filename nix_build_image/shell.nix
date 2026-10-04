@@ -2,6 +2,7 @@
   mylist = with pkgs; [
     cargo
     cargo-zigbuild
+    git
     rustc
     zig
   ];
