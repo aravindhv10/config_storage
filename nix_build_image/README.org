@@ -19,6 +19,7 @@
       '--rm' \
       '--interactive' \
       '--tty' \
+      -v "$(realpath .):/data" \
       'nixbuilder' \
       'bash' ;
 #+end_src
@@ -55,4 +56,3 @@
   git status
   " "log" "err")
 #+end_src
-
