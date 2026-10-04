@@ -52,6 +52,7 @@
   (save-buffer)
   (org-babel-tangle)
   (async-shell-command "
+  git status
   " "log" "err")
-  #+end_src
+#+end_src
 

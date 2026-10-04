@@ -17,7 +17,15 @@
 #+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
   build_container.sh
   Dockerfile
+  GIT/add.sh
+  GIT/add.txt
+  GIT/commit_and_push.sh
+  .gitignore
+  GIT/ignore.sh
+  GIT/ignore.txt
+  GIT/message.txt
   GIT.org
+  GIT/remove.sh
   README.org
   run_container.sh
   shell.nix
