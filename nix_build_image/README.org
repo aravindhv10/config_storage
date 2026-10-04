@@ -20,7 +20,38 @@
       '--interactive' \
       '--tty' \
       'nixbuilder' \
-      bash
+      'bash' ;
 #+end_src
 
-* 
+* The nix shell
+
+** Copy the code to docker
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  COPY shell.nix /root/shell.nix
+#+end_src
+
+** Actual code
+#+begin_src conf :mkdirp yes :tangle ./shell.nix
+  {pkgs ? import <nixpkgs> {}}: let
+    mylist = with pkgs; [
+      rustc
+      cargo
+      cargo-zigbuild
+      zig
+      rust-std-rustc
+    ];
+  in (pkgs.mkShell {
+    name = "good_rust_zig_env";
+    packages = mylist;
+    runScript = "bash";
+  })
+#+end_src
+
+* COMMENT WORK SPACE
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+  " "log" "err")
+  #+end_src
+
