@@ -24,3 +24,24 @@
     Aninda Sinha, Aravind H. Vijay, Urbasi Sinha.
     [[https://www.nature.com/articles/srep10304][Sci. Rep. 5, 10304; doi: 10.1038/srep10304 (2015)]]
     ([[https://arxiv.org/abs/1412.2198][arXiv:1412.2198 [quant-ph]]]).
+
+* Education
+
+** PhD
+|------------------------+--------------+-----------------------------|
+| PhD (Particle Physics) | TIFR, Mumbai | August 2014 - February 2020 |
+|------------------------+--------------+-----------------------------|
+Ph.D in High Energy Phenomenology with expertise in advanced math, high performance computing, data analysis and
+machine learning.
+
+Int. BS, MS (Physics, Math)
+ IISER, Pune
+ August 2009 - July 2014 (CGPA: 8.1)
+Bachelor and master of science in the field of physics and mathematics.
+
+
+* Research Topics
+
+** MSc
+** PhD
+
