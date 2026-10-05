@@ -3,7 +3,6 @@
 ** Boosted top quark tagging and polarization measurement using machine learning
     Soham Bhattacharya, Monoranjan Guchait, Aravind H. Vijay.
     [[https://journals.aps.org/prd/pdf/10.1103/PhysRevD.105.042005][Phys. Rev. D 105, 042005]] ([[https://arxiv.org/abs/2010.11778][arXiv:2010.11778 [hep-ph]]]).
- 
 
 ** A robust anomaly finder based on autoencoder
     Tuhin S. Roy, Aravind H. Vijay.
@@ -13,3 +12,15 @@
     Rohini Godbole, Monoranjan Guchait, Charanjit K. Khosa, Jayita Lahiri, Seema Sharma, Aravind H. Vijay.
     [[https://journals.aps.org/prd/abstract/10.1103/PhysRevD.100.056010][Phys. Rev. D 100, 056010]] ([[https://arxiv.org/abs/1902.08096][arXiv:1902.08096 [hep-ph]]]).
  
+** Probing Heavy Charged Higgs Boson at the LHC
+    Monoranjan Guchait, Aravind H. Vijay.
+    [[https://journals.aps.org/prd/abstract/10.1103/PhysRevD.98.115028][Phys. Rev. D 98, 115028 (2018)]] ([[https://arxiv.org/abs/1806.01317][arXiv:1806.01317 [hep-ph]]]).
+
+** Detection prospects of light pseudoscalar Higgs boson at the LHC
+    Monoranjan Guchait, Aravind H. Vijay, Jacky Kumar.
+    [[https://link.springer.com/article/10.1007/JHEP08(2017)122][J. High Energ. Phys. 2017, 122 (2017)]] ([[https://arxiv.org/abs/1705.06275][arXiv:1705.06275 [hep-ph]]]).
+
+** On the superposition principle in interference experiments
+    Aninda Sinha, Aravind H. Vijay, Urbasi Sinha.
+    [[https://www.nature.com/articles/srep10304][Sci. Rep. 5, 10304; doi: 10.1038/srep10304 (2015)]]
+    ([[https://arxiv.org/abs/1412.2198][arXiv:1412.2198 [quant-ph]]]).
