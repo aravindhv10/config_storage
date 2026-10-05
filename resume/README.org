@@ -27,21 +27,36 @@
 
 * Education
 
-** PhD
 |------------------------+--------------+-----------------------------|
 | PhD (Particle Physics) | TIFR, Mumbai | August 2014 - February 2020 |
 |------------------------+--------------+-----------------------------|
-Ph.D in High Energy Phenomenology with expertise in advanced math, high performance computing, data analysis and
+Ph.D in High Energy Phenomenology with expertise in advanced math,
+high performance computing, data analysis and
 machine learning.
 
-Int. BS, MS (Physics, Math)
- IISER, Pune
- August 2009 - July 2014 (CGPA: 8.1)
+|-----------------------------+-------------+-------------------------------------|
+| Int. BS, MS (Physics, Math) | IISER, Pune | August 2009 - July 2014 (CGPA: 8.1) |
+|-----------------------------+-------------+-------------------------------------|
 Bachelor and master of science in the field of physics and mathematics.
-
 
 * Research Topics
 
 ** MSc
-** PhD
 
+Investigated validity bounds of the classical linear superposition principle in multi-slit quantum optical and wave interference experiments:
+- Analyzed non-classical (looped) wave trajectories in triple-slit geometries arising from exact boundary conditions in Maxwell and Helmholtz equations.
+- Quantified the non-zero Sorkin parameter ($\epsilon$) in wave mechanics setups and established theoretical limits for testing foundational quantum superposition.
+
+** PhD
+My PhD research focused on phenomenological particle physics at the LHC, combining theoretical Beyond the Standard Model (BSM) physics with deep learning, multivariate analysis, and high-performance computing techniques:
+- *Unsupervised Anomaly Detection*: Formulated model-agnostic autoencoder architectures
+    to isolate non-Standard Model events in high-dimensional kinematic phase space
+    without assuming specific signal hypotheses.
+- *Boosted Jet Tagging & Machine Learning*: Applied deep neural network topologies
+    (CNNs, Autoencoders) to classify boosted top-quark jet substructures and suppress heavy QCD backgrounds.
+- *Top Quark Polarization & Spin Observables*: Formulated angular and kinematic spin-sensitive
+    observables for boosted top quarks at HL-LHC energies to probe chiral couplings
+    in exotic sector models.
+- *BSM Higgs Boson Searches*: Conducted collider phenomenology, decay analysis,
+    and background optimization for heavy charged Higgs $ \left( H^{\pm} \rightarrow t b \right) $
+    and light pseudoscalar Higgs $\left( A^{0} \right)$ states in 2HDM and NMSSM frameworks.
