@@ -12,7 +12,7 @@
     compatibility with newer versions of ComfyUI.
 - Implemented a virtual try-on approach using LoRA and ControlNets in FLUX using the [[https://github.com/aravindhv10/x-flux][x-flux]] library.
 - Contributed numerous custom ComfyUI plugins to [[https://github.com/TRI3D-LC/tri3d-comfyui-nodes][tri3d-comfyui-nodes]].
-- Fixed a shape mismatch issue in the [[https://github.com/cubiq/ComfyUI_IPAdapter_plus/commit/7afc301ba42bf2db6f70c56e8bbecc112306f1a3][ComfyUI IPAdapter Plus plugin]].
+- Fixed a shape mismatch issue in the [[https://github.com/cubiq/ComfyUI_IPAdapter_plus/commit/7afc301ba42bf2db6f70c56e8bbecc112306f1a3][ComfyUI IPAdapter Plus]] plugin.
 
 *** Tiled Diffusion
 - Contributed a fix to tensor shape mismatch bug in [[https://github.com/aravindhv10/ComfyUI-TiledDiffusion/tree/fix_controlnet][The Tiled Diffusion plugin]].
