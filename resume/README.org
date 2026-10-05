@@ -1,0 +1,15 @@
+* List of publications
+
+** Boosted top quark tagging and polarization measurement using machine learning
+    Soham Bhattacharya, Monoranjan Guchait, Aravind H. Vijay.
+    [[https://journals.aps.org/prd/pdf/10.1103/PhysRevD.105.042005][Phys. Rev. D 105, 042005]] ([[https://arxiv.org/abs/2010.11778][arXiv:2010.11778 [hep-ph]]]).
+ 
+
+** A robust anomaly finder based on autoencoder
+    Tuhin S. Roy, Aravind H. Vijay.
+    [[https://arxiv.org/abs/1903.02032][arXiv:1903.02032 [hep-ph]]].
+
+** Boosted Top quark polarization
+    Rohini Godbole, Monoranjan Guchait, Charanjit K. Khosa, Jayita Lahiri, Seema Sharma, Aravind H. Vijay.
+    [[https://journals.aps.org/prd/abstract/10.1103/PhysRevD.100.056010][Phys. Rev. D 100, 056010]] ([[https://arxiv.org/abs/1902.08096][arXiv:1902.08096 [hep-ph]]]).
+ 
