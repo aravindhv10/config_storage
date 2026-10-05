@@ -5,5 +5,6 @@ podman run \
     '--interactive' \
     '--tty' \
     -v "$(realpath .):/data" \
+    -v "$(realpath "${HOME}/GITHUB"):/root/GITHUB" \
     'nixbuilder' \
     'bash' ;

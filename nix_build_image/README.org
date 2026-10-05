@@ -20,8 +20,16 @@
       '--interactive' \
       '--tty' \
       -v "$(realpath .):/data" \
+      -v "$(realpath "${HOME}/GITHUB"):/root/GITHUB" \
       'nixbuilder' \
       'bash' ;
+#+end_src
+
+* Important configs
+#+begin_src conf :mkdirp yes :tangle ./Dockerfile
+  USER root
+  ENV HOME=/root
+  WORKDIR /root
 #+end_src
 
 * The nix shell
@@ -29,9 +37,6 @@
 ** Copy the code to docker and run
 #+begin_src conf :mkdirp yes :tangle ./Dockerfile
   COPY shell.nix /root/shell.nix
-  USER root
-  WORKDIR /root
-  RUN nix-shell
 #+end_src
 
 ** Actual code
@@ -54,8 +59,6 @@
 
 ** Try running to ensure dependencies are cached
 #+begin_src conf :mkdirp yes :tangle ./Dockerfile
-  USER root
-  WORKDIR /root
   RUN nix-shell
 #+end_src
 
