@@ -1,3 +1,25 @@
+* Open Source Contributions
+
+** Linux Kernel
+
+1. Reported an audio driver regression that occurred in the Linux kernel ([[https://bugzilla.kernel.org/show_bug.cgi?id=219897][Bug 219897]]).
+2. Identified the specific code and commit that caused the regression.
+3. Contributed to debugging and fixing the issue.
+
+** ComfyUI Plugin Ecosystem & Image Generation
+
+- Fixed a bug in [[https://github.com/aravindhv10/ComfyUI-to-Python-Extension/tree/fix_for_new_comfy][ComfyUI workflow to Python extension]] that prevented
+    compatibility with newer versions of ComfyUI.
+- Implemented a virtual try-on approach using LoRA and ControlNets in FLUX using the [[https://github.com/aravindhv10/x-flux][x-flux]] library.
+- Contributed numerous custom ComfyUI plugins to [[https://github.com/TRI3D-LC/tri3d-comfyui-nodes][tri3d-comfyui-nodes]].
+- Fixed a shape mismatch issue in the [[https://github.com/cubiq/ComfyUI_IPAdapter_plus/commit/7afc301ba42bf2db6f70c56e8bbecc112306f1a3][ComfyUI IPAdapter Plus plugin]].
+
+*** Tiled Diffusion
+- Contributed a fix to tensor shape mismatch bug in [[https://github.com/aravindhv10/ComfyUI-TiledDiffusion/tree/fix_controlnet][The Tiled Diffusion plugin]].
+- Fix merged into the parent repository.
+
+
+
 * List of publications
 
 ** Boosted top quark tagging and polarization measurement using machine learning
@@ -42,7 +64,6 @@ Bachelor and master of science in the field of physics and mathematics.
 * Research Topics
 
 ** MSc
-
 Investigated validity bounds of the classical linear superposition principle in multi-slit quantum optical and wave interference experiments:
 - Analyzed non-classical (looped) wave trajectories in triple-slit geometries arising from exact boundary conditions in Maxwell and Helmholtz equations.
 - Quantified the non-zero Sorkin parameter ($\epsilon$) in wave mechanics setups and established theoretical limits for testing foundational quantum superposition.
