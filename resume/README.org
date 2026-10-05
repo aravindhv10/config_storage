@@ -1,3 +1,12 @@
+* Part time work / Intern
+
+|----------------+-------------------------------|
+| Cloudphysician | 1st Jan 2020 - 1st March 2020 |
+|----------------+-------------------------------|
+- Identify ventilator images (Application of =object detection= and =semantic segmentation=).
+- Digitize pressure and volume flow graphs (=computer vision= techniques).
+- Classify disease state (=classification= problem).
+
 * Open Source Contributions
 
 ** Linux Kernel
@@ -7,7 +16,6 @@
 3. Contributed to debugging and fixing the issue.
 
 ** ComfyUI Plugin Ecosystem & Image Generation
-
 - Fixed a bug in [[https://github.com/aravindhv10/ComfyUI-to-Python-Extension/tree/fix_for_new_comfy][ComfyUI workflow to Python extension]] that prevented
     compatibility with newer versions of ComfyUI.
 - Implemented a virtual try-on approach using LoRA and ControlNets in FLUX using the [[https://github.com/aravindhv10/x-flux][x-flux]] library.
@@ -17,8 +25,6 @@
 *** Tiled Diffusion
 - Contributed a fix to tensor shape mismatch bug in [[https://github.com/aravindhv10/ComfyUI-TiledDiffusion/tree/fix_controlnet][The Tiled Diffusion plugin]].
 - Fix merged into the parent repository.
-
-
 
 * List of publications
 
@@ -49,6 +55,7 @@
 
 * Education
 
+** Postgraduate / Doctoral
 |------------------------+--------------+-----------------------------|
 | PhD (Particle Physics) | TIFR, Mumbai | August 2014 - February 2020 |
 |------------------------+--------------+-----------------------------|
@@ -56,6 +63,7 @@ Ph.D in High Energy Phenomenology with expertise in advanced math,
 high performance computing, data analysis and
 machine learning.
 
+** Undergraduate
 |-----------------------------+-------------+-------------------------------------|
 | Int. BS, MS (Physics, Math) | IISER, Pune | August 2009 - July 2014 (CGPA: 8.1) |
 |-----------------------------+-------------+-------------------------------------|
