@@ -4,6 +4,7 @@
     cargo-zigbuild
     git
     rustc
+    rustup
     zig
   ];
 in (pkgs.mkShell {
