@@ -7,6 +7,14 @@
 - Digitize pressure and volume flow graphs (=computer vision= techniques).
 - Classify disease state (=classification= problem).
 
+|-------+-------------------------------|
+| QPiAI | 1st March 2020 - 1st May 2020 |
+|-------+-------------------------------|
+- Implemented quantum algorithms for the =max-cut= problem using the [[https://github.com/eclipse-xacc/xacc][XACC]]
+  library in C++ using the [[https://github.com/eclipse-xacc/xacc][XACC]] =IR= and =QASM=.
+- Worked on implementing various quantum algorithms on [[https://github.com/Qiskit/qiskit][qiskit]]
+  to determine optimal qubit connectivity.
+
 * Open Source Contributions
 
 ** Linux Kernel
