@@ -27,6 +27,12 @@ In this role, my main responsibility was geocoding (translating human readable a
 - This led to 1% improvement in mean geocoding accuracy, 10% improvement in coverage
     and significant drop in deliveries to wrong locations and unlocatable address.
 
+**** Geocoding for new addresses
+- *Goal*: Improve the accuracy and success rate for 1st time deliveries to an address.
+- Geocoding for new addresses (addresses with no historic delivery data) is a challenging task.
+- Developed an NLP (seq to seq) transformer model mapping known addresses to geocodes.
+- Developed and validated a linear interpolation model to predict coordinates of unknown addresses.
+
 * Part time work / Intern
 
 |----------------+-------------------------------|
