@@ -39,7 +39,8 @@ image processing capacity.
 
 *** Alexa
 
-In this role, my main responsibility was to improve the accuracy of automatic speech recognition (ASR) for alexa.
+In this role, my main responsibility was to improve the accuracy of automatic speech recognition (ASR)
+for alexa.
 
 **** AM-LM Fusion
 - Incorporated techniques from 2201.10240 to improve fusion of acoustic and text representation.
