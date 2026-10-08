@@ -1,6 +1,11 @@
 * Full time work experience
 
 ** ML Engineer, TRI3D / Alphabake (16th Jan 2023 - 27th Nov 2024)
+At this innovative early-stage company, I drove innovation at the intersection of AI and fashion technology.
+Through innovative AI implementations and workflow optimizations, I spearheaded a dramatic 97% reduction
+in manual image editing time, slashing the average effort from 2 hours to just 4 minutes per image.
+This breakthrough significantly enhanced team productivity and enabled a 30-fold increase in daily
+image processing capacity.
 
 ** Applied Scientist II, Amazon (4th May, 2020 - 28th December, 2022)
 
