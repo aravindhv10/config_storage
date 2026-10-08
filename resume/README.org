@@ -24,15 +24,15 @@ image processing capacity.
 - *Core Technologies*: OpenCV, PyTorch, Nginx, Flask, Fast API.
 - *Semantic Segmentation*: MMSegmentation, cloth-segmentation, SAM, transparent-background, MVANet, SCHP.
 - *AI Libraries and Tools*: Hugging Face ecosystem: diffusers, transformers, accelerate, safetensors,
-    datasets, PEFT.
+  datasets, PEFT.
 - *Diffusion fine-tuning*: x-flux, sd-scripts, EveryDream2trainer.
 - *IP-Adapters*: Trained with private data and enhancements.
 - *Automated image processing*: LMDeploy, Ollama for captioning, filtering, comparison
-    and prompt enhancements.
+  and prompt enhancements.
 - *Workflow Development*: ComfyUI ecosystem and plugins for collaborative workflow development with
-    image artists and editors.
+  image artists and editors.
 - Trained MVANet for skin and garment segment with Prodigy optimizer and robust image augmentation
-    using Albumentations and Kornia.
+  using Albumentations and Kornia.
 - Contributed to multiple open-source ComfyUI plugins.
 
 ** Applied Scientist II, Amazon (4th May, 2020 - 28th December, 2022)
