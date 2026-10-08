@@ -9,7 +9,7 @@ image processing capacity.
 
 *** Responsibilities
 - Develop and deploy cutting-edge computer vision and image generation solutions for fashion applications,
-    including:
+  including:
   * Virtual try-on systems.
   * Background/model swapping.
   * Mannequin-to-model image conversion.
