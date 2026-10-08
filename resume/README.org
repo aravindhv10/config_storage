@@ -20,8 +20,7 @@ In this role, my main responsibility was geocoding (translating human readable a
 - Led to 2% improvement in mean service times over the previous model.
 
 **** Geocoding with pair-wise ranking
-- *Geocoding*: Translating human readable addresses into GPS coordinates.   
-- *Goal*: Improve geocoding accuracy by adopting new techniques geveloped for geocoding for various geographies.
+- *Goal*: Improve geocoding accuracy by adopting new techniques developed for geocoding in various geographies.
 - Worked on supervised pair-wise ranking model based on random forests.
 - I was responsible for analyzing this and push it towards production for geocoding in France.
 - This led to 1% improvement in mean geocoding accuracy, 10% improvement in coverage
