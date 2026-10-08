@@ -7,6 +7,20 @@ in manual image editing time, slashing the average effort from 2 hours to just 4
 This breakthrough significantly enhanced team productivity and enabled a 30-fold increase in daily
 image processing capacity.
 
+*** Responsibilities
+- Develop and deploy cutting-edge computer vision and image generation solutions for fashion applications, including:
+  * Virtual try-on systems.
+  * Background/model swapping.
+  * Mannequin-to-model image conversion.
+- Design scalable architecture for AI-driven image processing systems.
+- Enhance image editing tools and workflows using machine learning.
+- Conduct research to adapt and implement state-of-the-art computer vision techniques for the fashion industry.
+- Oversee ML model deployment and finetuning in production environments, collaborating with image editors for seamless integration.
+- Leveraging cutting-edge technologies, including large language models and multimodal vision-language models, to streamline our workflow, automate repetitive tasks (like quality control), and enhance the preparation of training data.
+- Integrated traditional CV techniques (like fourier transforms, histogram reshaping, ...) with modern methods for efficient image processing and refinement.
+
+*** Tech Stack
+
 ** Applied Scientist II, Amazon (4th May, 2020 - 28th December, 2022)
 
 *** Alexa
