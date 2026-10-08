@@ -1,3 +1,32 @@
+* Full time work experience
+
+** Applied Scientist II, Amazon (4th May, 2020 - 28th December, 2022)
+
+*** Alexa
+*** Lastmile
+
+In this role, my main responsibility was geocoding (translating human readable address to GPS coordinates).
+
+**** Checking validity of outlier deliveries
+
+- *Goal*: Find cause for disagreement between location vended by Amazon geocoding systems and location of the actual delivery.
+- Developed a supervised ML model based on boosted decision trees.
+- This led to an improvement in F1 score from 0.71 (previous model based on heuristics) to 0.88
+    and expected to contribute around 20% improvements to the actionability during manual audit queues.
+
+**** Analyzing parking locations
+- *Goal*: To find good parking locations in busy cities before making the delivery.
+- Provide many improvements to the existing approach using an ML model which classified delivery person activities.
+- Led to 2% improvement in mean service times over the previous model.
+
+**** Geocoding with pair-wise ranking
+- *Geocoding*: Translating human readable addresses into GPS coordinates.   
+- *Goal*: Improve geocoding accuracy by adopting new techniques geveloped for geocoding for various geographies.
+- Worked on supervised pair-wise ranking model based on random forests.
+- I was responsible for analyzing this and push it towards production for geocoding in France.
+- This led to 1% improvement in mean geocoding accuracy, 10% improvement in coverage
+    and significant drop in deliveries to wrong locations and unlocatable address.
+
 * Part time work / Intern
 
 |----------------+-------------------------------|

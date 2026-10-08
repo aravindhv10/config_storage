@@ -7,6 +7,7 @@
 
 ** commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  "${HOME}/SSH/K/P/setup.sh"
   'git' 'commit' '-m' "$('cat' 'GIT/message.txt')"
   'git' 'push'
 #+end_src
