@@ -30,9 +30,9 @@ image processing capacity.
     and prompt enhancements.
 - *Workflow Development*: ComfyUI ecosystem and plugins for collaborative workflow development with
     image artists and editors.
-- Trained MVANet for skin and garment segment with Prodigy optimizer and robust image augmentation using Albumentations and Kornia.
-- Contributed to multiple open-source ComfyUI plugins
-
+- Trained MVANet for skin and garment segment with Prodigy optimizer and robust image augmentation
+    using Albumentations and Kornia.
+- Contributed to multiple open-source ComfyUI plugins.
 
 ** Applied Scientist II, Amazon (4th May, 2020 - 28th December, 2022)
 
