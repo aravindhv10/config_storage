@@ -8,7 +8,8 @@ This breakthrough significantly enhanced team productivity and enabled a 30-fold
 image processing capacity.
 
 *** Responsibilities
-- Develop and deploy cutting-edge computer vision and image generation solutions for fashion applications, including:
+- Develop and deploy cutting-edge computer vision and image generation solutions for fashion applications,
+    including:
   * Virtual try-on systems.
   * Background/model swapping.
   * Mannequin-to-model image conversion.
