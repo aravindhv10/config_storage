@@ -3,12 +3,26 @@
 ** Applied Scientist II, Amazon (4th May, 2020 - 28th December, 2022)
 
 *** Alexa
+
+In this role, my main responsibility was to improve the accuracy of automatic speech recognition (ASR) for alexa.
+
+**** AM-LM Fusion
+- Incorporated techniques from 2201.10240 to improve fusion of acoustic and text representation.
+- This resulted in 1% word error rate improvement over the baseline conformer model.
+
+**** HUBERT pre-trained conformer teacher
+
+- Implemented techniques from HuBERT pre-training with a large conformer model.
+- Resulted in around 10% improvement in word error rate over the existing baseline for the labeling of SSL data.
+
+**** Neural biasing for rare words
+**** Speaker adaptation
+
 *** Lastmile
 
 In this role, my main responsibility was geocoding (translating human readable address to GPS coordinates).
 
 **** Checking validity of outlier deliveries
-
 - *Goal*: Find cause for disagreement between location vended by Amazon geocoding systems and location of the actual delivery.
 - Developed a supervised ML model based on boosted decision trees.
 - This led to an improvement in F1 score from 0.71 (previous model based on heuristics) to 0.88
