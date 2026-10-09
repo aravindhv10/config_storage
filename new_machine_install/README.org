@@ -823,7 +823,7 @@ export AWS_SECRET_ACCESS_KEY='187fefcddecafcdfe16f3f02ea18c4f0b20c673795bc2919d8
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   git status ; git commit -m 'Added tidb setup, started new branch'
-  "${HOME}/SSH/K/W/setup.sh" ; git push
+  "${HOME}/SSH/K/P/setup.sh" ; git push
 #+end_src
 
 ** COMMENT Run the file
