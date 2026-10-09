@@ -1,0 +1,836 @@
+* Basic setup for getting pre-requisits
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./install_apt_dependencies.sh
+  apt update
+  apt install \
+      'aria2' \
+      'automake' \
+      'bear' \
+      'bison' \
+      'build-essential' \
+      'clang' \
+      'clangd' \
+      'clang-format' \
+      'clang-tidy' \
+      'clang-tools' \
+      'cmake' \
+      'conntrack' \
+      'curl' \
+      'elfutils' \
+      'ffmpeg' \
+      'fish' \
+      'fzf' \
+      'g++' \
+      'gawk' \
+      'gcc' \
+      'gettext' \
+      'gettext-base' \
+      'git' \
+      'git-lfs' \
+      'graphicsmagick-imagemagick-compat' \
+      'haproxy' \
+      'haproxy-doc' \
+      'ipython3' \
+      'irqbalance' \
+      'jq' \
+      'libasound2-dev' \
+      'libevent-dev' \
+      'libfontconfig-dev' \
+      'libgit2-dev' \
+      'liblz4-dev' \
+      'liblzo2-dev' \
+      'libncurses-dev' \
+      'libopencv-dev' \
+      'libpcre2-16-0' \
+      'libpcre2-32-0' \
+      'libpcre2-8-0' \
+      'libpcre2-dev' \
+      'libpcre2-posix3' \
+      'libsqlite3-dev' \
+      'libssl-dev' \
+      'libstdc++-12-dev' \
+      'libstdc++-13-dev' \
+      'libstdc++-14-dev' \
+      'libvulkan1' \
+      'libwayland-dev' \
+      'libx11-xcb-dev' \
+      'libxkbcommon-x11-dev' \
+      'libzstd-dev' \
+      'make' \
+      'mold' \
+      'musl-dev' \
+      'musl-tools' \
+      'mysql-client' \
+      'nasm' \
+      'neovim' \
+      'ninja-build' \
+      'pkg-config' \
+      'protobuf-compiler' \
+      'python3-dev' \
+      'python3-newt' \
+      'python3-opencv' \
+      'python3-pip' \
+      'python3-setuptools' \
+      'python3-sphinx' \
+      'python3-venv' \
+      'rclone' \
+      'socat' \
+      'squashfs-tools' \
+      'unzip' \
+      'wget' \
+      'yacc' \
+      'zip' \
+      'zsh' \
+      'zstd' \
+  ;
+#+end_src
+
+* Install nvidia drivers
+
+Main link: https://developer.nvidia.com/cuda-downloads
+
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./install_nvidia_drivers.sh
+  wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+  dpkg -i cuda-keyring_1.1-1_all.deb
+  apt-get update
+  apt-get install -y nvidia-open
+  apt-get -y install cuda-toolkit-13-1
+#+end_src
+
+* Install docker
+
+Main link: https://docs.docker.com/engine/install/ubuntu/
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install_docker.sh
+  # Add Docker's official GPG key:
+  sudo apt update
+  sudo apt install ca-certificates curl
+  sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+  # Add the repository to Apt sources:
+  sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+  Types: deb
+  URIs: https://download.docker.com/linux/ubuntu
+  Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+  Components: stable
+  Architectures: $(dpkg --print-architecture)
+  Signed-By: /etc/apt/keyrings/docker.asc
+  EOF
+
+  sudo apt update
+#+end_src
+
+* Install nvidia ctk
+
+Main link: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./install_nvidia_ctk.sh
+  curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+      && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+      sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+      tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+  apt-get update
+  apt-get install -y nvidia-container-toolkit
+
+  nvidia-ctk --version
+
+  nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+  nvidia-ctk runtime configure --runtime=docker
+
+  grep "  name:" /etc/cdi/nvidia.yaml
+
+  systemctl restart docker
+
+  docker run --rm --runtime=nvidia --gpus all nvidia/cuda:11.6.2-base-ubuntu20.04 nvidia-smi
+#+end_src
+
+* Pull code
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./pull_important_code.sh
+  get_repo(){
+      DIR_REPO="${HOME}/GITHUB/$('echo' "${1}" | 'sed' 's/^git@github.com://g ; s@^https://github.com/@@g ; s@.git$@@g' )"
+      DIR_BASE="$('dirname' '--' "${DIR_REPO}")"
+
+      mkdir -pv -- "${DIR_BASE}"
+      cd "${DIR_BASE}"
+      git clone "${1}"
+      cd "${DIR_REPO}"
+
+      if test "${#}" '-ge' '2'
+      then
+          git switch "${2}"
+      fi
+
+      git pull
+      git submodule update --recursive --init
+
+      if test "${#}" '-ge' '3'
+      then
+          git checkout "${3}"
+      fi
+  }
+
+  get_repo 'https://github.com/aravindhv10/config_storage.git'
+  get_repo 'git@github.com:cloudphysician-codehub/LOS.git'
+#+end_src
+
+* TiDB
+
+** Main config
+#+begin_src conf :mkdirp yes :tangle ./TIDB/topology.yaml
+  global:
+    user: "root"
+    ssh_port: 22
+    deploy_dir: "/home/root/1/tidb/deploy"
+    data_dir: "/home/root/1/tidb/data"
+  server_configs: {}
+  pd_servers:
+    - host: 10.10.8.17
+      client_port: 11100
+      peer_port: 11101
+    - host: 10.10.8.16
+      client_port: 11100
+      peer_port: 11101
+    - host: 10.10.8.14
+      client_port: 11100
+      peer_port: 11101
+  tidb_servers:
+    - host: 10.10.8.17
+      port: 11102
+      status_port: 11103
+    - host: 10.10.8.16
+      port: 11102
+      status_port: 11103
+    - host: 10.10.8.14
+      port: 11102
+      status_port: 11103
+  tikv_servers:
+    - host: 10.10.8.17
+      port: 11104
+      status_port: 11105
+    - host: 10.10.8.16
+      port: 11104
+      status_port: 11105
+    - host: 10.10.8.14
+      port: 11104
+      status_port: 11105
+  tiflash_servers:
+    - host: 10.10.8.17
+      tcp_port: 11113
+      http_port: 11114
+      flash_service_port: 11115
+      flash_proxy_port: 11116
+      flash_proxy_status_port: 11117
+      metrics_port: 11118
+    - host: 10.10.8.16
+      tcp_port: 11113
+      http_port: 11114
+      flash_service_port: 11115
+      flash_proxy_port: 11116
+      flash_proxy_status_port: 11117
+      metrics_port: 11118
+    - host: 10.10.8.14
+      tcp_port: 11113
+      http_port: 11114
+      flash_service_port: 11115
+      flash_proxy_port: 11116
+      flash_proxy_status_port: 11117
+      metrics_port: 11118
+  monitoring_servers:
+    - host: 10.10.8.17
+      ng_port: 11106
+      port: 11107
+    - host: 10.10.8.16
+      ng_port: 11106
+      port: 11107
+    - host: 10.10.8.14
+      ng_port: 11106
+      port: 11107
+  grafana_servers:
+    - host: 10.10.8.17
+      port: 11108
+    - host: 10.10.8.16
+      port: 11108
+    - host: 10.10.8.14
+      port: 11108
+  alertmanager_servers:
+    - host: 10.10.8.17
+      web_port: 11109
+      cluster_port: 11120
+    - host: 10.10.8.16
+      web_port: 11109
+      cluster_port: 11120
+    - host: 10.10.8.14
+      web_port: 11109
+      cluster_port: 11120
+#+end_src
+
+** Main install script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./TIDB/install_tidb.sh
+  cd "$(dirname -- "${0}")"
+
+  . "${HOME}/important_functions.sh"
+
+  TOPOLOGY="$(realpath './topology.yaml')"
+
+  echo 'Download and install TiUP START' \
+       && adown \
+          'https://tiup-mirrors.pingcap.com/install.sh' \
+          'install_tidb.sh' \
+          '71aa8e9789bd8dbc1e35c417aabee19aadfed282abd50b329b3e996d091f95c97ad7779b052ab91f05e9d096992e114d3ed6f02877bf7b5712bba2170e6d9e31' \
+          "${HOME}/TiDB/install_tidb.sh" \
+      && echo 'Download and install TiUP DONE' ;
+
+  sh "${HOME}/TiDB/install_tidb.sh"
+
+  TIUP="${HOME}/.tiup/bin/tiup"
+
+  echo 'tiup update related START' \
+      && "${TIUP}" update '--self' \
+      && "${TIUP}" update cluster \
+      && echo 'tiup update related DONE' ;
+
+  mkdir -pv -- \
+      "/home/root/1/tidb/deploy" \
+      "/home/root/1/tidb/data" ;
+
+  "${TIUP}" cluster check "${TOPOLOGY}" '--apply' '--user' root -i "${HOME}/.ssh/id_ed25519"
+  "${TIUP}" cluster deploy 'tidb-prod' 'v8.5.6' "${TOPOLOGY}" '--user' root -i "${HOME}/.ssh/id_ed25519"
+  "${TIUP}" cluster start 'tidb-prod' '--init'
+#+end_src
+
+** Passwords
+
+*** 10.10.8.17
+
++ [ Serial ] - UpdateTopology: cluster=tidb-prod
+Started cluster `tidb-prod` successfully
+The root password of TiDB database has been changed.
+The new password is: 'a7-+*mjLR3@NWf8065'.
+Copy and record it to somewhere safe, it is only displayed once, and will not be stored.
+The generated password can NOT be get and shown again.
+
+Access from web console
+http://10.10.8.17:11100/dashboard/
+
+**** Password
+a7-+*mjLR3@NWf8065
+
+** Connect to db
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./TIDB/connect_to_db.sh
+  mysql -h 127.0.0.1 -P 11102 -u root -p
+#+end_src
+
+** Create database
+#+begin_src sql :mkdirp yes :tangle ./TIDB/create_k3s_db.sql
+  CREATE DATABASE k3s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  SET GLOBAL tidb_skip_isolation_level_check = 1;
+#+end_src
+
+* Nomad
+
+** Install
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nomad/install.sh
+  cd "$(dirname -- "${0}")"
+
+  wget -O - 'https://apt.releases.hashicorp.com/gpg' | gpg --dearmor -o '/usr/share/keyrings/hashicorp-archive-keyring.gpg'
+
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | tee '/etc/apt/sources.list.d/hashicorp.list'
+
+  apt update && apt install nomad consul vault
+#+end_src
+
+** Configure
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./nomad/configure.sh
+  cd "$(dirname -- "${0}")"
+
+  . "${HOME}/important_functions.sh"
+
+  mkdir -pv -- '/etc/consul.d/' '/opt/consul' '/opt/nomad/data' '/opt/nomad/plugins'
+
+  systemctl stop nomad
+  systemctl stop consul
+
+  cp -vf -- './etc/nomad.d/nomad.hcl' '/etc/nomad.d/nomad.hcl'
+
+  sed "s/#NODE_IP#/${1}/g" './etc/consul.d/consul.hcl' \
+      | sed "s/#NODE_NAME#/${2}/g" \
+      > '/etc/consul.d/consul.hcl' ;
+
+  adown \
+      'https://releases.hashicorp.com/nomad-device-nvidia/1.1.0/nomad-device-nvidia_1.1.0_linux_amd64.zip' \
+      'nomad-device-nvidia_1.1.0_linux_amd64.zip' \
+      '6bfeba3a45a197e29e4ce3ee7448edcd1830761ffb72c1d58811f5a437453614eec586451a9e3673877028e335a34594f2fe115fd6fe73cfd7596ed67436c161' \
+      "${HOME}/NOMAD/nomad-device-nvidia_1.1.0_linux_amd64.zip" \
+  ;
+
+  cd "${HOME}/NOMAD/"
+  unzip './nomad-device-nvidia_1.1.0_linux_amd64.zip'
+  mv './nomad-device-nvidia' '/opt/nomad/plugins'
+
+  systemctl start consul
+  systemctl start nomad
+
+  consul members
+  nomad server members
+#+end_src
+
+  systemctl stop nomad
+  sudo -A systemctl stop nomad
+
+  cp -vf -- './etc/nomad.d/nomad.hcl' '/etc/nomad.d/nomad.hcl'
+  sudo -A cp -vf -- './etc/nomad.d/nomad.hcl' '/etc/nomad.d/nomad.hcl'
+
+  systemctl start nomad
+  sudo -A systemctl start nomad
+
+  consul members
+  nomad server members
+
+
+sudo -A ./configure.sh '10.10.8.17' 'gpu17'
+sudo -A ./configure.sh '10.10.8.16' 'gpu16'
+sudo -A ./configure.sh '10.10.8.14' 'gpu14'
+
+** Config file
+
+*** nomad
+
+**** main config
+#+begin_src conf :mkdirp yes :tangle ./nomad/etc/nomad.d/nomad.hcl
+  # /etc/nomad.d/nomad.hcl
+
+  data_dir  = "/opt/nomad/data"
+  plugin_dir = "/opt/nomad/plugins"
+  bind_addr = "0.0.0.0" # Listen on all interfaces
+  datacenter = "single-cp"
+
+  # 1. Server Configuration
+  server {
+    enabled          = true
+    bootstrap_expect = 3
+  }
+
+  # 2. Client Configuration (to run workloads on these nodes)
+  client {
+    enabled = true
+  }
+
+  # 3. Consul Integration (The "Automatic" part)
+  consul {
+    address = "127.0.0.1:8500" # Your local Consul agent
+    
+    # Automatically register and find peers
+    server_auto_join = true
+    client_auto_join = true
+    
+    # Register the Nomad services in Consul
+    auto_advertise = true
+    server_service_name = "nomad"
+    client_service_name = "nomad-client"
+  }
+#+end_src
+
+**** gpu config
+#+begin_src conf :mkdirp yes :tangle ./nomad/etc/nomad.d/nomad.hcl
+  plugin "nomad-device-nvidia" {
+    config {
+      enabled            = true
+      ignored_gpu_ids    = ["GPU-fef8089b", "GPU-ac81e44d"]
+      fingerprint_period = "1m"
+    }
+  }
+#+end_src
+
+*** consul
+#+begin_src conf :mkdirp yes :tangle ./nomad/etc/consul.d/consul.hcl
+  # /etc/consul.d/consul.hcl
+
+  node_name  = "#NODE_NAME#" # Change to node-2, node-3 accordingly
+  data_dir   = "/opt/consul"
+  datacenter = "single-cp"
+  server     = true
+
+  # The number of servers expected in the cluster
+  bootstrap_expect = 3
+
+  # Internal IP of this specific node
+  bind_addr = "#NODE_IP#" 
+
+  # IPs of the other nodes to join the cluster automatically
+  retry_join = ["10.10.8.17", "10.10.8.16", "10.10.8.14"]
+
+  # Performance & Security (Recommended for Production)
+  performance {
+    raft_multiplier = 1
+  }
+
+  ui_config {
+    enabled = true
+  }
+#+end_src
+
+* Setting up garage to autostart
+
+** Generate random secret
+
+*** COMMENT Secure
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./garage/gen_secret.sh
+  openssl rand -hex 32
+#+end_src
+
+*** Reproducible
+
+**** Shared secret
+#+begin_src conf :mkdirp yes :tangle ./garage/secret.txt
+  MyAbsoluteSecretForDualGPU
+#+end_src
+
+**** Script to generate
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./garage/gen_secret.sh
+  cd "$(dirname -- "${0}")"
+  sha512sum './secret.txt' | cut -b 1-64
+#+end_src
+
+** Actual config
+
+*** Headers
+#+begin_src conf :mkdirp yes :tangle ./garage/garage_headers.toml
+  metadata_dir = "/home/root/1/garage/meta"
+  data_dir = "/home/root/1/garage/data"
+
+  replication_factor = 2
+  consistency_mode = "consistent"
+  compression_level = 2
+
+  rpc_bind_addr = "[::]:11111"
+  rpc_public_addr = "#IP#:11111"
+  rpc_secret = "#KEY#"
+
+  bootstrap_peers = [
+#+end_src
+
+*** Peers
+#+begin_src conf :mkdirp yes :tangle ./garage/garage_peers.toml
+#+end_src
+
+*** S3 Related
+#+begin_src conf :mkdirp yes :tangle ./garage/garage_s3.toml
+  ]
+
+  [s3_api]
+  s3_region = "garage"
+  api_bind_addr = "[::]:11110"
+  root_domain = ".s3.garage"
+
+  [s3_web]
+  bind_addr = "[::]:11112"
+  root_domain = ".web.garage"
+  index = "index.html"
+#+end_src
+
+** Prepare the config file
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./garage/gen_config.sh
+  cd "$(dirname -- "${0}")"
+  sed "s/#IP#/${1}/g ; s/#KEY#/${2}/g" './garage_headers.toml' > './garage.toml'
+  cat './garage_peers.toml' >> './garage.toml'
+  cat './garage_s3.toml' >> './garage.toml'
+  cp './garage.toml' '/etc/garage.toml'
+  cp './garage.service' '/etc/systemd/system/garage.service'
+  exit '0'
+#+end_src
+
+** systemd starting service
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./garage/garage.service
+  [Unit]
+  Description=Garage Data Store
+  After=network.target nss-user-lookup.target auditd.service
+
+  [Service]
+  ExecStart=/usr/local/bin/garage server
+  RuntimeDirectory=garaged
+
+  [Install]
+  WantedBy=multi-user.target
+#+end_src
+
+** Generate configs
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./garage/do_full_config.sh
+  cd "$('dirname' -- "${0}")"
+
+  get_ip(){
+      ip address show dev enp3s0 \
+      | grep inet | tr ' ' '\n' \
+      | grep '10\.10\.8\.../24$' \
+      | cut -d '/' -f1
+  }
+
+  sudo '-A' './gen_config.sh' "$(get_ip)" "$(./gen_secret.sh)"
+#+end_src
+
+** Refresh systemd
+#+begin_src sh :shebang #!/bin/sh
+  sudo -A systemctl daemon-reload
+#+end_src
+
+** Start the service
+#+begin_src sh :shebang #!/bin/sh
+  sudo -A systemctl enable garage
+  sudo -A systemctl start garage
+#+end_src
+
+* COMMENT Secret key info
+
+** Credentials
+"${HOME}/.config/rclone/rclone.conf"
+#+begin_src conf
+  ==== ACCESS KEY INFORMATION ====
+  Key ID:              GK01c404f8103ac536db43e889
+  Key name:            rdinputvideokey
+  Secret key:          dddb9fe5f7c86671bdcedd2435ee0c23e6ef436eb41a380a58e03fc30f5409b7
+  Created:             2026-09-23 21:34:23.368 +05:30
+  Validity:            valid
+  Expiration:          never
+#+end_src
+
+** Config file
+#+begin_src conf :mkdirp yes :tangle ./rclone.conf
+  [mains3]
+  type = s3
+  provider = Other
+  access_key_id = GKbcc09b0c3ef1deaa7e8ad122
+  secret_access_key = 187fefcddecafcdfe16f3f02ea18c4f0b20c673795bc2919d85eef5e7cb13819
+  endpoint = http://10.10.8.17:11110
+  region = garage
+  force_path_style = true
+#+end_src
+
+** Command
+rclone ls mains3:rdvideodataset
+rclone ls 'mains3:rdvideodataset/RD/videos_organized_hashed'
+
+*** Push data
+rclone sync '/home/asd/DATASETS/RD/videos_hashed' 'mains3:rdvideodataset/RD/videos_organized_hashed'
+rclone sync 'mains3:rdvideodataset/RD/videos_organized_hashed' '/home/asd/DATASETS/RD/videos_hashed'
+rclone sync '/home/asd/DATASETS/RD/videos' 'mains3:rdvideodataset/RD/videos_raw'
+
+** AWS configs
+export AWS_ENDPOINT_URL='http://gpu17:11110'
+export AWS_ENDPOINT_URL='http://10.10.8.17:11110'
+export AWS_DEFAULT_REGION='garage'
+export AWS_ACCESS_KEY_ID='GKbcc09b0c3ef1deaa7e8ad122'
+export AWS_SECRET_ACCESS_KEY='187fefcddecafcdfe16f3f02ea18c4f0b20c673795bc2919d85eef5e7cb13819'
+
+* JuiceFS
+
+** install
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./JuiceFS/install.sh
+  . "${HOME}/important_functions.sh"
+  cd "$(dirname -- "${0}")"
+
+  adown \
+      'https://github.com/juicedata/juicefs/releases/download/v1.3.1/juicefs-1.3.1-linux-amd64.tar.gz' \
+      'juicefs-1.3.1-linux-amd64.tar.gz' \
+      '894e5f921230da803bcadd4469eb11bab2371ee5659b276f6899bc9d77acc1eac8b82ce686d61b67c3d3eaa693523825881023f0823715f81e157340c75fd90a' \
+      "${HOME}/JuiceFS/juicefs-1.3.1-linux-amd64.tar.gz" ;
+
+
+  cd "${HOME}/JuiceFS/" ;
+  tar '-xf' 'juicefs-1.3.1-linux-amd64.tar.gz'
+  install ./juicefs /usr/local/bin
+#+end_src
+
+** Format
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./JuiceFS/format.sh
+  export AWS_ENDPOINT_URL='http://gpu17:11110'
+  export AWS_DEFAULT_REGION='garage'
+  export AWS_ACCESS_KEY_ID='GKbcc09b0c3ef1deaa7e8ad122'
+  export AWS_SECRET_ACCESS_KEY='187fefcddecafcdfe16f3f02ea18c4f0b20c673795bc2919d85eef5e7cb13819'
+
+  juicefs format \
+      '--storage' s3 \
+      '--bucket' "${AWS_ENDPOINT_URL}/juicefs" \
+      '--access-key' "${AWS_ACCESS_KEY_ID}" \
+      '--secret-key' "${AWS_SECRET_ACCESS_KEY}" \
+      "tikv://10.10.8.14:11100,10.10.8.16:11100,10.10.8.17:11100/juicefs" \
+      myjfs ;
+#+end_src
+
+** mount
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./JuiceFS/mount.sh
+  mkdir -pv -- '/home/root/1/juicefs'
+
+  export AWS_ENDPOINT_URL='http://gpu17:11110'
+  export AWS_DEFAULT_REGION='garage'
+  export AWS_ACCESS_KEY_ID='GKbcc09b0c3ef1deaa7e8ad122'
+  export AWS_SECRET_ACCESS_KEY='187fefcddecafcdfe16f3f02ea18c4f0b20c673795bc2919d85eef5e7cb13819'
+
+  juicefs mount \
+      "tikv://10.10.8.14:11100,10.10.8.16:11100,10.10.8.17:11100/juicefs" \
+      '/home/root/1/juicefs' ;
+#+end_src
+
+* RKE2
+
+** Config file
+#+begin_src conf :mkdirp yes :tangle ./RKE2/etc/rancher/rke2/config.yaml
+  server: https://gpu20:9345
+  token: K101e75cbed8986475fd99ccb17e4721bb9e332205d444a7b0c9713c8c2b88b7f0b::server:SiliconCarbide!23
+  tls-san:
+    - gpu20
+    - gpu19
+    - gpu18
+    - 10.10.8.20
+    - 10.10.8.19
+    - 10.10.8.18
+#+end_src
+
+** Install RKE2
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./RKE2/install.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+
+  PATH_ETC="$(realpath './etc')"
+
+  adown \
+      'https://get.rke2.io' \
+      'get_rke2.sh' \
+      '49b21b3edd6f2ba87e732aeb6a709668302806efb55a060f64db9f680c97dfe096ecc9ec4f95ecaa30af46042c288c115c1d54b9566e4313b993e147b8c442d4' \
+      "${HOME}/RKE2/get_rke2.sh" \
+  ;
+
+  cd "${HOME}/RKE2/"
+
+  chmod +x get_rke2.sh
+
+  ./get_rke2.sh
+
+  cp -apf "${PATH_ETC}" /
+
+  systemctl enable rke2-server.service
+  systemctl start rke2-server.service
+
+  '/var/lib/rancher/rke2/bin/kubectl' 'get' 'nodes' \
+      '--kubeconfig' '/etc/rancher/rke2/rke2.yaml' ;
+
+  journalctl -u rke2-server -f
+
+#+end_src
+
+** Install Helm
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./RKE2/install_helm.sh
+  . "${HOME}/important_functions.sh"
+
+  cd "$(dirname -- "${0}")"
+
+  export KUBECONFIG='/etc/rancher/rke2/rke2.yaml'
+  PATH_ETC="$(realpath './etc')"
+
+  echo 'START Install helm' \
+  && adown \
+      'https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3' \
+      'get_helm.sh' \
+      'eb40998209a12ed9e99b7f88eaba200f973d41819caccb79d74007633937a1858a10fe74d88cbcf952e8838c89c7afaa08a40fe2a2337660e204fc91d02e237d' \
+      "${HOME}/RKE2/get_helm.sh" \
+  && chmod 700 "${HOME}/RKE2/get_helm.sh" \
+  && "${HOME}/RKE2/get_helm.sh" \
+  && echo 'DONE Install helm' ;
+
+  echo 'START helm nvidia gpu operator' \
+  && helm repo add nvidia 'https://helm.ngc.nvidia.com/nvidia' \
+  && helm repo update \
+  && echo 'DONE helm nvidia gpu operator' ;
+
+  echo 'START Remove existing gpu operator' \
+  && helm uninstall \
+      'gpu-operator' 'nvidia/gpu-operator' \
+      '--wait' \
+      '-n' 'gpu-operator' \
+  && echo 'DONE Remove existing gpu operator' ;
+
+  echo 'START Install the nvidia gpu operator' \
+  && helm install \
+      'gpu-operator' 'nvidia/gpu-operator' \
+      '--wait' \
+      '-n' 'gpu-operator' \
+      '--create-namespace' \
+  && echo 'DONE Install the nvidia gpu operator' ;
+
+  echo 'START List and verify the install' \
+  && helm list '-n' 'gpu-operator' \
+  && echo 'DONE List and verify the install' ;
+
+  echo 'START spegel container cache' \
+  && helm upgrade \
+      '--create-namespace' \
+      '--namespace' 'spegel' \
+      '--install' 'spegel' 'oci://ghcr.io/spegel-org/helm-charts/spegel' \
+  && echo 'DONE spegel container cache' ;
+#+end_src
+
+* Main script to manage git stuff
+
+** Source common functions
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** change dir to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** Clean tmp files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  CLEAN '.git.sh'
+  CLEAN 'README.org~'
+#+end_src
+
+** Add files to git
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  GITADD 'garage/do_full_config.sh'
+  GITADD 'garage/garage_headers.toml'
+  GITADD 'garage/garage_peers.toml'
+  GITADD 'garage/garage_s3.toml'
+  GITADD 'garage/garage.service'
+  GITADD 'garage/gen_config.sh'
+  GITADD 'garage/gen_secret.sh'
+  GITADD 'garage/secret.txt'
+  GITADD 'install_apt_dependencies.sh'
+  GITADD 'install_docker.sh'
+  GITADD 'install_nvidia_ctk.sh'
+  GITADD 'install_nvidia_drivers.sh'
+  GITADD 'JuiceFS/format.sh'
+  GITADD 'JuiceFS/install.sh'
+  GITADD 'JuiceFS/mount.sh'
+  GITADD 'nomad/configure.sh'
+  GITADD 'nomad/etc/consul.d/consul.hcl'
+  GITADD 'nomad/etc/nomad.d/nomad.hcl'
+  GITADD 'nomad/install.sh'
+  GITADD 'pull_important_code.sh'
+  GITADD 'README.org'
+  GITADD 'RKE2/etc/rancher/rke2/config.yaml'
+  GITADD 'RKE2/install_helm.sh'
+  GITADD 'RKE2/install.sh'
+  GITADD 'TIDB/connect_to_db.sh'
+  GITADD 'TIDB/create_k3s_db.sql'
+  GITADD 'TIDB/install_tidb.sh'
+  GITADD 'TIDB/topology.yaml'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  git status ; git commit -m 'Added tidb setup, started new branch'
+  "${HOME}/SSH/K/W/setup.sh" ; git push
+#+end_src
+
+** COMMENT Run the file
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src

@@ -1,0 +1,85 @@
+global:
+  user: "root"
+  ssh_port: 22
+  deploy_dir: "/home/root/1/tidb/deploy"
+  data_dir: "/home/root/1/tidb/data"
+server_configs: {}
+pd_servers:
+  - host: 10.10.8.17
+    client_port: 11100
+    peer_port: 11101
+  - host: 10.10.8.16
+    client_port: 11100
+    peer_port: 11101
+  - host: 10.10.8.14
+    client_port: 11100
+    peer_port: 11101
+tidb_servers:
+  - host: 10.10.8.17
+    port: 11102
+    status_port: 11103
+  - host: 10.10.8.16
+    port: 11102
+    status_port: 11103
+  - host: 10.10.8.14
+    port: 11102
+    status_port: 11103
+tikv_servers:
+  - host: 10.10.8.17
+    port: 11104
+    status_port: 11105
+  - host: 10.10.8.16
+    port: 11104
+    status_port: 11105
+  - host: 10.10.8.14
+    port: 11104
+    status_port: 11105
+tiflash_servers:
+  - host: 10.10.8.17
+    tcp_port: 11113
+    http_port: 11114
+    flash_service_port: 11115
+    flash_proxy_port: 11116
+    flash_proxy_status_port: 11117
+    metrics_port: 11118
+  - host: 10.10.8.16
+    tcp_port: 11113
+    http_port: 11114
+    flash_service_port: 11115
+    flash_proxy_port: 11116
+    flash_proxy_status_port: 11117
+    metrics_port: 11118
+  - host: 10.10.8.14
+    tcp_port: 11113
+    http_port: 11114
+    flash_service_port: 11115
+    flash_proxy_port: 11116
+    flash_proxy_status_port: 11117
+    metrics_port: 11118
+monitoring_servers:
+  - host: 10.10.8.17
+    ng_port: 11106
+    port: 11107
+  - host: 10.10.8.16
+    ng_port: 11106
+    port: 11107
+  - host: 10.10.8.14
+    ng_port: 11106
+    port: 11107
+grafana_servers:
+  - host: 10.10.8.17
+    port: 11108
+  - host: 10.10.8.16
+    port: 11108
+  - host: 10.10.8.14
+    port: 11108
+alertmanager_servers:
+  - host: 10.10.8.17
+    web_port: 11109
+    cluster_port: 11120
+  - host: 10.10.8.16
+    web_port: 11109
+    cluster_port: 11120
+  - host: 10.10.8.14
+    web_port: 11109
+    cluster_port: 11120

@@ -1,0 +1,11 @@
+#!/bin/sh
+[Unit]
+Description=Garage Data Store
+After=network.target nss-user-lookup.target auditd.service
+
+[Service]
+ExecStart=/usr/local/bin/garage server
+RuntimeDirectory=garaged
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+]
+
+[s3_api]
+s3_region = "garage"
+api_bind_addr = "[::]:11110"
+root_domain = ".s3.garage"
+
+[s3_web]
+bind_addr = "[::]:11112"
+root_domain = ".web.garage"
+index = "index.html"

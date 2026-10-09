@@ -1,0 +1,9 @@
+server: https://gpu20:9345
+token: K101e75cbed8986475fd99ccb17e4721bb9e332205d444a7b0c9713c8c2b88b7f0b::server:SiliconCarbide!23
+tls-san:
+  - gpu20
+  - gpu19
+  - gpu18
+  - 10.10.8.20
+  - 10.10.8.19
+  - 10.10.8.18
