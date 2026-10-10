@@ -24,6 +24,3 @@ sudo -A docker run \
     -v "CACHE:/root/.cache" \
     "${IMAGE_NAME}" "${IMAGE_CMD}" \
 ;
-
-    # '--gpus' 'device=0,"capabilities=compute,utility,video"' \
-    # '--mount' 'type=tmpfs,destination=/tmp,tmpfs-size=107374182400' \
