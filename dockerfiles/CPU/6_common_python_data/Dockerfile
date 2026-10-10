@@ -1,16 +1,12 @@
 FROM 5_libtorch
 
-COPY './important_functions.sh' '/root/important_functions.sh'
-
 RUN \
     echo 'START hashing' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'blake3' \
-    && echo 'DONE hashing'
-
-RUN \
-    echo 'START dataframe' \
+    && echo 'DONE hashing' \
+    && echo 'START dataframe' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'datafusion' \
@@ -19,18 +15,14 @@ RUN \
         'pandas' \
         'polars' \
         'python-calamine' \
-    && echo 'DONE dataframe'
-
-RUN \
-    echo 'START lancedb' \
+    && echo 'DONE dataframe' \
+    && echo 'START lancedb' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'lancedb' \
         'pylance' \
-    && echo 'DONE lancedb'
-
-RUN \
-    echo 'START others' \
+    && echo 'DONE lancedb' \
+    && echo 'START others' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'fastapi[standard]' \
@@ -49,18 +41,14 @@ RUN \
         'urllib3' \
         'wandb' \
         'zarr' \
-    && echo 'DONE others'
-
-RUN \
-    echo 'START plotting' \
+    && echo 'DONE others' \
+    && echo 'START plotting' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'matplotlib' \
         'seaborn' \
-    && echo 'DONE plotting'
-
-RUN \
-    echo 'START image and tensor stuff' \
+    && echo 'DONE plotting' \
+    && echo 'START image and tensor stuff' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         'albumentationsx' \
@@ -71,10 +59,8 @@ RUN \
         'pillow' \
         'safetensors' \
         'sentencepiece' \
-    && echo 'DONE image and tensor stuff'
-
-RUN \
-    echo 'START GRPC stuff' \
+    && echo 'DONE image and tensor stuff' \
+    && echo 'START GRPC stuff' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         'grpcio' \

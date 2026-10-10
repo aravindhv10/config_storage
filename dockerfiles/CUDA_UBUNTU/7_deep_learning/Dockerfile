@@ -1,7 +1,5 @@
 FROM 6_common_python_data
 
-COPY './important_functions.sh' '/root/important_functions.sh'
-
 RUN \
     echo 'START Quantization, optimization and offloading' \
     && . "${VIRTUAL_ENV}/bin/activate" \
