@@ -1,16 +1,15 @@
 FROM 4_python
 
-COPY './important_functions.sh' '/root/important_functions.sh'
-
 RUN \
     echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         '--index-url' 'https://download.pytorch.org/whl/cpu' \
             'torch' \
             'torchvision' \
-    && echo 'DONE pip' ;
+    && echo 'DONE pip'
 
-ENV LIBTORCH='/root/venv/lib/python3.14/site-packages/torch/'
-ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake"
-ENV LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
+ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.14/site-packages/torch/"
+
+ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake" \
+    LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"

@@ -1,10 +1,10 @@
 FROM 3_good_setup
 
-RUN test -e "${HOME}/venv" || uv venv "${HOME}/venv"
+RUN test -e "${VIRTUAL_ENV}" || uv venv "${VIRTUAL_ENV}"
 
 RUN \
     echo 'START pip' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'ipython' \
         'ninja' \

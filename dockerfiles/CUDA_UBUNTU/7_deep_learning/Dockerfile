@@ -4,7 +4,7 @@ COPY './important_functions.sh' '/root/important_functions.sh'
 
 RUN \
     echo 'START Quantization, optimization and offloading' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
             'accelerate' \
             'datasets' \
@@ -23,4 +23,4 @@ RUN \
             'torchmetrics' \
             'transformers' \
             'ultralytics' \
-    && echo 'DONE onnxstuff' ;
+    && echo 'DONE onnxstuff'

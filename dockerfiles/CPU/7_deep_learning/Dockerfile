@@ -1,18 +1,14 @@
 FROM 6_common_python_data
 
-COPY './important_functions.sh' '/root/important_functions.sh'
-
 RUN \
     echo 'START timm' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         'timm' \
-    && echo 'DONE timm' ;
-
-RUN \
-    echo 'START onnxstuff' \
-    && . "${HOME}/venv/bin/activate" \
+    && echo 'DONE timm' \
+    && echo 'START onnxstuff' \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         'onnxruntime' \
         'onnxscript' \
-    && echo 'DONE onnxstuff' ;
+    && echo 'DONE onnxstuff'

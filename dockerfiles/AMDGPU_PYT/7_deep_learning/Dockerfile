@@ -23,4 +23,4 @@ RUN \
         'torchmetrics' \
         'transformers' \
         'ultralytics' \
-    && echo 'DONE onnxstuff' ;
+    && echo 'DONE onnxstuff'

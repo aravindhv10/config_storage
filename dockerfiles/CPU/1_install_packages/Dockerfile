@@ -9,7 +9,7 @@ ENV CARGO_HOME="${HOME}/cargo" \
     VIRTUAL_ENV="${HOME}/venv" \
     VIRTUAL_ENV_PROMPT='venv'
 
-ENV PATH="${HOME}/bin:${HOME}/venv/bin:${CARGO_HOME}/bin:${PATH}"
+ENV PATH="${HOME}/bin:${VIRTUAL_ENV}/bin:${CARGO_HOME}/bin:${PATH}"
 
 WORKDIR '/root'
 
@@ -24,4 +24,4 @@ RUN \
     && apt-get update \
     && . '/root/important_functions.sh' \
     && get_apt_packages \
-    && echo 'DONE apt-get update' ;
+    && echo 'DONE apt-get update'

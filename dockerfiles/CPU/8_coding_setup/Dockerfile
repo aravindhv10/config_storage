@@ -15,4 +15,4 @@ RUN \
     && mv -vf -- \
         "${HOME}/LSP/llm-ls-x86_64-unknown-linux-gnu" \
         '/usr/local/bin/llm-ls' \
-    && echo 'DONE download llm-ls' ;
+    && echo 'DONE download llm-ls'

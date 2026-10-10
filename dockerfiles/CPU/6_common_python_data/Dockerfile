@@ -4,14 +4,14 @@ COPY './important_functions.sh' '/root/important_functions.sh'
 
 RUN \
     echo 'START hashing' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'blake3' \
-    && echo 'DONE hashing' ;
+    && echo 'DONE hashing'
 
 RUN \
     echo 'START dataframe' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'datafusion' \
         'fastexcel' \
@@ -19,19 +19,19 @@ RUN \
         'pandas' \
         'polars' \
         'python-calamine' \
-    && echo 'DONE dataframe' ;
+    && echo 'DONE dataframe'
 
 RUN \
     echo 'START lancedb' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'lancedb' \
         'pylance' \
-    && echo 'DONE lancedb' ;
+    && echo 'DONE lancedb'
 
 RUN \
     echo 'START others' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'fastapi[standard]' \
         'inotify-simple' \
@@ -49,19 +49,19 @@ RUN \
         'urllib3' \
         'wandb' \
         'zarr' \
-    && echo 'DONE others' ;
+    && echo 'DONE others'
 
 RUN \
     echo 'START plotting' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install -U \
         'matplotlib' \
         'seaborn' \
-    && echo 'DONE plotting' ;
+    && echo 'DONE plotting'
 
 RUN \
     echo 'START image and tensor stuff' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         'albumentationsx' \
         'einops' \
@@ -71,13 +71,13 @@ RUN \
         'pillow' \
         'safetensors' \
         'sentencepiece' \
-    && echo 'DONE image and tensor stuff' ;
+    && echo 'DONE image and tensor stuff'
 
 RUN \
     echo 'START GRPC stuff' \
-    && . "${HOME}/venv/bin/activate" \
+    && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
         'grpcio' \
         'grpcio-tools' \
         'protobuf' \
-    && echo 'DONE GRPC stuff' ;
+    && echo 'DONE GRPC stuff'
