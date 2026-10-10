@@ -18,9 +18,8 @@ RUN \
     && cd "${HOME}" \
     && chmod +x 'rustup-init.sh' \
     && './rustup-init.sh' '-y' '--no-modify-path' \
-    && echo 'DONE Download and install rust'
-
-RUN echo 'START Adding additional rust packages' \
+    && echo 'DONE Download and install rust' \
+    && echo 'START Adding additional rust packages' \
     && rustup default stable \
     && rustup component add rust-src \
     && rustup component add rust-analyzer \
