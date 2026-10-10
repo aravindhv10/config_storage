@@ -1,6 +1,6 @@
 FROM 1_install_packages
 
-ENV CARGO_HOME="${HOME}/cargo"
+ENV CARGO_HOME="${HOME}/cargo" \
     RUSTUP_HOME="${HOME}/rustup"
 
 ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
@@ -24,20 +24,16 @@ RUN \
     && rustup component add rust-src \
     && rustup component add rust-analyzer \
     && rustup component add rustfmt \
-    && echo 'DONE Adding additional rust packages'
-
-RUN \
-    --mount=target=/root/SHA512SUM,type=cache \
-    --mount=target=/root/TMP,type=cache \
-    echo 'START Download and install zig' \
+    && echo 'DONE Adding additional rust packages' \
+    && echo 'START Download and install zig' \
     && . "${HOME}/important_functions.sh" \
     && adown \
-        'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
-        'zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
-        'ac0b7866a539299083bb74cf1ae4ecdb90a9e33d81241f61ef5892dc5448211c63fd1f3afc335cba9b0dd3557d39adb73d9dd92948e5a37004d3be13a5a4359c' \
-        "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz" \
+        'https://ziglang.org/download/0.17.0/zig-x86_64-linux-0.17.0.tar.xz' \
+        'zig-x86_64-linux-0.17.0.tar.xz' \
+        '152a876860ee15c8d7b77fe7107638e2739732350e4cfe98b6f2748265294994f78dbbe249367316318353b9d401d5184d34833cd221fffd088354f74f4ec499' \
+        "${HOME}/ZIG/zig-x86_64-linux-0.17.0.tar.xz" \
     && cd "${HOME}/ZIG/" \
-    && tar -xf './zig-x86_64-linux-0.17.0-dev.1941+71115f0ab.tar.xz' \
-    && cd './zig-x86_64-linux-0.17.0-dev.1941+71115f0ab' \
+    && tar -xf './zig-x86_64-linux-0.17.0.tar.xz' \
+    && cd './zig-x86_64-linux-0.17.0' \
     && mv * /usr/local/bin/ \
-    && echo 'DONE Download and install zig' ;
+    && echo 'DONE Download and install zig'
