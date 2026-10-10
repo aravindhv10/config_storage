@@ -73,6 +73,13 @@
       DEBIAN_FRONTEND='noninteractive' \
       CMAKE_EXPORT_COMPILE_COMMANDS=1
 
+  ENV CARGO_HOME="${HOME}/cargo" \
+      RUSTUP_HOME="${HOME}/rustup" \
+      VIRTUAL_ENV="${HOME}/venv" \
+      VIRTUAL_ENV_PROMPT='venv'
+
+  ENV PATH="${HOME}/bin:${HOME}/venv/bin:${CARGO_HOME}/bin:${PATH}"
+
   WORKDIR '/root'
 
   USER root
@@ -100,19 +107,6 @@
 *** Base image
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   FROM 1_install_packages
-#+end_src
-
-*** COMMENT Copy important functions
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-#+end_src
-
-*** Setting env
-#+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  ENV CARGO_HOME="${HOME}/cargo" \
-      RUSTUP_HOME="${HOME}/rustup"
-
-  ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 #+end_src
 
 *** Download and install rust
@@ -158,7 +152,7 @@
   FROM 2_install_rust
 #+end_src
 
-*** Copy important functions shell script
+*** COMMENT Copy important functions shell script
 #+begin_src conf :mkdirp yes :tangle ./CPU/3_good_setup/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
@@ -171,12 +165,10 @@
       echo 'START Download and install rust programs' \
       && . "${HOME}/important_functions.sh" \
       && get_all_good_programs_and_config \
-      && echo 'DONE Download and install rust programs' ;
-
-  RUN \
+      && echo 'DONE Download and install rust programs' \
       echo 'START Delete tar files after installing' \
       fd '\.tar$' '/var/tmp' -t f -x unlink '{}' \
-      echo 'DONE Delete tar files after installing' ;
+      echo 'DONE Delete tar files after installing'
 #+end_src
 
 ** 4_python
@@ -189,15 +181,10 @@
 *** Setup venv if it does not already exist
 #+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
   RUN test -e "${HOME}/venv" || uv venv "${HOME}/venv"
-  ENV PATH="/root/venv/bin:${PATH}"
-  ENV VIRTUAL_ENV="${HOME}/venv"
-  ENV VIRTUAL_ENV_PROMPT='venv'
 #+end_src
 
 *** Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/4_python/Dockerfile
-  COPY './important_functions.sh' '/root/important_functions.sh'
-
   RUN \
       echo 'START pip' \
       && . "${HOME}/venv/bin/activate" \
@@ -208,7 +195,7 @@
           'pip' \
           'setuptools' \
           'wheel' \
-      && echo 'DONE pip' ;
+      && echo 'DONE pip'
 #+end_src
 
 *** COMMENT Download important codes

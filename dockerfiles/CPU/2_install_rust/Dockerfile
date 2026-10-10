@@ -1,10 +1,5 @@
 FROM 1_install_packages
 
-ENV CARGO_HOME="${HOME}/cargo" \
-    RUSTUP_HOME="${HOME}/rustup"
-
-ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
-
 RUN \
     --mount=target=/root/SHA512SUM,type=cache \
     --mount=target=/root/TMP,type=cache \
