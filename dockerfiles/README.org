@@ -69,10 +69,12 @@
 
 *** Important env
 #+begin_src conf :mkdirp yes :tangle ./CPU/1_install_packages/Dockerfile
-  ENV HOME='/root'
-  ENV DEBIAN_FRONTEND='noninteractive'
-  ENV CMAKE_EXPORT_COMPILE_COMMANDS=1
+  ENV HOME='/root' \
+      DEBIAN_FRONTEND='noninteractive' \
+      CMAKE_EXPORT_COMPILE_COMMANDS=1
+
   WORKDIR '/root'
+
   USER root
 #+end_src
 
@@ -100,7 +102,7 @@
   FROM 1_install_packages
 #+end_src
 
-*** Copy important functions
+*** COMMENT Copy important functions
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   COPY './important_functions.sh' '/root/important_functions.sh'
 #+end_src
@@ -108,7 +110,8 @@
 *** Setting env
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
   ENV CARGO_HOME="${HOME}/cargo"
-  ENV RUSTUP_HOME="${HOME}/rustup"
+      RUSTUP_HOME="${HOME}/rustup"
+
   ENV PATH="${HOME}/bin:${CARGO_HOME}/bin:${PATH}"
 #+end_src
 
@@ -132,10 +135,12 @@
 
 *** Install additional rust components
 #+begin_src conf :mkdirp yes :tangle ./CPU/2_install_rust/Dockerfile
-  RUN rustup default stable
-  RUN rustup component add rust-src
-  RUN rustup component add rust-analyzer
-  RUN rustup component add rustfmt
+  RUN echo 'START Adding additional rust packages' \
+      && rustup default stable \
+      && rustup component add rust-src \
+      && rustup component add rust-analyzer \
+      && rustup component add rustfmt \
+      && echo 'DONE Adding additional rust packages'
 #+end_src
 
 *** Download and install zig
