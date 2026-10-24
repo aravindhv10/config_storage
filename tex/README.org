@@ -117,6 +117,65 @@
   $e^{i \pi}=1$
 #+end_src
 
+* Bibliography
+#+begin_src conf :mkdirp yes :tangle ./main.bib
+  @article{robbins1951,
+      author = "Robbins, Herbert and Monro, Sutton",
+      doi = "10.1214/aoms/1177729586",
+      fjournal = "The Annals of Mathematical Statistics",
+      journal = "Ann. Math. Statist.",
+      month = "09",
+      number = "3",
+      pages = "400--407",
+      publisher = "The Institute of Mathematical Statistics",
+      title = "A Stochastic Approximation Method",
+      url = "https://doi.org/10.1214/aoms/1177729586",
+      volume = "22",
+      year = "1951"
+  }
+
+  @article{Edsjo:2003us,
+      author         = "Edsjo, Joakim and Schelke, Mia and Ullio, Piero and
+                      Gondolo, Paolo",
+      title          = "{Accurate relic densities with neutralino, chargino and
+                      sfermion coannihilations in mSUGRA}",
+      journal        = "JCAP",
+      volume         = "0304",
+      year           = "2003",
+      pages          = "001",
+      doi            = "10.1088/1475-7516/2003/04/001",
+      eprint         = "hep-ph/0301106",
+      archivePrefix  = "arXiv",
+      primaryClass   = "hep-ph",
+      reportNumber   = "NSF-ITP-03-03, CWRU-P1-03",
+      SLACcitation   = "%%CITATION = HEP-PH/0301106;%%"
+  }
+#+end_src
+
+* Compilation scripts
+
+** PDFLATEX
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./tmp.sh
+  cd "$('dirname' '--' "${0}")"
+  'pdflatex' '-shell-escape' 'main.tex'
+  #'gnuplot' 'main-gnuplottex-fig1.gnuplot'
+  'bibtex' 'main'
+  'pdflatex' '-shell-escape' 'main.tex'
+  'pdflatex' '-shell-escape' 'main.tex'
+  exit '0'
+#+end_src
+
+** LUALATEX
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./LUALATEX.sh
+  cd "$('dirname' '--' "${0}")"
+  'lualatex' '-shell-escape' 'main_new.tex'
+  #'gnuplot' './main_new-gnuplottex-fig1.gnuplot'
+  'biber' 'main_new'
+  'lualatex' '-shell-escape' 'main_new.tex'
+  'lualatex' '-shell-escape' 'main_new.tex'
+  exit '0'
+#+end_src
+
 * COMMENT WORK SPACE
 #+begin_src emacs-lisp :results silent
   (save-buffer)
