@@ -20,7 +20,13 @@
   header_common.tex
   header_lualatex.tex
   header_pdflatex.tex
+  header_tail.tex
+  LUALATEX.sh
+  main.bib
+  main_lualatex.tex
+  main_pdflatex.tex
   README.org
+  text.tex
   utphys.bst
 #+end_src
 
