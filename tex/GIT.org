@@ -21,6 +21,7 @@
   header_lualatex.tex
   header_pdflatex.tex
   README.org
+  utphys.bst
 #+end_src
 
 *** script
