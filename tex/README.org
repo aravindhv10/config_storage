@@ -1,0 +1,15 @@
+* Header
+
+** common
+#+begin_src tex :mkdirp yes :tangle ./header_common.tex
+#+end_src
+
+** pdflatex
+#+begin_src tex :mkdirp yes :tangle ./header_pdflatex.tex
+#+end_src
+
+** lualatex
+#+begin_src tex :mkdirp yes :tangle ./header_lualatex.tex
+#+end_src
+
+* body
