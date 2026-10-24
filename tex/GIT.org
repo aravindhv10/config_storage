@@ -17,6 +17,9 @@
 *** list
 #+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
   GIT.org
+  header_common.tex
+  header_lualatex.tex
+  header_pdflatex.tex
   README.org
 #+end_src
 
