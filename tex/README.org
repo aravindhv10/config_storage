@@ -52,7 +52,8 @@
 
 ** pdflatex
 #+begin_src tex :mkdirp yes :tangle ./header_pdflatex.tex
-  \input{./header_common.tex}
+  \input{header_common.tex}
+
   \usepackage[nobreak]{cite}
 
   \usepackage{color}
@@ -66,7 +67,7 @@
 
 ** lualatex
 #+begin_src tex :mkdirp yes :tangle ./header_lualatex.tex
-  \input{./header_common.tex}
+  \input{header_common.tex}
 
   \usepackage[style=numeric-comp,sorting=none,backend=biber,backref=true]{biblatex}
   \addbibresource{main_new.bib}
@@ -102,12 +103,33 @@
 
 ** pdflatex
 #+begin_src tex :mkdirp yes :tangle ./main_pdflatex.tex
+  \input{header_pdflatex.tex}
+
+  \author{Aravind H. Vijay}
+
+  \begin{document}
+
+  \input{text.tex}
+
+  %\bibliography{main.bib}
+  %\bibliographystyle{utphys.bst}
+
+  \end{document}
 #+end_src
 
 ** lualatex
 #+begin_src tex :mkdirp yes :tangle ./main_lualatex.tex
-#+end_src
+  \input{header_lualatex.tex}
+  \author{Aravind H. Vijay}
 
+  \begin{document}
+
+  \input{text.tex}
+
+  \printbibliography
+
+  \end{document}
+#+end_src
 
 * COMMENT WORK SPACE
 #+begin_src emacs-lisp :results silent
