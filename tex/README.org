@@ -108,6 +108,15 @@
   \end{document}
 #+end_src
 
+* Common text
+#+begin_src tex :mkdirp yes :tangle ./text.tex
+  askjdhasjdgasjg
+
+  akgdkjahgsd
+
+  $e^{i \pi}=1$
+#+end_src
+
 * COMMENT WORK SPACE
 #+begin_src emacs-lisp :results silent
   (save-buffer)
