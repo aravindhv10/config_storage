@@ -249,6 +249,19 @@ zigbuild_rust_package_in_cwd(){
     cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl'
 }
 
+zigbuild_surrealdb(){
+    get_repo 'https://github.com/surrealdb/surrealdb.git'
+    git checkout 'tags/v3.3.5'
+    export RUSTFLAGS="-C target-cpu=x86-64-v3"
+    export ZIG_CC_FLAGS="-march=x86-64-v3"
+    rustup target add 'x86_64-unknown-linux-musl'
+    cargo zigbuild \
+        '--target' 'x86_64-unknown-linux-musl' \
+        '--no-default-features' '--release' \
+        '--features' 'allocator,cli,gql,graphql,http,jwks,mcp,postgres,scripting,storage-mem,storage-surrealkv,surrealism' \
+    ;
+}
+
 zigbuild_rust_package_in_cwd_aarch(){
     export RUSTFLAGS="-C target-cpu=neoverse-v2"
     export ZIG_CC_FLAGS="-mcpu=neoverse-v2"
@@ -600,6 +613,7 @@ get_rust_packages_standard(){
     rustup target add 'x86_64-unknown-linux-musl'
     cargo zigbuild '--release' '--target' 'x86_64-unknown-linux-musl' '--features=fjall'
     find './target/x86_64-unknown-linux-musl/release/' -maxdepth 1 -type f -executable -exec cp -vf '{}' '/usr/local/bin/' ';'
+
 
     get_tmux
     get_byobu
