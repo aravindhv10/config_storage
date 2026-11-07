@@ -8,7 +8,7 @@ RUN \
     && adown \
         'https://sh.rustup.rs' \
         'rustup.rs' \
-        '494ddf67a104d5deb49380968ecccd8648ee0d7a3e61a8fa45b4dfd3bdc51ba8777922ed0e1864bf81ba78ce718bd40c55c1835c328df3cd1cd0d17312411460' \
+        '8b854962ca5f69032a9bb98317baa2a0b75ae773c351bb6867931eb01b0ce4c5d1778f22a348ed0528a1713de3374c41f00d2bcfcdbdfd7717c07249b7d31828' \
         "${HOME}/rustup-init.sh" \
     && cd "${HOME}" \
     && chmod +x 'rustup-init.sh' \
