@@ -93,7 +93,6 @@
     uwsm
     vim
     virt-viewer
-    vscode-fhs
     waybar
     wayland
     wayland-protocols
