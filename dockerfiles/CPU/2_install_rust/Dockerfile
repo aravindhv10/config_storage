@@ -8,7 +8,7 @@ RUN \
     && adown \
         'https://sh.rustup.rs' \
         'rustup.rs' \
-        '494ddf67a104d5deb49380968ecccd8648ee0d7a3e61a8fa45b4dfd3bdc51ba8777922ed0e1864bf81ba78ce718bd40c55c1835c328df3cd1cd0d17312411460' \
+        '8b854962ca5f69032a9bb98317baa2a0b75ae773c351bb6867931eb01b0ce4c5d1778f22a348ed0528a1713de3374c41f00d2bcfcdbdfd7717c07249b7d31828' \
         "${HOME}/rustup-init.sh" \
     && cd "${HOME}" \
     && chmod +x 'rustup-init.sh' \
@@ -23,12 +23,13 @@ RUN \
     && echo 'START Download and install zig' \
     && . "${HOME}/important_functions.sh" \
     && adown \
-        'https://ziglang.org/download/0.17.0/zig-x86_64-linux-0.17.0.tar.xz' \
-        'zig-x86_64-linux-0.17.0.tar.xz' \
-        '152a876860ee15c8d7b77fe7107638e2739732350e4cfe98b6f2748265294994f78dbbe249367316318353b9d401d5184d34833cd221fffd088354f74f4ec499' \
-        "${HOME}/ZIG/zig-x86_64-linux-0.17.0.tar.xz" \
+        'https://ziglang.org/download/0.17.1/zig-x86_64-linux-0.17.1.tar.xz' \
+        'zig-x86_64-linux-0.17.1.tar.xz' \
+        'b00d74bfb4fd2d01d1a48f2e6a6860f78a79ca26931a61c6f5cdc6c297e34562db63795e0142c280447400eccec57d71e3ba1c03f125e8a9449ba5b4daba366d' \
+        "${HOME}/ZIG/zig-x86_64-linux-0.17.1.tar.xz" \
     && cd "${HOME}/ZIG/" \
-    && tar -xf './zig-x86_64-linux-0.17.0.tar.xz' \
-    && cd './zig-x86_64-linux-0.17.0' \
-    && mv * /usr/local/bin/ \
+    && 'tar' '-xf' 'zig-x86_64-linux-0.17.1.tar.xz' \
+    && cd 'zig-x86_64-linux-0.17.1' \
+    && 'mv' '-vf' '--' 'zig' '/usr/local/bin/zig' \
+    && 'cp' '-alpf' '--' 'lib' 'doc' '/usr/local/bin/' \
     && echo 'DONE Download and install zig'

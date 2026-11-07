@@ -1,1 +1,1 @@
-FROM rocm/dev-ubuntu-24.04:7.2.3-complete
+FROM rocm/dev-ubuntu-26.04:10.0.0-full

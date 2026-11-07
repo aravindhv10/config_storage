@@ -28,15 +28,29 @@
 #+end_src
 
 *** CUDA_UBUNTU
+
+**** COMMENT 24.04
 #+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
   FROM nvidia/cuda:13.2.1-cudnn-devel-ubuntu24.04
+#+end_src
+
+**** 26.04
+#+begin_src conf :mkdirp yes :tangle ./CUDA_UBUNTU/0_base/Dockerfile
+  FROM nvidia/cuda:13.4.3-cudnn-devel-ubuntu26.04
 #+end_src
 
 *** AMDGPU
 
 **** Main base image
+
+***** COMMENT 7
 #+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
   FROM rocm/dev-ubuntu-24.04:7.2.3-complete
+#+end_src
+
+***** 10
+#+begin_src conf :mkdirp yes :tangle ./AMDGPU_PYT/0_base/Dockerfile
+  FROM rocm/dev-ubuntu-26.04:10.0.0-full
 #+end_src
 
 **** COMMENT provide default python venv for use later
@@ -119,7 +133,7 @@
       && adown \
           'https://sh.rustup.rs' \
           'rustup.rs' \
-          '494ddf67a104d5deb49380968ecccd8648ee0d7a3e61a8fa45b4dfd3bdc51ba8777922ed0e1864bf81ba78ce718bd40c55c1835c328df3cd1cd0d17312411460' \
+          '8b854962ca5f69032a9bb98317baa2a0b75ae773c351bb6867931eb01b0ce4c5d1778f22a348ed0528a1713de3374c41f00d2bcfcdbdfd7717c07249b7d31828' \
           "${HOME}/rustup-init.sh" \
       && cd "${HOME}" \
       && chmod +x 'rustup-init.sh' \
@@ -134,14 +148,15 @@
       && echo 'START Download and install zig' \
       && . "${HOME}/important_functions.sh" \
       && adown \
-          'https://ziglang.org/download/0.17.0/zig-x86_64-linux-0.17.0.tar.xz' \
-          'zig-x86_64-linux-0.17.0.tar.xz' \
-          '152a876860ee15c8d7b77fe7107638e2739732350e4cfe98b6f2748265294994f78dbbe249367316318353b9d401d5184d34833cd221fffd088354f74f4ec499' \
-          "${HOME}/ZIG/zig-x86_64-linux-0.17.0.tar.xz" \
+          'https://ziglang.org/download/0.17.1/zig-x86_64-linux-0.17.1.tar.xz' \
+          'zig-x86_64-linux-0.17.1.tar.xz' \
+          'b00d74bfb4fd2d01d1a48f2e6a6860f78a79ca26931a61c6f5cdc6c297e34562db63795e0142c280447400eccec57d71e3ba1c03f125e8a9449ba5b4daba366d' \
+          "${HOME}/ZIG/zig-x86_64-linux-0.17.1.tar.xz" \
       && cd "${HOME}/ZIG/" \
-      && tar -xf './zig-x86_64-linux-0.17.0.tar.xz' \
-      && cd './zig-x86_64-linux-0.17.0' \
-      && mv * /usr/local/bin/ \
+      && 'tar' '-xf' 'zig-x86_64-linux-0.17.1.tar.xz' \
+      && cd 'zig-x86_64-linux-0.17.1' \
+      && 'mv' '-vf' '--' 'zig' '/usr/local/bin/zig' \
+      && 'cp' '-alpf' '--' 'lib' 'doc' '/usr/local/bin/' \
       && echo 'DONE Download and install zig'
 #+end_src
 
@@ -222,14 +237,14 @@
       echo 'START pytorch' \
       && . "${VIRTUAL_ENV}/bin/activate" \
       && uv pip install \
-          '--extra-index-url' 'https://download.pytorch.org/whl/cu132' \
+          '--extra-index-url' 'https://download.pytorch.org/whl/cu134' \
               'torch' \
               'torchvision' \
               'torchao' \
               'xformers' \
       && echo 'DONE pytorch'
 
-  ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.12/site-packages/torch"
+  ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.14/site-packages/torch"
 
   ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake" \
       LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
@@ -243,14 +258,14 @@
       echo 'START pytorch' \
       && . "${VIRTUAL_ENV}/bin/activate" \
       && uv pip install \
-          '--extra-index-url' 'https://download.pytorch.org/whl/rocm7.2' \
+          '--extra-index-url' 'https://download.pytorch.org/whl/rocm10.0' \
               'torch' \
               'torchvision' \
               'torchao' \
               'xformers' \
       && echo 'DONE pytorch' ;
 
-  ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.12/site-packages/torch"
+  ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.14/site-packages/torch"
 
   ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake" \
       LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
@@ -405,28 +420,6 @@
       && echo 'DONE onnxstuff'
 #+end_src
 
-** 8_coding_setup
-#+begin_src conf :mkdirp yes :tangle ./CPU/8_coding_setup/Dockerfile
-  FROM 7_deep_learning
-
-  RUN \
-      --mount=target=/root/SHA512SUM,type=cache \
-      --mount=target=/root/TMP,type=cache \
-      echo 'START download llm-ls' \
-      && . "${HOME}/important_functions.sh" \
-      && adown \
-          'https://github.com/huggingface/llm-ls/releases/download/0.5.3/llm-ls-x86_64-unknown-linux-gnu.gz' \
-          'llm-ls-x86_64-unknown-linux-gnu.gz' \
-          '28496e9b0729e981544c8d6d3f92b4a66cf1627f6ef3c97512b1e1af2b36f8cdcb598c36a72c40cfcdb6fbd65038b3315ae834f380ee44a268cd8d937b86bc1d' \
-          "${HOME}/LSP/llm-ls-x86_64-unknown-linux-gnu.gz" \
-      && gzip -df "${HOME}/LSP/llm-ls-x86_64-unknown-linux-gnu.gz" \
-      && chmod +x "${HOME}/LSP/llm-ls-x86_64-unknown-linux-gnu" \
-      && mv -vf -- \
-          "${HOME}/LSP/llm-ls-x86_64-unknown-linux-gnu" \
-          '/usr/local/bin/llm-ls' \
-      && echo 'DONE download llm-ls'
-#+end_src
-
 * Script to build images
 
 ** CPU
@@ -440,7 +433,6 @@
   './build_container.sh' 'CPU/5_libtorch'
   './build_container.sh' 'CPU/6_common_python_data'
   './build_container.sh' 'CPU/7_deep_learning'
-  './build_container.sh' 'CPU/8_coding_setup'
   exit '0'
 #+end_src
 
@@ -455,7 +447,6 @@
   './build_container.sh' 'CUDA_UBUNTU/5_libtorch'
   './build_container.sh' 'CPU/6_common_python_data'
   './build_container.sh' 'CUDA_UBUNTU/7_deep_learning'
-  './build_container.sh' 'CPU/8_coding_setup'
   exit '0'
 #+end_src
 
@@ -470,7 +461,6 @@
   './build_container.sh' 'AMDGPU_PYT/5_libtorch'
   './build_container.sh' 'CPU/6_common_python_data'
   './build_container.sh' 'AMDGPU_PYT/7_deep_learning'
-  './build_container.sh' 'CPU/8_coding_setup'
   exit '0'
 #+end_src
 
@@ -823,7 +813,7 @@ llvm libclang-dev clang
   GITADD 'CPU/5_libtorch/Dockerfile'
   GITADD 'CPU/6_common_python_data/Dockerfile'
   GITADD 'CPU/7_deep_learning/Dockerfile'
-  GITADD 'CPU/8_coding_setup/Dockerfile'
+  # GITADD 'CPU/8_coding_setup/Dockerfile'
 
   GITADD 'AMDGPU_PYT/0_base/Dockerfile'
   GITADD 'AMDGPU_PYT/5_libtorch/Dockerfile'
