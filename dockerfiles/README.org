@@ -237,7 +237,7 @@
       echo 'START pytorch' \
       && . "${VIRTUAL_ENV}/bin/activate" \
       && uv pip install \
-          '--extra-index-url' 'https://download.pytorch.org/whl/cu132' \
+          '--extra-index-url' 'https://download.pytorch.org/whl/cu134' \
               'torch' \
               'torchvision' \
               'torchao' \
