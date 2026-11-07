@@ -28,7 +28,8 @@ RUN \
         'b00d74bfb4fd2d01d1a48f2e6a6860f78a79ca26931a61c6f5cdc6c297e34562db63795e0142c280447400eccec57d71e3ba1c03f125e8a9449ba5b4daba366d' \
         "${HOME}/ZIG/zig-x86_64-linux-0.17.1.tar.xz" \
     && cd "${HOME}/ZIG/" \
-    && tar -xf './zig-x86_64-linux-0.17.0.tar.xz' \
-    && cd './zig-x86_64-linux-0.17.0' \
-    && mv * /usr/local/bin/ \
+    && 'tar' '-xf' 'zig-x86_64-linux-0.17.1.tar.xz' \
+    && cd 'zig-x86_64-linux-0.17.1' \
+    && 'mv' '-vf' '--' 'zig' '/usr/local/bin/zig' \
+    && 'cp' '-alpf' '--' 'lib' 'doc' '/usr/local/bin/' \
     && echo 'DONE Download and install zig'
