@@ -11,7 +11,7 @@ RUN \
             'xformers' \
     && echo 'DONE pytorch'
 
-ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.12/site-packages/torch"
+ENV LIBTORCH="${VIRTUAL_ENV}/lib/python3.14/site-packages/torch"
 
 ENV CMAKE_PREFIX_PATH="${LIBTORCH}/share/cmake" \
     LD_LIBRARY_PATH="${LIBTORCH}/lib:${LD_LIBRARY_PATH}"
