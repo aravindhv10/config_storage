@@ -864,39 +864,41 @@ get_apt_packages() {
 
         # 'libstdc++-10-dev' \
 
-prepare_rust_zig_on_host(){
+prepare_rust_zig(){
     export RUSTUP_HOME="${HOME}/rustup"
     export CARGO_HOME="${HOME}/cargo"
     export PATH="${CARGO_HOME}/bin:${HOME}/bin:${PATH}"
+
     mkdir -pv -- "${HOME}/bin/"
 
     echo 'START Download and install rust' \
-    && . "${HOME}/important_functions.sh" \
     && adown \
         'https://sh.rustup.rs' \
         'rustup.rs' \
-        'cd9fd64eabc989f19a6a16e9cd2caabe935082e2715b9308150f86d3839c99eb9a7e42a7ef6730c6d956d870638ee89a04dd9e7e14fe243cc165967b7f2918da' \
+        '8b854962ca5f69032a9bb98317baa2a0b75ae773c351bb6867931eb01b0ce4c5d1778f22a348ed0528a1713de3374c41f00d2bcfcdbdfd7717c07249b7d31828' \
         "${HOME}/rustup-init.sh" \
     && cd "${HOME}" \
     && chmod +x 'rustup-init.sh' \
     && './rustup-init.sh' '-y' '--no-modify-path' \
-    && echo 'DONE Download and install rust'
-
-    rustup component add rust-src
-    rustup component add rust-analyzer
-    rustup component add rustfmt
-    rustup target add x86_64-unknown-linux-musl
+    && echo 'DONE Download and install rust' \
+    && echo 'START Adding additional rust packages' \
+    && rustup component add rust-analyzer \
+    && rustup component add rustfmt \
+    && rustup component add rust-src \
+    && rustup default stable \
+    && rustup target add x86_64-unknown-linux-musl \
+    && echo 'DONE Adding additional rust packages'
 
     echo 'START Download and install zig' \
-    && . "${HOME}/important_functions.sh" \
     && adown \
-        'https://ziglang.org/builds/zig-x86_64-linux-0.17.0-dev.644+3de725074.tar.xz' \
-        'zig-x86_64-linux-0.17.0-dev.644+3de725074.tar.xz' \
-        '83124f5f2535e2c30fe41da1f3eb92e98c6687423b9d91e18bc7a7d9a02ac72e10930e41cf948c9f8f0f7d434f34973a38a43f13acf38539fafc705cbba94004' \
-        "${HOME}/ZIG/zig-x86_64-linux-0.17.0-dev.644+3de725074.tar.xz" \
+        'https://ziglang.org/download/0.17.1/zig-x86_64-linux-0.17.1.tar.xz' \
+        'zig-x86_64-linux-0.17.1.tar.xz' \
+        'b00d74bfb4fd2d01d1a48f2e6a6860f78a79ca26931a61c6f5cdc6c297e34562db63795e0142c280447400eccec57d71e3ba1c03f125e8a9449ba5b4daba366d' \
+        "${HOME}/ZIG/zig-x86_64-linux-0.17.1.tar.xz" \
     && cd "${HOME}/ZIG/" \
-    && tar -xf "./zig-x86_64-linux-0.17.0-dev.644+3de725074.tar.xz" \
-    && cd './zig-x86_64-linux-0.17.0-dev.644+3de725074/' \
-    && mv * /usr/local/bin/ \
+    && 'tar' '-xf' 'zig-x86_64-linux-0.17.1.tar.xz' \
+    && cd 'zig-x86_64-linux-0.17.1' \
+    && 'mv' '-vf' '--' 'zig' "${HOME}/bin/zig" \
+    && 'cp' '-alpf' '--' 'lib' 'doc' "${HOME}/bin/" \
     && echo 'DONE Download and install zig' ;
 }
