@@ -643,6 +643,14 @@ INSTALL_ALL_GOOD_PACKAGES () {
     INSTALL_ZST_ZRCHIVE 'ad223683e37965f5d4becb4e3d0348d72f7625e563918873e09af30a5f13bc02ac73101f61b4b0aa3737ca78e5714cf14d3404c50a347749ee602ef1a764ba06' 'rs3gw'
 }
 
+RUN_RS3GW(){
+    RS3GW_BIND_ADDR=0.0.0.0:9000
+    RS3GW_STORAGE_ROOT=/data
+    RS3GW_DEFAULT_BUCKET=default
+    RUST_LOG=info
+    rs3gw
+}
+
 get_all_good_programs_and_config () {
     INSTALL_ALL_GOOD_PACKAGES
     cd '/var/tmp/'
