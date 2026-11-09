@@ -649,6 +649,14 @@ RUN_RS3GW(){
     export RS3GW_DEFAULT_BUCKET='default'
     export RUST_LOG='info'
     export RS3GW_REGION='us-east-1'
+    export RS3GW_CHECKSUM_VALIDATION='true'
+    export RS3GW_ACCESS_KEY='cloudphysician'
+    export RS3GW_SECRET_KEY='7*Bellary'
+    export RS3GW_COMPRESSION='zstd:3'
+    export RS3GW_DEDUP_ENABLED='true'
+    export RS3GW_DEDUP_BLOCK_SIZE='65536'
+    export RS3GW_DEDUP_ALGORITHM='fixed'
+    export RS3GW_DEDUP_MIN_SIZE='131072'
     rs3gw
 }
 
