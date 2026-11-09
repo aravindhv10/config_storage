@@ -1,0 +1,434 @@
+#!/usr/bin/env python3
+import os
+
+try:
+    __file__
+except:
+    basepath = os.path.abspath(".")
+else:
+    basepath = os.path.dirname(os.path.abspath(__file__))
+basepath = os.path.dirname(basepath)
+import sys
+
+sys.path.append(basepath)
+BATCH_SIZE_TRAIN = 8
+BATCH_SIZE_TEST = 8
+BATCH_SIZE_TRAIN_FINETUNE = 2
+BATCH_SIZE_TEST_FINETUNE = 4
+import model
+import random
+import subprocess
+import torch
+
+
+def get_list_path_bin16(inpath):
+    cmdlist = (
+        "fd",
+        r"\.bin16$",
+        inpath,
+        "-t",
+        "f",
+    )
+    return (
+        subprocess.run(
+            cmdlist,
+            capture_output=True,
+        )
+        .stdout.decode()
+        .split("\n")
+    )
+
+
+def do_split_test_train(inlist, path_file_out_txt_train, path_file_out_txt_test, ratio):
+    total_len = len(inlist)
+    split_point = int(total_len * ratio)
+    if (0 < split_point) and (split_point < total_len):
+        random.shuffle(inlist)
+        test_split = inlist[0:split_point]
+        train_split = inlist[split_point:total_len]
+        with open(path_file_out_txt_train, "w", encoding="utf-8") as f:
+            for i in train_split:
+                f.write(i)
+                f.write("\n")
+        with open(path_file_out_txt_test, "w", encoding="utf-8") as f:
+            for i in test_split:
+                f.write(i)
+                f.write("\n")
+
+
+def read_list_path_bin16_from_path_txt(path_txt_input):
+    with open(path_txt_input, "r") as f:
+        list_path_bin16 = [i for i in f.read().split("\n") if i.endswith(".bin16")]
+    return list_path_bin16
+
+
+def load_bin_file(path_file_bin):
+    with open(path_file_bin, "rb") as f:
+        tensor = torch.frombuffer(
+            f.read(),
+            dtype=torch.float32,
+        ).reshape(model.INPUT_FFT_VIDEO_SHAPE)
+    return tensor
+
+
+def load_bin16_file(path_file_bin16):
+    with open(path_file_bin16, "rb") as f:
+        tensor = torch.frombuffer(
+            f.read(),
+            dtype=torch.bfloat16,
+        ).reshape(model.INPUT_FFT_VIDEO_SHAPE)
+    return tensor
+
+
+def load_bin64_file(path_file_bin64):
+    with open(path_file_bin64, "rb") as f:
+        tensor = torch.frombuffer(
+            f.read(),
+            dtype=torch.float64,
+        ).reshape(model.INPUT_FFT_VIDEO_SHAPE)
+    return tensor
+
+
+def collate_fn(inlist):
+    total_len = len(inlist)
+    hf_rd = torch.tensor(
+        [inlist[idx]["hf"][1] for idx in range(total_len)], dtype=torch.int64
+    )
+    hf_facial_expression = torch.tensor(
+        [inlist[idx]["hf"][2] for idx in range(total_len)], dtype=torch.int64
+    )
+    hf_nasal_flaring = torch.tensor(
+        [inlist[idx]["hf"][3] for idx in range(total_len)], dtype=torch.int64
+    )
+    hf_neck_muscle = torch.tensor(
+        [inlist[idx]["hf"][4] for idx in range(total_len)], dtype=torch.int64
+    )
+    hf_abdomen_muscle = torch.tensor(
+        [inlist[idx]["hf"][5] for idx in range(total_len)], dtype=torch.int64
+    )
+    hf_rr = torch.tensor(
+        [inlist[idx]["hf"][6] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_calm_rd = torch.tensor(
+        [inlist[idx]["old_calm"][1] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_calm_facial_expression = torch.tensor(
+        [inlist[idx]["old_calm"][2] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_calm_nasal_flaring = torch.tensor(
+        [inlist[idx]["old_calm"][3] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_calm_neck_muscle = torch.tensor(
+        [inlist[idx]["old_calm"][4] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_calm_abdomen_muscle = torch.tensor(
+        [inlist[idx]["old_calm"][5] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_calm_rr = torch.tensor(
+        [inlist[idx]["old_calm"][6] for idx in range(total_len)], dtype=torch.int64
+    )
+    old_rd_rd = torch.tensor(
+        [inlist[idx]["old_rd"][1] for idx in range(total_len)], dtype=torch.int64
+    )
+    hf_video = torch.cat(
+        [inlist[idx]["hf"][0].unsqueeze(0) for idx in range(total_len)]
+    )
+    old_calm_video = torch.cat(
+        [inlist[idx]["old_calm"][0].unsqueeze(0) for idx in range(total_len)]
+    )
+    old_rd_video = torch.cat(
+        [inlist[idx]["old_rd"][0].unsqueeze(0) for idx in range(total_len)]
+    )
+    ret = {
+        "hf_rd": hf_rd,
+        "hf_facial_expression": hf_facial_expression,
+        "hf_nasal_flaring": hf_nasal_flaring,
+        "hf_neck_muscle": hf_neck_muscle,
+        "hf_abdomen_muscle": hf_abdomen_muscle,
+        "hf_rr": hf_rr,
+        "old_calm_rd": old_calm_rd,
+        "old_calm_facial_expression": old_calm_facial_expression,
+        "old_calm_nasal_flaring": old_calm_nasal_flaring,
+        "old_calm_neck_muscle": old_calm_neck_muscle,
+        "old_calm_abdomen_muscle": old_calm_abdomen_muscle,
+        "old_calm_rr": old_calm_rr,
+        "old_rd_rd": old_rd_rd,
+        "old_calm_video": old_calm_video,
+        "old_rd_video": old_rd_video,
+        "hf_video": hf_video,
+    }
+    return ret
+
+
+def get_data_loader_pretrain(
+    path_txt_list_bin16,
+    mu,
+    sigma,
+    batch_size=1,
+    num_workers=2,
+    prefetch_factor=1,
+    for_training=True,
+):
+    list_path_bin16 = read_list_path_bin16_from_path_txt(
+        path_txt_input=path_txt_list_bin16
+    )
+    dataset = pretrain_dataset(
+        list_path_bin16,
+        mu=mu,
+        sigma=sigma,
+        force_length=None,
+        for_training=for_training,
+    )
+    dataloader = torch.utils.data.DataLoader(
+        dataset=dataset,
+        batch_size=batch_size,
+        shuffle=for_training,
+        num_workers=num_workers,
+        prefetch_factor=prefetch_factor,
+    )
+    return dataloader
+
+
+def get_data_loader(
+    df_hf,
+    df_old_calm,
+    df_old_rd,
+    mu,
+    sigma,
+    batch_size=1,
+    num_workers=2,
+    prefetch_factor=1,
+    for_training=True,
+):
+    dataset = all_dataset(
+        df_hf=df_hf,
+        df_old_calm=df_old_calm,
+        df_old_rd=df_old_rd,
+        for_training=for_training,
+        mu=mu,
+        sigma=sigma,
+    )
+    dataloader = torch.utils.data.DataLoader(
+        dataset=dataset,
+        batch_size=batch_size,
+        shuffle=for_training,
+        num_workers=num_workers,
+        collate_fn=collate_fn,
+        prefetch_factor=prefetch_factor,
+    )
+    return dataloader
+
+
+class augmenter:
+    def __init__(self, for_training):
+        self.for_training = for_training
+        self.shape = model.INPUT_FFT_VIDEO_SHAPE
+
+    def do_blur(self, x, f=None):
+        if f is None:
+            f = (
+                1
+                - torch.abs(
+                    torch.normal(mean=torch.zeros(1), std=torch.ones(1) * 0.2)
+                ).item()
+            )
+            f = max(f, 0.4)
+        x = torch.nn.functional.interpolate(
+            input=x.unsqueeze(0),
+            size=(
+                int(model.N_FFT_MODES_Y * f),
+                int(model.N_FFT_MODES_X * f),
+                int(model.N_FFT_MODES_T * f),
+            ),
+            mode="trilinear",
+        )
+        x = torch.nn.functional.interpolate(
+            input=x,
+            size=(
+                model.N_FFT_MODES_Y,
+                model.N_FFT_MODES_X,
+                model.N_FFT_MODES_T,
+            ),
+            mode="trilinear",
+        ).squeeze(0)
+        return x
+
+    def __call__(self, x, doflip=False):
+        if self.for_training:
+            x = self.do_blur(x, f=None)
+        if doflip:
+            x = torch.permute(input=x, dims=(0, 2, 1, 3))
+        return x
+
+
+class pretrain_dataset(torch.utils.data.Dataset):
+    def __init__(
+        self,
+        list_path_bin16_input,
+        mu,
+        sigma,
+        force_length=None,
+        for_training=True,
+    ):
+        self.mu = mu
+        self.sigma = sigma
+        self.aug = augmenter(for_training)
+        self.list_path_bin16_input = list_path_bin16_input
+        if force_length is None:
+            self.force_length = len(self.list_path_bin16_input)
+        else:
+            self.force_length = force_length
+
+    def __len__(self):
+        # return self.force_length * 2
+        return self.force_length
+
+    def __getitem__(self, idx):
+        # do_flip = (idx % 2) == 1
+        # idx = idx >> 1
+        do_flip = False
+        idx = idx % len(self.list_path_bin16_input)
+        # print("Loading: ", self.list_path_bin16_input[idx])
+        binpath = load_bin16_file(path_file_bin16=self.list_path_bin16_input[idx])
+        binpath = (binpath.to(dtype=torch.float32) - self.mu) / self.sigma
+        return self.aug(
+            binpath,
+            doflip=do_flip,
+        )
+
+
+class old_rd_dataset(torch.utils.data.Dataset):
+    def __init__(
+        self,
+        indf,
+        mu,
+        sigma,
+        force_length=None,
+        for_training=True,
+    ):
+        self.mu = mu
+        self.sigma = sigma
+        self.aug = augmenter(for_training)
+        self.df = indf
+        if force_length is None:
+            self.force_length = len(self.df)
+        else:
+            self.force_length = force_length
+
+    def __len__(self):
+        # return self.force_length * 2
+        return self.force_length
+
+    def __getitem__(self, idx):
+        # do_flip = (idx % 2) == 1
+        # idx = idx >> 1
+        do_flip = False
+        idx = idx % len(self.df)
+        binpath = load_bin16_file(path_file_bin16=self.df["binpath"][idx])
+        binpath = (binpath.to(dtype=torch.float32) - self.mu) / self.sigma
+        rd = self.df["rd"][idx]
+        return (
+            self.aug(
+                binpath,
+                doflip=do_flip,
+            ),
+            rd,
+        )
+
+
+class hf_dataset(torch.utils.data.Dataset):
+    def __init__(
+        self,
+        indf,
+        mu,
+        sigma,
+        force_length=None,
+        for_training=True,
+    ):
+        self.mu = mu
+        self.sigma = sigma
+        self.aug = augmenter(for_training)
+        self.df = indf
+        if force_length is None:
+            self.force_length = len(self.df)
+        else:
+            self.force_length = force_length
+
+    def __len__(self):
+        # return self.force_length * 2
+        return self.force_length
+
+    def __getitem__(self, idx):
+        # do_flip = (idx % 2) == 1
+        # idx = idx >> 1
+        do_flip = False
+        idx = idx % len(self.df)
+        binpath = load_bin16_file(path_file_bin16=self.df["binpath"][idx])
+        binpath = binpath.to(dtype=torch.float32)
+        binpath = (binpath.to(dtype=torch.float32) - self.mu) / self.sigma
+        rd = self.df["rd"][idx]
+        facial_expression = self.df["facial_expression"][idx]
+        nasal_flaring = self.df["nasal_flaring"][idx]
+        neck_muscle = self.df["neck_muscle"][idx]
+        abdomen_muscle = self.df["abdomen_muscle"][idx]
+        rr = self.df["rr"][idx]
+        return (
+            self.aug(
+                binpath,
+                doflip=do_flip,
+            ),
+            rd,
+            facial_expression,
+            nasal_flaring,
+            neck_muscle,
+            abdomen_muscle,
+            rr,
+        )
+
+
+class all_dataset(torch.utils.data.Dataset):
+    def __init__(
+        self,
+        df_hf,
+        df_old_calm,
+        df_old_rd,
+        mu,
+        sigma,
+        for_training=True,
+    ):
+        self.hf = hf_dataset(
+            df_hf,
+            for_training=for_training,
+            mu=mu,
+            sigma=sigma,
+        )
+        self.old_rd = old_rd_dataset(
+            df_old_rd,
+            for_training=for_training,
+            mu=mu,
+            sigma=sigma,
+        )
+        self.old_calm = hf_dataset(
+            df_old_calm,
+            for_training=for_training,
+            mu=mu,
+            sigma=sigma,
+        )
+        self.total_length = max(
+            max(
+                len(self.old_calm),
+                len(self.old_rd),
+            ),
+            len(self.hf),
+        )
+
+    def __len__(self):
+        return self.total_length
+
+    def __getitem__(self, idx):
+        ret = {
+            "hf": self.hf[idx],
+            "old_calm": self.old_calm[idx],
+            "old_rd": self.old_rd[idx],
+        }
+        return ret

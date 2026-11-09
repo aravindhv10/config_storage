@@ -1,0 +1,580 @@
+* COMMENT SAMPLE main
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.import.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
+#+end_src
+
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.execute.py
+#+end_src
+
+* Main python code
+
+** Import torch and numpy once globally
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+  import torch
+  import einops
+#+end_src
+
+** Define parameters of the image
+
+*** L0 (independent inputs)
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+  VIDEO_FPS = 8
+  PREFERRED_VIDEO_LENGTH_SECONDS = 20
+  FERQ_LIMIT_BREATHING = 3.0
+
+  VIDEO_LEN_C = 3
+  VIDEO_LEN_X = 1280
+  VIDEO_LEN_Y = 720
+
+  COMPRESS_SPACE = int(5)
+  TOKENIZATION_FACTOR=int(2)
+  NUM_ATTENTION_HEADS = int(6)
+#+end_src
+
+*** L1 (Calculated using L0)
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+  VIDEO_LEN_T = PREFERRED_VIDEO_LENGTH_SECONDS * VIDEO_FPS
+
+  FFTFREQ = torch.fft.rfftfreq(
+      n=VIDEO_LEN_T,
+      d=1 / VIDEO_FPS,
+  )
+
+  N_CHANNELS_FFT = VIDEO_LEN_C * 2
+  N_FFT_MODES_X = VIDEO_LEN_X // COMPRESS_SPACE
+  N_FFT_MODES_Y = VIDEO_LEN_Y // COMPRESS_SPACE
+#+end_src
+
+*** L2 (Calculated using L1)
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+  N_FFT_MODES_T = (FFTFREQ < FERQ_LIMIT_BREATHING).sum().item()
+#+end_src
+
+*** L3 (Calculated using L2)
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
+  INPUT_FFT_VIDEO_SHAPE = [
+      N_CHANNELS_FFT,
+      N_FFT_MODES_Y,
+      N_FFT_MODES_X,
+      N_FFT_MODES_T,
+  ]
+#+end_src
+
+** function to evaluate closest power of 2
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.function.py
+  def get_closest_2_pow(x):
+      x = int(x)
+      ret = x.bit_length() - 1
+      out = 1 << ret
+      if out == x:
+          return ret
+      else:
+          return ret + 1
+#+end_src
+
+** swiglu stuff
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class SwiGLU(torch.nn.Module):
+      def __init__(self, dimension):
+          super().__init__()
+          self.linear_1 = torch.nn.Linear(dimension, dimension)
+          self.linear_2 = torch.nn.Linear(dimension, dimension)
+
+      def forward(self, x):
+          output = self.linear_1(x)
+          swish = output * torch.sigmoid(output)
+          swiglu = swish * self.linear_2(x)
+          return swiglu
+#+end_src
+
+** Attention head
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class STAttentinHead(torch.nn.Module):
+      @staticmethod
+      def _build_rope_matrix(dim: int) -> torch.Tensor:
+          """Vectorized 2x2 RoPE matrix construction."""
+          if dim <= 1:
+              i = torch.zeros(1)
+          else:
+              i = torch.arange(dim, dtype=torch.float32)
+
+          theta = i * torch.pi / ((dim - 1) << 1)
+          st = torch.sin(theta)
+          ct = torch.cos(theta)
+
+          # Stack into [dim, 2, 2] shape: [[cos, -sin], [sin, cos]]
+          mat = torch.stack(
+              [torch.stack([ct, -st], dim=-1), torch.stack([st, ct], dim=-1)], dim=-1
+          )
+          return mat
+
+      def __init__(self, inshape):
+          super().__init__()
+
+          self.inshape = inshape
+          self.compression_factor = 2
+          self.out_dim_pow = (
+              get_closest_2_pow(x=self.inshape[-1]) - self.compression_factor
+          )
+          self.len_W = self.inshape[-2]
+          self.len_H = self.inshape[-3]
+          self.out_dim = 1 << self.out_dim_pow
+          self.scale = self.out_dim**-0.5
+
+          self.qkv = torch.nn.Linear(
+              in_features=self.inshape[-1],
+              out_features=self.out_dim * 3,
+              bias=True,
+          )
+
+          self.swiglu = SwiGLU(self.out_dim)
+
+          self.proj_out = torch.nn.Linear(
+              in_features=self.out_dim,
+              out_features=self.inshape[-1],
+              bias=True,
+          )
+
+          self.norm = torch.nn.LayerNorm(self.out_dim)
+
+          max_dim = max(self.len_H, self.len_W)
+          self.register_buffer("ROPE", self._build_rope_matrix(max_dim), persistent=False)
+
+      def forward(self, x):
+          y = self.qkv(x)
+          y = einops.rearrange(y, "B Y X (T D) -> D B Y X T", D=3)
+          q = y[0]
+          k = y[1]
+          v = y[2]
+
+          q = einops.rearrange(q, "B Y X (YR XR D) -> B Y X YR XR D", YR=2, XR=2)
+          k = einops.rearrange(k, "B Y X (YR XR D) -> B Y X YR XR D", YR=2, XR=2)
+
+          rope = self.ROPE.to(dtype=q.dtype)
+
+          q = einops.einsum(
+              rope[: q.shape[2]], q, "X XF XR, B Y X YR XR D -> B Y X YR XF D"
+          )
+          q = einops.einsum(
+              rope[: q.shape[1]], q, "Y YF YR, B Y X YR XF D -> B Y X YF XF D"
+          )
+
+          k = einops.einsum(
+              rope[: k.shape[2]], k, "X XF XR, B Y X YR XR D -> B Y X YR XF D"
+          )
+          k = einops.einsum(
+              rope[: k.shape[1]], k, "Y YF YR, B Y X YR XF D -> B Y X YF XF D"
+          )
+
+          q = einops.rearrange(q, "B Y X YF XF D -> B (Y X) (YF XF D)")
+          k = einops.rearrange(k, "B Y X YF XF D -> B (Y X) (YF XF D)")
+          v = einops.rearrange(v, "B Y X D -> B (Y X) D")
+
+          q_sdpa = q.unsqueeze(1)  # Shape: [B, 1, S1, D_q]
+          k_sdpa = k.unsqueeze(1)  # Shape: [B, 1, S2, D_k]
+          v_sdpa = v.unsqueeze(1)  # Shape: [B, 1, S2, D_v]
+
+          y_sdpa = torch.nn.functional.scaled_dot_product_attention(
+              query=q_sdpa,
+              key=k_sdpa,
+              value=v_sdpa,
+              attn_mask=None,
+              dropout_p=0.0,
+              is_causal=False,
+              scale=self.scale,
+          )
+
+          y = y_sdpa.squeeze(1)
+
+          y = self.norm(y)
+          y = self.swiglu(y)
+          y = self.proj_out(y)
+          y = y.reshape(x.shape)
+
+          return y + x
+#+end_src
+
+** Main backbone
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class BackboneTransformer(torch.nn.Module):
+      def __init__(self, tokenization_factor=TOKENIZATION_FACTOR, n_heads=NUM_ATTENTION_HEADS):
+          super().__init__()
+          self.inshape = INPUT_FFT_VIDEO_SHAPE
+          self.tokenization_factor = tokenization_factor
+
+          self.attention_shape = [
+              N_FFT_MODES_Y >> self.tokenization_factor,
+              N_FFT_MODES_X >> self.tokenization_factor,
+              (N_FFT_MODES_T * N_CHANNELS_FFT) << (2 * self.tokenization_factor),
+          ]
+
+          self.attention_head = torch.nn.ModuleList(
+              [STAttentinHead(self.attention_shape) for _ in range(NUM_ATTENTION_HEADS)],
+          )
+
+          self.norm_final = torch.nn.LayerNorm(self.attention_shape[-1])
+
+      def tokenize(self, batch_x):
+          """[B, C, Y, X, T] -> [B, H, W, D] token grid -- a pure reshape, no
+          learned patch embedding (D = (C*T) << 2*tokenization_factor)."""
+          return einops.rearrange(
+              batch_x,
+              "B C (H BH) (W BW) T -> B H W (C T BH BW)",
+              BH=(1 << self.tokenization_factor),
+              BW=(1 << self.tokenization_factor),
+          )
+
+      def encode_tokens(self, tokens):
+          """[B, H, W, D] -> [B, H, W, D], shape-preserving (each head is a
+          residual block) -- exposed separately from `forward` so a masked-token
+          reconstruction head (see V2MaskedPretrainNet) can read the pre-pool
+          per-token features."""
+          for head in self.attention_head:
+              tokens = head(tokens)
+          return tokens
+
+      def forward(self, batch_x):
+          batch_x = self.tokenize(batch_x)
+          batch_x = self.encode_tokens(batch_x)
+          batch_x = batch_x.mean(dim=(1, 2))
+          return self.norm_final(batch_x)
+#+end_src
+
+** Main classification head
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class ClassifierHead(torch.nn.Module):
+      def __init__(self, n_features, tokenization_factor):
+          super().__init__()
+
+          self.tokenization_factor = tokenization_factor
+
+          self.head_classifier = torch.nn.Linear(
+              (N_FFT_MODES_T * N_CHANNELS_FFT) << (2 * self.tokenization_factor),
+              n_features,
+          )
+
+      def forward(self, batch_x):
+          return self.head_classifier(batch_x)
+#+end_src
+
+** Main classification model
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class FullModel(torch.nn.Module):
+      def __init__(self, for_training=True):
+          super().__init__()
+          self.tokenization_factor = 2
+          self.backbone = BackboneTransformer(self.tokenization_factor)
+          self.rd = ClassifierHead(
+              n_features=2, tokenization_factor=self.tokenization_factor
+          )
+          self.facial_expression = ClassifierHead(
+              n_features=2, tokenization_factor=self.tokenization_factor
+          )
+          self.nasal_flaring = ClassifierHead(
+              n_features=3, tokenization_factor=self.tokenization_factor
+          )
+          self.neck_muscle = ClassifierHead(
+              n_features=4, tokenization_factor=self.tokenization_factor
+          )
+          self.abdomen_muscle = ClassifierHead(
+              n_features=3, tokenization_factor=self.tokenization_factor
+          )
+          self.rr = ClassifierHead(
+              n_features=3, tokenization_factor=self.tokenization_factor
+          )
+          self.for_training = for_training
+          if for_training:
+              self.forward = self.forward_train
+          else:
+              self.forward = self.forward_new
+
+      def forward_old(self, batch_x):
+          batch_x = self.backbone(batch_x)
+
+          batch_x_rd = self.rd(batch_x)
+
+          return batch_x_rd
+
+      def forward_new(self, batch_x):
+          batch_x = self.backbone(batch_x)
+
+          batch_x_rd = self.rd(batch_x)
+          batch_x_fe = self.facial_expression(batch_x)
+          batch_x_nf = self.nasal_flaring(batch_x)
+          batch_x_nm = self.neck_muscle(batch_x)
+          batch_x_am = self.abdomen_muscle(batch_x)
+          batch_x_rr = self.rr(batch_x)
+
+          if self.for_training:
+              return (
+                  batch_x_rd,
+                  batch_x_fe,
+                  batch_x_nf,
+                  batch_x_nm,
+                  batch_x_am,
+                  batch_x_rr,
+              )
+          else:
+              batch_x_rd = torch.nn.functional.softmax(batch_x_rd, dim=1)
+              batch_x_fe = torch.nn.functional.softmax(batch_x_fe, dim=1)
+              batch_x_nf = torch.nn.functional.softmax(batch_x_nf, dim=1)
+              batch_x_nm = torch.nn.functional.softmax(batch_x_nm, dim=1)
+              batch_x_am = torch.nn.functional.softmax(batch_x_am, dim=1)
+              batch_x_rr = torch.nn.functional.softmax(batch_x_rr, dim=1)
+              y = (
+                  batch_x_rd,
+                  batch_x_fe,
+                  batch_x_nf,
+                  batch_x_nm,
+                  batch_x_am,
+                  batch_x_rr,
+              )
+              return torch.cat(y, dim=1)
+
+      def forward_train(self, all_x):
+          ret_y = {
+              "old_rd_video": self.forward_old(batch_x=all_x["old_rd_video"]),
+              "old_calm_video": self.forward_old(batch_x=all_x["old_calm_video"]),
+              "hf_video": self.forward_new(batch_x=all_x["hf_video"]),
+          }
+
+          return ret_y
+#+end_src
+
+** Noise embedding
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
+  class SinusoidalNoiseLevelEmbedding(torch.nn.Module):
+      """Standard transformer/diffusion-model sinusoidal embedding, applied to
+      a per-sample scalar noise level `alpha` in [0, 1] instead of an integer
+      timestep -- gives the backbone a continuous, smoothly-interpolating
+      signal for "how much denoising is required" (see V2DiffusionPretrainNet)."""
+
+      def __init__(self, dim):
+          super().__init__()
+          self.dim = dim
+
+      def forward(self, alpha):
+          half = self.dim // 2
+
+          freqs = -torch.arange(half, device=alpha.device, dtype=torch.float32)
+          factor = torch.log(torch.tensor(10000.0, device=alpha.device)) / max(
+              half - 1, 1
+          )
+          freqs = torch.exp(freqs * factor)
+          args = alpha.float()[:, None] * freqs[None, :] * (2 * torch.pi)
+          emb = torch.cat([torch.sin(args), torch.cos(args)], dim=-1)
+          if emb.shape[-1] < self.dim:
+              emb = torch.nn.functional.pad(emb, (0, self.dim - emb.shape[-1]))
+          return emb
+#+end_src
+
+** Diffusion pretrainer
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
+  class V2DiffusionPretrainNet(torch.nn.Module):
+      """Flow-matching-style denoising pretraining on the raw FFT tensors:
+
+          noisy = alpha * signal + (1 - alpha) * noise
+
+      (`alpha=1` -> clean signal, `alpha=0` -> full noise -- the linear
+      interpolation requested, same shape as a rectified-flow/flow-matching
+      interpolant just with the endpoints swapped relative to that literature's
+      usual t=0-is-data convention). `noise` is i.i.d. standard Gaussian
+      (mean 0, std 1) -- safe to use directly *because* the input is expected
+      to already be per-mode mean/std normalized upstream (see v2_norm.py,
+      v2_dataset.py's `norm_stats_path`), so signal and noise are on the same
+      scale at every alpha. Without that normalization layer the raw cached
+      FFT tensors have wildly different per-mode magnitudes (some modes ~100x
+      others), and unit-variance noise would be meaningless relative to them.
+
+      "Guidance on how much noise is added": `alpha` is embedded
+      (SinusoidalNoiseLevelEmbedding -> small MLP, à la a diffusion
+      transformer's timestep conditioning) and added to every spatial token
+      before the attention stack runs, so the backbone has direct access to
+      the noise level for each sample.
+
+      Target is the clean (pre-noise) tokenized tensor directly (x0-prediction,
+      not noise/velocity prediction) via the same per-token linear decoder
+      design as V2MaskedPretrainNet. `self.backbone` has identical parameter
+      names to V2Net.backbone, so the pretrained weights transfer the same way
+      (see v2_diffusion_pretrain.py).
+      """
+
+      def __init__(self, tokenization_factor=TOKENIZATION_FACTOR, n_heads=NUM_ATTENTION_HEADS):
+          super().__init__()
+          self.backbone = BackboneTransformer(tokenization_factor, n_heads)
+          dim = self.backbone.attention_shape[-1]
+          self.noise_level_embed = SinusoidalNoiseLevelEmbedding(dim)
+          self.noise_level_mlp = torch.nn.Sequential(
+              torch.nn.Linear(dim, dim),
+              torch.nn.SiLU(),
+              torch.nn.Linear(dim, dim),
+          )
+          self.decoder = torch.nn.Linear(dim, dim)
+
+      def forward(self, batch_x, alpha=None):
+          b = batch_x.shape[0]
+          if alpha is None:
+              alpha = torch.rand(b, device=batch_x.device)
+
+          noise = torch.randn_like(batch_x)
+          a = alpha.view(b, 1, 1, 1, 1)
+          noisy = a * batch_x + (1 - a) * noise
+
+          clean_tokens = self.backbone.tokenize(batch_x).detach()
+          noisy_tokens = self.backbone.tokenize(noisy)
+
+          cond = self.noise_level_mlp(self.noise_level_embed(alpha))  # [B, D]
+          conditioned = noisy_tokens + cond.view(b, 1, 1, -1)
+
+          encoded = self.backbone.encode_tokens(conditioned)
+          pred = self.decoder(encoded)
+          return pred, clean_tokens
+#+end_src
+
+** Diffusion loss function
+#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
+  def diffusion_mse_loss(pred, target):
+      ret = ((pred - target) ** 2).mean()
+      # print(ret)
+      # print(target)
+      return ret
+#+end_src
+
+** Main classification model
+#+begin_src python :shebang #!/usr/bin/python3 :results output :tangle ./main.class.py
+  class FullModel(torch.nn.Module):
+      def forward_old(self, batch_x):
+          batch_x = self.backbone(batch_x)
+          batch_x = self.rd(batch_x)
+          return batch_x
+
+      def forward_new(self, batch_x):
+          batch_x = self.backbone(batch_x)
+
+          batch_x_rd = self.rd(batch_x)
+          batch_x_fe = self.facial_expression(batch_x)
+          batch_x_nf = self.nasal_flaring(batch_x)
+          batch_x_nm = self.neck_muscle(batch_x)
+          batch_x_am = self.abdomen_muscle(batch_x)
+          batch_x_rr = self.rr(batch_x)
+
+          if self.for_training:
+              return (
+                  batch_x_rd,
+                  batch_x_fe,
+                  batch_x_nf,
+                  batch_x_nm,
+                  batch_x_am,
+                  batch_x_rr,
+              )
+          else:
+              batch_x_rd = torch.nn.functional.softmax(batch_x_rd, dim=1)
+              batch_x_fe = torch.nn.functional.softmax(batch_x_fe, dim=1)
+              batch_x_nf = torch.nn.functional.softmax(batch_x_nf, dim=1)
+              batch_x_nm = torch.nn.functional.softmax(batch_x_nm, dim=1)
+              batch_x_am = torch.nn.functional.softmax(batch_x_am, dim=1)
+              batch_x_rr = torch.nn.functional.softmax(batch_x_rr, dim=1)
+              y = (
+                  batch_x_rd,
+                  batch_x_fe,
+                  batch_x_nf,
+                  batch_x_nm,
+                  batch_x_am,
+                  batch_x_rr,
+              )
+              return torch.cat(y, dim=1)
+
+      def forward_train(self, all_x):
+          ret_y = {
+              "old_rd_video": self.forward_old(batch_x=all_x["old_rd_video"]),
+              "old_calm_video": self.forward_old(batch_x=all_x["old_calm_video"]),
+              "hf_video": self.forward_new(batch_x=all_x["hf_video"]),
+          }
+
+          return ret_y
+
+      def __init__(self, for_training=True):
+          super().__init__()
+          self.tokenization_factor = TOKENIZATION_FACTOR
+          self.backbone = BackboneTransformer(self.tokenization_factor)
+          self.rd = ClassifierHead(
+              n_features=2, tokenization_factor=self.tokenization_factor
+          )
+          self.facial_expression = ClassifierHead(
+              n_features=2, tokenization_factor=self.tokenization_factor
+          )
+          self.nasal_flaring = ClassifierHead(
+              n_features=3, tokenization_factor=self.tokenization_factor
+          )
+          self.neck_muscle = ClassifierHead(
+              n_features=4, tokenization_factor=self.tokenization_factor
+          )
+          self.abdomen_muscle = ClassifierHead(
+              n_features=3, tokenization_factor=self.tokenization_factor
+          )
+          self.rr = ClassifierHead(
+              n_features=3, tokenization_factor=self.tokenization_factor
+          )
+          self.for_training = for_training
+          if for_training:
+              self.forward = self.forward_train
+          else:
+              self.forward = self.forward_new
+#+end_src
+
+model = FullModel()
+sample_memory = torch.rand([2] + INPUT_FFT_VIDEO_SHAPE)
+y = model.backbone(sample_memory)
+
+* Code to git
+
+** Source the functions
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** Clean all temporary junk files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  CLEAN '.git.sh'
+  CLEAN '.#README.org'
+  CLEAN 'README.org~'
+#+end_src
+
+** Prepare all python files
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  PREPARE_PYTHON_FILE 'main'
+#+end_src
+
+** Map the __init__ class
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  cp './main.py' './__init__.py'
+#+end_src
+
+** Add all remaining files to git
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  GITADD 'README.org'
+  GITADD './__init__.py'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :tangle ./.git.sh
+  git status ; git commit -m 'Started writing the python side of code'
+  "${HOME}/SSH/K/W/setup.sh" ; git push
+#+end_src
+
+** COMMENT Work space
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+         './.git.sh'
+      " "log" "err")
+#+end_src

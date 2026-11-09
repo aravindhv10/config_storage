@@ -1,0 +1,365 @@
+#!/usr/bin/env python3
+import os
+
+try:
+    __file__
+except:
+    basepath = os.path.abspath(".")
+else:
+    basepath = os.path.dirname(os.path.abspath(__file__))
+basepath = os.path.dirname(basepath)
+import sys
+
+sys.path.append(basepath)
+LR = 0.000001
+from important_common_utils import *
+from prodigyopt import Prodigy
+import lightning
+import lightning.pytorch as pl
+import model as MODEL
+import torch
+
+
+def load_lightning_ckpt_for_inference(path_file_input_lightning_ckpt):
+    net = lightning_wrapper.load_from_checkpoint(
+        checkpoint_path=path_file_input_lightning_ckpt,
+        for_training=False,
+    )
+    return net
+
+
+def get_exported_program(
+    path_file_input_lightning_ckpt,
+    DEVICE,
+    batch_size=1,
+):
+    checkpoint = load_lightning_ckpt_for_inference(
+        path_file_input_lightning_ckpt=path_file_input_lightning_ckpt
+    )
+    checkpoint.to(DEVICE)
+    x = torch.rand(
+        INPUT_FFT_VIDEO_SHAPE,
+        dtype=torch.float32,
+        device=DEVICE,
+    ).unsqueeze(0)
+    if batch_size > 1:
+        x = torch.cat([x] * batch_size)
+    else:
+        x.unsqueeze(0)
+    dynamic_shapes = {
+        "x": (
+            torch.export.dynamic_shapes.Dim.DYNAMIC,
+            torch.export.dynamic_shapes.Dim.STATIC,
+            torch.export.dynamic_shapes.Dim.STATIC,
+            torch.export.dynamic_shapes.Dim.STATIC,
+            torch.export.dynamic_shapes.Dim.STATIC,
+        ),
+    }
+    exported_program = torch.export.export(
+        checkpoint,
+        (x,),
+        dynamic_shapes=dynamic_shapes,
+        strict=True,
+    )
+    return exported_program
+
+
+def compile_model_to_aot_inductor(
+    path_file_input_lightning_ckpt,
+    path_file_output_compiled_pt2=None,
+    batch_size=1,
+):
+    if path_file_output_compiled_pt2 is None:
+        path_file_output_compiled_pt2 = f"/root/.cache/RD_HF-{batch_size}.pt2"
+    if not is_path_file(path_input=path_file_output_compiled_pt2):
+        DEVICE = "cpu"
+        inductor_configs = {}
+        if torch.cuda.is_available():
+            DEVICE = "cuda"
+            inductor_configs["max_autotune"] = True
+        exported_program = get_exported_program(
+            path_file_input_lightning_ckpt,
+            DEVICE,
+            batch_size=batch_size,
+        )
+        path = torch._inductor.aoti_compile_and_package(
+            exported_program,
+            package_path=path_file_output_compiled_pt2,
+            inductor_configs=inductor_configs,
+        )
+    return path_file_output_compiled_pt2
+
+
+class SimpleNetModule(pl.LightningModule):
+    """Example of LightningModule for MNIST classification.
+    A LightningModule organizes your PyTorch code into 6 sections:
+        - Computations (init)
+        - Train loop (training_step)
+        - Validation loop (validation_step)
+        - Test loop (test_step)
+        - Prediction Loop (predict_step)
+        - Optimizers and LR Schedulers (configure_optimizers)
+    Docs:
+        https://lightning.ai/docs/pytorch/latest/common/lightning_module.html
+    """
+
+    def configure_optimizers(self):
+        # optimizer = torch.optim.AdamW(
+        #     self.net.parameters(),
+        #     lr=LR,
+        # )
+        optimizer = Prodigy(
+            self.net.parameters(),
+            lr=1.0,
+            weight_decay=0.0001,
+        )
+        return optimizer
+
+    def __init__(
+        self,
+    ):
+        super().__init__()
+        # this line allows to access init params with 'self.hparams' attribute
+        # also ensures init params will be stored in ckpt
+        self.save_hyperparameters()
+        self.net = model.V2DiffusionPretrainNet()
+        # loss function
+        # self.criterion = torch.nn.CrossEntropyLoss()
+        # metric objects for calculating and averaging accuracy across batches
+        # metric = Accuracy(task="multiclass", num_classes=10)
+        # self.train_acc = metric.clone()
+        # self.val_acc = metric.clone()
+        # self.test_acc = metric.clone()
+        # for averaging loss across batches
+        # loss_metric = MeanMetric()
+        # self.train_loss = loss_metric.clone()
+        # self.val_loss = loss_metric.clone()
+        # self.test_loss = loss_metric.clone()
+        # for tracking best so far validation accuracy
+        # self.val_acc_best = MaxMetric()
+
+    def forward(self, x: torch.Tensor):
+        return self.net(x)
+
+    # def on_train_start(self):
+    #     # by default lightning executes validation step sanity checks before training starts,
+    #     # so we need to make sure val_acc_best doesn't store accuracy from these checks
+    #     self.val_acc_best.reset()
+    def model_step(self, x: torch.Tensor):
+        (pred, clean_tokens) = self.forward(x)
+        loss = model.diffusion_mse_loss(pred=pred, target=clean_tokens)
+        return loss, pred, clean_tokens
+
+    def training_step(self, x: torch.Tensor, batch_idx: int):
+        loss, preds, targets = self.model_step(x)
+        # update and log metrics
+        # self.train_loss(loss)
+        # self.train_acc(preds, targets)
+        self.log("train/loss", loss)
+        # we can return here dict with any tensors
+        # and then read it in some callback or in `training_epoch_end()` below
+        # remember to always return loss from `training_step()` or backpropagation will fail!
+        return {"loss": loss, "preds": preds, "targets": targets}
+
+    # def on_train_epoch_end(self):
+    #     # `outputs` is a list of dicts returned from `training_step()`
+    #     # Warning: when overriding `training_epoch_end()`, lightning accumulates outputs from all batches of the epoch
+    #     # this may not be an issue when training on mnist
+    #     # but on larger datasets/models it's easy to run into out-of-memory errors
+    #     # consider detaching tensors before returning them from `training_step()`
+    #     # or using `on_train_epoch_end()` instead which doesn't accumulate outputs
+    #     pass
+    def validation_step(self, x: torch.Tensor, batch_idx: int):
+        loss, preds, targets = self.model_step(x)
+        # return loss, pred, targets
+        # update and log metrics
+        # self.val_loss(loss)
+        # self.val_acc(preds, targets)
+        self.log("val/loss", loss)
+        # self.log("val/loss", self.val_loss, on_step=False, on_epoch=True)
+        # self.log("val/acc", self.val_acc, on_step=False, on_epoch=True)
+        return {"loss": loss, "preds": preds, "targets": targets}
+
+    # def on_validation_epoch_end(self):
+    #     acc = self.val_acc.compute()  # get current val acc
+    #     self.val_acc_best(acc)  # update best so far val acc
+    #     # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
+    #     # otherwise metric would be reset by lightning after each epoch
+    #     self.log("val/acc_best", self.val_acc_best.compute())
+    def test_step(self, x: torch.Tensor, batch_idx: int):
+        loss, preds, targets = self.model_step(x)
+        # update and log metrics
+        # self.test_loss(loss)
+        # self.test_acc(preds, targets)
+        self.log("test/loss", loss)
+        # self.log("test/acc", self.test_acc, on_step=False, on_epoch=True)
+        return {"loss": loss, "preds": preds, "targets": targets}
+
+    # def on_test_epoch_end(self):
+    #     pass
+
+
+class lightning_wrapper(lightning.LightningModule):
+    def __init__(self, inpath=None, for_training=True):
+        super().__init__()
+        self.for_training = for_training
+        if inpath is not None:
+            self.model = load_classifier_pretrained_model(
+                inpath,
+                for_training=self.for_training,
+            )
+        else:
+            self.model = MODEL.FullModel(for_training=for_training)
+        self.loss = torch.nn.CrossEntropyLoss()
+
+    def configure_optimizers(self):
+        # optimizer = Prodigy(self.net.parameters(), lr=1.0, weight_decay=0.0001)
+        optimizer = torch.optim.AdamW(
+            self.model.parameters(),
+            lr=LR,
+        )
+        return optimizer
+
+    def training_step(self, x, idx):
+        y = self.net(x)
+        d_old_rd_rd = self.loss(y["old_rd_video"], x["old_rd_rd"])
+        d_old_calm_rd = self.loss(y["old_calm_video"], x["old_calm_rd"])
+        # d_old_calm_facial_expression = self.loss(
+        #     y["old_calm_video"][1], x["old_calm_facial_expression"]
+        # )
+        # d_old_calm_nasal_flaring = self.loss(
+        #     y["old_calm_video"][2], x["old_calm_nasal_flaring"]
+        # )
+        # d_old_calm_neck_muscle = self.loss(
+        #     y["old_calm_video"][3], x["old_calm_neck_muscle"]
+        # )
+        # d_old_calm_abdomen_muscle = self.loss(
+        #     y["old_calm_video"][4], x["old_calm_abdomen_muscle"]
+        # )
+        # d_old_calm_rr = self.loss(y["old_calm_video"][5], x["old_calm_rr"])
+        d_hf_rd = self.loss(y["hf_video"][0], x["hf_rd"])
+        d_hf_facial_expression = self.loss(y["hf_video"][1], x["hf_facial_expression"])
+        d_hf_nasal_flaring = self.loss(y["hf_video"][2], x["hf_nasal_flaring"])
+        d_hf_neck_muscle = self.loss(y["hf_video"][3], x["hf_neck_muscle"])
+        d_hf_abdomen_muscle = self.loss(y["hf_video"][4], x["hf_abdomen_muscle"])
+        d_hf_rr = self.loss(y["hf_video"][5], x["hf_rr"])
+        d = (
+            d_old_rd_rd
+            + d_hf_rd
+            + d_hf_facial_expression
+            + d_hf_nasal_flaring
+            + d_hf_neck_muscle
+            + d_hf_abdomen_muscle
+            + d_hf_rr
+            + (d_old_calm_rd * 8)
+            # + (d_old_calm_facial_expression * 2)
+            # + (d_old_calm_nasal_flaring * 2)
+            # + (d_old_calm_neck_muscle * 2)
+            # + (d_old_calm_abdomen_muscle * 2)
+            # + (d_old_calm_rr * 2)
+        )
+        self.log("train_loss", d)
+        return d
+
+    def val_test_step(self, x, idx, step_label):
+        batch_size = x["old_calm_video"].shape[0]
+        y = self.net(x)
+        d_old_rd_rd = get_weighted_accuracy(
+            y["old_rd_video"],
+            x["old_rd_rd"],
+            torch.ones_like(x["old_rd_rd"]),
+        )[0]
+        d_old_calm_rd = get_weighted_accuracy(
+            y["old_calm_video"],
+            x["old_calm_rd"],
+            torch.ones_like(x["old_calm_rd"]),
+        )[0]
+        # d_old_calm_facial_expression = get_weighted_accuracy(
+        #     y["old_calm_video"][1],
+        #     x["old_calm_facial_expression"],
+        #     torch.ones_like(x["old_calm_facial_expression"]),
+        # )[0]
+        # d_old_calm_nasal_flaring = get_weighted_accuracy(
+        #     y["old_calm_video"][2],
+        #     x["old_calm_nasal_flaring"],
+        #     torch.ones_like(x["old_calm_nasal_flaring"]),
+        # )[0]
+        # d_old_calm_neck_muscle = get_weighted_accuracy(
+        #     y["old_calm_video"][3],
+        #     x["old_calm_neck_muscle"],
+        #     torch.ones_like(x["old_calm_neck_muscle"]),
+        # )[0]
+        # d_old_calm_abdomen_muscle = get_weighted_accuracy(
+        #     y["old_calm_video"][4],
+        #     x["old_calm_abdomen_muscle"],
+        #     torch.ones_like(x["old_calm_abdomen_muscle"]),
+        # )[0]
+        # d_old_calm_rr = get_weighted_accuracy(
+        #     y["old_calm_video"][5],
+        #     x["old_calm_rr"],
+        #     torch.ones_like(x["old_calm_abdomen_muscle"]),
+        # )[0]
+        d_hf_rd = get_weighted_accuracy(
+            y["hf_video"][0],
+            x["hf_rd"],
+            torch.ones_like(x["hf_rd"]),
+        )[0]
+        d_hf_facial_expression = get_weighted_accuracy(
+            y["hf_video"][1],
+            x["hf_facial_expression"],
+            torch.ones_like(x["hf_facial_expression"]),
+        )[0]
+        d_hf_nasal_flaring = get_weighted_accuracy(
+            y["hf_video"][2],
+            x["hf_nasal_flaring"],
+            torch.ones_like(x["hf_nasal_flaring"]),
+        )[0]
+        d_hf_neck_muscle = get_weighted_accuracy(
+            y["hf_video"][3],
+            x["hf_neck_muscle"],
+            torch.ones_like(x["hf_neck_muscle"]),
+        )[0]
+        d_hf_abdomen_muscle = get_weighted_accuracy(
+            y["hf_video"][4],
+            x["hf_abdomen_muscle"],
+            torch.ones_like(x["hf_abdomen_muscle"]),
+        )[0]
+        d_hf_rr = get_weighted_accuracy(
+            y["hf_video"][5],
+            x["hf_rr"],
+            torch.ones_like(x["hf_rr"]),
+        )[0]
+        d_total = (
+            (d_old_rd_rd)
+            + (d_hf_rd)
+            + (d_hf_facial_expression)
+            + (d_hf_nasal_flaring)
+            + (d_hf_neck_muscle)
+            + (d_hf_abdomen_muscle)
+            + (d_hf_rr)
+            + (d_old_calm_rd * 8)
+            # + (d_old_calm_facial_expression * 2)
+            # + (d_old_calm_nasal_flaring * 2)
+            # + (d_old_calm_neck_muscle * 2)
+            # + (d_old_calm_abdomen_muscle * 2)
+            # + (d_old_calm_rr * 2)
+        )
+        d_total /= 15.0
+        self.log(
+            step_label,
+            d_total,
+            batch_size=batch_size * 3,
+            sync_dist=True,
+        )
+
+    def test_step(self, batch, batch_idx):
+        self.val_test_step(x=batch, idx=batch_idx, step_label="test_accuracy")
+
+    def validation_step(self, batch, batch_idx):
+        self.val_test_step(x=batch, idx=batch_idx, step_label="val_accuracy")
+
+    def predict_step(self, batch, batch_idx):
+        return self.net(batch)
+
+    def forward(self, x):
+        return self.net(x)
