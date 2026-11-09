@@ -781,7 +781,7 @@
   RUN_RS3GW(){
       export RS3GW_BIND_ADDR='0.0.0.0:8100'
       export RS3GW_STORAGE_ROOT='./data'
-      export RS3GW_DEFAULT_BUCKET='default'
+      export RS3GW_DEFAULT_BUCKET='adult-rd-infer'
       export RUST_LOG='info'
       export RS3GW_REGION='us-east-1'
       export RS3GW_CHECKSUM_VALIDATION='true'
