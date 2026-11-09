@@ -779,10 +779,11 @@
 *** Function to install all good packages
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   RUN_RS3GW(){
-      RS3GW_BIND_ADDR=0.0.0.0:9000
-      RS3GW_STORAGE_ROOT=/data
-      RS3GW_DEFAULT_BUCKET=default
-      RUST_LOG=info
+      export RS3GW_BIND_ADDR='0.0.0.0:8100'
+      export RS3GW_STORAGE_ROOT='./data'
+      export RS3GW_DEFAULT_BUCKET='default'
+      export RUST_LOG='info'
+      export RS3GW_REGION='us-east-1'
       rs3gw
   }
 #+end_src
