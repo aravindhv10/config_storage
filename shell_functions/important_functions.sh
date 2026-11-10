@@ -661,13 +661,29 @@ RUN_RS3GW(){
     rs3gw
 }
 
-RUN_RS3GW(){
+RUN_RUSTFS(){
     'mkdir' '-pv' '--' "${HOME}/data"
     RUST_LOG='info' 'rustfs' \
         '--address' '0.0.0.0:8100' \
         '--access-key' 'cloudphysician' \
         '--secret-key' '7*Bellary' \
         "${HOME}/data"
+}
+
+RUN_SURREALDB(){
+    surreal start \
+        '--username' 'cloudphysician' \
+        '--password' '7*Bellary' \
+        '--bind' '0.0.0.0:8102' \
+        '--allow-all' \
+        'surrealkv://data'
+}
+
+CONNECT_SURREALDB(){
+    surreal sql \
+        '--endpoint' 'ws://localhost:8102' \
+        '--username' 'cloudphysician' \
+        '--password' '7*Bellary' 
 }
 
 get_all_good_programs_and_config () {
