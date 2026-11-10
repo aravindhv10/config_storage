@@ -560,6 +560,7 @@ get_rust_packages_standard(){
     # get_repo 'https://github.com/chmln/sd.git' ; git checkout 'tags/v1.0.0' ; get_rust_package 'https://github.com/chmln/sd.git'
 
     get_rust_package 'https://github.com/nushell/nushell.git'
+    get_rust_package 'https://github.com/rustfs/rustfs.git'
     get_rust_package 'https://github.com/BurntSushi/ripgrep.git'
     get_rust_package 'https://github.com/BurntSushi/xsv.git'
     get_rust_package 'https://github.com/Wilfred/difftastic.git'
@@ -602,9 +603,7 @@ get_rust_packages_standard(){
 
     get_rust_package 'https://github.com/denisidoro/navi.git'
 
-    get_rust_package 'https://github.com/rust-lang/rust-bindgen.git'
 
-    get_rust_package 'https://github.com/alacritty/alacritty.git'
 
     get_repo 'https://github.com/deuxfleurs-org/garage.git' 
     git checkout 'tags/v2.4.1' 
