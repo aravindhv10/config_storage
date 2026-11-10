@@ -822,7 +822,7 @@
   }
 #+end_src
 
-*** Call the functions
+*** Function to install standard programs
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   get_all_good_programs_and_config () {
       INSTALL_ALL_GOOD_PACKAGES
