@@ -683,7 +683,10 @@ CONNECT_SURREALDB(){
     surreal sql \
         '--endpoint' 'ws://localhost:8102' \
         '--username' 'cloudphysician' \
-        '--password' '7*Bellary' 
+        '--password' '7*Bellary' \
+        '--namespace' 'main' \
+        '--database' 'main' \
+        '--pretty'
 }
 
 get_all_good_programs_and_config () {
