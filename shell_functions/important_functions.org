@@ -769,11 +769,10 @@
 #+begin_src sh :shebang #!/bin/sh :results output :tangle ./important_functions.sh
   INSTALL_ALL_GOOD_PACKAGES () {
       INSTALL_ZST_ZRCHIVE '1840e13a8ec33e6cd7739c6bbdd18eb5e34db9bcbf1a52014102567ff6b2e6b7e5f48af70e39ff9c89d164589acd8bdc94ca9c1fc9d04da2b9b21139ca9a2d58' 'STATIC_ZIG_RUST'
-
       INSTALL_ZST_ZRCHIVE '948c2611bf61c97225027afb881f81f437ccb3c2682d67fdf6bc2c4be7020d78a9abf9ff38a0445380dec55774123b24b71c433e42505f8072397f03efceae11' 'helix'
-
-      INSTALL_ZST_ZRCHIVE 'ad223683e37965f5d4becb4e3d0348d72f7625e563918873e09af30a5f13bc02ac73101f61b4b0aa3737ca78e5714cf14d3404c50a347749ee602ef1a764ba06' 'rs3gw'
+      INSTALL_ZST_ZRCHIVE '785b2e502b90847cd35648180fdf6cd018247733ab666c85a6693a4a86a0dcd430892e0a896fc5149c552b014c0414d81e95bf2971c7ae39e79858116df68110' 'rustfs'
   }
+
 #+end_src
 
 *** Function to install all good packages
@@ -787,8 +786,26 @@
       export RS3GW_CHECKSUM_VALIDATION='true'
       export RS3GW_ACCESS_KEY='cloudphysician'
       export RS3GW_SECRET_KEY='7*Bellary'
-      # export RS3GW_COMPRESSION='zstd:3'
-      # export RS3GW_DEDUP_ENABLED='false'
+      export RS3GW_COMPRESSION='zstd:3'
+      # export RS3GW_DEDUP_ENABLED='true'
+      # export RS3GW_DEDUP_BLOCK_SIZE='65536'
+      # export RS3GW_DEDUP_ALGORITHM='content-defined'
+      # export RS3GW_DEDUP_MIN_SIZE='131072'
+      rs3gw
+  }
+
+
+  RUN_RS3GW_DOCKER(){
+      export RS3GW_BIND_ADDR='0.0.0.0:8100'
+      export RS3GW_STORAGE_ROOT='./data'
+      export RS3GW_DEFAULT_BUCKET='adult-rd-infer'
+      export RUST_LOG='info'
+      export RS3GW_REGION='us-east-1'
+      export RS3GW_CHECKSUM_VALIDATION='true'
+      export RS3GW_ACCESS_KEY='cloudphysician'
+      export RS3GW_SECRET_KEY='7*Bellary'
+      export RS3GW_COMPRESSION='zstd:3'
+      # export RS3GW_DEDUP_ENABLED='true'
       # export RS3GW_DEDUP_BLOCK_SIZE='65536'
       # export RS3GW_DEDUP_ALGORITHM='content-defined'
       # export RS3GW_DEDUP_MIN_SIZE='131072'
