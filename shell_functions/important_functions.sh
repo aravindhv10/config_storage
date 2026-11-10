@@ -251,14 +251,13 @@ zigbuild_rust_package_in_cwd(){
 
 zigbuild_surrealdb(){
     get_repo 'https://github.com/surrealdb/surrealdb.git'
-    git checkout 'tags/v3.3.5'
     export RUSTFLAGS="-C target-cpu=x86-64-v3"
     export ZIG_CC_FLAGS="-march=x86-64-v3"
     rustup target add 'x86_64-unknown-linux-musl'
     cargo zigbuild \
         '--target' 'x86_64-unknown-linux-musl' \
         '--no-default-features' '--release' \
-        '--features' 'allocator,cli,gql,graphql,http,jwks,mcp,postgres,scripting,storage-mem,storage-surrealkv,surrealism' \
+        '--features' "allocator,storage-mem,storage-surrealkv,jwks,scripting,http,surrealism,graphql,gql,mcp,postgres,mysql,cli" \
     ;
 }
 
