@@ -60,6 +60,12 @@ RUN \
         'safetensors' \
         'sentencepiece' \
     && echo 'DONE image and tensor stuff' \
+    && echo 'START boto and tikv' \
+    && . "${VIRTUAL_ENV}/bin/activate" \
+    && uv pip install \
+        'boto3' \
+        'tikv-client' \
+    && echo 'DONE boto and tikv' \
     && echo 'START GRPC stuff' \
     && . "${VIRTUAL_ENV}/bin/activate" \
     && uv pip install \
