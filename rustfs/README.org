@@ -1,8 +1,10 @@
 * Main script to start rustfs
+podman network create app_net
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./rustfs_start.sh
   NAME_IMAGE='docker.io/rustfs/rustfs:latest-glibc'
   VOLUME_RUSTFS='/home/root/rust_fs'
   NAME_GUEST='rustfs_container'
+
 
   podman run \
       '-it' '--rm' \

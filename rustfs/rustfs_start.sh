@@ -3,6 +3,7 @@ NAME_IMAGE='docker.io/rustfs/rustfs:latest-glibc'
 VOLUME_RUSTFS='/home/root/rust_fs'
 NAME_GUEST='rustfs_container'
 
+
 podman run \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
