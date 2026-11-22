@@ -2,17 +2,20 @@
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./rustfs_start.sh
   NAME_IMAGE='docker.io/rustfs/rustfs:latest-glibc'
   VOLUME_RUSTFS='/home/root/rust_fs'
+  NAME_GUEST='rustfs_container'
 
   podman run \
-    '-it' '--rm' \
-    '-p' '8100:8100' \
-    '-v' "${VOLUME_RUSTFS}:/data" \
-    '-e' 'RUST_LOG=info' \
-    "${NAME_IMAGE}" \
-    '--address' '0.0.0.0:8100' \
-    '--access-key' 'cloudphysician' \
-    '--secret-key' '7*Bellary' \
-    '/data'
+      '-it' '--rm' \
+      '--name' "${NAME_GUEST}" \
+      '--network' 'app_net' \
+      '-p' '8100:8100' \
+      '-v' "${VOLUME_RUSTFS}:/data" \
+      '-e' 'RUST_LOG=info' \
+      "${NAME_IMAGE}" \
+      '--address' '0.0.0.0:8100' \
+      '--access-key' 'cloudphysician' \
+      '--secret-key' '7*Bellary' \
+      '/data'
 #+end_src
 
 * Test aws cli
@@ -20,7 +23,6 @@
   aws --endpoint-url 'http://127.0.0.1:8100' s3 mb 's3://testing'
   aws --endpoint-url 'http://127.0.0.1:8100' s3 ls 's3://'
 #+end_src
-
 
 * Main script to manage git stuff
 
