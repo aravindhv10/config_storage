@@ -15,6 +15,12 @@
     '/data'
 #+end_src
 
+* Test aws cli
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./test.sh
+  
+#+end_src
+
+
 * Main script to manage git stuff
 
 ** add
@@ -32,6 +38,7 @@
   GIT/rm.txt
   README.org
   rustfs_start.sh
+  test.sh
 #+end_src
 
 *** script

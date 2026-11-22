@@ -9,3 +9,4 @@ GIT/remove.sh
 GIT/rm.txt
 README.org
 rustfs_start.sh
+test.sh
