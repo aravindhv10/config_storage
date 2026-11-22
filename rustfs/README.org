@@ -17,7 +17,8 @@
 
 * Test aws cli
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./test.sh
-  
+  aws --endpoint-url 'http://127.0.0.1:8100' s3 mb 's3://testing'
+  aws --endpoint-url 'http://127.0.0.1:8100' s3 ls 's3://'
 #+end_src
 
 
