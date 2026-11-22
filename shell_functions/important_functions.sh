@@ -830,6 +830,7 @@ get_apt_packages() {
         'automake' \
         'bear' \
         'bison' \
+        'btop' \
         'build-essential' \
         'clang' \
         'clangd' \

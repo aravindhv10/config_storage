@@ -979,6 +979,7 @@
           'automake' \
           'bear' \
           'bison' \
+          'btop' \
           'build-essential' \
           'clang' \
           'clangd' \
