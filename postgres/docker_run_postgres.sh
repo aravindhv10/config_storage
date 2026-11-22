@@ -6,6 +6,7 @@ cd "$(dirname -- "${0}")"
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
     '-e' "POSTGRES_PASSWORD=${PASSWORD_GUEST}" \
+    '-e' "POSTGRES_USER=${USER}" \
     '-v' "${VOLUME_POSTGRES}:/var/lib/postgresql" \
     '-p' "${PORT_HOST}:${PORT_GUEST}" \
     "${IMAGE_NAME}"
