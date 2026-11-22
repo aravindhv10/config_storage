@@ -5,6 +5,7 @@ cd "$(dirname -- "${0}")"
 'podman' 'run' \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
+    '--network' 'app_net' \
     '-e' "POSTGRES_PASSWORD=${PASSWORD_GUEST}" \
     '-e' "POSTGRES_USER=${USER}" \
     '-v' "${VOLUME_POSTGRES}:/var/lib/postgresql" \
