@@ -16,6 +16,8 @@
       '--access-key' 'cloudphysician' \
       '--secret-key' '7*Bellary' \
       '/data'
+
+  exit '0'
 #+end_src
 
 * Test aws cli

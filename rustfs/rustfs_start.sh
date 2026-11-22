@@ -15,3 +15,5 @@ podman run \
     '--access-key' 'cloudphysician' \
     '--secret-key' '7*Bellary' \
     '/data'
+
+exit '0'
