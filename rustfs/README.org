@@ -1,17 +1,18 @@
-* COMMENT main
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
-#+end_src
+* Main script to start rustfs
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./rustfs_start.sh
+  NAME_IMAGE='docker.io/rustfs/rustfs:latest-glibc'
+  VOLUME_RUSTFS='/home/root/rust_fs'
 
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.import.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.function.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.class.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.execute.py
+  podman run \
+    '-it' '--rm' \
+    '-p' '8100:8100' \
+    '-v' "${VOLUME_RUSTFS}:/data" \
+    '-e' 'RUST_LOG=info' \
+    "${NAME_IMAGE}" \
+    '--address' '0.0.0.0:8100' \
+    '--access-key' 'cloudphysician' \
+    '--secret-key' '7*Bellary' \
+    '/data'
 #+end_src
 
 * Main script to manage git stuff
@@ -30,6 +31,7 @@
   GIT/remove.sh
   GIT/rm.txt
   README.org
+  rustfs_start.sh
 #+end_src
 
 *** script
