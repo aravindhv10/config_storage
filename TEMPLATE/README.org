@@ -1,19 +1,3 @@
-* infer
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.config.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.import.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.function.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.class.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./infer.execute.py
-#+end_src
-
 * main
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.config.py
 #+end_src
@@ -28,38 +12,6 @@
 #+end_src
 
 #+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./main.execute.py
-#+end_src
-
-* endpoint
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.config.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.import.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.function.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.class.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./endpoint.execute.py
-#+end_src
-
-* worker
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.config.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.import.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.function.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.class.py
-#+end_src
-
-#+begin_src python :shebang #!/usr/bin/env python3 :results output :mkdirp yes :tangle ./worker.execute.py
 #+end_src
 
 * Main python code
@@ -98,6 +50,68 @@
 
 * Main script to manage git stuff
 
+** add
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
+  GIT/add.sh
+  GIT/add.txt
+  GIT/commit_and_push.sh
+  GIT/ignore.sh
+  GIT/ignore.txt
+  GIT/message.txt
+  GIT/remove.sh
+  GIT/rm.txt
+  __init__.py
+  README.org
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/add.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'git' 'add' '--pathspec-from-file=GIT/add.txt'
+  exit '0'
+#+end_src
+
+** remove
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
+  .git.sh
+  README.org~
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/remove.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'sed' 's@^@("rm" "-vf" "--" "@g ; s@$@");@g' 'GIT/rm.txt' | 'sh'
+  exit '0'
+#+end_src
+
+** ignore
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/ignore.txt
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/ignore.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'cat' 'GIT/rm.txt' | 'sed' 's@^@/@g' > '.gitignore' 
+  'cat' 'GIT/ignore.txt' >> '.gitignore'
+  exit '0'
+#+end_src
+
+** commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  cd "$('dirname' -- "${0}")/.."
+  'git' 'commit' '-m' "$('cat' 'GIT/message.txt')"
+  git status
+  "${HOME}/SSH/K/P/setup.sh"
+  'git' 'push'
+  exit '0'
+#+end_src
+
 ** Source common functions
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
   . "${HOME}/important_functions.sh"
@@ -108,18 +122,9 @@
   cd "$(dirname -- "${0}")"
 #+end_src
 
-** Clean tmp files
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  CLEAN '.git.sh'
-  CLEAN 'README.org~'
-#+end_src
-
 ** Prepare python files
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  PREPARE_PYTHON_FILE 'endpoint'
-  PREPARE_PYTHON_FILE 'infer'
   PREPARE_PYTHON_FILE 'main'
-  PREPARE_PYTHON_FILE 'worker'
 #+end_src
 
 ** Prepare init
@@ -127,16 +132,17 @@
   cp './main.py' '__init__.py'
 #+end_src
 
-** Add files to git
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  GITADD 'README.org'
-  GITADD '__init__.py'
-#+end_src
-
 ** Commit and push
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  git status ; git commit -m 'Added template dir to the repo'
-  "${HOME}/SSH/K/P/setup.sh" ; git push
+  './GIT/remove.sh'
+  './GIT/ignore.sh'
+  './GIT/add.sh'
+  './GIT/commit_and_push.sh'
+#+end_src
+
+** message
+#+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
+  Updated the template
 #+end_src
 
 ** COMMENT Run the file
