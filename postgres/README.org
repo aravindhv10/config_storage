@@ -3,13 +3,14 @@
 ** Configuration for the server
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
   HOST='127.0.0.1'
-  PORT_HOST='12345'
+  PORT_HOST='8101'
   PORT_GUEST='5432'
-  PASSWORD_GUEST='asd123'
-  NAME_GUEST='inferencecoordinator'
-  IMAGE_NAME='postgres:18.3-trixie'
-  USER='postgres'
+  PASSWORD_GUEST='7*Bellary'
+  NAME_GUEST='postgres_container'
+  IMAGE_NAME='postgres:19.0-trixie'
+  USER='cloudphysician'
   DBNAME='postgres'
+  VOLUME_POSTGRES='/home/root/postgres'
 #+end_src
 
 ** Shell script to start the server container
@@ -17,14 +18,13 @@
   cd "$(dirname -- "${0}")"
   . './env.sh'
 
-  'docker' 'run' \
+  'podman' 'run' \
       '-it' '--rm' \
       '--name' "${NAME_GUEST}" \
       '-e' "POSTGRES_PASSWORD=${PASSWORD_GUEST}" \
-      '-v' 'postgres_data:/var/lib/postgresql' \
+      '-v' "${VOLUME_POSTGRES}:/var/lib/postgresql" \
       '-p' "${PORT_HOST}:${PORT_GUEST}" \
-      '-d' "${IMAGE_NAME}" \
-  ;
+      "${IMAGE_NAME}"
 
   exit '0'
 #+end_src
@@ -63,25 +63,105 @@
 
 * Main script to manage git stuff
 
-** Main script
-#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
-  . "${HOME}/important_functions.sh"
+** add
 
-  cd "$(dirname -- "${0}")"
-
-  CLEAN '.git.sh'
-  CLEAN 'README.org~'
-
-  GITADD 'connect_to_db.sh'
-  GITADD 'docker_run_postgres.sh'
-  GITADD 'env.sh'
-  GITADD 'README.org'
-
-  git status ; git commit -m 'Started work on postgres and sea orm'
-  "${HOME}/SSH/K/P/setup.sh" ; git push
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
+  connect_to_db.sh
+  docker_run_postgres.sh
+  env.sh
+  GIT/add.sh
+  GIT/add.txt
+  GIT/commit_and_push.sh
+  .gitignore
+  GIT/ignore.sh
+  GIT/ignore.txt
+  GIT/message.txt
+  GIT/remove.sh
+  GIT/rm.txt
+  README.org
 #+end_src
 
-** COMMENT run the script
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/add.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'git' 'add' '--pathspec-from-file=GIT/add.txt'
+  exit '0'
+#+end_src
+
+** remove
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
+  .git.sh
+  README.org~
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/remove.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'sed' 's@^@("rm" "-vf" "--" "@g ; s@$@");@g' 'GIT/rm.txt' | 'sh'
+  exit '0'
+#+end_src
+
+** ignore
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/ignore.txt
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/ignore.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'cat' 'GIT/rm.txt' | 'sed' 's@^@/@g' > '.gitignore' 
+  'cat' 'GIT/ignore.txt' >> '.gitignore'
+  exit '0'
+#+end_src
+
+** commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  cd "$('dirname' -- "${0}")/.."
+  'git' 'commit' '-m' "$('cat' 'GIT/message.txt')"
+  git status
+  "${HOME}/SSH/K/P/setup.sh"
+  'git' 'push'
+  exit '0'
+#+end_src
+
+** Source common functions
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** change dir to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** COMMENT Prepare python files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  PREPARE_PYTHON_FILE 'main'
+#+end_src
+
+** COMMENT Prepare init
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cp './main.py' '__init__.py'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  './GIT/remove.sh'
+  './GIT/ignore.sh'
+  './GIT/add.sh'
+  './GIT/commit_and_push.sh'
+#+end_src
+
+** message
+#+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
+  Updated the template
+#+end_src
+
+** COMMENT Run the file
 #+begin_src emacs-lisp :results silent
   (save-buffer)
   (org-babel-tangle)

@@ -2,13 +2,12 @@
 cd "$(dirname -- "${0}")"
 . './env.sh'
 
-'docker' 'run' \
+'podman' 'run' \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
     '-e' "POSTGRES_PASSWORD=${PASSWORD_GUEST}" \
-    '-v' 'postgres_data:/var/lib/postgresql' \
+    '-v' "${VOLUME_POSTGRES}:/var/lib/postgresql" \
     '-p' "${PORT_HOST}:${PORT_GUEST}" \
-    '-d' "${IMAGE_NAME}" \
-;
+    "${IMAGE_NAME}"
 
 exit '0'
