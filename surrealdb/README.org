@@ -34,6 +34,7 @@ podman network create app_net
 
   podman exec \
       '-it' "${NAME_GUEST}" \
+      'surreal' \
       '--help'
 
   exit '0'

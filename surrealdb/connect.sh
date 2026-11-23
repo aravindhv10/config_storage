@@ -7,6 +7,7 @@ NAME_GUEST='surrealdb_container'
 
 podman exec \
     '-it' "${NAME_GUEST}" \
+    'surreal' \
     '--help'
 
 exit '0'
