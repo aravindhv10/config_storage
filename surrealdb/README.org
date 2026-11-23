@@ -1,8 +1,13 @@
 * Impoprtant env
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
-  NAME_IMAGE='docker.io/surrealdb/surrealdb:latest'
-  VOLUME="$('realpath' './data')"
+  HOST='127.0.0.1'
   NAME_GUEST='surrealdb_container'
+  NAME_IMAGE='docker.io/surrealdb/surrealdb:latest'
+  PASSWORD_GUEST='7*Bellary'
+  PORT_GUEST='8101'
+  PORT_HOST='8101'
+  USER='cloudphysician'
+  VOLUME="$('realpath' './data')"
 #+end_src
 
 * Main script to start rustfs
@@ -16,13 +21,13 @@ podman network create app_net
       '-it' '--rm' \
       '--name' "${NAME_GUEST}" \
       '--network' 'app_net' \
-      '-p' '8101:8101' \
+      '-p' "${PORT_HOST}:${PORT_GUEST}" \
       '-v' "${VOLUME}:/data" \
       '-e' 'RUST_LOG=info' \
       "${NAME_IMAGE}" 'start' \
-          '--username' 'cloudphysician' \
-          '--password' '7*Bellary' \
-          '--bind' '0.0.0.0:8101' \
+          '--username' "${USER}" \
+          '--password' "${PASSWORD_GUEST}" \
+          '--bind' "0.0.0.0:${PORT_GUEST}" \
           '--allow-all' \
           'surrealkv:///data'
 
@@ -38,7 +43,7 @@ podman network create app_net
   podman exec \
       '-it' "${NAME_GUEST}" \
       '/surreal' 'sql' \
-          '--endpoint' 'ws://localhost:8102' \
+          '--endpoint' "ws://127.0.0.1:8101" \
           '--username' 'cloudphysician' \
           '--password' '7*Bellary' \
           '--namespace' 'main' \

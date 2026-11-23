@@ -7,13 +7,13 @@ podman run \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
     '--network' 'app_net' \
-    '-p' '8101:8101' \
+    '-p' "${PORT_HOST}:${PORT_GUEST}" \
     '-v' "${VOLUME}:/data" \
     '-e' 'RUST_LOG=info' \
     "${NAME_IMAGE}" 'start' \
-        '--username' 'cloudphysician' \
-        '--password' '7*Bellary' \
-        '--bind' '0.0.0.0:8101' \
+        '--username' "${USER}" \
+        '--password' "${PASSWORD_GUEST}" \
+        '--bind' "0.0.0.0:${PORT_GUEST}" \
         '--allow-all' \
         'surrealkv:///data'
 

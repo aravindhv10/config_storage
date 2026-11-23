@@ -6,7 +6,7 @@ cd "$('dirname' -- "${0}")"
 podman exec \
     '-it' "${NAME_GUEST}" \
     '/surreal' 'sql' \
-        '--endpoint' 'ws://localhost:8102' \
+        '--endpoint' "ws://127.0.0.1:8101" \
         '--username' 'cloudphysician' \
         '--password' '7*Bellary' \
         '--namespace' 'main' \
