@@ -1,3 +1,4 @@
+connect.sh
 GIT/add.sh
 GIT/add.txt
 GIT/commit_and_push.sh
