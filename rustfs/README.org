@@ -13,7 +13,7 @@
 * Main script to start rustfs
 podman network create app_net
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./rustfs_start.sh
-
+  . './env.sh'
 
   podman run \
       '-it' '--rm' \

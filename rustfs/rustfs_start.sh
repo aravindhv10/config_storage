@@ -1,4 +1,6 @@
 #!/bin/sh
+. './env.sh'
+
 podman run \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
