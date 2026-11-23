@@ -14,9 +14,9 @@ podman run \
     '-e' 'RUSTFS_NOTIFY_POSTGRES_TABLE_PRIMARY=s3_object_notifications' \
     '-e' 'RUST_LOG=info' \
     "${NAME_IMAGE}" \
-    '--address' "0.0.0.0:${PORT_GUEST}" \
-    '--access-key' "${USER}" \
-    '--secret-key' "${PASSWORD_GUEST}" \
-    '/data'
+        '--address' "0.0.0.0:${PORT_GUEST}" \
+        '--access-key' "${USER}" \
+        '--secret-key' "${PASSWORD_GUEST}" \
+        '/data'
 
 exit '0'
