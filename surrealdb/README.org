@@ -53,6 +53,14 @@ podman network create app_net
   exit '0'
 #+end_src
 
+* SQL
+
+** Create webhook endpoint
+#+begin_src sql :mkdirp yes :tangle ./webhook.sql
+  
+#+end_src
+
+
 DEFINE NAMESPACE IF NOT EXISTS main;
 USE NS main;
 DEFINE DATABASE IF NOT EXISTS main;
@@ -106,6 +114,7 @@ DEFINE API OVERWRITE "/rustfs/events"
   README.org
   start.sh
   test.sh
+  webhook.sql
 #+end_src
 
 *** script
