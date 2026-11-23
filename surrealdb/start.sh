@@ -16,7 +16,7 @@ podman run \
     'surreal' 'start' \
         '--username' 'cloudphysician' \
         '--password' '7*Bellary' \
-        '--bind' '0.0.0.0:8102' \
+        '--bind' '0.0.0.0:8101' \
         '--allow-all' \
         'surrealkv:///data'
 
