@@ -60,6 +60,7 @@ podman network create app_net
 *** list
 #+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
   connect.sh
+  env.sh
   GIT/add.sh
   GIT/add.txt
   GIT/commit_and_push.sh
