@@ -12,8 +12,7 @@ podman run \
     '-p' '8101:8101' \
     '-v' "${VOLUME}:/data" \
     '-e' 'RUST_LOG=info' \
-    "${NAME_IMAGE}" \
-    'surreal' 'start' \
+    "${NAME_IMAGE}" 'start' \
         '--username' 'cloudphysician' \
         '--password' '7*Bellary' \
         '--bind' '0.0.0.0:8101' \
