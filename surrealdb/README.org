@@ -1,11 +1,16 @@
+* Impoprtant env
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
+  NAME_IMAGE='docker.io/surrealdb/surrealdb:latest'
+  VOLUME="$('realpath' './data')"
+  NAME_GUEST='surrealdb_container'
+#+end_src
+
 * Main script to start rustfs
 podman network create app_net
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./start.sh
   cd "$('dirname' -- "${0}")"
 
-  NAME_IMAGE='docker.io/surrealdb/surrealdb:latest'
-  VOLUME="$('realpath' './data')"
-  NAME_GUEST='surrealdb_container'
+  . './env.sh'
 
   podman run \
       '-it' '--rm' \
@@ -28,14 +33,17 @@ podman network create app_net
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./connect.sh
   cd "$('dirname' -- "${0}")"
 
-  NAME_IMAGE='docker.io/surrealdb/surrealdb:latest'
-  VOLUME="$('realpath' './data')"
-  NAME_GUEST='surrealdb_container'
+  . './env.sh'
 
   podman exec \
       '-it' "${NAME_GUEST}" \
-      '/surreal' \
-      '--help'
+      '/surreal' 'sql' \
+          '--endpoint' 'ws://localhost:8102' \
+          '--username' 'cloudphysician' \
+          '--password' '7*Bellary' \
+          '--namespace' 'main' \
+          '--database' 'main' \
+          '--pretty'
 
   exit '0'
 #+end_src
