@@ -1,17 +1,26 @@
+* Impoprtant env
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
+  HOST='127.0.0.1'
+  NAME_GUEST='rustfs_container'
+  NAME_IMAGE='docker.io/rustfs/rustfs:latest-glibc'
+  PASSWORD_GUEST='7*Bellary'
+  PORT_GUEST='8100'
+  PORT_HOST='8100'
+  USER='cloudphysician'
+  VOLUME="$('realpath' './data')"
+#+end_src
+
 * Main script to start rustfs
 podman network create app_net
 #+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./rustfs_start.sh
-  NAME_IMAGE='docker.io/rustfs/rustfs:latest-glibc'
-  VOLUME_RUSTFS='/home/root/rust_fs'
-  NAME_GUEST='rustfs_container'
 
 
   podman run \
       '-it' '--rm' \
       '--name' "${NAME_GUEST}" \
       '--network' 'app_net' \
-      '-p' '8100:8100' \
-      '-v' "${VOLUME_RUSTFS}:/data" \
+      '-p' "${PORT_HOST}:${PORT_GUEST}" \
+      '-v' "${VOLUME}:/data" \
       '-e' 'RUSTFS_NOTIFY_ENABLE=true' \
       '-e' 'RUSTFS_NOTIFY_POSTGRES_CONNECTION_STRING_PRIMARY=postgres://cloudphysician:7*Bellary@postgres_container:5432/postgres?sslmode=disable' \
       '-e' 'RUSTFS_NOTIFY_POSTGRES_ENABLE_PRIMARY=on' \
@@ -19,9 +28,9 @@ podman network create app_net
       '-e' 'RUSTFS_NOTIFY_POSTGRES_TABLE_PRIMARY=s3_object_notifications' \
       '-e' 'RUST_LOG=info' \
       "${NAME_IMAGE}" \
-      '--address' '0.0.0.0:8100' \
-      '--access-key' 'cloudphysician' \
-      '--secret-key' '7*Bellary' \
+      '--address' "0.0.0.0:${PORT_GUEST}" \
+      '--access-key' "${USER}" \
+      '--secret-key' "${PASSWORD_GUEST}" \
       '/data'
 
   exit '0'
@@ -39,6 +48,7 @@ podman network create app_net
 
 *** list
 #+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
+  env.sh
   GIT/add.sh
   GIT/add.txt
   GIT/commit_and_push.sh
