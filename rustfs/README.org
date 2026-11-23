@@ -41,6 +41,11 @@ podman network create app_net
   aws --endpoint-url 'http://127.0.0.1:8100' s3 mb 's3://testing'
   aws --endpoint-url 'http://127.0.0.1:8100' s3 ls 's3://'
 #+end_src
+      '-e' 'RUSTFS_NOTIFY_ENABLE=true' \
+      '-e' 'RUSTFS_NOTIFY_WEBHOOK_ENABLE_PRIMARY=on' \
+      '-e' 'RUSTFS_NOTIFY_WEBHOOK_ENDPOINT_PRIMARY=http://surrealdb_container:8101/api/main/main/rustfs/events?token=PUT_YOUR_SECRET_HERE' \
+      '-e' 'RUSTFS_NOTIFY_WEBHOOK_QUEUE_DIR_PRIMARY=/data/.notify-webhook' \
+      '-e' 'RUSTFS_OUTBOUND_ALLOW_ORIGINS=http://surrealdb_container:8101' \
 
 * Main script to manage git stuff
 
