@@ -10,7 +10,7 @@ podman run \
     '-e' 'RUST_LOG=info' \
     '-e' 'RUSTFS_NOTIFY_ENABLE=true' \
     '-e' 'RUSTFS_NOTIFY_WEBHOOK_ENABLE_PRIMARY=on' \
-    '-e' 'RUSTFS_NOTIFY_WEBHOOK_ENDPOINT_PRIMARY=http://surrealdb_container:8101/api/main/main/rustfs/events?token=PUT_YOUR_SECRET_HERE' \
+    '-e' 'RUSTFS_NOTIFY_WEBHOOK_ENDPOINT_PRIMARY=http://surrealdb_container:8101/api/main/main/rustfs/events' \
     '-e' 'RUSTFS_NOTIFY_WEBHOOK_QUEUE_DIR_PRIMARY=/data/.notify-webhook' \
     '-e' 'RUSTFS_OUTBOUND_ALLOW_ORIGINS=http://surrealdb_container:8101' \
     "${NAME_IMAGE}" \
