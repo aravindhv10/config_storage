@@ -1,0 +1,130 @@
+* Docker scripts for postgres
+
+** Configuration for the server
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./env.sh
+  mkdir -p -- './volume'
+  NAME_IMAGE='docker.io/apache/kvrocks'
+  NAME_GUEST='container_kvrocks'
+  PORT_GUEST='6666'
+  PORT_HOST='8102'
+  VOLUME_GUEST='/var/lib/kvrocks'
+  VOLUME_HOST="$('realpath' './volume')"
+#+end_src
+
+** Shell script to start the server container
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./run.sh
+  cd "$(dirname -- "${0}")"
+
+  . './env.sh'
+
+  'podman' 'run' \
+      '-it' '--rm' \
+      '--name' "${NAME_GUEST}" \
+      '--network' 'app_net' \
+      '-p' "${PORT_HOST}:${PORT_GUEST}" \
+      '-v' "${VOLUME_HOST}:${VOLUME_GUEST}" \
+      "${NAME_IMAGE}" \
+          '--bind' '0.0.0.0' \
+          '--dir' '/var/lib/kvrocks'
+
+  exit '0'
+#+end_src
+
+* Main script to manage git stuff
+
+** add
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
+  env.sh
+  run.sh
+  README.org
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/add.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'git' 'add' '--pathspec-from-file=GIT/add.txt'
+  exit '0'
+#+end_src
+
+** remove
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/rm.txt
+  .git.sh
+  README.org~
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/remove.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'sed' 's@^@("rm" "-vf" "--" "@g ; s@$@");@g' 'GIT/rm.txt' | 'sh'
+  exit '0'
+#+end_src
+
+** ignore
+
+*** list
+#+begin_src conf :mkdirp yes :tangle ./GIT/ignore.txt
+#+end_src
+
+*** script
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/ignore.sh
+  cd "$('dirname' '--' "${0}")/.."
+  'cat' 'GIT/rm.txt' | 'sed' 's@^@/@g' > '.gitignore' 
+  'cat' 'GIT/ignore.txt' >> '.gitignore'
+  exit '0'
+#+end_src
+
+** commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./GIT/commit_and_push.sh
+  cd "$('dirname' -- "${0}")/.."
+  'git' 'commit' '-m' "$('cat' 'GIT/message.txt')"
+  git status
+  "${HOME}/SSH/K/P/setup.sh"
+  'git' 'push'
+  exit '0'
+#+end_src
+
+** Source common functions
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  . "${HOME}/important_functions.sh"
+#+end_src
+
+** change dir to the dir
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cd "$(dirname -- "${0}")"
+#+end_src
+
+** COMMENT Prepare python files
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  PREPARE_PYTHON_FILE 'main'
+#+end_src
+
+** COMMENT Prepare init
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  cp './main.py' '__init__.py'
+#+end_src
+
+** Commit and push
+#+begin_src sh :shebang #!/bin/sh :results output :mkdirp yes :tangle ./.git.sh
+  './GIT/remove.sh'
+  './GIT/ignore.sh'
+  './GIT/add.sh'
+  './GIT/commit_and_push.sh'
+#+end_src
+
+** message
+#+begin_src conf :mkdirp yes :tangle ./GIT/message.txt
+  Started adding kvrocks scripts
+#+end_src
+
+** COMMENT Run the file
+#+begin_src emacs-lisp :results silent
+  (save-buffer)
+  (org-babel-tangle)
+  (async-shell-command "
+          './.git.sh'
+  " "log" "err")
+#+end_src
