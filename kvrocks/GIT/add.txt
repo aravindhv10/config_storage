@@ -1,4 +1,9 @@
+README.org
+
 env.sh
+kvrocks.conf
+run.sh
+
 GIT/add.sh
 GIT/add.txt
 GIT/commit_and_push.sh
@@ -7,5 +12,3 @@ GIT/ignore.sh
 GIT/ignore.txt
 GIT/message.txt
 GIT/remove.sh
-README.org
-run.sh

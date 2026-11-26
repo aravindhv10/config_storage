@@ -1,4 +1,5 @@
 #!/bin/sh
 cd "$('dirname' '--' "${0}")/.."
-'git' 'add' '--pathspec-from-file=GIT/add.txt'
+'grep' '-v' '^ *$' 'GIT/add.txt' > 'GIT/tmpadd.txt'
+'git' 'add' '--pathspec-from-file=GIT/tmpadd.txt'
 exit '0'

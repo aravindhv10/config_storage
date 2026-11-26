@@ -3,6 +3,8 @@ cd "$(dirname -- "${0}")"
 
 . './env.sh'
 
+cp -vn -- './kvrocks.conf' "${VOLUME_HOST}/kvrocks.conf"
+
 'podman' 'run' \
     '-it' '--rm' \
     '--name' "${NAME_GUEST}" \
