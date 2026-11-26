@@ -37,8 +37,16 @@
 *** list
 #+begin_src conf :mkdirp yes :tangle ./GIT/add.txt
   env.sh
-  run.sh
+  GIT/add.sh
+  GIT/add.txt
+  GIT/commit_and_push.sh
+  .gitignore
+  GIT/ignore.sh
+  GIT/ignore.txt
+  GIT/message.txt
+  GIT/remove.sh
   README.org
+  run.sh
 #+end_src
 
 *** script
